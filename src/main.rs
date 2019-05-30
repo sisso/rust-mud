@@ -1,7 +1,7 @@
 mod player_connection;
 mod server;
 mod view_login;
-mod player;
+mod view_mainloop;
 mod game;
 
 use server::Server;

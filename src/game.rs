@@ -1,5 +1,4 @@
 use crate::player_connection::PlayerConnection;
-use crate::player::Player;
 
 pub struct Game {
     rooms: Vec<Room>,
@@ -33,12 +32,19 @@ impl Game {
     }
 
     pub fn player_connect(&mut self, id: u32, login: String) {
-        println!("adding to game {}/{}", id, login);
+        println!("adding player {}/{}", id, login);
 
         self.players.push(GamePlayer {
             id,
             login
         });
+    }
+
+    pub fn player_disconnect(&mut self, id: u32) {
+        println!("removing player {}", id);
+
+        let index = self.players.iter().position(|x| x.id == id).unwrap();
+        self.players.remove(index);
     }
 
     pub fn add_room(&mut self, room: Room) {

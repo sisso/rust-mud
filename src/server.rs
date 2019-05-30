@@ -3,13 +3,13 @@ use std::net::TcpListener;
 use std::sync::Arc;
 use std::sync::mpsc;
 
-use crate::player::Player;
-use crate::player_connection::PlayerConnection;
+use crate::player_connection::*;
 use crate::view_login;
-use crate::game::Game;
+use crate::game::*;
+use crate::view_mainloop;
 
 pub struct Server {
-    players: Vec<Player>,
+    connections: Vec<PlayerConnection>,
     nextId: u32,
     game: Game
 }
@@ -17,7 +17,7 @@ pub struct Server {
 impl Server {
     pub fn new(game: Game) -> Self {
         Server {
-            players: Vec::new(),
+            connections: Vec::new(),
             nextId: 0,
             game: game
         }
@@ -42,13 +42,16 @@ impl Server {
 
                 thread::spawn(move || {
                     // connection succeeded
-                    let connection = PlayerConnection::new(stream);
+                    let connection = Connection { stream: stream };
                     let player = view_login::handle_login(id, connection)
                         .expect("failed to handle connection login");
-                    println!("Login complete for {}, user is '{}'", id, player.name);
+                    println!("Login complete for {}, user is '{}'", id, player.login);
 //                        players.push(player);
 
-                    sender.send((id, String::from("player-connect"), player.name))
+                    sender.send((id, "player-connect".to_string(), player.login.clone()));
+
+                    let _ = view_mainloop::handle(player);
+                    sender.send((id, "player-disconnect".to_string(), "".to_string()));
                 });
             }
 
@@ -56,6 +59,10 @@ impl Server {
                 match command.as_ref() {
                     "player-connect" => {
                         self.game.player_connect(id, argument);
+                    }
+
+                    "player-disconnect" => {
+                        self.game.player_disconnect(id);
                     }
 
                     _ => {

@@ -4,17 +4,17 @@ use std::io::Error;
 use std::io;
 
 #[derive(Debug)]
-pub struct PlayerConnection {
-    stream: TcpStream
+pub struct Connection {
+    pub stream: TcpStream
 }
 
-impl PlayerConnection {
-    pub fn new(stream: TcpStream) -> PlayerConnection {
-        PlayerConnection {
-            stream
-        }
-    }
+pub struct PlayerConnection {
+    pub id: u32,
+    pub login: String,
+    pub connection: Connection,
+}
 
+impl Connection {
     pub fn on_failure(&mut self, err: Error) {
         println!("An error occurred, terminating connection with {}", self.stream.peer_addr().unwrap());
         self.stream.shutdown(Shutdown::Both).unwrap();

@@ -1,7 +1,6 @@
 use crate::player_connection::*;
-use crate::player::*;
 
-fn ask_name(connection: &mut PlayerConnection) -> std::io::Result<String> {
+fn ask_name(connection: &mut Connection) -> std::io::Result<String> {
     loop {
         let provided_name = connection.read_field("login: ")?;
 
@@ -16,7 +15,11 @@ fn ask_name(connection: &mut PlayerConnection) -> std::io::Result<String> {
     }
 }
 
-pub fn handle_login(id: u32, mut connection: PlayerConnection) -> std::io::Result<Player> {
-    let name: String = ask_name(&mut connection)?;
-    Ok(Player::new(id, name, connection))
+pub fn handle_login(id: u32, mut connection: Connection) -> std::io::Result<PlayerConnection> {
+    let login: String = ask_name(&mut connection)?;
+    Ok(PlayerConnection {
+        id,
+        login,
+        connection
+    })
 }
