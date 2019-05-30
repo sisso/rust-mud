@@ -16,7 +16,7 @@ fn ask_name(connection: &mut PlayerConnection) -> std::io::Result<String> {
     }
 }
 
-pub fn handle_login(mut connection: PlayerConnection) -> std::io::Result<Player> {
+pub fn handle_login(id: u32, mut connection: PlayerConnection) -> std::io::Result<Player> {
     let name: String = ask_name(&mut connection)?;
-    Ok(Player::new(name, connection))
+    Ok(Player::new(id, name, connection))
 }
