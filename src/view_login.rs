@@ -1,5 +1,3 @@
-use crate::player_connection::*;
-
 //fn ask_name(connection: &mut Connection) -> std::io::Result<String> {
 //    loop {
 //        let provided_name = connection.read_field("login: ")?;

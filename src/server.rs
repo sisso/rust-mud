@@ -1,129 +1,142 @@
-use std::thread;
-use std::net::TcpListener;
-use std::sync::Arc;
-use std::sync::mpsc;
+use std::net::{TcpStream, Shutdown, TcpListener};
+use std::io;
+use std::io::{Write, BufRead, ErrorKind, Error};
 
-use crate::player_connection::Connection;
 use crate::view_login;
-use crate::game::*;
 use crate::view_mainloop;
 
+struct Connection {
+    id: u32,
+    stream: TcpStream,
+    pending_inputs: Vec<String>,
+    pending_outputs: Vec<String>
+}
+
+impl Connection {
+    pub fn on_failure(stream: &mut TcpStream, err: Error) {
+        println!("An error occurred, terminating connection with {}", stream.peer_addr().unwrap());
+        stream.shutdown(Shutdown::Both).unwrap();
+    }
+
+    pub fn write(stream: &mut TcpStream, msg: &str) -> io::Result<()> {
+        stream.write(msg.as_bytes())?;
+        stream.flush()
+    }
+
+    pub fn writeln(stream: &mut TcpStream, msg: &str) -> io::Result<()> {
+        stream.write(msg.as_bytes())?;
+        stream.write("\n".as_bytes())?;
+        stream.flush()
+    }
+
+    pub fn read_field(stream: &mut TcpStream, field_name: &str) -> io::Result<String> {
+        Connection::write(stream, field_name)?;
+        Connection::read_line(stream)
+    }
+
+    pub fn read_line(stream: &mut TcpStream) -> io::Result<String> {
+        // TODO: how keep this BufReader but dont lose onership of the Stream?
+        let mut reader = std::io::BufReader::new(stream);
+        let mut buffer = String::new();
+        let size = reader.read_line(&mut buffer)?;
+        if size == 0 {
+            return Err(io::Error::from(ErrorKind::ConnectionAborted));
+        }
+        let buffer = buffer.trim().to_string();
+        Ok(buffer)
+    }
+
+    pub fn addr(stream: &TcpStream) -> io::Result<String> {
+        let a = stream.peer_addr()?;
+        let s: String = a.to_string();
+        Ok(s)
+    }
+}
+
 pub struct Server {
+    next_conneciton_id: u32,
+    tick: u32,
     connections: Vec<Connection>,
-    game: Game
+    listener: Option<TcpListener>,
 }
 
 impl Server {
-    pub fn new(game: Game) -> Self {
+    pub fn new() -> Self {
         Server {
+            next_conneciton_id: 0,
+            tick: 0,
             connections: Vec::new(),
-            game: game
+            listener: None
         }
     }
 
-    // https://riptutorial.com/rust/example/4404/a-simple-tcp-client-and-server-application--echo
-    pub fn run(&mut self) {
+    fn next_connection_id(&mut self) -> u32 {
+        let id = self.next_conneciton_id;
+        self.next_conneciton_id += 1;
+        id
+    }
+
+    pub fn start(&mut self) {
         let listener = TcpListener::bind("0.0.0.0:3333").unwrap();
         listener.set_nonblocking(true).expect("non blocking failed");
         // accept connections and process them, spawning a new thread for each one
         println!("Server listening on port 3333");
 
-        let mut next_id = 0;
+        self.listener = Some(listener);
+    }
 
+    pub fn run(&mut self) {
         let mut broken_connections: Vec<u32> = vec![];
-        let mut inputs : Vec<(u32, String)> = vec![];
 
-        loop {
-            // accept new connections
-            if let Ok((mut stream, addr)) = listener.accept() {
-                let id= next_id;
-                next_id += 1;
+        let listener = self.listener.as_ref().expect("server not started!");
 
-                println!("new connection ({}) {}, total connections {}", addr, id, self.connections.len());
-                stream.set_nonblocking(true)
-                    .expect(format!("failed to set non_blocking stream for {}", id).as_str());
+        // accept new connections
+        if let Ok((mut stream, addr)) = listener.accept() {
+            let id = self.next_connection_id();
 
-                // connection succeeded
-                let connection = Connection {
-                    id: id,
-                    stream: stream,
-                    login: None
-                };
+            println!("new connection ({}) {}, total connections {}", addr, id, self.connections.len());
+            stream.set_nonblocking(true)
+                .expect(format!("failed to set non_blocking stream for {}", id).as_str());
 
-                self.connections.push(connection);
+            // connection succeeded
+            let connection = Connection {
+                id: id,
+                stream: stream,
+                pending_inputs: vec![],
+                pending_outputs: vec![],
+            };
 
-//                let player = view_login::handle_login(id, connection)
-//                    .expect("failed to handle connection login");
-//                println!("Login complete for {}, user is '{}'", id, player.login);
-////                        players.push(player);
-//
-//                sender.send((id, "player-connect".to_string(), player.login.clone()));
-//
-//                let _ = view_mainloop::handle(player);
-//                sender.send((id, "player-disconnect".to_string(), "".to_string()));
-            }
-
-            // handle inputs
-            for connection in &mut self.connections {
-                match Connection::read_line(&mut connection.stream) {
-                    Ok(line) => {
-                        inputs.push((connection.id, line));
-                    },
-                    Err(ref err) if err.kind() == std::io::ErrorKind::WouldBlock => (),
-                    Err(e) => {
-                        println!("{} failed: {}", connection.id, e);
-                        broken_connections.push(connection.id)
-                    }
-                }
-            }
-
-            // remove broken connections
-            for id in &broken_connections {
-                let index = self.connections.iter().position(|i| i.id == *id).unwrap();
-                self.connections.remove(index);
-
-                println!("{} removed, total connections {}", *id, self.connections.len());
-            }
-            broken_connections.clear();
-
-            // update game
-
-            // handle outputs
-            for connection in &mut self.connections {
-//                let (id, stream, maybe_login) = match connection {
-//                    Connection::NewConnection { id: id, stream: stream} => (id, stream, None)
-//                    Connection::PlayerConnection { id: id, stream: stream, login: login } => (id, stream, Some(login))
-//
-//                }
-
-                for input in &mut inputs {
-                    if input.0 != connection.id  {
-                        Connection::writeln(&mut connection.stream, input.1.as_str());
-                    }
-                }
-            }
-
-            inputs.clear();
-
-//            if let Ok((id, command, argument)) = receiver.try_recv() {
-//                match command.as_ref() {
-//                    "player-connect" => {
-//                        self.game.player_connect(id, argument);
-//                    }
-//
-//                    "player-disconnect" => {
-//                        self.game.player_disconnect(id);
-//                    }
-//
-//                    _ => {
-//                        println!("{} invalid command {}/{}", id, command, argument);
-//                    }
-//                }
-//            }
-
-            // TODO: create time ticket
-            thread::sleep(::std::time::Duration::from_millis(100));
+            self.connections.push(connection);
         }
 
+        // handle inputs
+        for connection in &mut self.connections {
+            match Connection::read_line(&mut connection.stream) {
+                Ok(line) => {
+                    connection.pending_inputs.push(line);
+                },
+                Err(ref err) if err.kind() == std::io::ErrorKind::WouldBlock => (),
+                Err(e) => {
+                    println!("{} failed: {}", connection.id, e);
+                    broken_connections.push(connection.id)
+                }
+            }
+        }
+
+        // handle outputs
+        for connection in &mut self.connections {
+            for input in &mut connection.pending_outputs {
+                Connection::writeln(&mut connection.stream, input.as_str());
+            }
+        }
+
+        // remove broken connections
+        for id in &broken_connections {
+            let index = self.connections.iter().position(|i| i.id == *id).unwrap();
+            self.connections.remove(index);
+
+            println!("{} removed, total connections {}", *id, self.connections.len());
+        }
+        broken_connections.clear();
     }
 }

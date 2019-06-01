@@ -1,4 +1,3 @@
-mod player_connection;
 mod server;
 mod view_login;
 mod view_mainloop;
@@ -30,7 +29,11 @@ fn main() {
     let mut game = Game::new();
     load_rooms(&mut game);
 
-    let mut s = Server::new(game);
-    s.run();
+    let mut server = Server::new();
+    server.start();
+    loop {
+        server.run();
+        std::thread::sleep(::std::time::Duration::from_millis(100));
+    }
     println!("terminated");
 }
