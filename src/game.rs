@@ -1,4 +1,3 @@
-use crate::player_connection::PlayerConnection;
 
 pub struct Game {
     rooms: Vec<Room>,

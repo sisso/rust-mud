@@ -1,52 +1,71 @@
 use std::net::{TcpStream, Shutdown};
-use std::io::{Write, BufRead};
+use std::io::{Write, BufRead, ErrorKind};
 use std::io::Error;
 use std::io;
 
 #[derive(Debug)]
+//pub enum Connection {
+//    NewConnection {
+//        id: u32,
+//        stream: TcpStream
+//    },
+//    PlayerConnection {
+//        id: u32,
+//        stream: TcpStream,
+//        login: String
+//    }
+//}
+//
+//pub struct PlayerConnection {
+//    pub id: u32,
+//    pub login: String,
+//    pub connection: Connection,
+//}
+
+
 pub struct Connection {
-    pub stream: TcpStream
+    pub id: u32,
+    pub stream: TcpStream,
+    pub login: Option<String>
 }
 
-pub struct PlayerConnection {
-    pub id: u32,
-    pub login: String,
-    pub connection: Connection,
-}
 
 impl Connection {
-    pub fn on_failure(&mut self, err: Error) {
-        println!("An error occurred, terminating connection with {}", self.stream.peer_addr().unwrap());
-        self.stream.shutdown(Shutdown::Both).unwrap();
+    pub fn on_failure(stream: &mut TcpStream, err: Error) {
+        println!("An error occurred, terminating connection with {}", stream.peer_addr().unwrap());
+        stream.shutdown(Shutdown::Both).unwrap();
     }
 
-    pub fn write(&mut self, msg: &str) -> io::Result<()> {
-        self.stream.write(msg.as_bytes())?;
-        self.stream.flush()
+    pub fn write(stream: &mut TcpStream, msg: &str) -> io::Result<()> {
+        stream.write(msg.as_bytes())?;
+        stream.flush()
     }
 
-    pub fn writeln(&mut self, msg: &str) -> io::Result<()> {
-        self.stream.write(msg.as_bytes())?;
-        self.stream.write("\n".as_bytes())?;
-        self.stream.flush()
+    pub fn writeln(stream: &mut TcpStream, msg: &str) -> io::Result<()> {
+        stream.write(msg.as_bytes())?;
+        stream.write("\n".as_bytes())?;
+        stream.flush()
     }
 
-    pub fn read_field(&mut self, field_name: &str) -> io::Result<String> {
-        self.write(field_name)?;
-        self.read_line()
+    pub fn read_field(stream: &mut TcpStream, field_name: &str) -> io::Result<String> {
+        Connection::write(stream, field_name)?;
+        Connection::read_line(stream)
     }
 
-    pub fn read_line(&mut self) -> io::Result<String> {
+    pub fn read_line(stream: &mut TcpStream) -> io::Result<String> {
         // TODO: how keep this BufReader but dont lose onership of the Stream?
-        let mut reader = std::io::BufReader::new(&mut self.stream);
+        let mut reader = std::io::BufReader::new(stream);
         let mut buffer = String::new();
-        let _ = reader.read_line(&mut buffer)?;
+        let size = reader.read_line(&mut buffer)?;
+        if size == 0 {
+            return Err(io::Error::from(ErrorKind::ConnectionAborted));
+        }
         let buffer = buffer.trim().to_string();
         Ok(buffer)
     }
 
-    pub fn addr(&self) -> io::Result<String> {
-        let a = self.stream.peer_addr()?;
+    pub fn addr(stream: &TcpStream) -> io::Result<String> {
+        let a = stream.peer_addr()?;
         let s: String = a.to_string();
         Ok(s)
     }
