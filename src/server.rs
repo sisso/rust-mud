@@ -8,8 +8,6 @@ use crate::view_mainloop;
 struct Connection {
     id: u32,
     stream: TcpStream,
-    pending_inputs: Vec<String>,
-    pending_outputs: Vec<String>
 }
 
 impl Connection {
@@ -58,22 +56,50 @@ pub struct Server {
     tick: u32,
     connections: Vec<Connection>,
     listener: Option<TcpListener>,
+    pending_inputs: Vec<(u32, String)>,
+    pending_outputs: Vec<(u32, String)>
 }
 
 impl Server {
+    fn next_connection_id(&mut self) -> u32 {
+        let id = self.next_conneciton_id;
+        self.next_conneciton_id += 1;
+        id
+    }
+
     pub fn new() -> Self {
         Server {
             next_conneciton_id: 0,
             tick: 0,
             connections: Vec::new(),
-            listener: None
+            listener: None,
+            pending_inputs: Vec::new(),
+            pending_outputs: Vec::new(),
         }
     }
 
-    fn next_connection_id(&mut self) -> u32 {
-        let id = self.next_conneciton_id;
-        self.next_conneciton_id += 1;
-        id
+    pub fn get_connections_id(&mut self) -> Vec<u32> {
+        let mut out = vec![];
+        for i in &self.connections {
+            out.push(i.id);
+        }
+        out
+    }
+
+    pub fn get_inputs(&mut self) -> Vec<(u32, String)> {
+        let mut out = vec![];
+        for i in &self.pending_inputs {
+            // TODO: remove clone
+            out.push((i.0, i.1.clone()));
+        }
+        self.pending_inputs.clear();
+        out
+    }
+
+    pub fn add_outputs(&mut self, outputs: Vec<(u32, String)>) {
+        for i in outputs {
+            self.pending_outputs.push(i);
+        }
     }
 
     pub fn start(&mut self) {
@@ -102,8 +128,6 @@ impl Server {
             let connection = Connection {
                 id: id,
                 stream: stream,
-                pending_inputs: vec![],
-                pending_outputs: vec![],
             };
 
             self.connections.push(connection);
@@ -113,7 +137,7 @@ impl Server {
         for connection in &mut self.connections {
             match Connection::read_line(&mut connection.stream) {
                 Ok(line) => {
-                    connection.pending_inputs.push(line);
+                    self.pending_inputs.push((connection.id, line));
                 },
                 Err(ref err) if err.kind() == std::io::ErrorKind::WouldBlock => (),
                 Err(e) => {
@@ -124,11 +148,14 @@ impl Server {
         }
 
         // handle outputs
-        for connection in &mut self.connections {
-            for input in &mut connection.pending_outputs {
-                Connection::writeln(&mut connection.stream, input.as_str());
+        for (id, input) in &self.pending_outputs {
+            for connection in &mut self.connections {
+                if connection.id == *id {
+                    Connection::write(&mut connection.stream, input.as_str());
+                }
             }
         }
+        self.pending_outputs.clear();
 
         // remove broken connections
         for id in &broken_connections {
