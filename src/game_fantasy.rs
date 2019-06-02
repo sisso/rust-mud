@@ -12,7 +12,8 @@ use std::collections::HashSet;
 fn load_rooms(game: &mut Game) {
     let room1 = Room {
         id: 0,
-        name: "Main Room".to_string(),
+        label: "Main Room".to_string(),
+        desc: "Main room where people born".to_string(),
         exits: vec![(Dir::S, 1)],
         // TODO: cam be simplified?
         tags: [RoomTag::INITIAL].iter().cloned().collect(),
@@ -20,7 +21,8 @@ fn load_rooms(game: &mut Game) {
 
     let room2 = Room {
         id: 1,
-        name: "Bar".to_string(),
+        label: "Bar".to_string(),
+        desc: "Where we relief our duties".to_string(),
         exits: vec![(Dir::N, 0)],
         tags: HashSet::new(),
     };

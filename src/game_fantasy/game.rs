@@ -19,6 +19,7 @@ impl Game {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct GamePlayer {
     pub id: u32,
     pub login: String,
@@ -54,18 +55,19 @@ pub enum RoomTag {
 #[derive(Clone, Debug)]
 pub struct Room {
     pub id: u32,
-    pub name: String,
+    pub label: String,
+    pub desc: String,
     pub exits: Vec<(Dir, u32)>,
     pub tags: HashSet<RoomTag>,
 }
 
 impl Game {
-    pub fn player_connect(&mut self, id: u32, login: String, avatar_id: u32) {
+    pub fn player_connect(&mut self, id: u32, login: &String, avatar_id: u32) {
         println!("adding player {}/{}", id, login);
 
         self.players.push(GamePlayer {
             id,
-            login,
+            login: login.clone(),
             avatar_id,
         });
     }
@@ -90,7 +92,11 @@ impl Game {
     }
 
     pub fn get_room(&self, id: u32) -> Room {
-        let room = self.rooms.iter().find(|room| { room.id == id }).unwrap();
+        let room = self.rooms
+            .iter()
+            .find(|room| { room.id == id })
+            .unwrap();
+
         room.clone()
     }
 
@@ -105,6 +111,22 @@ impl Game {
 
     pub fn add_mob(&mut self, mob: Mob) {
         self.mobs.push(mob);
+    }
+
+    pub fn get_mob(&self, id: u32) -> Mob {
+        let found = self.mobs
+            .iter()
+            .find(|p| p.id == id);
+
+        found.unwrap().clone()
+    }
+
+    pub fn get_player(&self, login: &String) -> GamePlayer {
+        let found = self.players
+            .iter()
+            .find(|p| p.login.eq(login));
+
+        found.unwrap().clone()
     }
 }
 

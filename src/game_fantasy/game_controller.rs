@@ -51,9 +51,8 @@ impl GameController {
 
 
             if let Some(login) = maybe_login {
-                if let Some(output) = view_mainloop::handle(&login, input) {
-                    outputs.push((id, output));
-                };
+                let output = view_mainloop::handle(&self.game, &login, input);
+                outputs.push((id, output));
             } else {
                 let out = match view_login::handle(id, input) {
                     (Some(login), out) => {
@@ -62,19 +61,24 @@ impl GameController {
                             player.login = Some(login.clone());
                         });
 
-                        // add player avatar
-
                         // TODO: externalize avatar creation
+
+                        // search initial room
                         let rooms = self.game.get_rooms_by_tag(&RoomTag::INITIAL);
                         let inital_room_id = rooms.first().unwrap();
 
+                        // add player avatar
                         let mut mob = self.game.new_mob(*inital_room_id, format!("char-{}", login));
+                        mob.tags.insert(MobTag::AVATAR);
                         let mob_id = mob.id;
                         self.game.add_mob(mob);
 
                         // add player to game
-                        self.game.player_connect(id, login, mob_id);
-                        out
+                        self.game.player_connect(id, &login, mob_id);
+
+                        let look_output = view_mainloop::handle_look(&self.game, &login);
+
+                        format!("{}{}", out, look_output)
                     },
                     (_, out) => out,
                 };
