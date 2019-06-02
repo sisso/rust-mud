@@ -2,14 +2,18 @@ use std::net::{TcpStream, Shutdown, TcpListener};
 use std::io;
 use std::io::{Write, BufRead, ErrorKind, Error};
 
-use crate::view_login;
-use crate::view_mainloop;
-
 struct Connection {
     id: u32,
     stream: TcpStream,
 }
 
+pub struct LoopResult {
+    pub connects: Vec<u32>,
+    pub disconnects: Vec<u32>,
+    pub pending_inputs: Vec<(u32, String)>,
+}
+
+// TODO: remove
 impl Connection {
     pub fn on_failure(stream: &mut TcpStream, err: Error) {
         println!("An error occurred, terminating connection with {}", stream.peer_addr().unwrap());
@@ -56,8 +60,6 @@ pub struct Server {
     tick: u32,
     connections: Vec<Connection>,
     listener: Option<TcpListener>,
-    pending_inputs: Vec<(u32, String)>,
-    pending_outputs: Vec<(u32, String)>
 }
 
 impl Server {
@@ -73,32 +75,6 @@ impl Server {
             tick: 0,
             connections: Vec::new(),
             listener: None,
-            pending_inputs: Vec::new(),
-            pending_outputs: Vec::new(),
-        }
-    }
-
-    pub fn get_connections_id(&mut self) -> Vec<u32> {
-        let mut out = vec![];
-        for i in &self.connections {
-            out.push(i.id);
-        }
-        out
-    }
-
-    pub fn get_inputs(&mut self) -> Vec<(u32, String)> {
-        let mut out = vec![];
-        for i in &self.pending_inputs {
-            // TODO: remove clone
-            out.push((i.0, i.1.clone()));
-        }
-        self.pending_inputs.clear();
-        out
-    }
-
-    pub fn add_outputs(&mut self, outputs: Vec<(u32, String)>) {
-        for i in outputs {
-            self.pending_outputs.push(i);
         }
     }
 
@@ -111,8 +87,10 @@ impl Server {
         self.listener = Some(listener);
     }
 
-    pub fn run(&mut self) {
+    pub fn run(&mut self, pending_outputs: Vec<(u32, String)>) -> LoopResult {
+        let mut new_connections: Vec<u32> = vec![];
         let mut broken_connections: Vec<u32> = vec![];
+        let mut pending_inputs: Vec<(u32, String)> = vec![];
 
         let listener = self.listener.as_ref().expect("server not started!");
 
@@ -130,6 +108,7 @@ impl Server {
                 stream: stream,
             };
 
+            new_connections.push(id);
             self.connections.push(connection);
         }
 
@@ -137,7 +116,7 @@ impl Server {
         for connection in &mut self.connections {
             match Connection::read_line(&mut connection.stream) {
                 Ok(line) => {
-                    self.pending_inputs.push((connection.id, line));
+                    pending_inputs.push((connection.id, line));
                 },
                 Err(ref err) if err.kind() == std::io::ErrorKind::WouldBlock => (),
                 Err(e) => {
@@ -148,14 +127,13 @@ impl Server {
         }
 
         // handle outputs
-        for (id, input) in &self.pending_outputs {
+        for (id, input) in pending_outputs {
             for connection in &mut self.connections {
-                if connection.id == *id {
+                if connection.id == id {
                     Connection::write(&mut connection.stream, input.as_str());
                 }
             }
         }
-        self.pending_outputs.clear();
 
         // remove broken connections
         for id in &broken_connections {
@@ -164,6 +142,11 @@ impl Server {
 
             println!("{} removed, total connections {}", *id, self.connections.len());
         }
-        broken_connections.clear();
+
+        LoopResult {
+            connects: new_connections,
+            disconnects: broken_connections,
+            pending_inputs: pending_inputs
+        }
     }
 }

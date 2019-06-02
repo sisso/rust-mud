@@ -1,8 +1,7 @@
-use crate::game::*;
+use super::game::*;
 use std::collections::HashMap;
-use crate::view_login;
-use crate::view_mainloop;
-use core::borrow::Borrow;
+use super::view_login;
+use super::view_mainloop;
 
 struct PlayerState {
     id: u32,
@@ -22,42 +21,46 @@ impl GameController {
         }
     }
 
-    pub fn handle(&mut self, connections_id: Vec<u32>, inputs: Vec<(u32, String)>) -> Vec<(u32, String)> {
+    pub fn handle(&mut self, connects: Vec<u32>, disconnects: Vec<u32>, inputs: Vec<(u32, String)>) -> Vec<(u32, String)> {
         let mut outputs: Vec<(u32, String)> = vec![];
 
         // handle new players
-        for id in connections_id {
-            if !self.players.contains_key(& id) {
-                self.players.insert(id, PlayerState {
-                    id,
-                    login: None
-                });
+        for id in connects {
+            self.players.insert(id, PlayerState {
+                id,
+                login: None
+            });
 
-                let out = view_login::handle_welcome(id);
-                outputs.push((id, out));
-            }
+            let out = view_login::handle_welcome(id);
+            outputs.push((id, out));
+        }
+
+        // handle disconnected players
+        for id in disconnects {
+            self.game.player_disconnect(id);
         }
 
         // handle players inputs
         for (id, input) in inputs {
             let maybe_login = {
-                let player = self.players.get(&id).unwrap();
+                let player  = self.players.get(&id).unwrap();
                 // TODO: remove clone?
                 player.login.clone()
             };
 
 
             if let Some(login) = maybe_login {
-                if let Some(out) = view_mainloop::handle(&login, input) {
-                    outputs.push((id, out));
+                if let Some(output) = view_mainloop::handle(&login, input) {
+                    outputs.push((id, output));
                 };
             } else {
                 let out = match view_login::handle(id, input) {
                     (Some(login), out) => {
                         let player = self.players.entry(id);
                         player.and_modify(|player| {
-                            player.login = Some(login);
+                            player.login = Some(login.clone());
                         });
+                        self.game.player_connect(id, login);
                         out
                     },
                     (_, out) => out,
