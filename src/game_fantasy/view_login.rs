@@ -1,4 +1,5 @@
-pub fn handle(id: u32, input: String) -> (Option<String>, String) {
+
+pub fn handle(input: String) -> (Option<String>, String) {
     if input.len() > 3 {
         let msg= format!("login success, welcome {}\n\n", input);
         (Some(input), msg)
@@ -7,6 +8,6 @@ pub fn handle(id: u32, input: String) -> (Option<String>, String) {
     }
 }
 
-pub fn handle_welcome(id: u32) -> String {
+pub fn handle_welcome() -> String {
     "Welcome to MUD\n--------------\n\nlogin: ".to_string()
 }

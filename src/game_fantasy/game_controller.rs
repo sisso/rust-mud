@@ -32,7 +32,7 @@ impl GameController {
                 login: None
             });
 
-            let out = view_login::handle_welcome(id);
+            let out = view_login::handle_welcome();
             outputs.push((id, out));
         }
 
@@ -51,10 +51,10 @@ impl GameController {
 
 
             if let Some(login) = maybe_login {
-                let output = view_mainloop::handle(&self.game, &login, input);
+                let output = view_mainloop::handle(&mut self.game, &login, input);
                 outputs.push((id, output));
             } else {
-                let out = match view_login::handle(id, input) {
+                let out = match view_login::handle(input) {
                     (Some(login), out) => {
                         let player = self.players.entry(id);
                         player.and_modify(|player| {

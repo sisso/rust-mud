@@ -1,5 +1,4 @@
 use std::collections::HashSet;
-use std::collections::HashMap;
 
 pub struct Game {
     next_mob_id: u32,
@@ -34,7 +33,7 @@ pub struct Mob {
     pub tags: HashSet<MobTag>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Dir {
     N,
     S,
@@ -138,6 +137,11 @@ impl Game {
             .find(|p| p.login.eq(login));
 
         found.unwrap().clone()
+    }
+
+    pub fn update_mob(&mut self, mob: Mob) {
+        let index = self.mobs.iter().position(|x| x.id == mob.id).unwrap();
+        self.mobs.insert(index, mob);
     }
 }
 

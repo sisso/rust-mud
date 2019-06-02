@@ -1,6 +1,6 @@
 use std::net::{TcpStream, TcpListener};
 use std::io;
-use std::io::{Write, BufRead, ErrorKind, Error};
+use std::io::{Write, BufRead, ErrorKind};
 
 struct Connection {
     id: u32,

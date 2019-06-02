@@ -47,5 +47,4 @@ pub fn run() {
         pending_outputs = game_controller.handle(result.connects, result.disconnects, result.pending_inputs);
         std::thread::sleep(::std::time::Duration::from_millis(100));
     }
-    println!("terminated");
 }

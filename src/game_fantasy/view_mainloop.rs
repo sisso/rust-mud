@@ -6,10 +6,44 @@ struct PlayerCtx {
     room: Room,
 }
 
-pub fn handle(game: &Game, login: &String, input: String) -> String {
+pub fn handle(game: &mut Game, login: &String, input: String) -> String {
+    let ctx = resolve_player(game, login);
+
     match input.as_ref() {
-        "l" | "look" => handle_look(game, login),
+        "l" | "look" => execute_look(game, &ctx),
+        "n" | "s" | "e" | "w" => execute_move(game, &ctx, &input),
         _ => format!("unknown command '{}'\n$ ", input),
+    }
+}
+
+fn execute_move(game: &mut Game, ctx: &PlayerCtx, dir: &String) -> String {
+    let dir = match dir.as_ref() {
+        "n" => Dir::N,
+        "s" => Dir::S,
+        "e" => Dir::E,
+        "w" => Dir::W,
+        _   => panic!("invalid input {}", dir),
+    };
+
+    let exit = ctx.room
+        .exits
+        .iter()
+        .find(|e| e.0 == dir);
+
+    match exit {
+        Some(exit) => {
+            let mut mob = ctx.avatar.clone();
+            mob.room_id = exit.1;
+            game.update_mob(mob);
+
+            let new_ctx = resolve_player(game, &ctx.player.login);
+            let new_look = execute_look(game, &new_ctx);
+
+            format!("you move to {}!\n\n{}", dir, new_look)
+        },
+        None => {
+            format!("not possible to move to {}!\n\n$ ", dir)
+        }
     }
 }
 
