@@ -7,18 +7,22 @@ use crate::server::Server;
 
 use game_controller::*;
 use game::*;
+use std::collections::HashSet;
 
 fn load_rooms(game: &mut Game) {
     let room1 = Room {
         id: 0,
         name: "Main Room".to_string(),
-        exits: vec![(Dir::S, 1)]
+        exits: vec![(Dir::S, 1)],
+        // TODO: cam be simplified?
+        tags: [RoomTag::INITIAL].iter().cloned().collect(),
     };
 
     let room2 = Room {
         id: 1,
         name: "Bar".to_string(),
-        exits: vec![(Dir::N, 0)]
+        exits: vec![(Dir::N, 0)],
+        tags: HashSet::new(),
     };
 
     game.add_room(room1);

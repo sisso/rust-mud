@@ -1,4 +1,4 @@
-use std::net::{TcpStream, Shutdown, TcpListener};
+use std::net::{TcpStream, TcpListener};
 use std::io;
 use std::io::{Write, BufRead, ErrorKind, Error};
 
