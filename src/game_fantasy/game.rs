@@ -5,7 +5,7 @@ pub struct Game {
     next_mob_id: u32,
     rooms: Vec<Room>,
     mobs: Vec<Mob>,
-    players: Vec<GamePlayer>,
+    players: Vec<Player>,
 }
 
 impl Game {
@@ -20,7 +20,7 @@ impl Game {
 }
 
 #[derive(Clone, Debug)]
-pub struct GamePlayer {
+pub struct Player {
     pub id: u32,
     pub login: String,
     pub avatar_id: u32
@@ -40,6 +40,17 @@ pub enum Dir {
     S,
     W,
     E
+}
+
+impl std::fmt::Display for Dir {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            Dir::N => write!(f, "N"),
+            Dir::S => write!(f, "S"),
+            Dir::E => write!(f, "E"),
+            Dir::W => write!(f, "W"),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Hash, Eq, PartialEq)]
@@ -65,7 +76,7 @@ impl Game {
     pub fn player_connect(&mut self, id: u32, login: &String, avatar_id: u32) {
         println!("adding player {}/{}", id, login);
 
-        self.players.push(GamePlayer {
+        self.players.push(Player {
             id,
             login: login.clone(),
             avatar_id,
@@ -121,7 +132,7 @@ impl Game {
         found.unwrap().clone()
     }
 
-    pub fn get_player(&self, login: &String) -> GamePlayer {
+    pub fn get_player(&self, login: &String) -> Player {
         let found = self.players
             .iter()
             .find(|p| p.login.eq(login));
