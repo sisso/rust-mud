@@ -13,21 +13,9 @@ pub struct LoopResult {
     pub pending_inputs: Vec<(u32, String)>,
 }
 
-// TODO: remove
 impl Connection {
-    pub fn on_failure(stream: &mut TcpStream, err: Error) {
-        println!("An error occurred, terminating connection with {}", stream.peer_addr().unwrap());
-        stream.shutdown(Shutdown::Both).unwrap();
-    }
-
     pub fn write(stream: &mut TcpStream, msg: &str) -> io::Result<()> {
         stream.write(msg.as_bytes())?;
-        stream.flush()
-    }
-
-    pub fn writeln(stream: &mut TcpStream, msg: &str) -> io::Result<()> {
-        stream.write(msg.as_bytes())?;
-        stream.write("\n".as_bytes())?;
         stream.flush()
     }
 
@@ -46,12 +34,6 @@ impl Connection {
         }
         let buffer = buffer.trim().to_string();
         Ok(buffer)
-    }
-
-    pub fn addr(stream: &TcpStream) -> io::Result<String> {
-        let a = stream.peer_addr()?;
-        let s: String = a.to_string();
-        Ok(s)
     }
 }
 
@@ -130,7 +112,10 @@ impl Server {
         for (id, input) in pending_outputs {
             for connection in &mut self.connections {
                 if connection.id == id {
-                    Connection::write(&mut connection.stream, input.as_str());
+                    if let Err(e) = Connection::write(&mut connection.stream, input.as_str()) {
+                        println!("{} failed: {}", id, e);
+                        broken_connections.push(id);
+                    }
                 }
             }
         }
