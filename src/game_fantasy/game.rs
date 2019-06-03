@@ -73,7 +73,7 @@ pub struct Room {
 
 impl Game {
     pub fn player_connect(&mut self, id: u32, login: &String, avatar_id: u32) {
-        println!("adding player {}/{}", id, login);
+        println!("game - adding player {}/{}", id, login);
 
         self.players.push(Player {
             id,
@@ -83,7 +83,7 @@ impl Game {
     }
 
     pub fn player_disconnect(&mut self, id: u32) {
-        println!("removing player {}", id);
+        println!("game - removing player {}", id);
 
         let index = self.players.iter().position(|x| x.id == id).unwrap();
         self.players.remove(index);

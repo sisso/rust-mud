@@ -13,6 +13,18 @@ pub struct LoopResult {
     pub pending_inputs: Vec<(u32, String)>,
 }
 
+pub struct Server {
+    next_conneciton_id: u32,
+    tick: u32,
+    connections: Vec<Connection>,
+    listener: Option<TcpListener>,
+}
+
+pub struct Output {
+    pub dest_connections_id: Vec<u32>,
+    pub output: String
+}
+
 impl Connection {
     pub fn write(stream: &mut TcpStream, msg: &str) -> io::Result<()> {
         stream.write(msg.as_bytes())?;
@@ -37,13 +49,6 @@ impl Connection {
     }
 }
 
-pub struct Server {
-    next_conneciton_id: u32,
-    tick: u32,
-    connections: Vec<Connection>,
-    listener: Option<TcpListener>,
-}
-
 impl Server {
     fn next_connection_id(&mut self) -> u32 {
         let id = self.next_conneciton_id;
@@ -64,12 +69,12 @@ impl Server {
         let listener = TcpListener::bind("0.0.0.0:3333").unwrap();
         listener.set_nonblocking(true).expect("non blocking failed");
         // accept connections and process them, spawning a new thread for each one
-        println!("Server listening on port 3333");
+        println!("server - listening on port 3333");
 
         self.listener = Some(listener);
     }
 
-    pub fn run(&mut self, pending_outputs: Vec<(u32, String)>) -> LoopResult {
+    pub fn run(&mut self, pending_outputs: Vec<Output>) -> LoopResult {
         let mut new_connections: Vec<u32> = vec![];
         let mut broken_connections: Vec<u32> = vec![];
         let mut pending_inputs: Vec<(u32, String)> = vec![];
@@ -80,7 +85,7 @@ impl Server {
         if let Ok((mut stream, addr)) = listener.accept() {
             let id = self.next_connection_id();
 
-            println!("new connection ({}) {}, total connections {}", addr, id, self.connections.len());
+            println!("server - new connection ({}) {}, total connections {}", addr, id, self.connections.len());
             stream.set_nonblocking(true)
                 .expect(format!("failed to set non_blocking stream for {}", id).as_str());
 
@@ -102,19 +107,20 @@ impl Server {
                 },
                 Err(ref err) if err.kind() == std::io::ErrorKind::WouldBlock => (),
                 Err(e) => {
-                    println!("{} failed: {}", connection.id, e);
+                    println!("server - {} failed: {}", connection.id, e);
                     broken_connections.push(connection.id)
                 }
             }
         }
 
         // handle outputs
-        for (id, input) in pending_outputs {
+        for e in pending_outputs {
             for connection in &mut self.connections {
-                if connection.id == id {
-                    if let Err(e) = Connection::write(&mut connection.stream, input.as_str()) {
-                        println!("{} failed: {}", id, e);
-                        broken_connections.push(id);
+                let is_dest = e.dest_connections_id.contains(&connection.id);
+                if is_dest {
+                    if let Err(err) = Connection::write(&mut connection.stream, e.output.as_str()) {
+                        println!("server - {} failed: {}", connection.id, err);
+                        broken_connections.push(connection.id);
                     }
                 }
             }
@@ -125,7 +131,7 @@ impl Server {
             let index = self.connections.iter().position(|i| i.id == *id).unwrap();
             self.connections.remove(index);
 
-            println!("{} removed, total connections {}", *id, self.connections.len());
+            println!("server - {} removed, total connections {}", *id, self.connections.len());
         }
 
         LoopResult {

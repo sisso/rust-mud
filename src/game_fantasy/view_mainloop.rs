@@ -16,6 +16,12 @@ pub fn handle(game: &mut Game, login: &String, input: String) -> String {
     }
 }
 
+pub fn handle_look(game: &Game, login: &String) -> String {
+    let ctx = resolve_player(game, login);
+    execute_look(game, &ctx)
+}
+
+
 fn execute_move(game: &mut Game, ctx: &PlayerCtx, dir: &String) -> String {
     let dir = match dir.as_ref() {
         "n" => Dir::N,
@@ -67,9 +73,4 @@ fn resolve_player(game: &Game, login: &String) -> PlayerCtx {
         avatar: mob,
         room
     }
-}
-
-pub fn handle_look(game: &Game, login: &String) -> String {
-    let ctx = resolve_player(game, login);
-    execute_look(game, &ctx)
 }

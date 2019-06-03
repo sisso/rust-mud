@@ -13,6 +13,24 @@ pub struct GameController {
     players: HashMap<u32, PlayerState>,
 }
 
+pub struct HandleOutput {
+    pub player_id: u32,
+    pub room_id: Vec<u32>,
+    pub player_msg: Vec<String>,
+    pub room_msg: Vec<String>
+}
+
+impl HandleOutput {
+    fn private(player_id: u32, msg: String) -> Self {
+        HandleOutput {
+            player_id: player_id,
+            room_id: vec![],
+            player_msg: vec![msg],
+            room_msg: vec![]
+        }
+    }
+}
+
 // TODO: move login and input handling to utility
 impl GameController {
     pub fn new(game: Game) -> Self {
@@ -22,22 +40,24 @@ impl GameController {
         }
     }
 
-    pub fn handle(&mut self, connects: Vec<u32>, disconnects: Vec<u32>, inputs: Vec<(u32, String)>) -> Vec<(u32, String)> {
-        let mut outputs: Vec<(u32, String)> = vec![];
+    pub fn handle(&mut self, connects: Vec<u32>, disconnects: Vec<u32>, inputs: Vec<(u32, String)>) -> Vec<HandleOutput> {
+        let mut outputs = vec![];
 
         // handle new players
         for id in connects {
+            println!("gamecontroller - {} receive new player", id);
             self.players.insert(id, PlayerState {
                 id,
                 login: None
             });
 
             let out = view_login::handle_welcome();
-            outputs.push((id, out));
+            outputs.push(HandleOutput::private(id, out));
         }
 
         // handle disconnected players
         for id in disconnects {
+            println!("gamecontroller - {} removing player", id);
             self.game.player_disconnect(id);
         }
 
@@ -51,9 +71,12 @@ impl GameController {
 
 
             if let Some(login) = maybe_login {
-                let output = view_mainloop::handle(&mut self.game, &login, input);
-                outputs.push((id, output));
+                println!("gamecontroller - {} handling login input '{}'", id, input);
+                let out = view_mainloop::handle(&mut self.game, &login, input);
+                outputs.push(HandleOutput::private(id, out));
             } else {
+                println!("gamecontroller - {} handling login '{}'", id, input);
+
                 let out = match view_login::handle(input) {
                     (Some(login), out) => {
                         let player = self.players.entry(id);
@@ -83,7 +106,7 @@ impl GameController {
                     (_, out) => out,
                 };
 
-                outputs.push((id, out));
+                outputs.push(HandleOutput::private(id, out));
             }
         }
 
