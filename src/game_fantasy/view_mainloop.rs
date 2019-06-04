@@ -29,17 +29,15 @@ fn execute_move(game: &mut Game, login: &String, dir: &String) -> String {
         _   => panic!("invalid input {}", dir),
     };
 
-    let (exit, avatar_id) = {
-        let ctx = resolve_player(game, login);
+    let ctx = resolve_player(game, login);
 
-        let exit = ctx.room
-            .exits
-            .iter()
-            .find(|e| e.0 == dir)
-            .map(|i| i.clone());
+    let exit = ctx.room
+        .exits
+        .iter()
+        .find(|e| e.0 == dir)
+        .map(|i| i.clone());
 
-        (exit, ctx.avatar.id)
-    };
+    let avatar_id= ctx.avatar.id;
 
     match exit {
         Some(exit) => {
