@@ -101,13 +101,13 @@ impl Game {
             .collect()
     }
 
-    pub fn get_room(&self, id: u32) -> Room {
+    pub fn get_room(&self, id: u32) -> &Room {
         let room = self.rooms
             .iter()
             .find(|room| { room.id == id })
             .unwrap();
 
-        room.clone()
+        room
     }
 
     pub fn new_mob(&mut self, room_id: u32, label: String) -> Mob {
@@ -123,20 +123,28 @@ impl Game {
         self.mobs.push(mob);
     }
 
-    pub fn get_mob(&self, id: u32) -> Mob {
+    pub fn get_mob(&self, id: u32) -> &Mob {
         let found = self.mobs
             .iter()
             .find(|p| p.id == id);
 
-        found.unwrap().clone()
+        found.unwrap()
     }
 
-    pub fn get_player(&self, login: &String) -> Player {
+    pub fn get_mob_mut(&mut self, id: u32) -> &mut Mob {
+        let found = self.mobs
+            .iter_mut()
+            .find(|p| p.id == id);
+
+        found.expect("or failed")
+    }
+
+    pub fn get_player(&self, login: &String) -> &Player {
         let found = self.players
             .iter()
             .find(|p| p.login.eq(login));
 
-        found.unwrap().clone()
+        found.unwrap()
     }
 
     pub fn update_mob(&mut self, mob: Mob) {

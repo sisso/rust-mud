@@ -82,7 +82,7 @@ impl Server {
         let listener = self.listener.as_ref().expect("server not started!");
 
         // accept new connections
-        if let Ok((mut stream, addr)) = listener.accept() {
+        if let Ok((stream, addr)) = listener.accept() {
             let id = self.next_connection_id();
 
             println!("server - new connection ({}) {}, total connections {}", addr, id, self.connections.len());

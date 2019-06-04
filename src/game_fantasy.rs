@@ -7,8 +7,6 @@ use crate::server;
 use game_controller::*;
 use game::*;
 use std::collections::HashSet;
-use crate::server::Output;
-use core::borrow::Borrow;
 
 fn load_rooms(game: &mut Game) {
     let room1 = Room {
