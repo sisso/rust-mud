@@ -31,11 +31,6 @@ impl Connection {
         stream.flush()
     }
 
-    pub fn read_field(stream: &mut TcpStream, field_name: &str) -> io::Result<String> {
-        Connection::write(stream, field_name)?;
-        Connection::read_line(stream)
-    }
-
     pub fn read_line(stream: &mut TcpStream) -> io::Result<String> {
         // TODO: how keep this BufReader but dont lose onership of the Stream?
         let mut reader = std::io::BufReader::new(stream);
@@ -118,6 +113,8 @@ impl Server {
             for connection in &mut self.connections {
                 let is_dest = e.dest_connections_id.contains(&connection.id);
                 if is_dest {
+                    println!("server - {} sending '{}'", connection.id, e.output);
+
                     if let Err(err) = Connection::write(&mut connection.stream, e.output.as_str()) {
                         println!("server - {} failed: {}", connection.id, err);
                         broken_connections.push(connection.id);

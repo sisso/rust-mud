@@ -41,6 +41,17 @@ pub enum Dir {
     E
 }
 
+impl Dir {
+    pub fn inv(&self) -> Self {
+        match self {
+            Dir::N => Dir::S,
+            Dir::S => Dir::N,
+            Dir::E => Dir::E,
+            Dir::W => Dir::W,
+        }
+    }
+}
+
 impl std::fmt::Display for Dir {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
@@ -145,11 +156,6 @@ impl Game {
             .find(|p| p.login.eq(login));
 
         found.unwrap()
-    }
-
-    pub fn update_mob(&mut self, mob: Mob) {
-        let index = self.mobs.iter().position(|x| x.id == mob.id).unwrap();
-        self.mobs.insert(index, mob);
     }
 }
 

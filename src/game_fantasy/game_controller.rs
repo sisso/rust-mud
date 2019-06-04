@@ -15,16 +15,16 @@ pub struct GameController {
 
 pub struct HandleOutput {
     pub player_id: u32,
-    pub room_id: Vec<u32>,
+    pub room_id: Option<u32>,
     pub player_msg: Vec<String>,
     pub room_msg: Vec<String>
 }
 
 impl HandleOutput {
-    fn private(player_id: u32, msg: String) -> Self {
+    pub fn private(player_id: u32, msg: String) -> Self {
         HandleOutput {
             player_id: player_id,
-            room_id: vec![],
+            room_id: None,
             player_msg: vec![msg],
             room_msg: vec![]
         }
@@ -38,6 +38,29 @@ impl GameController {
             game,
             players: HashMap::new()
         }
+    }
+
+    pub fn players_per_room(&self) -> HashMap<u32, Vec<u32>> {
+        let data: Vec<(u32, u32)> =
+            self.players
+                .values()
+                .into_iter()
+                .flat_map(|i| {
+                    &i.login
+                })
+                .map(|login| {
+                    let player = self.game.get_player(&login);
+                    let avatar = self.game.get_mob(player.avatar_id);
+                    (player.id, avatar.room_id)
+                })
+                .collect();
+
+        // group_by
+        let mut result: HashMap<u32, Vec<u32>> = HashMap::new();
+        for i in data {
+            result.entry(i.0).or_insert(vec![]).push(i.1);
+        }
+        result
     }
 
     pub fn handle(&mut self, connects: Vec<u32>, disconnects: Vec<u32>, inputs: Vec<(u32, String)>) -> Vec<HandleOutput> {
@@ -71,9 +94,9 @@ impl GameController {
 
 
             if let Some(login) = maybe_login {
-                println!("gamecontroller - {} handling login input '{}'", id, input);
-                let out = view_mainloop::handle(&mut self.game, &login, input);
-                outputs.push(HandleOutput::private(id, out));
+                println!("gamecontroller - {} handling input '{}'", id, input);
+                let mut out = view_mainloop::handle(&mut self.game, id, &login, input);
+                outputs.append(&mut out);
             } else {
                 println!("gamecontroller - {} handling login '{}'", id, input);
 
@@ -93,6 +116,7 @@ impl GameController {
                         // add player avatar
                         let mut mob = self.game.new_mob(*inital_room_id, format!("char-{}", login));
                         mob.tags.insert(MobTag::AVATAR);
+                        mob.label = login.clone();
                         let mob_id = mob.id;
                         self.game.add_mob(mob);
 

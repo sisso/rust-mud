@@ -1,4 +1,5 @@
 use super::game::*;
+use super::game_controller::HandleOutput;
 
 struct PlayerCtx<'a> {
     player: &'a Player,
@@ -6,11 +7,13 @@ struct PlayerCtx<'a> {
     room: &'a Room,
 }
 
-pub fn handle(game: &mut Game, login: &String, input: String) -> String {
+// TODO: remove login?
+pub fn handle(game: &mut Game, player_id: u32, login: &String, mut input: String) -> Vec<HandleOutput> {
     match input.as_ref() {
-        "l" | "look" => handle_look(game, login),
-        "n" | "s" | "e" | "w" => execute_move(game, login, &input),
-        _ => format!("unknown command '{}'\n$ ", input),
+        "l" | "look" => out_private(player_id, handle_look(game, login)),
+        "n" | "s" | "e" | "w" => execute_move(game, player_id, login, &input),
+        _ if input.starts_with("say ")  => execute_say(game, player_id, login, &input.remove("say ".len()).to_string()),
+        _ => out_private(player_id, format!("unknown command '{}'\n$ ", input)),
     }
 }
 
@@ -19,8 +22,30 @@ pub fn handle_look(game: &Game, login: &String) -> String {
     execute_look(game, &ctx)
 }
 
+fn out_private(id: u32, msg: String) -> Vec<HandleOutput> {
+    vec![HandleOutput::private(id, msg)]
+}
 
-fn execute_move(game: &mut Game, login: &String, dir: &String) -> String {
+fn out_private_and_room(player_id: u32, player_msg: String, room_id: u32, room_msg: String) -> Vec<HandleOutput> {
+    let o = HandleOutput {
+        player_id:  player_id,
+        player_msg: vec![player_msg],
+        room_id:    Some(room_id),
+        room_msg:   vec![room_msg]
+    };
+
+    vec![o]
+}
+
+fn execute_say(game: &Game, player_id: u32, login: &String, msg: &String) -> Vec<HandleOutput> {
+    let ctx = resolve_player(game, login);
+    let player_msg = format!("you say '{}'\n", msg);
+    let room_msg = format!("{} says '{}'\n", ctx.avatar.label, msg);
+    out_private_and_room(player_id, player_msg, ctx.room.id, room_msg)
+
+}
+
+fn execute_move(game: &mut Game, player_id: u32, login: &String, dir: &String) -> Vec<HandleOutput> {
     let dir = match dir.as_ref() {
         "n" => Dir::N,
         "s" => Dir::S,
@@ -48,10 +73,13 @@ fn execute_move(game: &mut Game, login: &String, dir: &String) -> String {
             let ctx = resolve_player(game, login);
             let look = execute_look(game, &ctx);
 
-            format!("you move to {}!\n\n{}", dir, look)
+            let player_msg = format!("you move to {}!\n\n{}", dir, look);
+            let room_msg = format!("{} comes from {}.\n", ctx.avatar.label, dir.inv());
+
+            out_private_and_room(player_id, player_msg, ctx.room.id, room_msg)
         },
         None => {
-            format!("not possible to move to {}!\n\n$ ", dir)
+            out_private(player_id, format!("not possible to move to {}!\n\n$ ", dir))
         }
     }
 }

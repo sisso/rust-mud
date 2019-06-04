@@ -6,7 +6,7 @@ mod view_mainloop;
 use crate::server;
 use game_controller::*;
 use game::*;
-use std::collections::HashSet;
+use std::collections::{HashSet, HashMap};
 
 fn load_rooms(game: &mut Game) {
     let room1 = Room {
@@ -44,26 +44,52 @@ pub fn run() {
     loop {
         let result = server.run(pending_outputs);
         let game_outputs= game_controller.handle(result.connects, result.disconnects, result.pending_inputs);
-        pending_outputs = game_controller_output_to_server_output(game_outputs);
+        pending_outputs = game_controller_output_to_server_output(game_outputs, game_controller.players_per_room());
 
         std::thread::sleep(::std::time::Duration::from_millis(100));
     }
 }
 
-fn game_controller_output_to_server_output(outputs: Vec<HandleOutput>) -> Vec<server::Output> {
+// TODO: move to game_controller???
+fn game_controller_output_to_server_output(outputs: Vec<HandleOutput>, players_per_room: HashMap<u32, Vec<u32>>) -> Vec<server::Output> {
     let mut result = vec![];
 
     for mut i in outputs {
-        if !i.room_id.is_empty() || !i.room_msg.is_empty() || i.player_msg.len() > 1 {
-            panic!("not supported")
+        let current_player_id = i.player_id;
+
+        for player_msg in i.player_msg {
+            println!("game_fantasy - sending to {:?}, '{}'", current_player_id, player_msg);
+
+            let out = server::Output {
+                dest_connections_id: vec![i.player_id],
+                output: player_msg,
+            };
+
+            result.push(out);
         }
 
-        let out = server::Output {
-            dest_connections_id: vec![i.player_id],
-            output: i.player_msg.pop().expect("not supported"),
-        };
+        for room_msg in i.room_msg {
+            if let Some(players_in_room) = players_per_room.get(&i.room_id.expect("room msg without room id")) {
+                let players_in_room = players_in_room.iter()
+                    .flat_map(|player_id| {
+                        if *player_id == current_player_id {
+                            None
+                        } else {
+                            Some(*player_id)
+                        }
+                    }).collect();
 
-        result.push(out);
+                println!("game_fantasy - sending to {:?}, '{}'", players_in_room, room_msg);
+
+                let out = server::Output {
+                    dest_connections_id: players_in_room,
+                    output: room_msg,
+                };
+
+                result.push(out);
+            }
+        }
+
     }
 
     result
