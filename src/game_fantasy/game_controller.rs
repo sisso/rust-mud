@@ -1,16 +1,17 @@
 use super::game::*;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use super::view_login;
 use super::view_mainloop;
 
 struct PlayerState {
-    id: u32,
+    connection_id: u32,
+    player_id: Option<u32>,
     login: Option<String>,
 }
 
 pub struct GameController {
     game: Game,
-    players: HashMap<u32, PlayerState>,
+    players: Vec<PlayerState>,
 }
 
 pub struct HandleOutput {
@@ -36,25 +37,34 @@ impl GameController {
     pub fn new(game: Game) -> Self {
         GameController {
             game,
-            players: HashMap::new()
+            players: vec![]
         }
     }
 
+    pub fn connection_id_from_player_id(&self, player_id: &u32) -> u32 {
+        self.players
+            .iter()
+            // TODO: option.contains?
+            .find(|i| i.player_id == Some(*player_id))
+            .map(|state| state.connection_id)
+            .unwrap()
+    }
+
     pub fn players_per_room(&self) -> HashMap<u32, Vec<u32>> {
-        let data: Vec<(u32, u32)> =
+        let room_player: Vec<(u32, u32)> =
             self.game.list_players()
                 .into_iter()
-                .map(|id| {
-                    let player = self.game.get_player_by_id(&id);
+                .map(|player_id| {
+                    let player = self.game.get_player_by_id(&player_id);
                     let avatar = self.game.get_mob(player.avatar_id);
-                    (player.id, avatar.room_id)
+                    (avatar.room_id, player_id)
                 })
                 .collect();
 
         // group_by
         let mut result: HashMap<u32, Vec<u32>> = HashMap::new();
-        for i in data {
-            result.entry(i.1).or_insert(vec![]).push(i.0);
+        for (room_id, player_id) in room_player {
+            result.entry(room_id).or_insert(vec![]).push(player_id);
         }
         result
     }
@@ -65,9 +75,10 @@ impl GameController {
         // handle new players
         for id in connects {
             println!("gamecontroller - {} receive new player", id);
-            self.players.insert(id, PlayerState {
-                id,
-                login: None
+            self.players.push(PlayerState {
+                connection_id: id,
+                login: None,
+                player_id: None,
             });
 
             let out = view_login::handle_welcome();
@@ -78,13 +89,14 @@ impl GameController {
         for id in disconnects {
             println!("gamecontroller - {} removing player", id);
             self.game.player_disconnect(&id);
-            let _ = self.players.remove(&id);
+            let index = self.players.iter().position(|i| i.connection_id == id).unwrap();
+            let _ = self.players.remove(index);
         }
 
         // handle players inputs
         for (id, input) in inputs {
             let maybe_login = {
-                let player  = self.players.get(&id).unwrap();
+                let player  = self.players.iter().find(|i| i.connection_id == id).unwrap();
                 // TODO: remove clone?
                 player.login.clone()
             };
@@ -99,26 +111,25 @@ impl GameController {
 
                 let out = match view_login::handle(input) {
                     (Some(login), out) => {
-                        let player = self.players.entry(id);
-                        player.and_modify(|player| {
-                            player.login = Some(login.clone());
-                        });
+                        let index = self.players.iter().position(|i| i.connection_id == id).unwrap();
 
                         // TODO: externalize avatar creation
-
                         // search initial room
                         let rooms = self.game.get_rooms_by_tag(&RoomTag::INITIAL);
                         let inital_room_id = rooms.first().unwrap();
 
                         // add player avatar
-                        let mut mob = self.game.new_mob(inital_room_id, format!("char-{}", login));
-                        mob.tags.insert(MobTag::AVATAR);
-                        mob.label = login.clone();
+                        let tags = vec![MobTag::AVATAR].iter().cloned().collect();
+                        let mob = self.game.new_mob(inital_room_id, login.clone(), tags);
                         let mob_id = mob.id;
-                        self.game.add_mob(mob);
 
                         // add player to game
-                        self.game.player_connect(id, &login, mob_id);
+                        let player = self.game.player_connect(login.clone(), mob_id);
+
+                        // update local state
+                        let connection_state = self.players.get_mut(index).unwrap();
+                        connection_state.login = Some(login.clone());
+                        connection_state.player_id = Some(player.id);
 
                         let look_output = view_mainloop::handle_look(&self.game, &login);
 
@@ -152,23 +163,11 @@ mod tests {
             tags: HashSet::new()
         });
 
-        game.add_mob(Mob {
-            id: 0,
-            room_id: 0,
-            label: "sisso".to_string(),
-            tags: HashSet::new()
-        });
+        let mob_player_0_id = game.new_mob(&0, "sisso".to_string(), HashSet::new()).id;
+        let mob_player_1_id = game.new_mob(&0, "abibue".to_string(), HashSet::new()).id;
 
-        game.player_connect(0, &"sisso".to_string(), 0);
-
-        game.add_mob(Mob {
-            id: 1,
-            room_id: 0,
-            label: "abibue".to_string(),
-            tags: HashSet::new()
-        });
-
-        game.player_connect(1, &"abibue".to_string(), 1);
+        game.player_connect("sisso".to_string(), mob_player_0_id);
+        game.player_connect( "abibue".to_string(), mob_player_1_id);
 
         let mut gc = GameController::new(game);
 

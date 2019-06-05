@@ -76,6 +76,8 @@ impl Server {
 
         let listener = self.listener.as_ref().expect("server not started!");
 
+        self.tick += 1;
+
         // accept new connections
         if let Ok((stream, addr)) = listener.accept() {
             let id = self.next_connection_id();

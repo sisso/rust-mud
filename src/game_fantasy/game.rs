@@ -2,6 +2,7 @@ use std::collections::HashSet;
 
 pub struct Game {
     next_mob_id: u32,
+    next_player_id: u32,
     rooms: Vec<Room>,
     mobs: Vec<Mob>,
     players: Vec<Player>,
@@ -11,6 +12,7 @@ impl Game {
     pub fn new() -> Self {
         Game {
             next_mob_id: 0,
+            next_player_id: 0,
             rooms: vec![],
             mobs: vec![],
             players: vec![],
@@ -87,14 +89,20 @@ impl Game {
         self.players.iter().map(|i| i.id).collect()
     }
 
-    pub fn player_connect(&mut self, id: u32, login: &String, avatar_id: u32) {
+    pub fn player_connect(&mut self, login: String, avatar_id: u32) -> &Player {
+        let id = self.next_player_id();
+
         println!("game - adding player {}/{}", id, login);
 
-        self.players.push(Player {
+        let player = Player {
             id,
-            login: login.clone(),
+            login: login,
             avatar_id,
-        });
+        };
+
+        self.players.push(player);
+
+        &self.players.last().unwrap()
     }
 
     pub fn player_disconnect(&mut self, id: &u32) {
@@ -125,17 +133,17 @@ impl Game {
         room
     }
 
-    pub fn new_mob(&mut self, room_id: &u32, label: String) -> Mob {
-        Mob {
+    pub fn new_mob(&mut self, room_id: &u32, label: String, tags: HashSet<MobTag>) -> &Mob {
+        let mob = Mob {
             id: self.next_mob_id(),
             label: label,
             room_id: *room_id,
             tags: HashSet::new()
-        }
-    }
+        };
 
-    pub fn add_mob(&mut self, mob: Mob) {
         self.mobs.push(mob);
+
+        self.mobs.last().unwrap()
     }
 
     pub fn get_mob(&self, id: u32) -> &Mob {
@@ -173,6 +181,12 @@ impl Game {
     fn next_mob_id(&mut self) -> u32 {
         let id = self.next_mob_id;
         self.next_mob_id += 1;
+        id
+    }
+
+    fn next_player_id(&mut self) -> u32 {
+        let id = self.next_player_id;
+        self.next_player_id += 1;
         id
     }
 }
