@@ -42,14 +42,10 @@ impl GameController {
 
     pub fn players_per_room(&self) -> HashMap<u32, Vec<u32>> {
         let data: Vec<(u32, u32)> =
-            self.players
-                .values()
+            self.game.list_players()
                 .into_iter()
-                .flat_map(|i| {
-                    &i.login
-                })
-                .map(|login| {
-                    let player = self.game.get_player(&login);
+                .map(|id| {
+                    let player = self.game.get_player_by_id(&id);
                     let avatar = self.game.get_mob(player.avatar_id);
                     (player.id, avatar.room_id)
                 })
@@ -58,7 +54,7 @@ impl GameController {
         // group_by
         let mut result: HashMap<u32, Vec<u32>> = HashMap::new();
         for i in data {
-            result.entry(i.0).or_insert(vec![]).push(i.1);
+            result.entry(i.1).or_insert(vec![]).push(i.0);
         }
         result
     }
@@ -81,7 +77,8 @@ impl GameController {
         // handle disconnected players
         for id in disconnects {
             println!("gamecontroller - {} removing player", id);
-            self.game.player_disconnect(id);
+            self.game.player_disconnect(&id);
+            let _ = self.players.remove(&id);
         }
 
         // handle players inputs
@@ -114,7 +111,7 @@ impl GameController {
                         let inital_room_id = rooms.first().unwrap();
 
                         // add player avatar
-                        let mut mob = self.game.new_mob(*inital_room_id, format!("char-{}", login));
+                        let mut mob = self.game.new_mob(inital_room_id, format!("char-{}", login));
                         mob.tags.insert(MobTag::AVATAR);
                         mob.label = login.clone();
                         let mob_id = mob.id;
@@ -135,5 +132,49 @@ impl GameController {
         }
 
         outputs
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashSet;
+
+    #[test]
+    fn test_players_per_room() {
+        let mut game = Game::new();
+
+        game.add_room(Room {
+            id: 0,
+            label: "room1".to_string(),
+            desc: "".to_string(),
+            exits: vec![],
+            tags: HashSet::new()
+        });
+
+        game.add_mob(Mob {
+            id: 0,
+            room_id: 0,
+            label: "sisso".to_string(),
+            tags: HashSet::new()
+        });
+
+        game.player_connect(0, &"sisso".to_string(), 0);
+
+        game.add_mob(Mob {
+            id: 1,
+            room_id: 0,
+            label: "abibue".to_string(),
+            tags: HashSet::new()
+        });
+
+        game.player_connect(1, &"abibue".to_string(), 1);
+
+        let mut gc = GameController::new(game);
+
+        let map = gc.players_per_room();
+        let result = map.get(&0);
+        println!("{:?}", result);
+        assert_eq!(result, Some(&vec![0, 1]));
     }
 }

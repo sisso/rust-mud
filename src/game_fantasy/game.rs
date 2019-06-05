@@ -83,6 +83,10 @@ pub struct Room {
 }
 
 impl Game {
+    pub fn list_players(&self) -> Vec<u32> {
+        self.players.iter().map(|i| i.id).collect()
+    }
+
     pub fn player_connect(&mut self, id: u32, login: &String, avatar_id: u32) {
         println!("game - adding player {}/{}", id, login);
 
@@ -93,10 +97,10 @@ impl Game {
         });
     }
 
-    pub fn player_disconnect(&mut self, id: u32) {
+    pub fn player_disconnect(&mut self, id: &u32) {
         println!("game - removing player {}", id);
 
-        let index = self.players.iter().position(|x| x.id == id).unwrap();
+        let index = self.players.iter().position(|x| x.id == *id).unwrap();
         self.players.remove(index);
     }
 
@@ -112,20 +116,20 @@ impl Game {
             .collect()
     }
 
-    pub fn get_room(&self, id: u32) -> &Room {
+    pub fn get_room(&self, id: &u32) -> &Room {
         let room = self.rooms
             .iter()
-            .find(|room| { room.id == id })
+            .find(|room| { room.id == *id })
             .unwrap();
 
         room
     }
 
-    pub fn new_mob(&mut self, room_id: u32, label: String) -> Mob {
+    pub fn new_mob(&mut self, room_id: &u32, label: String) -> Mob {
         Mob {
             id: self.next_mob_id(),
             label: label,
-            room_id: room_id,
+            room_id: *room_id,
             tags: HashSet::new()
         }
     }
@@ -142,20 +146,25 @@ impl Game {
         found.unwrap()
     }
 
-    pub fn get_mob_mut(&mut self, id: u32) -> &mut Mob {
-        let found = self.mobs
-            .iter_mut()
-            .find(|p| p.id == id);
-
-        found.expect("or failed")
-    }
-
     pub fn get_player(&self, login: &String) -> &Player {
         let found = self.players
             .iter()
             .find(|p| p.login.eq(login));
 
-        found.unwrap()
+        found.expect(format!("player with login {} not found", login).as_str())
+    }
+
+    pub fn get_player_by_id(&self, id: &u32) -> &Player {
+        let found = self.players
+            .iter()
+            .find(|p| p.id == *id);
+
+        found.expect(format!("player with login {} not found", id).as_str())
+    }
+
+    pub fn update_mob(&mut self, mob: Mob) {
+        let index = self.mobs.iter().position(|x| x.id == mob.id).unwrap();
+        self.mobs.insert(index, mob);
     }
 }
 

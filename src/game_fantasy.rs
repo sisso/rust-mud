@@ -73,8 +73,10 @@ fn game_controller_output_to_server_output(outputs: Vec<HandleOutput>, players_p
                 let players_in_room = players_in_room.iter()
                     .flat_map(|player_id| {
                         if *player_id == current_player_id {
+                            println!("game_fantasy - is same player {} {} ", player_id, current_player_id);
                             None
                         } else {
+                            println!("game_fantasy - is other player {} {} ", player_id, current_player_id);
                             Some(*player_id)
                         }
                     }).collect();

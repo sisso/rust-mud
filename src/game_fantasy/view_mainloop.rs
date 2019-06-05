@@ -12,7 +12,10 @@ pub fn handle(game: &mut Game, player_id: u32, login: &String, mut input: String
     match input.as_ref() {
         "l" | "look" => out_private(player_id, handle_look(game, login)),
         "n" | "s" | "e" | "w" => execute_move(game, player_id, login, &input),
-        _ if input.starts_with("say ")  => execute_say(game, player_id, login, &input.remove("say ".len()).to_string()),
+        _ if input.starts_with("say ")  => {
+            let msg = &input["say ".len()..].to_string();
+            execute_say(game, player_id, login, msg)
+        },
         _ => out_private(player_id, format!("unknown command '{}'\n$ ", input)),
     }
 }
@@ -56,19 +59,20 @@ fn execute_move(game: &mut Game, player_id: u32, login: &String, dir: &String) -
 
     let ctx = resolve_player(game, login);
 
-    let exit = ctx.room
+    let exit_room_id = ctx.room
         .exits
         .iter()
         .find(|e| e.0 == dir)
-        .map(|i| i.clone());
+        .map(|i| i.1);
 
     let avatar_id= ctx.avatar.id;
 
-    match exit {
-        Some(exit) => {
+    match exit_room_id {
+        Some(exit_room_id) => {
             // change entity in place
-            let mob = game.get_mob_mut(avatar_id);
-            mob.room_id = exit.1;
+            let mut mob = ctx.avatar.clone();
+            mob.room_id = exit_room_id;
+            game.update_mob(mob);
 
             let ctx = resolve_player(game, login);
             let look = execute_look(game, &ctx);
@@ -97,7 +101,7 @@ fn execute_look(game: &Game, ctx: &PlayerCtx) -> String {
 fn resolve_player<'a, 'b>(game: &'a Game, login: &'b String) -> PlayerCtx<'a> {
     let player = game.get_player(&login);
     let mob    = game.get_mob(player.avatar_id);
-    let room= game.get_room(mob.room_id);
+    let room= game.get_room(&mob.room_id);
 
     PlayerCtx {
         player,
