@@ -1,5 +1,14 @@
 use std::collections::HashSet;
 
+#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
+pub struct PlayerId(pub u32);
+
+impl std::fmt::Display for PlayerId {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "PlayerId({})", self.0)
+    }
+}
+
 pub struct Game {
     next_mob_id: u32,
     next_player_id: u32,
@@ -22,7 +31,7 @@ impl Game {
 
 #[derive(Clone, Debug)]
 pub struct Player {
-    pub id: u32,
+    pub id: PlayerId,
     pub login: String,
     pub avatar_id: u32
 }
@@ -85,12 +94,12 @@ pub struct Room {
 }
 
 impl Game {
-    pub fn list_players(&self) -> Vec<u32> {
-        self.players.iter().map(|i| i.id).collect()
+    pub fn list_players(&self) -> Vec<&PlayerId> {
+        self.players.iter().map(|i| &i.id).collect()
     }
 
     pub fn player_connect(&mut self, login: String, avatar_id: u32) -> &Player {
-        let id = self.next_player_id();
+        let id = PlayerId(self.next_player_id());
 
         println!("game - adding player {}/{}", id, login);
 
@@ -105,7 +114,7 @@ impl Game {
         &self.players.last().unwrap()
     }
 
-    pub fn player_disconnect(&mut self, id: &u32) {
+    pub fn player_disconnect(&mut self, id: &PlayerId) {
         println!("game - removing player {}", id);
 
         let index = self.players.iter().position(|x| x.id == *id).unwrap();
@@ -162,7 +171,7 @@ impl Game {
         found.expect(format!("player with login {} not found", login).as_str())
     }
 
-    pub fn get_player_by_id(&self, id: &u32) -> &Player {
+    pub fn get_player_by_id(&self, id: &PlayerId) -> &Player {
         let found = self.players
             .iter()
             .find(|p| p.id == *id);

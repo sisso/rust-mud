@@ -2,15 +2,34 @@ use std::net::{TcpStream, TcpListener};
 use std::io;
 use std::io::{Write, BufRead, ErrorKind};
 
+#[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
+pub struct ConnectionId {
+    pub id: u32
+}
+
+impl ConnectionId {
+    pub fn new(id: u32) -> Self {
+        ConnectionId {
+            id
+        }
+    }
+}
+
+impl std::fmt::Display for ConnectionId {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "ConnectionId({})", self.id)
+    }
+}
+
 struct Connection {
-    id: u32,
+    id: ConnectionId,
     stream: TcpStream,
 }
 
 pub struct LoopResult {
-    pub connects: Vec<u32>,
-    pub disconnects: Vec<u32>,
-    pub pending_inputs: Vec<(u32, String)>,
+    pub connects: Vec<ConnectionId>,
+    pub disconnects: Vec<ConnectionId>,
+    pub pending_inputs: Vec<(ConnectionId, String)>,
 }
 
 pub struct Server {
@@ -21,7 +40,7 @@ pub struct Server {
 }
 
 pub struct Output {
-    pub dest_connections_id: Vec<u32>,
+    pub dest_connections_id: Vec<ConnectionId>,
     pub output: String
 }
 
@@ -45,10 +64,10 @@ impl Connection {
 }
 
 impl Server {
-    fn next_connection_id(&mut self) -> u32 {
+    fn next_connection_id(&mut self) -> ConnectionId {
         let id = self.next_conneciton_id;
         self.next_conneciton_id += 1;
-        id
+        ConnectionId::new(id)
     }
 
     pub fn new() -> Self {
@@ -70,9 +89,9 @@ impl Server {
     }
 
     pub fn run(&mut self, pending_outputs: Vec<Output>) -> LoopResult {
-        let mut new_connections: Vec<u32> = vec![];
-        let mut broken_connections: Vec<u32> = vec![];
-        let mut pending_inputs: Vec<(u32, String)> = vec![];
+        let mut new_connections: Vec<ConnectionId> = vec![];
+        let mut broken_connections: Vec<ConnectionId> = vec![];
+        let mut pending_inputs: Vec<(ConnectionId, String)> = vec![];
 
         let listener = self.listener.as_ref().expect("server not started!");
 
@@ -82,9 +101,9 @@ impl Server {
         if let Ok((stream, addr)) = listener.accept() {
             let id = self.next_connection_id();
 
-            println!("server - new connection ({}) {}, total connections {}", addr, id, self.connections.len());
+            println!("server - new connection ({}) {:?}, total connections {}", addr, id, self.connections.len());
             stream.set_nonblocking(true)
-                .expect(format!("failed to set non_blocking stream for {}", id).as_str());
+                .expect(format!("failed to set non_blocking stream for {:?}", id).as_str());
 
             // connection succeeded
             let connection = Connection {
@@ -104,7 +123,7 @@ impl Server {
                 },
                 Err(ref err) if err.kind() == std::io::ErrorKind::WouldBlock => (),
                 Err(e) => {
-                    println!("server - {} failed: {}", connection.id, e);
+                    println!("server - {:?} failed: {}", connection.id, e);
                     broken_connections.push(connection.id)
                 }
             }
@@ -115,7 +134,7 @@ impl Server {
             for connection in &mut self.connections {
                 let is_dest = e.dest_connections_id.contains(&connection.id);
                 if is_dest {
-                    println!("server - {} sending '{}'", connection.id, e.output);
+                    println!("server - {} sending '{}'", connection.id, Server::clean_output_to_log(&e.output));
 
                     if let Err(err) = Connection::write(&mut connection.stream, e.output.as_str()) {
                         println!("server - {} failed: {}", connection.id, err);
@@ -126,11 +145,11 @@ impl Server {
         }
 
         // remove broken connections
-        for id in &broken_connections {
-            let index = self.connections.iter().position(|i| i.id == *id).unwrap();
+        for connection in &broken_connections {
+            let index = self.connections.iter().position(|i| i.id == *connection).unwrap();
             self.connections.remove(index);
 
-            println!("server - {} removed, total connections {}", *id, self.connections.len());
+            println!("server - {} removed, total connections {}", connection.id, self.connections.len());
         }
 
         LoopResult {
@@ -138,5 +157,9 @@ impl Server {
             disconnects: broken_connections,
             pending_inputs: pending_inputs
         }
+    }
+
+    fn clean_output_to_log(s: &String) -> String {
+        s.replace("\n", "\\n")
     }
 }

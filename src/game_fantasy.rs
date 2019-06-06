@@ -6,7 +6,7 @@ mod view_mainloop;
 use crate::server;
 use game_controller::*;
 use game::*;
-use std::collections::{HashSet, HashMap};
+use std::collections::{HashSet};
 
 fn load_rooms(game: &mut Game) {
     let room1 = Room {
@@ -43,60 +43,8 @@ pub fn run() {
 
     loop {
         let result = server.run(pending_outputs);
-        let game_outputs= game_controller.handle(result.connects, result.disconnects, result.pending_inputs);
-        let players_per_room = game_controller.players_per_room();
-        pending_outputs = game_controller_output_to_server_output(&game_controller, game_outputs, players_per_room);
+        pending_outputs= game_controller.handle(result.connects, result.disconnects, result.pending_inputs);
 
         std::thread::sleep(::std::time::Duration::from_millis(100));
     }
-}
-
-// TODO: move to game_controller???
-fn game_controller_output_to_server_output(game_controller: &GameController, outputs: Vec<HandleOutput>, players_per_room: HashMap<u32, Vec<u32>>) -> Vec<server::Output> {
-    let mut result = vec![];
-
-    for mut i in outputs {
-        let current_player_id = i.player_id;
-
-        for player_msg in i.player_msg {
-            println!("game_fantasy - sending to {:?}, '{}'", current_player_id, player_msg);
-
-            let out = server::Output {
-                dest_connections_id: vec![i.player_id],
-                output: player_msg,
-            };
-
-            result.push(out);
-        }
-
-        for room_msg in i.room_msg {
-            if let Some(players_in_room) = players_per_room.get(&i.room_id.expect("room msg without room id")) {
-                let connections_in_room: Vec<u32> = players_in_room.iter()
-                    .flat_map(|player_id| {
-                        if *player_id == current_player_id {
-                            println!("game_fantasy - is same player {} {} ", player_id, current_player_id);
-                            None
-                        } else {
-                            println!("game_fantasy - is other player {} {} ", player_id, current_player_id);
-                            Some(*player_id)
-                        }
-                    }).map(|player_id| {
-                        game_controller.connection_id_from_player_id(&player_id)
-                    })
-                    .collect();
-
-                println!("game_fantasy - sending to {:?}, '{}'", players_in_room, room_msg);
-
-                let out = server::Output {
-                    dest_connections_id: connections_in_room,
-                    output: room_msg,
-                };
-
-                result.push(out);
-            }
-        }
-
-    }
-
-    result
 }
