@@ -130,7 +130,7 @@ impl GameController {
                 println!("gamecontroller - {} handling input '{}'", connection.id, input);
 
                 let player_id = self.player_id_from_connection_id(&connection);
-                let mut out = view_mainloop::handle(&mut self.game, &player_id, &login, input);
+                let out = view_mainloop::handle(&mut self.game, &player_id, &login, input);
                 self.append_outputs(&mut outputs, out);
             } else {
                 println!("gamecontroller - {} handling login '{}'", connection.id, input);
@@ -140,14 +140,17 @@ impl GameController {
                         let index = self.players.iter().position(|i| i.connection_id == connection).unwrap();
 
                         // TODO: externalize avatar creation
-                        // search initial room
-                        let rooms = self.game.get_rooms_by_tag(&RoomTag::INITIAL);
-                        let inital_room_id = rooms.first().unwrap();
 
                         // add player avatar
-                        let tags = vec![MobTag::AVATAR].iter().cloned().collect();
-                        let mob = self.game.new_mob(inital_room_id, login.clone(), tags);
-                        let mob_id = mob.id;
+                        let mob_id = self.game.next_mob_id();
+
+                        let mob = Mob {
+                            id: mob_id,
+                            label: login.clone(),
+                            room_id: 0,
+                            is_avatar: true
+                        };
+                        self.game.add_mob(mob);
 
                         // add player to game
                         let player = self.game.player_connect(login.clone(), mob_id);
@@ -215,7 +218,19 @@ impl GameController {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::HashSet;
+
+    fn r_mob(game: &mut Game, label: String) -> &Mob {
+        let mob_id = game.next_mob_id();
+
+        let mob = Mob {
+            id: mob_id,
+            label: label,
+            room_id: 0,
+            is_avatar: true
+        };
+
+        game.add_mob(mob)
+    }
 
     #[test]
     fn test_players_per_room() {
@@ -226,16 +241,15 @@ mod tests {
             label: "room1".to_string(),
             desc: "".to_string(),
             exits: vec![],
-            tags: HashSet::new()
         });
 
-        let mob_player_0_id = game.new_mob(&0, "sisso".to_string(), HashSet::new()).id;
-        let mob_player_1_id = game.new_mob(&0, "abibue".to_string(), HashSet::new()).id;
+        let mob_player_0_id = r_mob(&mut game,"player0".to_string()).id;
+        let mob_player_1_id = r_mob(&mut game,"player1".to_string()).id;
 
-        game.player_connect("sisso".to_string(), mob_player_0_id);
-        game.player_connect( "abibue".to_string(), mob_player_1_id);
+        game.player_connect("player0".to_string(), mob_player_0_id);
+        game.player_connect( "player1".to_string(), mob_player_1_id);
 
-        let mut gc = GameController::new(game);
+        let gc = GameController::new(game);
 
         let map = gc.players_per_room();
         let result = map.get(&0);

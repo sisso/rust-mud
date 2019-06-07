@@ -6,7 +6,6 @@ mod view_mainloop;
 use crate::server;
 use game_controller::*;
 use game::*;
-use std::collections::{HashSet};
 
 fn load_rooms(game: &mut Game) {
     let room1 = Room {
@@ -14,8 +13,6 @@ fn load_rooms(game: &mut Game) {
         label: "Main Room".to_string(),
         desc: "Main room where people born".to_string(),
         exits: vec![(Dir::S, 1)],
-        // TODO: cam be simplified?
-        tags: [RoomTag::INITIAL].iter().cloned().collect(),
     };
 
     let room2 = Room {
@@ -23,7 +20,6 @@ fn load_rooms(game: &mut Game) {
         label: "Bar".to_string(),
         desc: "Where we relief our duties".to_string(),
         exits: vec![(Dir::N, 0)],
-        tags: HashSet::new(),
     };
 
     game.add_room(room1);

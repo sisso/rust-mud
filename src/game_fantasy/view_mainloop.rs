@@ -8,7 +8,7 @@ struct PlayerCtx<'a> {
 }
 
 // TODO: remove login?
-pub fn handle(game: &mut Game, player_id: &PlayerId, login: &String, mut input: String) -> Vec<HandleOutput> {
+pub fn handle(game: &mut Game, player_id: &PlayerId, login: &String, input: String) -> Vec<HandleOutput> {
     match input.as_ref() {
         "l" | "look" => out_private(player_id, handle_look(game, login)),
         "n" | "s" | "e" | "w" => execute_move(game, player_id, login, &input),

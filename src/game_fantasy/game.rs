@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct PlayerId(pub u32);
 
@@ -41,7 +39,7 @@ pub struct Mob {
     pub id: u32,
     pub room_id: u32,
     pub label: String,
-    pub tags: HashSet<MobTag>,
+    pub is_avatar: bool
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -74,23 +72,12 @@ impl std::fmt::Display for Dir {
     }
 }
 
-#[derive(Clone, Debug, Hash, Eq, PartialEq)]
-pub enum MobTag {
-    AVATAR
-}
-
-#[derive(Hash, Eq, PartialEq, Debug, Clone)]
-pub enum RoomTag {
-    INITIAL
-}
-
 #[derive(Clone, Debug)]
 pub struct Room {
     pub id: u32,
     pub label: String,
     pub desc: String,
     pub exits: Vec<(Dir, u32)>,
-    pub tags: HashSet<RoomTag>,
 }
 
 impl Game {
@@ -125,13 +112,13 @@ impl Game {
         self.rooms.push(room);
     }
 
-    pub fn get_rooms_by_tag(&self, tag: &RoomTag) -> Vec<u32> {
-        self.rooms
-            .iter()
-            .filter(|room| room.tags.contains(tag))
-            .map(|room| room.id)
-            .collect()
-    }
+//    pub fn get_rooms_by_tag(&self, tag: &RoomTag) -> Vec<u32> {
+//        self.rooms
+//            .iter()
+//            .filter(|room| room.tags.contains(tag))
+//            .map(|room| room.id)
+//            .collect()
+//    }
 
     pub fn get_room(&self, id: &u32) -> &Room {
         let room = self.rooms
@@ -142,16 +129,8 @@ impl Game {
         room
     }
 
-    pub fn new_mob(&mut self, room_id: &u32, label: String, tags: HashSet<MobTag>) -> &Mob {
-        let mob = Mob {
-            id: self.next_mob_id(),
-            label: label,
-            room_id: *room_id,
-            tags: HashSet::new()
-        };
-
+    pub fn add_mob(&mut self, mob: Mob) -> &Mob {
         self.mobs.push(mob);
-
         self.mobs.last().unwrap()
     }
 
@@ -183,16 +162,16 @@ impl Game {
         let index = self.mobs.iter().position(|x| x.id == mob.id).unwrap();
         self.mobs.insert(index, mob);
     }
-}
 
-
-impl Game {
-    fn next_mob_id(&mut self) -> u32 {
+    pub fn next_mob_id(&mut self) -> u32 {
         let id = self.next_mob_id;
         self.next_mob_id += 1;
         id
     }
+}
 
+
+impl Game {
     fn next_player_id(&mut self) -> u32 {
         let id = self.next_player_id;
         self.next_player_id += 1;
