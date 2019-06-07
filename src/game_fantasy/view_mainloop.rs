@@ -102,7 +102,7 @@ fn execute_move(game: &mut Game, player_id: &PlayerId, login: &String, dir: &Str
     }
 }
 
-fn execute_look(game: &Game, ctx: &PlayerCtx) -> String {
+fn execute_look(_game: &Game, ctx: &PlayerCtx) -> String {
     let mut exits = vec![];
     for exit in &ctx.room.exits {
         let dir = &exit.0;

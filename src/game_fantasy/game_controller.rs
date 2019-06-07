@@ -5,15 +5,29 @@ use std::collections::{HashMap};
 use super::view_login;
 use super::view_mainloop;
 
-struct PlayerState {
-    connection_id: ConnectionId,
-    player_id: Option<PlayerId>,
-    login: Option<String>,
+enum ConnectionState {
+    NotLogged {
+        connection_id: ConnectionId,
+    },
+    Logged {
+        connection_id: ConnectionId,
+        player_id: PlayerId,
+        login: String,
+    }
+}
+
+impl ConnectionState {
+    fn connection_id(&self) -> &ConnectionId {
+        match self {
+            ConnectionState::NotLogged { connection_id, .. } => connection_id,
+            ConnectionState::Logged { connection_id, .. } => connection_id
+        }
+    }
 }
 
 pub struct GameController {
     game: Game,
-    players: Vec<PlayerState>,
+    connections: Vec<ConnectionState>,
 }
 
 // TODO: split player and room?
@@ -40,17 +54,31 @@ impl GameController {
     pub fn new(game: Game) -> Self {
         GameController {
             game,
-            players: vec![]
+            connections: vec![]
         }
     }
 
     pub fn connection_id_from_player_id(&self, player_id: &PlayerId) -> ConnectionId {
-        self.players
-            .iter()
-            // TODO: option.contains?
-            .find(|i| i.player_id == Some(*player_id))
-            .map(|state| state.connection_id)
-            .unwrap()
+//        self.connections
+//            .iter()
+//            .flat_map(|i| {
+//                match i {
+//                    c @ ConnectionState::Logged {..} if c.player_id == player_id => Some(c),
+//                    _ => None
+//                }
+//            }).map(|state| state.connection_id)
+//            .unwrap()
+
+        for i in &self.connections {
+            match i {
+                ConnectionState::Logged { player_id: i_player_id, connection_id, .. } if i_player_id == player_id => {
+                    return connection_id.clone()
+                },
+                _ => {}
+            }
+        }
+
+        panic!("could not found connection for {}", player_id);
     }
 
     pub fn players_per_room(&self) -> HashMap<u32, Vec<PlayerId>> {
@@ -72,12 +100,24 @@ impl GameController {
         result
     }
 
-    pub fn player_id_from_connection_id(&self, connection: &ConnectionId) -> PlayerId {
-        self.players
-            .iter()
-            .find(|i| i.connection_id == *connection)
-            .map(|i| i.player_id.unwrap())
-            .unwrap()
+    pub fn player_id_from_connection_id(&self, connection_id: &ConnectionId) -> PlayerId {
+//        self.players
+//            .iter()
+//            .find(|i| i.connection_id == *connection)
+//            .map(|i| i.player_id.unwrap())
+//            .unwrap()
+
+        for i in &self.connections {
+            match i {
+                ConnectionState::Logged { player_id, connection_id: i_connection_id, .. } if i_connection_id == connection_id => {
+                    return player_id.clone()
+                },
+                _ => {}
+            }
+        }
+
+        panic!("could not found player for {}", connection_id);
+
     }
 
     pub fn handle(&mut self, connects: Vec<ConnectionId>, disconnects: Vec<ConnectionId>, inputs: Vec<(ConnectionId, String)>) -> Vec<server::Output> {
@@ -86,10 +126,8 @@ impl GameController {
         // handle new players
         for connection in connects {
             println!("gamecontroller - {} receive new player", connection.id);
-            self.players.push(PlayerState {
+            self.connections.push(ConnectionState::NotLogged {
                 connection_id: connection,
-                login: None,
-                player_id: None,
             });
 
             let out = view_login::handle_welcome();
@@ -102,75 +140,68 @@ impl GameController {
 
         // handle disconnected players
         for connection in disconnects {
-            let index = self.players.iter().position(|i| i.connection_id == connection).unwrap();
-            let connected = self.players.get(index).unwrap();
-
-            match connected.player_id {
-                Some(player_id) => {
+            let index = self.connections.iter().position(|i| *i.connection_id() == connection).unwrap();
+            match self.connections.get(index).unwrap() {
+                ConnectionState::Logged { player_id, .. } => {
                     println!("gamecontroller - {} removing player {}", connection.id, player_id);
                     self.game.player_disconnect(&player_id);
-                }
-                _ => {
-                    println!("gamecontroller - {} removing non loged player", connection.id);
-                }
+                },
+                ConnectionState::NotLogged {..} => {
+                    println!("gamecontroller - {} removing non logged player", connection.id);
+                },
             }
-
-            let _ = self.players.remove(index);
+            self.connections.remove(index);
         }
 
         // handle players inputs
-        for (connection, input) in inputs {
-            let maybe_login = {
-                let player  = self.players.iter().find(|i| i.connection_id == connection).unwrap();
-                // TODO: remove clone?
-                player.login.clone()
-            };
+        for (connection_id, input) in inputs {
+            let index = self.connections.iter().position(|i| *i.connection_id() == connection_id).unwrap();
 
-            if let Some(login) = maybe_login {
-                println!("gamecontroller - {} handling input '{}'", connection.id, input);
+            match self.connections.get(index).unwrap() {
+                ConnectionState::Logged { connection_id, player_id, login, } => {
+                    println!("gamecontroller - {} handling input '{}'", connection_id, input);
+                    let out = view_mainloop::handle(&mut self.game, &player_id, &login, input);
+                    self.append_outputs(&mut outputs, out);
+                },
+                ConnectionState::NotLogged {..} => {
+                    println!("gamecontroller - {} handling login '{}'", connection_id, input);
 
-                let player_id = self.player_id_from_connection_id(&connection);
-                let out = view_mainloop::handle(&mut self.game, &player_id, &login, input);
-                self.append_outputs(&mut outputs, out);
-            } else {
-                println!("gamecontroller - {} handling login '{}'", connection.id, input);
+                    let out = match view_login::handle(input) {
+                        (Some(login), out) => {
+                            // add player avatar
+                            let mob_id = self.game.next_mob_id();
+                            let mob = Mob {
+                                id: mob_id,
+                                label: login.clone(),
+                                room_id: 0,
+                                is_avatar: true
+                            };
+                            self.game.add_mob(mob);
 
-                let out = match view_login::handle(input) {
-                    (Some(login), out) => {
-                        let index = self.players.iter().position(|i| i.connection_id == connection).unwrap();
+                            // add player to game
+                            let player = self.game.player_connect(login.clone(), mob_id);
 
-                        // TODO: externalize avatar creation
+                            // update local state
+                            self.connections.remove(index);
+                            let new_connection_state = ConnectionState::Logged {
+                                connection_id: connection_id,
+                                player_id: player.id,
+                                login: login.clone(),
+                            };
+                            self.connections.push(new_connection_state);
 
-                        // add player avatar
-                        let mob_id = self.game.next_mob_id();
+                            // handle output
+                            let look_output = view_mainloop::handle_look(&self.game, &login);
+                            format!("{}{}", out, look_output)
+                        },
+                        (_, out) => out,
+                    };
 
-                        let mob = Mob {
-                            id: mob_id,
-                            label: login.clone(),
-                            room_id: 0,
-                            is_avatar: true
-                        };
-                        self.game.add_mob(mob);
-
-                        // add player to game
-                        let player = self.game.player_connect(login.clone(), mob_id);
-
-                        // update local state
-                        let connection_state = self.players.get_mut(index).unwrap();
-                        connection_state.login = Some(login.clone());
-                        connection_state.player_id = Some(player.id);
-
-                        let look_output = view_mainloop::handle_look(&self.game, &login);
-
-                        format!("{}{}", out, look_output)
-                    },
-                    (_, out) => out,
-                };
-
-                outputs.push(server::Output {
-                    dest_connections_id: vec![connection],
-                    output: out,
-                });
+                    outputs.push(server::Output {
+                        dest_connections_id: vec![connection_id],
+                        output: out,
+                    });
+                },
             }
         }
 
