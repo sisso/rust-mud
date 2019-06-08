@@ -1,9 +1,10 @@
+mod view_login;
+mod view_mainloop;
+
 use super::game::*;
 use crate::server;
 use crate::server::ConnectionId;
 use std::collections::{HashMap};
-use super::view_login;
-use super::view_mainloop;
 
 enum ConnectionState {
     NotLogged {
@@ -27,24 +28,37 @@ impl ConnectionState {
 
 pub struct GameController {
     game: Game,
+    // TODO: hashmap?
     connections: Vec<ConnectionState>,
 }
 
-// TODO: split player and room?
-pub struct HandleOutput {
-    pub player_id: PlayerId,
-    pub room_id: Option<u32>,
-    pub player_msg: Vec<String>,
-    pub room_msg: Vec<String>
+pub enum Output {
+    Private {
+        player_id: PlayerId,
+        msg: String
+    },
+
+    Room {
+        /// player that originate the message, he is the only one will not receive the message
+        player_id: Option<PlayerId>,
+        room_id: u32,
+        msg: String
+    }
 }
 
-impl HandleOutput {
+impl Output {
     pub fn private(player_id: PlayerId, msg: String) -> Self {
-        HandleOutput {
-            player_id: player_id,
-            room_id: None,
-            player_msg: vec![msg],
-            room_msg: vec![]
+        Output::Private {
+            player_id,
+            msg
+        }
+    }
+
+    pub fn room(player_id: PlayerId, room_id: u32, msg: String) -> Self {
+        Output::Room {
+            player_id: Some(player_id),
+            room_id,
+            msg
         }
     }
 }
@@ -59,16 +73,6 @@ impl GameController {
     }
 
     pub fn connection_id_from_player_id(&self, player_id: &PlayerId) -> ConnectionId {
-//        self.connections
-//            .iter()
-//            .flat_map(|i| {
-//                match i {
-//                    c @ ConnectionState::Logged {..} if c.player_id == player_id => Some(c),
-//                    _ => None
-//                }
-//            }).map(|state| state.connection_id)
-//            .unwrap()
-
         for i in &self.connections {
             match i {
                 ConnectionState::Logged { player_id: i_player_id, connection_id, .. } if i_player_id == player_id => {
@@ -101,12 +105,6 @@ impl GameController {
     }
 
     pub fn player_id_from_connection_id(&self, connection_id: &ConnectionId) -> PlayerId {
-//        self.players
-//            .iter()
-//            .find(|i| i.connection_id == *connection)
-//            .map(|i| i.player_id.unwrap())
-//            .unwrap()
-
         for i in &self.connections {
             match i {
                 ConnectionState::Logged { player_id, connection_id: i_connection_id, .. } if i_connection_id == connection_id => {
@@ -208,38 +206,46 @@ impl GameController {
         outputs
     }
 
-    fn append_output(&self, output: &mut Vec<server::Output>, handle_output: HandleOutput) {
-        let connection_id = self.connection_id_from_player_id(&handle_output.player_id);
+    fn append_output(&self, output: &mut Vec<server::Output>, handle_output: Output) {
+        match handle_output {
+            Output::Private { player_id, msg } => {
+                let connection_id = self.connection_id_from_player_id(&player_id);
 
-        for msg in handle_output.player_msg {
-            output.push(server::Output {
-                dest_connections_id: vec![connection_id],
-                output: msg
-            })
-        }
+                output.push(server::Output {
+                    dest_connections_id: vec![connection_id],
+                    output: msg
+                })
 
-        if let Some(room_id) = handle_output.room_id {
-            // TODO: cache outside
-            let players_per_room = self.players_per_room();
-            if let Some(players) = players_per_room.get(&room_id) {
-                let connections_id: Vec<ConnectionId> =
-                    players
-                        .iter()
-                        .map(|player_id| self.connection_id_from_player_id(&player_id))
-                        .filter(|other_connection_id| *other_connection_id != connection_id)
-                        .collect();
+            },
 
-                for msg in handle_output.room_msg {
+            Output::Room { player_id, room_id, msg } => {
+                println!("game_controller - {:?}/{}: {}", player_id, room_id, msg);
+
+                let players_per_room = self.players_per_room();
+
+                if let Some(players) = players_per_room.get(&room_id) {
+                    let connections_id: Vec<ConnectionId> =
+                        players
+                            .iter()
+                            .filter(|i_player_id| player_id.filter(|j| *j != **i_player_id).is_some())
+                            .map(|i_player_id| self.connection_id_from_player_id(i_player_id))
+                            .collect();
+
+                    println!("game_controller - players at room {:?}, selected connections: {:?}", players, connections_id);
+
                     output.push(server::Output {
-                        dest_connections_id: connections_id.clone(),
+                        dest_connections_id: connections_id,
                         output: msg
                     });
+                } else {
+                    println!("game_controller - no players at room");
                 }
-            }
+            },
+
         }
     }
 
-    fn append_outputs(&self, output: &mut Vec<server::Output>, handle_output: Vec<HandleOutput>) {
+    fn append_outputs(&self, output: &mut Vec<server::Output>, handle_output: Vec<Output>) {
         for i in handle_output {
             self.append_output(output, i);
         }
