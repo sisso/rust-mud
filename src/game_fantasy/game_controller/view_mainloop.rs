@@ -8,25 +8,25 @@ struct PlayerCtx<'a> {
 }
 
 // TODO: remove login?
-pub fn handle(game: &mut Game, player_id: &PlayerId, login: &String, input: String) -> Vec<Output> {
+pub fn handle(game: &mut Game, player_id: &PlayerId, input: String) -> Vec<Output> {
     match input.as_ref() {
-        "l" | "look" => vec![Output::private(*player_id, handle_look(game, login))],
-        "n" | "s" | "e" | "w" => execute_move(game, player_id, login, &input),
+        "l" | "look" => vec![Output::private(*player_id, handle_look(game, player_id))],
+        "n" | "s" | "e" | "w" => execute_move(game, player_id, &input),
         _ if input.starts_with("say ")  => {
             let msg = &input["say ".len()..].to_string();
-            execute_say(game, player_id, login, msg)
+            execute_say(game, player_id, msg)
         },
         _ => vec![Output::private(*player_id, format!("unknown command '{}'\n$ ", input))],
     }
 }
 
-pub fn handle_look(game: &Game, login: &String) -> String {
-    let ctx = resolve_player(game, login);
+pub fn handle_look(game: &Game, player_id: &PlayerId) -> String {
+    let ctx = resolve_player(game, player_id);
     execute_look(game, &ctx)
 }
 
-fn execute_say(game: &Game, player_id: &PlayerId, login: &String, msg: &String) -> Vec<Output> {
-    let ctx = resolve_player(game, login);
+fn execute_say(game: &Game, player_id: &PlayerId, msg: &String) -> Vec<Output> {
+    let ctx = resolve_player(game, player_id);
     let player_msg = format!("you say '{}'\n", msg);
     let room_msg = format!("{} says '{}'\n", ctx.avatar.label, msg);
     vec![
@@ -35,7 +35,7 @@ fn execute_say(game: &Game, player_id: &PlayerId, login: &String, msg: &String) 
     ]
 }
 
-fn execute_move(game: &mut Game, player_id: &PlayerId, login: &String, dir: &String) -> Vec<Output> {
+fn execute_move(game: &mut Game, player_id: &PlayerId, dir: &String) -> Vec<Output> {
     let dir = match dir.as_ref() {
         "n" => Dir::N,
         "s" => Dir::S,
@@ -44,7 +44,7 @@ fn execute_move(game: &mut Game, player_id: &PlayerId, login: &String, dir: &Str
         _   => panic!("invalid input {}", dir),
     };
 
-    let ctx = resolve_player(game, login);
+    let ctx = resolve_player(game, player_id);
 
     let exit_room_id = ctx.room
         .exits
@@ -65,7 +65,7 @@ fn execute_move(game: &mut Game, player_id: &PlayerId, login: &String, dir: &Str
             mob.room_id = exit_room_id;
             game.update_mob(mob);
 
-            let ctx = resolve_player(game, login);
+            let ctx = resolve_player(game, player_id);
             let look = execute_look(game, &ctx);
 
             let player_msg = format!("you move to {}!\n\n{}", dir, look);
@@ -93,8 +93,8 @@ fn execute_look(_game: &Game, ctx: &PlayerCtx) -> String {
     format!("{}\n\n{}\n\n[{}]\n\n$ ", ctx.room.label, ctx.room.desc, exits).to_string()
 }
 
-fn resolve_player<'a, 'b>(game: &'a Game, login: &'b String) -> PlayerCtx<'a> {
-    let player = game.get_player(&login);
+fn resolve_player<'a, 'b>(game: &'a Game, player_id: &'b PlayerId) -> PlayerCtx<'a> {
+    let player = game.get_player_by_id(player_id);
     let mob    = game.get_mob(player.avatar_id);
     let room= game.get_room(&mob.room_id);
 

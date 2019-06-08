@@ -158,9 +158,10 @@ impl GameController {
             match self.connections.get(index).unwrap() {
                 ConnectionState::Logged { connection_id, player_id, login, } => {
                     println!("gamecontroller - {} handling input '{}'", connection_id, input);
-                    let out = view_mainloop::handle(&mut self.game, &player_id, &login, input);
+                    let out = view_mainloop::handle(&mut self.game, &player_id, input);
                     self.append_outputs(&mut outputs, out);
                 },
+
                 ConnectionState::NotLogged {..} => {
                     println!("gamecontroller - {} handling login '{}'", connection_id, input);
 
@@ -178,18 +179,20 @@ impl GameController {
 
                             // add player to game
                             let player = self.game.player_connect(login.clone(), mob_id);
+                            // TODO: why do not use this variable cause player to be considerable multable borrow in handle_look?
+                            let player_id = player.id;
 
                             // update local state
                             self.connections.remove(index);
                             let new_connection_state = ConnectionState::Logged {
                                 connection_id: connection_id,
-                                player_id: player.id,
+                                player_id: player_id,
                                 login: login.clone(),
                             };
                             self.connections.push(new_connection_state);
 
                             // handle output
-                            let look_output = view_mainloop::handle_look(&self.game, &login);
+                            let look_output = view_mainloop::handle_look(&self.game, &player_id);
                             format!("{}{}", out, look_output)
                         },
                         (_, out) => out,
