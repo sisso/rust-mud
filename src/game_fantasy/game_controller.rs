@@ -28,8 +28,8 @@ impl ConnectionState {
 
 pub struct GameController {
     game: Game,
-    // TODO: hashmap?
-    connections: Vec<ConnectionState>,
+    connections: HashMap<ConnectionId, ConnectionState>,
+    connection_id_by_player_id: HashMap<PlayerId, ConnectionId>,
 }
 
 pub enum Output {
@@ -68,21 +68,21 @@ impl GameController {
     pub fn new(game: Game) -> Self {
         GameController {
             game,
-            connections: vec![]
+            connections: HashMap::new(),
+            connection_id_by_player_id: HashMap::new()
         }
     }
 
-    pub fn connection_id_from_player_id(&self, player_id: &PlayerId) -> ConnectionId {
-        for i in &self.connections {
-            match i {
-                ConnectionState::Logged { player_id: i_player_id, connection_id, .. } if i_player_id == player_id => {
-                    return connection_id.clone()
-                },
-                _ => {}
-            }
-        }
+    pub fn connection_id_from_player_id(&self, player_id: &PlayerId) -> &ConnectionId {
+        self.connection_id_by_player_id
+            .get(player_id)
+            .expect(format!("could not found connection for {}", player_id).as_str())
+    }
 
-        panic!("could not found connection for {}", player_id);
+    pub fn get_state(&self, connection_id: &ConnectionId) -> &ConnectionState {
+        self.connections
+            .get(connection_id)
+            .expect(format!("could not found connection for {}", connection_id).as_str())
     }
 
     pub fn players_per_room(&self) -> HashMap<u32, Vec<PlayerId>> {
@@ -104,18 +104,12 @@ impl GameController {
         result
     }
 
-    pub fn player_id_from_connection_id(&self, connection_id: &ConnectionId) -> PlayerId {
-        for i in &self.connections {
-            match i {
-                ConnectionState::Logged { player_id, connection_id: i_connection_id, .. } if i_connection_id == connection_id => {
-                    return player_id.clone()
-                },
-                _ => {}
-            }
+    pub fn player_id_from_connection_id(&self, connection_id: &ConnectionId) -> &PlayerId {
+        let state = self.connections.get(connection_id).expect(format!("could not found state for connection {}", connection_id).as_str());
+        match state {
+            ConnectionState::Logged { player_id, .. } => player_id,
+            _ => panic!("could not found player for {}", connection_id),
         }
-
-        panic!("could not found player for {}", connection_id);
-
     }
 
     pub fn handle(&mut self, connects: Vec<ConnectionId>, disconnects: Vec<ConnectionId>, inputs: Vec<(ConnectionId, String)>) -> Vec<server::Output> {
@@ -124,7 +118,7 @@ impl GameController {
         // handle new players
         for connection in connects {
             println!("gamecontroller - {} receive new player", connection.id);
-            self.connections.push(ConnectionState::NotLogged {
+            self.connections.insert(connection.clone(), ConnectionState::NotLogged {
                 connection_id: connection,
             });
 
@@ -138,26 +132,27 @@ impl GameController {
 
         // handle disconnected players
         for connection in disconnects {
-            let index = self.connections.iter().position(|i| *i.connection_id() == connection).unwrap();
-            match self.connections.get(index).unwrap() {
+            let state = self.get_state(&connection);
+            match state {
                 ConnectionState::Logged { player_id, .. } => {
                     println!("gamecontroller - {} removing player {}", connection.id, player_id);
+                    let player_id = *player_id;
                     self.game.player_disconnect(&player_id);
                 },
                 ConnectionState::NotLogged {..} => {
                     println!("gamecontroller - {} removing non logged player", connection.id);
                 },
             }
-            self.connections.remove(index);
+            self.connections.remove(&connection);
         }
 
         // handle players inputs
         for (connection_id, input) in inputs {
-            let index = self.connections.iter().position(|i| *i.connection_id() == connection_id).unwrap();
-
-            match self.connections.get(index).unwrap() {
-                ConnectionState::Logged { connection_id, player_id, login, } => {
+            let state = self.get_state(&connection_id);
+            match state {
+                ConnectionState::Logged { connection_id, player_id, .. } => {
                     println!("gamecontroller - {} handling input '{}'", connection_id, input);
+                    let player_id = *player_id;
                     let out = view_mainloop::handle(&mut self.game, &player_id, input);
                     self.append_outputs(&mut outputs, out);
                 },
@@ -183,13 +178,13 @@ impl GameController {
                             let player_id = player.id;
 
                             // update local state
-                            self.connections.remove(index);
+                            self.connections.remove(&connection_id);
                             let new_connection_state = ConnectionState::Logged {
                                 connection_id: connection_id,
                                 player_id: player_id,
                                 login: login.clone(),
                             };
-                            self.connections.push(new_connection_state);
+                            self.connections.insert(connection_id, new_connection_state);
 
                             // handle output
                             let look_output = view_mainloop::handle_look(&self.game, &player_id);
@@ -215,7 +210,7 @@ impl GameController {
                 let connection_id = self.connection_id_from_player_id(&player_id);
 
                 output.push(server::Output {
-                    dest_connections_id: vec![connection_id],
+                    dest_connections_id: vec![connection_id.clone()],
                     output: msg
                 })
 
@@ -230,8 +225,9 @@ impl GameController {
                     let connections_id: Vec<ConnectionId> =
                         players
                             .iter()
+                            // exclude player that emit the message from receivers
                             .filter(|i_player_id| player_id.filter(|j| *j != **i_player_id).is_some())
-                            .map(|i_player_id| self.connection_id_from_player_id(i_player_id))
+                            .map(|i_player_id| self.connection_id_from_player_id(i_player_id).clone())
                             .collect();
 
                     println!("game_controller - players at room {:?}, selected connections: {:?}", players, connections_id);
