@@ -37,7 +37,7 @@ pub fn run() {
 
     loop {
         let result = server.run(pending_outputs);
-        pending_outputs= game_controller.handle(result.connects, result.disconnects, result.pending_inputs);
+        pending_outputs = game_controller.handle(result.connects, result.disconnects, result.pending_inputs);
 
         std::thread::sleep(::std::time::Duration::from_millis(100));
     }

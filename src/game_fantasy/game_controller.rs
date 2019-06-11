@@ -4,7 +4,7 @@ mod view_mainloop;
 use super::game::*;
 use crate::server;
 use crate::server::ConnectionId;
-use std::collections::{HashMap};
+use std::collections::{HashMap, HashSet};
 
 enum ConnectionState {
     NotLogged {
@@ -61,6 +61,13 @@ impl Output {
             msg
         }
     }
+
+    pub fn player_id(&self) -> Option<PlayerId> {
+        match self {
+            Output::Private { player_id, .. } => Some(player_id.clone()),
+            Output::Room { player_id, .. } => player_id.clone(),
+        }
+    }
 }
 
 // TODO: move login and input handling to utility
@@ -73,47 +80,16 @@ impl GameController {
         }
     }
 
-    pub fn connection_id_from_player_id(&self, player_id: &PlayerId) -> &ConnectionId {
-        self.connection_id_by_player_id
-            .get(player_id)
-            .expect(format!("could not found connection for {}", player_id).as_str())
-    }
-
-    pub fn get_state(&self, connection_id: &ConnectionId) -> &ConnectionState {
-        self.connections
-            .get(connection_id)
-            .expect(format!("could not found connection for {}", connection_id).as_str())
-    }
-
-    pub fn players_per_room(&self) -> HashMap<u32, Vec<PlayerId>> {
-        let room_player: Vec<(u32, PlayerId)> =
-            self.game.list_players()
-                .into_iter()
-                .map(|player_id| {
-                    let player = self.game.get_player_by_id(player_id);
-                    let avatar = self.game.get_mob(player.avatar_id);
-                    (avatar.room_id, *player_id)
-                })
-                .collect();
-
-        // group_by
-        let mut result: HashMap<u32, Vec<PlayerId>> = HashMap::new();
-        for (room_id, player_id) in room_player {
-            result.entry(room_id).or_insert(vec![]).push(player_id);
-        }
-        result
-    }
-
-    pub fn player_id_from_connection_id(&self, connection_id: &ConnectionId) -> &PlayerId {
-        let state = self.connections.get(connection_id).expect(format!("could not found state for connection {}", connection_id).as_str());
-        match state {
-            ConnectionState::Logged { player_id, .. } => player_id,
-            _ => panic!("could not found player for {}", connection_id),
-        }
-    }
-
+    //
+    // 1. new connections
+    // 2. disconnects
+    // 3. inputs
+    // 4. actions
+    // 5. outputs
+    //
     pub fn handle(&mut self, connects: Vec<ConnectionId>, disconnects: Vec<ConnectionId>, inputs: Vec<(ConnectionId, String)>) -> Vec<server::Output> {
-        let mut outputs = vec![];
+        let mut server_outputs: Vec<server::Output> = vec![];
+        let mut outputs: Vec<Output> = vec![];
 
         // handle new players
         for connection in connects {
@@ -123,8 +99,7 @@ impl GameController {
             });
 
             let out = view_login::handle_welcome();
-//            self.append_output(&mut outputs, HandleOutput::private(player_id, out));
-            outputs.push(server::Output {
+            server_outputs.push(server::Output {
                 dest_connections_id: vec![connection],
                 output: out,
             });
@@ -153,14 +128,14 @@ impl GameController {
                 ConnectionState::Logged { connection_id, player_id, .. } => {
                     println!("gamecontroller - {} handling input '{}'", connection_id, input);
                     let player_id = *player_id;
-                    let out = view_mainloop::handle(&mut self.game, &player_id, input);
-                    self.append_outputs(&mut outputs, out);
+                    let mut out = view_mainloop::handle(&mut self.game, &player_id, input);
+                    outputs.append(&mut out);
                 },
 
                 ConnectionState::NotLogged {..} => {
                     println!("gamecontroller - {} handling login '{}'", connection_id, input);
 
-                    let out = match view_login::handle(input) {
+                    match view_login::handle(input) {
                         (Some(login), out) => {
                             // add player avatar
                             let mob_id = self.game.next_mob_id();
@@ -174,7 +149,6 @@ impl GameController {
 
                             // add player to game
                             let player = self.game.player_connect(login.clone(), mob_id);
-                            // TODO: why do not use this variable cause player to be considerable multable borrow in handle_look?
                             let player_id = player.id;
 
                             // update local state
@@ -185,24 +159,68 @@ impl GameController {
                                 login: login.clone(),
                             };
                             self.connections.insert(connection_id, new_connection_state);
+                            self.connection_id_by_player_id.insert(player_id, connection_id);
 
                             // handle output
                             let look_output = view_mainloop::handle_look(&self.game, &player_id);
-                            format!("{}{}", out, look_output)
+                            outputs.push(Output::private(player_id, format!("{}{}", out, look_output)));
                         },
-                        (_, out) => out,
+                        (_, out) => {
+                            server_outputs.push(server::Output {
+                                dest_connections_id: vec![connection_id],
+                                output: out,
+                            });
+                        },
                     };
-
-                    outputs.push(server::Output {
-                        dest_connections_id: vec![connection_id],
-                        output: out,
-                    });
                 },
             }
         }
 
-        outputs
+        self.append_outputs(&mut server_outputs, outputs);
+        self.append_cursors(&mut server_outputs);
+        server_outputs
     }
+
+    /// For each player that will receive output, append new line with cursor
+    /// TODO: how to handle the case that user receive a output without giving a input (with enter new line)?
+    ///       should we added a line before any output?
+    fn append_cursors(&self, outputs: &mut Vec<server::Output>) {
+        let mut output_to_add : Vec<ConnectionId> = vec![];
+
+        for i in outputs.iter() {
+            for j in &i.dest_connections_id {
+                let player_id = self.player_id_from_connection_id(j);
+
+                match player_id {
+                    Some(player_id) if !output_to_add.contains(j) => {
+                        output_to_add.push(j.clone());
+                    },
+                    _ => {},
+                }
+            }
+        }
+
+        outputs.push(server::Output {
+            dest_connections_id: output_to_add,
+            output: "\n$ ".to_string()
+        });
+    }
+
+//    fn append_cursors(&self, outputs: &mut Vec<Output>) {
+//        let mut already_added_set: HashSet<PlayerId> = HashSet::new();
+//        let mut output_to_add : Vec<Output> = vec![];
+//        outputs.iter_mut().for_each(|i| {
+//            match i.player_id() {
+//                Some(player_id) if !already_added_set.contains(&player_id) => {
+//                    already_added_set.insert(player_id.clone());
+//                    output_to_add.push(Output::private(player_id, "\n$ ".to_string()));
+//                },
+//                _ => {} // ignore
+//            }
+//        });
+//
+//        outputs.append(&mut output_to_add);
+//    }
 
     fn append_output(&self, output: &mut Vec<server::Output>, handle_output: Output) {
         match handle_output {
@@ -247,6 +265,45 @@ impl GameController {
     fn append_outputs(&self, output: &mut Vec<server::Output>, handle_output: Vec<Output>) {
         for i in handle_output {
             self.append_output(output, i);
+        }
+    }
+
+    fn connection_id_from_player_id(&self, player_id: &PlayerId) -> &ConnectionId {
+        self.connection_id_by_player_id
+            .get(player_id)
+            .expect(format!("could not found connection for {}", player_id).as_str())
+    }
+
+    fn get_state(&self, connection_id: &ConnectionId) -> &ConnectionState {
+        self.connections
+            .get(connection_id)
+            .expect(format!("could not found connection for {}", connection_id).as_str())
+    }
+
+    fn players_per_room(&self) -> HashMap<u32, Vec<PlayerId>> {
+        let room_player: Vec<(u32, PlayerId)> =
+            self.game.list_players()
+                .into_iter()
+                .map(|player_id| {
+                    let player = self.game.get_player_by_id(player_id);
+                    let avatar = self.game.get_mob(player.avatar_id);
+                    (avatar.room_id, *player_id)
+                })
+                .collect();
+
+        // group_by
+        let mut result: HashMap<u32, Vec<PlayerId>> = HashMap::new();
+        for (room_id, player_id) in room_player {
+            result.entry(room_id).or_insert(vec![]).push(player_id);
+        }
+        result
+    }
+
+    fn player_id_from_connection_id(&self, connection_id: &ConnectionId) -> Option<&PlayerId> {
+        let state = self.connections.get(connection_id).expect(format!("could not found state for connection {}", connection_id).as_str());
+        match state {
+            ConnectionState::Logged { player_id, .. } => Some(player_id),
+            _ => None,
         }
     }
 }

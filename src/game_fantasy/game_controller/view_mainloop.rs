@@ -16,7 +16,7 @@ pub fn handle(game: &mut Game, player_id: &PlayerId, input: String) -> Vec<Outpu
             let msg = &input["say ".len()..].to_string();
             execute_say(game, player_id, msg)
         },
-        _ => vec![Output::private(*player_id, format!("unknown command '{}'\n$ ", input))],
+        _ => vec![Output::private(*player_id, format!("unknown command '{}'", input))],
     }
 }
 
@@ -79,7 +79,7 @@ fn execute_move(game: &mut Game, player_id: &PlayerId, dir: &String) -> Vec<Outp
             ]
 
         },
-        None => vec![Output::private(*player_id, format!("not possible to move to {}!\n\n$ ", dir))]
+        None => vec![Output::private(*player_id, format!("not possible to move to {}!\n", dir))]
     }
 }
 
@@ -90,7 +90,7 @@ fn execute_look(_game: &Game, ctx: &PlayerCtx) -> String {
         exits.push(dir.to_string());
     }
     let exits = exits.join(", ");
-    format!("{}\n\n{}\n\n[{}]\n\n$ ", ctx.room.label, ctx.room.desc, exits).to_string()
+    format!("{}\n\n{}\n\n[{}]\n", ctx.room.label, ctx.room.desc, exits).to_string()
 }
 
 fn resolve_player<'a, 'b>(game: &'a Game, player_id: &'b PlayerId) -> PlayerCtx<'a> {
