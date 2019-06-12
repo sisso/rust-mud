@@ -90,6 +90,7 @@ impl GameController {
     pub fn handle(&mut self, connects: Vec<ConnectionId>, disconnects: Vec<ConnectionId>, inputs: Vec<(ConnectionId, String)>) -> Vec<server::Output> {
         let mut server_outputs: Vec<server::Output> = vec![];
         let mut outputs: Vec<Output> = vec![];
+        let mut connections_with_input: HashSet<ConnectionId> = HashSet::new();
 
         // handle new players
         for connection in connects {
@@ -123,6 +124,8 @@ impl GameController {
 
         // handle players inputs
         for (connection_id, input) in inputs {
+            connections_with_input.insert(connection_id.clone());
+
             let state = self.get_state(&connection_id);
             match state {
                 ConnectionState::Logged { connection_id, player_id, .. } => {
@@ -177,50 +180,45 @@ impl GameController {
         }
 
         self.append_outputs(&mut server_outputs, outputs);
-        self.append_cursors(&mut server_outputs);
+        self.normalize_output(&mut server_outputs, &connections_with_input);
         server_outputs
     }
 
-    /// For each player that will receive output, append new line with cursor
-    /// TODO: how to handle the case that user receive a output without giving a input (with enter new line)?
-    ///       should we added a line before any output?
-    fn append_cursors(&self, outputs: &mut Vec<server::Output>) {
-        let mut output_to_add : Vec<ConnectionId> = vec![];
+    /// For each player that will receive output, append new line with cursor.
+    ///
+    /// If player send no input, append a new line before any output
+    fn normalize_output(&self, outputs: &mut Vec<server::Output>, connections_with_input: &HashSet<ConnectionId>) {
+        let mut append_cursor_ids: Vec<ConnectionId> = vec![];
+        let mut new_lines_ids: Vec<ConnectionId> = vec![];
 
-        for i in outputs.iter() {
-            for j in &i.dest_connections_id {
-                let player_id = self.player_id_from_connection_id(j);
+        for output in outputs.iter() {
+            for connection in &output.dest_connections_id {
+                let player_id = self.player_id_from_connection_id(connection);
 
                 match player_id {
-                    Some(player_id) if !output_to_add.contains(j) => {
-                        output_to_add.push(j.clone());
+                    Some(player_id) if !append_cursor_ids.contains(connection) => {
+                        append_cursor_ids.push(connection.clone());
+
+                        // if player do not have newline because sent a input, append new line in start
+                        if !connections_with_input.contains(connection) && !new_lines_ids.contains(&connection) {
+                            new_lines_ids.push(connection.clone());
+                        }
                     },
                     _ => {},
                 }
             }
         }
 
+        outputs.insert(0, server::Output {
+            dest_connections_id: new_lines_ids,
+            output: "\n".to_string()
+        });
+
         outputs.push(server::Output {
-            dest_connections_id: output_to_add,
+            dest_connections_id: append_cursor_ids,
             output: "\n$ ".to_string()
         });
     }
-
-//    fn append_cursors(&self, outputs: &mut Vec<Output>) {
-//        let mut already_added_set: HashSet<PlayerId> = HashSet::new();
-//        let mut output_to_add : Vec<Output> = vec![];
-//        outputs.iter_mut().for_each(|i| {
-//            match i.player_id() {
-//                Some(player_id) if !already_added_set.contains(&player_id) => {
-//                    already_added_set.insert(player_id.clone());
-//                    output_to_add.push(Output::private(player_id, "\n$ ".to_string()));
-//                },
-//                _ => {} // ignore
-//            }
-//        });
-//
-//        outputs.append(&mut output_to_add);
-//    }
 
     fn append_output(&self, output: &mut Vec<server::Output>, handle_output: Output) {
         match handle_output {
