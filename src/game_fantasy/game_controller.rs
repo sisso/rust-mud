@@ -8,6 +8,22 @@ use super::command_handler;
 
 use std::collections::{HashMap, HashSet};
 
+trait LoginView {
+
+}
+
+trait MainView {
+
+}
+
+trait CommandHandler {
+
+}
+
+pub trait NewPlayerFactory {
+    fn handle(&mut self, game: &mut Game, login: &String) -> PlayerId;
+}
+
 enum ConnectionState {
     NotLogged {
         connection_id: ConnectionId,
@@ -29,7 +45,6 @@ impl ConnectionState {
 }
 
 pub struct GameController {
-    game: Game,
     connections: HashMap<ConnectionId, ConnectionState>,
     connection_id_by_player_id: HashMap<PlayerId, ConnectionId>,
 }
@@ -72,13 +87,19 @@ impl Output {
     }
 }
 
-// TODO: move login and input handling to utility
+pub struct GameControllerContext<'a> {
+    pub game: &'a mut Game,
+    pub new_player_factory: &'a mut NewPlayerFactory,
+    pub connects: Vec<ConnectionId>,
+    pub disconnects: Vec<ConnectionId>,
+    pub inputs: Vec<(ConnectionId, String)>
+}
+
 impl GameController {
-    pub fn new(game: Game) -> Self {
+    pub fn new() -> Self {
         GameController {
-            game,
             connections: HashMap::new(),
-            connection_id_by_player_id: HashMap::new()
+            connection_id_by_player_id: HashMap::new(),
         }
     }
 
@@ -89,14 +110,14 @@ impl GameController {
     // 4. actions
     // 5. outputs
     //
-    pub fn handle(&mut self, connects: Vec<ConnectionId>, disconnects: Vec<ConnectionId>, inputs: Vec<(ConnectionId, String)>) -> Vec<server::Output> {
+    pub fn handle(&mut self, params: GameControllerContext) -> Vec<server::Output> {
         let mut server_outputs: Vec<server::Output> = vec![];
         let mut outputs: Vec<Output> = vec![];
         let mut connections_with_input: HashSet<ConnectionId> = HashSet::new();
         let mut pending_commands: Vec<Command> = vec![];
 
         // handle new players
-        for connection in connects {
+        for connection in params.connects {
             println!("gamecontroller - {} receive new player", connection.id);
             self.connections.insert(connection.clone(), ConnectionState::NotLogged {
                 connection_id: connection,
@@ -110,13 +131,13 @@ impl GameController {
         }
 
         // handle disconnected players
-        for connection in disconnects {
+        for connection in params.disconnects {
             let state = self.get_state(&connection);
             match state {
                 ConnectionState::Logged { player_id, .. } => {
                     println!("gamecontroller - {} removing player {}", connection.id, player_id);
                     let player_id = *player_id;
-                    self.game.player_disconnect(&player_id);
+                    params.game.player_disconnect(&player_id);
                 },
                 ConnectionState::NotLogged {..} => {
                     println!("gamecontroller - {} removing non logged player", connection.id);
@@ -126,7 +147,7 @@ impl GameController {
         }
 
         // handle players inputs
-        for (connection_id, input) in inputs {
+        for (connection_id, input) in params.inputs {
             connections_with_input.insert(connection_id.clone());
 
             let state = self.get_state(&connection_id);
@@ -134,7 +155,7 @@ impl GameController {
                 ConnectionState::Logged { connection_id, player_id, .. } => {
                     println!("gamecontroller - {} handling input '{}'", connection_id, input);
                     let player_id = *player_id;
-                    let handle_return = view_mainloop::handle(&mut self.game, &player_id, input);
+                    let handle_return = view_mainloop::handle(params.game, &player_id, input);
                     let (output, command) = (handle_return.output, handle_return.command);
 
                     if let Some(out) = output {
@@ -151,19 +172,7 @@ impl GameController {
 
                     match view_login::handle(input) {
                         (Some(login), out) => {
-                            // add player avatar
-                            let mob_id = self.game.next_mob_id();
-                            let mob = Mob {
-                                id: mob_id,
-                                label: login.clone(),
-                                room_id: 0,
-                                is_avatar: true
-                            };
-                            self.game.add_mob(mob);
-
-                            // add player to game
-                            let player = self.game.player_connect(login.clone(), mob_id);
-                            let player_id = player.id;
+                            let player_id = params.new_player_factory.handle(params.game, &login).clone();
 
                             // update local state
                             self.connections.remove(&connection_id);
@@ -176,7 +185,7 @@ impl GameController {
                             self.connection_id_by_player_id.insert(player_id, connection_id);
 
                             // handle output
-                            let look_output = command_handler::get_look_description(&self.game, &self.game.get_player_context(&player_id));
+                            let look_output = command_handler::get_look_description(params.game, &params.game.get_player_context(&player_id));
                             outputs.push(Output::private(player_id, format!("{}{}", out, look_output)));
                         },
                         (_, out) => {
@@ -191,10 +200,10 @@ impl GameController {
         }
 
         for command in pending_commands {
-            command_handler::handle(&mut self.game, &mut outputs, command);
+            command_handler::handle(params.game, &mut outputs, command);
         }
 
-        self.append_outputs(&mut server_outputs, outputs);
+        self.append_outputs(params.game, &mut server_outputs, outputs);
         self.normalize_output(&mut server_outputs, &connections_with_input);
         server_outputs
     }
@@ -235,7 +244,7 @@ impl GameController {
         });
     }
 
-    fn append_output(&self, output: &mut Vec<server::Output>, handle_output: Output) {
+    fn append_output(&self, game: &Game, output: &mut Vec<server::Output>, handle_output: Output) {
         match handle_output {
             Output::Private { player_id, msg } => {
                 let connection_id = self.connection_id_from_player_id(&player_id);
@@ -250,7 +259,7 @@ impl GameController {
             Output::Room { player_id, room_id, msg } => {
                 println!("game_controller - {:?}/{}: {}", player_id, room_id, msg);
 
-                let players_per_room = self.players_per_room();
+                let players_per_room = self.players_per_room(game);
 
                 if let Some(players) = players_per_room.get(&room_id) {
                     let connections_id: Vec<ConnectionId> =
@@ -275,9 +284,9 @@ impl GameController {
         }
     }
 
-    fn append_outputs(&self, output: &mut Vec<server::Output>, handle_output: Vec<Output>) {
+    fn append_outputs(&self, game: &Game, output: &mut Vec<server::Output>, handle_output: Vec<Output>) {
         for i in handle_output {
-            self.append_output(output, i);
+            self.append_output(game, output, i);
         }
     }
 
@@ -293,13 +302,13 @@ impl GameController {
             .expect(format!("could not found connection for {}", connection_id).as_str())
     }
 
-    fn players_per_room(&self) -> HashMap<u32, Vec<PlayerId>> {
+    fn players_per_room(&self, game: &Game) -> HashMap<u32, Vec<PlayerId>> {
         let room_player: Vec<(u32, PlayerId)> =
-            self.game.list_players()
+            game.list_players()
                 .into_iter()
                 .map(|player_id| {
-                    let player = self.game.get_player_by_id(player_id);
-                    let avatar = self.game.get_mob(&player.avatar_id);
+                    let player = game.get_player_by_id(player_id);
+                    let avatar = game.get_mob(&player.avatar_id);
                     (avatar.room_id, *player_id)
                 })
                 .collect();
@@ -325,41 +334,8 @@ impl GameController {
 mod tests {
     use super::*;
 
-    fn r_mob(game: &mut Game, label: String) -> &Mob {
-        let mob_id = game.next_mob_id();
-
-        let mob = Mob {
-            id: mob_id,
-            label: label,
-            room_id: 0,
-            is_avatar: true
-        };
-
-        game.add_mob(mob)
-    }
-
     #[test]
-    fn test_players_per_room() {
-        let mut game = Game::new();
-
-        game.add_room(Room {
-            id: 0,
-            label: "room1".to_string(),
-            desc: "".to_string(),
-            exits: vec![],
-        });
-
-        let mob_player_0_id = r_mob(&mut game,"player0".to_string()).id;
-        let mob_player_1_id = r_mob(&mut game,"player1".to_string()).id;
-
-        game.player_connect("player0".to_string(), mob_player_0_id);
-        game.player_connect( "player1".to_string(), mob_player_1_id);
-
-        let gc = GameController::new(game);
-
-        let map = gc.players_per_room();
-        let result = map.get(&0);
-        println!("{:?}", result);
-        assert_eq!(result, Some(&vec![PlayerId(0), PlayerId(1)]));
+    fn sample_test() {
+        assert_eq!(true, true);
     }
 }
