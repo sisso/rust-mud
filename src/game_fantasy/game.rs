@@ -27,6 +27,26 @@ impl Game {
     }
 }
 
+pub enum Command {
+    Move {
+        player_id: PlayerId,
+        dir: Dir
+    },
+    Say {
+        player_id: PlayerId,
+        msg: String
+    }
+}
+
+impl Command {
+    pub fn get_player_id(&self) -> &PlayerId {
+        match self {
+            Command::Move { player_id, ..} => player_id,
+            Command::Say { player_id, ..} => player_id,
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Player {
     pub id: PlayerId,
@@ -78,6 +98,13 @@ pub struct Room {
     pub label: String,
     pub desc: String,
     pub exits: Vec<(Dir, u32)>,
+}
+
+
+pub struct PlayerCtx<'a> {
+    pub player: &'a Player,
+    pub avatar: &'a Mob,
+    pub room: &'a Room,
 }
 
 impl Game {
@@ -134,20 +161,25 @@ impl Game {
         self.mobs.last().unwrap()
     }
 
-    pub fn get_mob(&self, id: u32) -> &Mob {
+    pub fn get_mob(&self, id: &u32) -> &Mob {
         let found = self.mobs
             .iter()
-            .find(|p| p.id == id);
+            .find(|p| p.id == *id);
 
         found.unwrap()
     }
 
-    pub fn get_player(&self, login: &String) -> &Player {
+    pub fn get_player_by_login(&self, login: &String) -> &Player {
         let found = self.players
             .iter()
             .find(|p| p.login.eq(login));
 
         found.expect(format!("player with login {} not found", login).as_str())
+    }
+
+    pub fn get_avatar(&self, player_id: &PlayerId) -> &Mob {
+        let player = self.get_player_by_id(player_id);
+        self.get_mob(&player.avatar_id)
     }
 
     pub fn get_player_by_id(&self, id: &PlayerId) -> &Player {
@@ -168,6 +200,19 @@ impl Game {
         self.next_mob_id += 1;
         id
     }
+
+    pub fn get_player_context<'a, 'b>(&'a self, player_id: &'b PlayerId) -> PlayerCtx<'a> {
+        let player = self.get_player_by_id(player_id);
+        let mob = self.get_mob(&player.avatar_id);
+        let room = self.get_room(&mob.room_id);
+
+        PlayerCtx {
+            player,
+            avatar: mob,
+            room
+        }
+    }
+
 }
 
 

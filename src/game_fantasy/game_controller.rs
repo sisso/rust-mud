@@ -1,9 +1,11 @@
-mod view_login;
-mod view_mainloop;
-
-use super::game::*;
 use crate::server;
 use crate::server::ConnectionId;
+
+use super::view_login;
+use super::view_mainloop;
+use super::game::*;
+use super::command_handler;
+
 use std::collections::{HashMap, HashSet};
 
 enum ConnectionState {
@@ -91,6 +93,7 @@ impl GameController {
         let mut server_outputs: Vec<server::Output> = vec![];
         let mut outputs: Vec<Output> = vec![];
         let mut connections_with_input: HashSet<ConnectionId> = HashSet::new();
+        let mut pending_commands: Vec<Command> = vec![];
 
         // handle new players
         for connection in connects {
@@ -131,8 +134,16 @@ impl GameController {
                 ConnectionState::Logged { connection_id, player_id, .. } => {
                     println!("gamecontroller - {} handling input '{}'", connection_id, input);
                     let player_id = *player_id;
-                    let mut out = view_mainloop::handle(&mut self.game, &player_id, input);
-                    outputs.append(&mut out);
+                    let handle_return = view_mainloop::handle(&mut self.game, &player_id, input);
+                    let (output, command) = (handle_return.output, handle_return.command);
+
+                    if let Some(out) = output {
+                        outputs.push(out);
+                    }
+
+                    if let Some(command) = command {
+                        pending_commands.push(command);
+                    }
                 },
 
                 ConnectionState::NotLogged {..} => {
@@ -165,7 +176,7 @@ impl GameController {
                             self.connection_id_by_player_id.insert(player_id, connection_id);
 
                             // handle output
-                            let look_output = view_mainloop::handle_look(&self.game, &player_id);
+                            let look_output = command_handler::get_look_description(&self.game, &self.game.get_player_context(&player_id));
                             outputs.push(Output::private(player_id, format!("{}{}", out, look_output)));
                         },
                         (_, out) => {
@@ -177,6 +188,10 @@ impl GameController {
                     };
                 },
             }
+        }
+
+        for command in pending_commands {
+            command_handler::handle(&mut self.game, &mut outputs, command);
         }
 
         self.append_outputs(&mut server_outputs, outputs);
@@ -284,7 +299,7 @@ impl GameController {
                 .into_iter()
                 .map(|player_id| {
                     let player = self.game.get_player_by_id(player_id);
-                    let avatar = self.game.get_mob(player.avatar_id);
+                    let avatar = self.game.get_mob(&player.avatar_id);
                     (avatar.room_id, *player_id)
                 })
                 .collect();

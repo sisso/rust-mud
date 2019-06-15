@@ -1,5 +1,8 @@
-mod game_controller;
 mod game;
+mod game_controller;
+mod command_handler;
+mod view_login;
+mod view_mainloop;
 
 use crate::server;
 use game_controller::*;
