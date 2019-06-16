@@ -5,9 +5,10 @@ mod view_login;
 mod view_mainloop;
 
 use crate::server;
+use crate::server::ConnectionId;
+
 use game_controller::*;
 use game::*;
-use std::panic::resume_unwind;
 
 fn load_rooms(game: &mut Game) {
     let room1 = Room {
@@ -52,10 +53,56 @@ impl NewPlayerFactory for DefaultPlayerFactory {
     }
 }
 
+struct DefaultLoginView {
+
+}
+
+impl LoginView for DefaultLoginView {
+    fn handle_welcome(&mut self, connection_id: &ConnectionId, outputs: &mut Vec<server::Output>) {
+        let msg = view_login::handle_welcome();
+
+        outputs.push(server::Output {
+            dest_connections_id: vec![connection_id.clone()],
+            output: msg,
+        });
+    }
+
+    fn handle(&mut self, game: &mut Game, server_outputs: &mut Vec<server::Output>, outputs: &mut Vec<Output>, connection_id: &ConnectionId, input: String, connection_state: &ConnectionState, player_factory: &mut NewPlayerFactory) -> Option<ConnectionState> {
+        let result = view_login::handle(input);
+        match result.login {
+            Some(login) => {
+                let player_id = player_factory.handle(game, &login).clone();
+
+                // update local state
+                let new_connection_state = ConnectionState::Logged {
+                    connection_id: connection_id.clone(),
+                    player_id: player_id,
+                    login: login.clone(),
+                };
+
+                // handle output
+                let look_output = command_handler::get_look_description(game, &game.get_player_context(&player_id));
+                outputs.push(Output::private(player_id, format!("{}{}", result.msg, look_output)));
+
+                Some(new_connection_state)
+            },
+            None => {
+                server_outputs.push(server::Output {
+                    dest_connections_id: vec![connection_id.clone()],
+                    output: result.msg,
+                });
+
+                None
+            },
+        }
+    }
+}
+
 pub fn run() {
     let mut game = Game::new();
     load_rooms(&mut game);
     let mut player_factory = DefaultPlayerFactory { room_id: 0 };
+    let mut view_login = DefaultLoginView { };
 
     let mut game_controller = GameController::new();
 
@@ -70,6 +117,7 @@ pub fn run() {
         let params = game_controller::GameControllerContext {
             game: &mut game,
             new_player_factory: &mut player_factory,
+            view_login: &mut view_login,
             connects: result.connects,
             disconnects: result.disconnects,
             inputs: result.pending_inputs

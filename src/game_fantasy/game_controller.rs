@@ -1,15 +1,15 @@
 use crate::server;
 use crate::server::ConnectionId;
 
-use super::view_login;
 use super::view_mainloop;
 use super::game::*;
 use super::command_handler;
 
 use std::collections::{HashMap, HashSet};
 
-trait LoginView {
-
+pub trait LoginView {
+    fn handle_welcome(&mut self, connection_id: &ConnectionId, outputs: &mut Vec<server::Output>);
+    fn handle(&mut self, game: &mut Game, server_outputs: &mut Vec<server::Output>, outputs: &mut Vec<Output>, connection_id: &ConnectionId, input: String, connection_state: &ConnectionState, player_factory: &mut NewPlayerFactory) -> Option<ConnectionState>;
 }
 
 trait MainView {
@@ -24,7 +24,7 @@ pub trait NewPlayerFactory {
     fn handle(&mut self, game: &mut Game, login: &String) -> PlayerId;
 }
 
-enum ConnectionState {
+pub enum ConnectionState {
     NotLogged {
         connection_id: ConnectionId,
     },
@@ -90,6 +90,7 @@ impl Output {
 pub struct GameControllerContext<'a> {
     pub game: &'a mut Game,
     pub new_player_factory: &'a mut NewPlayerFactory,
+    pub view_login: &'a mut LoginView,
     pub connects: Vec<ConnectionId>,
     pub disconnects: Vec<ConnectionId>,
     pub inputs: Vec<(ConnectionId, String)>
@@ -123,11 +124,7 @@ impl GameController {
                 connection_id: connection,
             });
 
-            let out = view_login::handle_welcome();
-            server_outputs.push(server::Output {
-                dest_connections_id: vec![connection],
-                output: out,
-            });
+            params.view_login.handle_welcome(&connection, &mut server_outputs);
         }
 
         // handle disconnected players
@@ -152,6 +149,15 @@ impl GameController {
 
             let state = self.get_state(&connection_id);
             match state {
+                state @ ConnectionState::NotLogged {..} => {
+                    println!("gamecontroller - {} handling login '{}'", connection_id, input);
+
+                    let new_state = params.view_login.handle(params.game, &mut server_outputs, &mut outputs, &connection_id, input, state, params.new_player_factory);
+                    new_state.into_iter().for_each(|i| {
+                        self.set_state(i);
+                    });
+                },
+
                 ConnectionState::Logged { connection_id, player_id, .. } => {
                     println!("gamecontroller - {} handling input '{}'", connection_id, input);
                     let player_id = *player_id;
@@ -165,36 +171,6 @@ impl GameController {
                     if let Some(command) = command {
                         pending_commands.push(command);
                     }
-                },
-
-                ConnectionState::NotLogged {..} => {
-                    println!("gamecontroller - {} handling login '{}'", connection_id, input);
-
-                    match view_login::handle(input) {
-                        (Some(login), out) => {
-                            let player_id = params.new_player_factory.handle(params.game, &login).clone();
-
-                            // update local state
-                            self.connections.remove(&connection_id);
-                            let new_connection_state = ConnectionState::Logged {
-                                connection_id: connection_id,
-                                player_id: player_id,
-                                login: login.clone(),
-                            };
-                            self.connections.insert(connection_id, new_connection_state);
-                            self.connection_id_by_player_id.insert(player_id, connection_id);
-
-                            // handle output
-                            let look_output = command_handler::get_look_description(params.game, &params.game.get_player_context(&player_id));
-                            outputs.push(Output::private(player_id, format!("{}{}", out, look_output)));
-                        },
-                        (_, out) => {
-                            server_outputs.push(server::Output {
-                                dest_connections_id: vec![connection_id],
-                                output: out,
-                            });
-                        },
-                    };
                 },
             }
         }
@@ -300,6 +276,17 @@ impl GameController {
         self.connections
             .get(connection_id)
             .expect(format!("could not found connection for {}", connection_id).as_str())
+    }
+
+    fn set_state(&mut self, state: ConnectionState) {
+        match state {
+            ConnectionState::Logged { player_id, .. } if !self.connection_id_by_player_id.contains_key(&player_id) => {
+                self.connection_id_by_player_id.insert(player_id.clone(), state.connection_id().clone());
+            }
+            _ => {}
+        }
+        self.connections.insert(state.connection_id().clone(), state);
+
     }
 
     fn players_per_room(&self, game: &Game) -> HashMap<u32, Vec<PlayerId>> {

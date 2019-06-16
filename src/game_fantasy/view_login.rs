@@ -1,10 +1,22 @@
 
-pub fn handle(input: String) -> (Option<String>, String) {
+pub struct HandleResult {
+    pub login: Option<String>,
+    pub msg: String,
+}
+
+pub fn handle(input: String) -> HandleResult {
     if input.len() > 3 {
         let msg= format!("login success, welcome {}\n\n", input);
-        (Some(input), msg)
+
+        HandleResult {
+           login: Some(input),
+           msg,
+        }
     } else {
-        (None, format!("invalid login {}\n\nlogin: ", input))
+        HandleResult {
+            login :None,
+            msg: format!("invalid login {}\n\nlogin: ", input)
+        }
     }
 }
 
