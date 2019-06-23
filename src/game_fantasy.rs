@@ -1,8 +1,9 @@
 mod game;
 mod game_controller;
-mod command_handler;
 mod view_login;
 mod view_mainloop;
+mod command_handler;
+mod player_input_handler;
 
 use crate::server;
 use crate::server::ConnectionId;
@@ -103,6 +104,7 @@ pub fn run() {
     load_rooms(&mut game);
     let mut player_factory = DefaultPlayerFactory { room_id: 0 };
     let mut view_login = DefaultLoginView { };
+    let mut player_input_handler = player_input_handler::DefaultPlayerInputHandler {};
 
     let mut game_controller = GameController::new();
 
@@ -118,6 +120,7 @@ pub fn run() {
             game: &mut game,
             new_player_factory: &mut player_factory,
             view_login: &mut view_login,
+            player_inputs_handler: &mut player_input_handler,
             connects: result.connects,
             disconnects: result.disconnects,
             inputs: result.pending_inputs

@@ -9,6 +9,7 @@ use std::collections::{HashMap, HashSet};
 
 pub trait LoginView {
     fn handle_welcome(&mut self, connection_id: &ConnectionId, outputs: &mut Vec<server::Output>);
+    // TODO: remove connection state
     fn handle(&mut self, game: &mut Game, server_outputs: &mut Vec<server::Output>, outputs: &mut Vec<Output>, connection_id: &ConnectionId, input: String, connection_state: &ConnectionState, player_factory: &mut NewPlayerFactory) -> Option<ConnectionState>;
 }
 
@@ -16,8 +17,8 @@ trait MainView {
 
 }
 
-trait CommandHandler {
-
+pub trait PlayerInputHandler {
+    fn handle(&mut self, game: &mut Game, player_id: &PlayerId, outputs: &mut Vec<Output>, input: String);
 }
 
 pub trait NewPlayerFactory {
@@ -91,6 +92,7 @@ pub struct GameControllerContext<'a> {
     pub game: &'a mut Game,
     pub new_player_factory: &'a mut NewPlayerFactory,
     pub view_login: &'a mut LoginView,
+    pub player_inputs_handler: &'a mut PlayerInputHandler,
     pub connects: Vec<ConnectionId>,
     pub disconnects: Vec<ConnectionId>,
     pub inputs: Vec<(ConnectionId, String)>
@@ -115,7 +117,6 @@ impl GameController {
         let mut server_outputs: Vec<server::Output> = vec![];
         let mut outputs: Vec<Output> = vec![];
         let mut connections_with_input: HashSet<ConnectionId> = HashSet::new();
-        let mut pending_commands: Vec<Command> = vec![];
 
         // handle new players
         for connection in params.connects {
@@ -160,24 +161,29 @@ impl GameController {
 
                 ConnectionState::Logged { connection_id, player_id, .. } => {
                     println!("gamecontroller - {} handling input '{}'", connection_id, input);
-                    let player_id = *player_id;
-                    let handle_return = view_mainloop::handle(params.game, &player_id, input);
-                    let (output, command) = (handle_return.output, handle_return.command);
 
-                    if let Some(out) = output {
-                        outputs.push(out);
-                    }
+                    params.player_inputs_handler.handle(params.game, player_id, &mut outputs, input);
 
-                    if let Some(command) = command {
-                        pending_commands.push(command);
-                    }
+                    // FIXME:
+//                    let player_id = *player_id;
+//                    let handle_return = view_mainloop::handle(params.game, &player_id, input);
+//                    let (output, command) = (handle_return.output, handle_return.command);
+//
+//                    if let Some(out) = output {
+//                        outputs.push(out);
+//                    }
+//
+//                    if let Some(command) = command {
+//                        pending_commands.push(command);
+//                    }
                 },
             }
         }
 
-        for command in pending_commands {
-            command_handler::handle(params.game, &mut outputs, command);
-        }
+// FIXME:
+//        for command in pending_commands {
+//            command_handler::handle(params.game, &mut outputs, command);
+//        }
 
         self.append_outputs(params.game, &mut server_outputs, outputs);
         self.normalize_output(&mut server_outputs, &connections_with_input);
@@ -220,6 +226,8 @@ impl GameController {
         });
     }
 
+    /// Convert controller output into server output. Redirect private msg to specific player
+    /// connections and room messages to players in room connections.
     fn append_output(&self, game: &Game, output: &mut Vec<server::Output>, handle_output: Output) {
         match handle_output {
             Output::Private { player_id, msg } => {
@@ -317,12 +325,12 @@ impl GameController {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn sample_test() {
-        assert_eq!(true, true);
-    }
-}
+//#[cfg(test)]
+//mod tests {
+//    use super::*;
+//
+//    #[test]
+//    fn sample_test() {
+//        assert_eq!(true, true);
+//    }
+//}
