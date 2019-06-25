@@ -1,4 +1,4 @@
-mod game;
+mod domain;
 mod game_controller;
 mod view_login;
 mod view_mainloop;
@@ -9,9 +9,9 @@ use crate::server;
 use crate::server::ConnectionId;
 
 use game_controller::*;
-use game::*;
+use domain::*;
 
-fn load_rooms(game: &mut Game) {
+fn load_rooms(game: &mut Container) {
     let room1 = Room {
         id: 0,
         label: "Main Room".to_string(),
@@ -35,7 +35,7 @@ struct DefaultPlayerFactory {
 }
 
 impl NewPlayerFactory for DefaultPlayerFactory {
-    fn handle(&mut self, game: &mut Game, login: &String) -> PlayerId {
+    fn handle(&mut self, game: &mut Container, login: &String) -> PlayerId {
         // add player avatar
         let mob_id = game.next_mob_id();
         
@@ -68,7 +68,7 @@ impl LoginView for DefaultLoginView {
         });
     }
 
-    fn handle(&mut self, game: &mut Game, server_outputs: &mut Vec<server::Output>, outputs: &mut Vec<Output>, connection_id: &ConnectionId, input: String, connection_state: &ConnectionState, player_factory: &mut NewPlayerFactory) -> Option<ConnectionState> {
+    fn handle(&mut self, game: &mut Container, server_outputs: &mut Vec<server::Output>, outputs: &mut Vec<Output>, connection_id: &ConnectionId, input: String, connection_state: &ConnectionState, player_factory: &mut NewPlayerFactory) -> Option<ConnectionState> {
         let result = view_login::handle(input);
         match result.login {
             Some(login) => {
@@ -100,7 +100,7 @@ impl LoginView for DefaultLoginView {
 }
 
 pub fn run() {
-    let mut game = Game::new();
+    let mut game = Container::new();
     load_rooms(&mut game);
     let mut player_factory = DefaultPlayerFactory { room_id: 0 };
     let mut view_login = DefaultLoginView { };

@@ -1,6 +1,6 @@
 mod server;
-mod game_fantasy;
+mod game;
 
 fn main() {
-    crate::game_fantasy::run();
+    crate::game::run();
 }

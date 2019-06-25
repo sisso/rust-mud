@@ -2,7 +2,7 @@ use crate::server;
 use crate::server::ConnectionId;
 
 use super::view_mainloop;
-use super::game::*;
+use super::domain::*;
 use super::command_handler;
 
 use std::collections::{HashMap, HashSet};
@@ -10,7 +10,7 @@ use std::collections::{HashMap, HashSet};
 pub trait LoginView {
     fn handle_welcome(&mut self, connection_id: &ConnectionId, outputs: &mut Vec<server::Output>);
     // TODO: remove connection state
-    fn handle(&mut self, game: &mut Game, server_outputs: &mut Vec<server::Output>, outputs: &mut Vec<Output>, connection_id: &ConnectionId, input: String, connection_state: &ConnectionState, player_factory: &mut NewPlayerFactory) -> Option<ConnectionState>;
+    fn handle(&mut self, game: &mut Container, server_outputs: &mut Vec<server::Output>, outputs: &mut Vec<Output>, connection_id: &ConnectionId, input: String, connection_state: &ConnectionState, player_factory: &mut NewPlayerFactory) -> Option<ConnectionState>;
 }
 
 trait MainView {
@@ -18,11 +18,11 @@ trait MainView {
 }
 
 pub trait PlayerInputHandler {
-    fn handle(&mut self, game: &mut Game, player_id: &PlayerId, outputs: &mut Vec<Output>, input: String);
+    fn handle(&mut self, game: &mut Container, player_id: &PlayerId, outputs: &mut Vec<Output>, input: String);
 }
 
 pub trait NewPlayerFactory {
-    fn handle(&mut self, game: &mut Game, login: &String) -> PlayerId;
+    fn handle(&mut self, game: &mut Container, login: &String) -> PlayerId;
 }
 
 pub enum ConnectionState {
@@ -89,7 +89,7 @@ impl Output {
 }
 
 pub struct GameControllerContext<'a> {
-    pub game: &'a mut Game,
+    pub game: &'a mut Container,
     pub new_player_factory: &'a mut NewPlayerFactory,
     pub view_login: &'a mut LoginView,
     pub player_inputs_handler: &'a mut PlayerInputHandler,
@@ -228,7 +228,7 @@ impl GameController {
 
     /// Convert controller output into server output. Redirect private msg to specific player
     /// connections and room messages to players in room connections.
-    fn append_output(&self, game: &Game, output: &mut Vec<server::Output>, handle_output: Output) {
+    fn append_output(&self, game: &Container, output: &mut Vec<server::Output>, handle_output: Output) {
         match handle_output {
             Output::Private { player_id, msg } => {
                 let connection_id = self.connection_id_from_player_id(&player_id);
@@ -268,7 +268,7 @@ impl GameController {
         }
     }
 
-    fn append_outputs(&self, game: &Game, output: &mut Vec<server::Output>, handle_output: Vec<Output>) {
+    fn append_outputs(&self, game: &Container, output: &mut Vec<server::Output>, handle_output: Vec<Output>) {
         for i in handle_output {
             self.append_output(game, output, i);
         }
@@ -297,7 +297,7 @@ impl GameController {
 
     }
 
-    fn players_per_room(&self, game: &Game) -> HashMap<u32, Vec<PlayerId>> {
+    fn players_per_room(&self, game: &Container) -> HashMap<u32, Vec<PlayerId>> {
         let room_player: Vec<(u32, PlayerId)> =
             game.list_players()
                 .into_iter()

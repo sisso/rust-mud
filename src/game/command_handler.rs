@@ -1,7 +1,7 @@
-use super::game::*;
+use super::domain::*;
 use super::game_controller::Output;
 
-pub fn handle(game: &mut Game, outputs: &mut Vec<Output>, command: Command) {
+pub fn handle(game: &mut Container, outputs: &mut Vec<Output>, command: Command) {
     let player_id = command.get_player_id().clone();
     let ctx = game.get_player_context(&player_id);
 
@@ -51,7 +51,7 @@ pub fn handle(game: &mut Game, outputs: &mut Vec<Output>, command: Command) {
 }
 
 
-pub fn get_look_description(game: &Game, ctx: &PlayerCtx) -> String {
+pub fn get_look_description(game: &Container, ctx: &PlayerCtx) -> String {
     let mut exits = vec![];
     for exit in &ctx.room.exits {
         let dir = &exit.0;

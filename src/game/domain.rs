@@ -7,7 +7,7 @@ impl std::fmt::Display for PlayerId {
     }
 }
 
-pub struct Game {
+pub struct Container {
     next_mob_id: u32,
     next_player_id: u32,
     rooms: Vec<Room>,
@@ -15,9 +15,9 @@ pub struct Game {
     players: Vec<Player>,
 }
 
-impl Game {
+impl Container {
     pub fn new() -> Self {
-        Game {
+        Container {
             next_mob_id: 0,
             next_player_id: 0,
             rooms: vec![],
@@ -107,7 +107,7 @@ pub struct PlayerCtx<'a> {
     pub room: &'a Room,
 }
 
-impl Game {
+impl Container {
     pub fn list_players(&self) -> Vec<&PlayerId> {
         self.players.iter().map(|i| &i.id).collect()
     }
@@ -216,7 +216,7 @@ impl Game {
 }
 
 
-impl Game {
+impl Container {
     fn next_player_id(&mut self) -> u32 {
         let id = self.next_player_id;
         self.next_player_id += 1;
