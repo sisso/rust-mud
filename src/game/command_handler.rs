@@ -1,5 +1,5 @@
 use super::domain::*;
-use super::game_controller::Output;
+use super::controller::Output;
 
 pub fn handle(game: &mut Container, outputs: &mut Vec<Output>, command: Command) {
     let player_id = command.get_player_id().clone();

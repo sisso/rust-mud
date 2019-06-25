@@ -1,7 +1,7 @@
-use super::game_controller::{Output, PlayerInputHandler};
+use super::controller::{Output, PlayerInputHandler};
 use super::domain::*;
 use super::command_handler;
-use super::view_mainloop;
+use super::controller::view_mainloop;
 
 pub struct DefaultPlayerInputHandler {
 

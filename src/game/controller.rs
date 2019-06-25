@@ -1,7 +1,9 @@
+pub mod view_mainloop;
+pub mod view_login;
+
 use crate::server;
 use crate::server::ConnectionId;
 
-use super::view_mainloop;
 use super::domain::*;
 use super::command_handler;
 
@@ -163,27 +165,9 @@ impl GameController {
                     println!("gamecontroller - {} handling input '{}'", connection_id, input);
 
                     params.player_inputs_handler.handle(params.game, player_id, &mut outputs, input);
-
-                    // FIXME:
-//                    let player_id = *player_id;
-//                    let handle_return = view_mainloop::handle(params.game, &player_id, input);
-//                    let (output, command) = (handle_return.output, handle_return.command);
-//
-//                    if let Some(out) = output {
-//                        outputs.push(out);
-//                    }
-//
-//                    if let Some(command) = command {
-//                        pending_commands.push(command);
-//                    }
                 },
             }
         }
-
-// FIXME:
-//        for command in pending_commands {
-//            command_handler::handle(params.game, &mut outputs, command);
-//        }
 
         self.append_outputs(params.game, &mut server_outputs, outputs);
         self.normalize_output(&mut server_outputs, &connections_with_input);

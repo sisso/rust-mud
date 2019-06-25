@@ -1,14 +1,12 @@
-mod domain;
-mod game_controller;
-mod view_login;
-mod view_mainloop;
 mod command_handler;
+mod controller;
+mod domain;
 mod player_input_handler;
 
 use crate::server;
 use crate::server::ConnectionId;
 
-use game_controller::*;
+use controller::*;
 use domain::*;
 
 fn load_rooms(game: &mut Container) {
@@ -60,7 +58,7 @@ struct DefaultLoginView {
 
 impl LoginView for DefaultLoginView {
     fn handle_welcome(&mut self, connection_id: &ConnectionId, outputs: &mut Vec<server::Output>) {
-        let msg = view_login::handle_welcome();
+        let msg = controller::view_login::handle_welcome();
 
         outputs.push(server::Output {
             dest_connections_id: vec![connection_id.clone()],
@@ -116,7 +114,7 @@ pub fn run() {
     loop {
         let result = server.run(pending_outputs);
 
-        let params = game_controller::GameControllerContext {
+        let params = controller::GameControllerContext {
             game: &mut game,
             new_player_factory: &mut player_factory,
             view_login: &mut view_login,

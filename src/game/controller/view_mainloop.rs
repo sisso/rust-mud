@@ -1,6 +1,6 @@
-use super::domain::*;
-use super::game_controller::Output;
-use super::command_handler;
+use crate::game::domain::*;
+use crate::game::controller::Output;
+use crate::game::command_handler;
 
 pub struct HandleReturn {
     pub output: Option<Output>,
