@@ -3,6 +3,7 @@ mod comm;
 mod controller;
 mod domain;
 mod players;
+mod spawn;
 mod view_main;
 mod view_login;
 
@@ -10,8 +11,18 @@ use crate::server;
 
 use controller::*;
 use domain::*;
+use spawn::*;
 
-fn load_rooms(game: &mut Container) {
+fn load_mobs_prefabs(container: &mut Container) {
+    let id_0_drunk = MobPrefab {
+        id: MobPrefabId(0),
+        label: "Drunk".to_string(),
+    };
+
+    container.add_mob_prefab(id_0_drunk);
+}
+
+fn load_rooms(container: &mut Container) {
     let room1 = Room {
         id: 0,
         label: "Main Room".to_string(),
@@ -26,14 +37,38 @@ fn load_rooms(game: &mut Container) {
         exits: vec![(Dir::N, 0)],
     };
 
-    game.add_room(room1);
-    game.add_room(room2);
+    container.add_room(room1);
+    container.add_room(room2);
+}
+
+fn load_spawns(container: &mut Container) {
+    container.add_spawn(Spawn {
+        rooms: vec![RoomId(1)],
+        max: 4,
+        delay: SpawnDelay {
+            min: Seconds(5),
+            max: Seconds(20),
+        },
+        prefabs: vec![
+            SpawnPrefab {
+                probability_0_100: 100,
+                prefab_id: MobPrefabId(0),
+            }
+        ]
+    });
+}
+
+fn load(container: &mut Container) {
+    load_mobs_prefabs(container);
+    load_rooms(container);
+    load_spawns(container);
 }
 
 pub fn run() {
-    let mut game = Container::new();
-    load_rooms(&mut game);
-    let mut game_controller = GameController::new();
+    let mut container = Container::new();
+    load(&mut container);
+
+    let mut controller = GameController::new();
 
     let mut server = server::Server::new();
     server.start();
@@ -44,13 +79,13 @@ pub fn run() {
         let result = server.run(pending_outputs);
 
         let params = controller::GameControllerContext {
-            game: &mut game,
+            game: &mut container,
             connects: result.connects,
             disconnects: result.disconnects,
             inputs: result.pending_inputs
         };
 
-        pending_outputs = game_controller.handle(params);
+        pending_outputs = controller.handle(params);
 
         std::thread::sleep(::std::time::Duration::from_millis(100));
     }

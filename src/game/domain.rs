@@ -1,29 +1,24 @@
+use super::spawn::*;
+use std::collections::HashMap;
+
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct PlayerId(pub u32);
+
+#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
+pub struct Seconds(pub u32);
+
+#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
+pub struct RoomId(pub u32);
+
+#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
+pub struct MobId(pub u32);
+
+#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
+pub struct MobPrefabId(pub u32);
 
 impl std::fmt::Display for PlayerId {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "PlayerId({})", self.0)
-    }
-}
-
-pub struct Container {
-    next_mob_id: u32,
-    next_player_id: u32,
-    rooms: Vec<Room>,
-    mobs: Vec<Mob>,
-    players: Vec<Player>,
-}
-
-impl Container {
-    pub fn new() -> Self {
-        Container {
-            next_mob_id: 0,
-            next_player_id: 0,
-            rooms: vec![],
-            mobs: vec![],
-            players: vec![],
-        }
     }
 }
 
@@ -40,6 +35,12 @@ pub struct Mob {
     pub room_id: u32,
     pub label: String,
     pub is_avatar: bool
+}
+
+#[derive(Clone, Debug)]
+pub struct MobPrefab {
+    pub id: MobPrefabId,
+    pub label: String,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -87,7 +88,30 @@ pub struct PlayerCtx<'a> {
     pub room: &'a Room,
 }
 
+
+pub struct Container {
+    next_mob_id: u32,
+    next_player_id: u32,
+    rooms: Vec<Room>,
+    mobs: Vec<Mob>,
+    players: Vec<Player>,
+    spawns: Vec<Spawn>,
+    mob_prefabs: Vec<MobPrefab>,
+}
+
 impl Container {
+    pub fn new() -> Self {
+        Container {
+            next_mob_id: 0,
+            next_player_id: 0,
+            rooms: vec![],
+            mobs: vec![],
+            players: vec![],
+            spawns: vec![],
+            mob_prefabs: vec![],
+        }
+    }
+
     pub fn list_players(&self) -> Vec<&PlayerId> {
         self.players.iter().map(|i| &i.id).collect()
     }
@@ -198,6 +222,21 @@ impl Container {
             .iter()
             .filter(|i| i.room_id == *room_id)
             .collect()
+    }
+
+    pub fn add_spawn(&mut self, spawn: Spawn) {
+        self.spawns.push(spawn);
+    }
+
+    pub fn add_mob_prefab(&mut self, mob_prefab: MobPrefab) {
+        self.mob_prefabs.push(mob_prefab);
+    }
+
+    pub fn get_mob_prefab(&mut self, id: &MobPrefabId) -> &MobPrefab{
+        self.mob_prefabs
+            .iter()
+            .find(|i| i.id == *id)
+            .expect("could not found mob prefab")
     }
 }
 
