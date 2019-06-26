@@ -1,31 +1,11 @@
-pub mod view_mainloop;
-pub mod view_login;
-
 use crate::server;
 use crate::server::ConnectionId;
 
 use super::domain::*;
-use super::command_handler;
+use super::view_main;
+use super::view_login;
 
 use std::collections::{HashMap, HashSet};
-
-pub trait LoginView {
-    fn handle_welcome(&mut self, connection_id: &ConnectionId, outputs: &mut Vec<server::Output>);
-    // TODO: remove connection state
-    fn handle(&mut self, game: &mut Container, server_outputs: &mut Vec<server::Output>, outputs: &mut Vec<Output>, connection_id: &ConnectionId, input: String, connection_state: &ConnectionState, player_factory: &mut NewPlayerFactory) -> Option<ConnectionState>;
-}
-
-trait MainView {
-
-}
-
-pub trait PlayerInputHandler {
-    fn handle(&mut self, game: &mut Container, player_id: &PlayerId, outputs: &mut Vec<Output>, input: String);
-}
-
-pub trait NewPlayerFactory {
-    fn handle(&mut self, game: &mut Container, login: &String) -> PlayerId;
-}
 
 pub enum ConnectionState {
     NotLogged {
@@ -34,7 +14,6 @@ pub enum ConnectionState {
     Logged {
         connection_id: ConnectionId,
         player_id: PlayerId,
-        login: String,
     }
 }
 
@@ -92,9 +71,7 @@ impl Output {
 
 pub struct GameControllerContext<'a> {
     pub game: &'a mut Container,
-    pub new_player_factory: &'a mut NewPlayerFactory,
-    pub view_login: &'a mut LoginView,
-    pub player_inputs_handler: &'a mut PlayerInputHandler,
+//    pub new_player_factory: &'a mut NewPlayerFactory,
     pub connects: Vec<ConnectionId>,
     pub disconnects: Vec<ConnectionId>,
     pub inputs: Vec<(ConnectionId, String)>
@@ -115,19 +92,23 @@ impl GameController {
     // 4. actions
     // 5. outputs
     //
-    pub fn handle(&mut self, params: GameControllerContext) -> Vec<server::Output> {
+    pub fn handle(&mut self, mut params: GameControllerContext) -> Vec<server::Output> {
         let mut server_outputs: Vec<server::Output> = vec![];
         let mut outputs: Vec<Output> = vec![];
         let mut connections_with_input: HashSet<ConnectionId> = HashSet::new();
 
         // handle new players
-        for connection in params.connects {
-            println!("gamecontroller - {} receive new player", connection.id);
-            self.connections.insert(connection.clone(), ConnectionState::NotLogged {
-                connection_id: connection,
+        for connection_id in params.connects {
+            println!("gamecontroller - {} receive new player", connection_id.id);
+            self.connections.insert(connection_id.clone(), ConnectionState::NotLogged {
+                connection_id: connection_id,
             });
 
-            params.view_login.handle_welcome(&connection, &mut server_outputs);
+            let msg = view_login::handle_welcome();
+            server_outputs.push(server::Output {
+                dest_connections_id: vec![connection_id.clone()],
+                output: msg,
+            });
         }
 
         // handle disconnected players
@@ -155,16 +136,25 @@ impl GameController {
                 state @ ConnectionState::NotLogged {..} => {
                     println!("gamecontroller - {} handling login '{}'", connection_id, input);
 
-                    let new_state = params.view_login.handle(params.game, &mut server_outputs, &mut outputs, &connection_id, input, state, params.new_player_factory);
-                    new_state.into_iter().for_each(|i| {
-                        self.set_state(i);
+                    let result = view_login::handle(&mut params.game, input);
+
+                    server_outputs.push(server::Output {
+                        dest_connections_id: vec![connection_id],
+                        output: result.msg
                     });
+
+                    if let Some(player_id) = result.player_id {
+                        self.set_state(ConnectionState::Logged {
+                            connection_id: connection_id,
+                            player_id: player_id
+                        })
+                    }
                 },
 
                 ConnectionState::Logged { connection_id, player_id, .. } => {
                     println!("gamecontroller - {} handling input '{}'", connection_id, input);
 
-                    params.player_inputs_handler.handle(params.game, player_id, &mut outputs, input);
+                    view_main::handle(&mut params.game, &mut outputs, player_id, input);
                 },
             }
         }

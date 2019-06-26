@@ -27,26 +27,6 @@ impl Container {
     }
 }
 
-pub enum Command {
-    Move {
-        player_id: PlayerId,
-        dir: Dir
-    },
-    Say {
-        player_id: PlayerId,
-        msg: String
-    }
-}
-
-impl Command {
-    pub fn get_player_id(&self) -> &PlayerId {
-        match self {
-            Command::Move { player_id, ..} => player_id,
-            Command::Say { player_id, ..} => player_id,
-        }
-    }
-}
-
 #[derive(Clone, Debug)]
 pub struct Player {
     pub id: PlayerId,
