@@ -7,23 +7,9 @@ use super::view_login;
 
 use std::collections::{HashMap, HashSet};
 
-pub enum ConnectionState {
-    NotLogged {
-        connection_id: ConnectionId,
-    },
-    Logged {
-        connection_id: ConnectionId,
-        player_id: PlayerId,
-    }
-}
-
-impl ConnectionState {
-    fn connection_id(&self) -> &ConnectionId {
-        match self {
-            ConnectionState::NotLogged { connection_id, .. } => connection_id,
-            ConnectionState::Logged { connection_id, .. } => connection_id
-        }
-    }
+pub struct ConnectionState {
+    pub connection_id: ConnectionId,
+    pub player_id: Option<PlayerId>,
 }
 
 pub struct GameController {
@@ -100,8 +86,9 @@ impl GameController {
         // handle new players
         for connection_id in params.connects {
             println!("gamecontroller - {} receive new player", connection_id.id);
-            self.connections.insert(connection_id.clone(), ConnectionState::NotLogged {
+            self.connections.insert(connection_id.clone(), ConnectionState {
                 connection_id: connection_id,
+                player_id: None
             });
 
             let msg = view_login::handle_welcome();
@@ -114,16 +101,14 @@ impl GameController {
         // handle disconnected players
         for connection in params.disconnects {
             let state = self.get_state(&connection);
-            match state {
-                ConnectionState::Logged { player_id, .. } => {
-                    println!("gamecontroller - {} removing player {}", connection.id, player_id);
-                    let player_id = *player_id;
-                    params.game.player_disconnect(&player_id);
-                },
-                ConnectionState::NotLogged {..} => {
-                    println!("gamecontroller - {} removing non logged player", connection.id);
-                },
+
+            if let Some(player_id) = state.player_id {
+                println!("gamecontroller - {} removing player {}", connection.id, player_id);
+                params.game.player_disconnect(&player_id);
+            } else {
+                println!("gamecontroller - {} removing non logged player", connection.id);
             }
+
             self.connections.remove(&connection);
         }
 
@@ -132,30 +117,27 @@ impl GameController {
             connections_with_input.insert(connection_id.clone());
 
             let state = self.get_state(&connection_id);
-            match state {
-                state @ ConnectionState::NotLogged {..} => {
-                    println!("gamecontroller - {} handling login '{}'", connection_id, input);
 
-                    let result = view_login::handle(&mut params.game, input);
+            if let Some(player_id) = state.player_id {
+                println!("gamecontroller - {} handling input '{}'", connection_id, input);
+                view_main::handle(&mut params.game, &mut outputs, &player_id, input);
+            } else {
+                println!("gamecontroller - {} handling login '{}'", connection_id, input);
+                let result = view_login::handle(&mut params.game, input);
 
-                    server_outputs.push(server::Output {
-                        dest_connections_id: vec![connection_id],
-                        output: result.msg
-                    });
+                server_outputs.push(server::Output {
+                    dest_connections_id: vec![connection_id],
+                    output: result.msg
+                });
 
-                    if let Some(player_id) = result.player_id {
-                        self.set_state(ConnectionState::Logged {
-                            connection_id: connection_id,
-                            player_id: player_id
-                        })
-                    }
-                },
+                if let Some(player_id) = result.player_id {
+                    println!("gamecontroller - {} login complete for {}", connection_id, player_id);
 
-                ConnectionState::Logged { connection_id, player_id, .. } => {
-                    println!("gamecontroller - {} handling input '{}'", connection_id, input);
-
-                    view_main::handle(&mut params.game, &mut outputs, player_id, input);
-                },
+                    self.set_state(ConnectionState {
+                        connection_id: connection_id,
+                        player_id: Some(player_id)
+                    })
+                }
             }
         }
 
@@ -261,13 +243,10 @@ impl GameController {
     }
 
     fn set_state(&mut self, state: ConnectionState) {
-        match state {
-            ConnectionState::Logged { player_id, .. } if !self.connection_id_by_player_id.contains_key(&player_id) => {
-                self.connection_id_by_player_id.insert(player_id.clone(), state.connection_id().clone());
-            }
-            _ => {}
+        if let Some(player_id) = state.player_id {
+            self.connection_id_by_player_id.insert(player_id.clone(), state.connection_id.clone());
         }
-        self.connections.insert(state.connection_id().clone(), state);
+        self.connections.insert(state.connection_id.clone(), state);
 
     }
 
@@ -292,10 +271,7 @@ impl GameController {
 
     fn player_id_from_connection_id(&self, connection_id: &ConnectionId) -> Option<&PlayerId> {
         let state = self.connections.get(connection_id).expect(format!("could not found state for connection {}", connection_id).as_str());
-        match state {
-            ConnectionState::Logged { player_id, .. } => Some(player_id),
-            _ => None,
-        }
+        state.player_id.as_ref()
     }
 }
 
