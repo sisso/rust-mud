@@ -172,7 +172,7 @@ impl Container {
 
     pub fn update_mob(&mut self, mob: Mob) {
         let index = self.mobs.iter().position(|x| x.id == mob.id).unwrap();
-        self.mobs.insert(index, mob);
+        self.mobs[index] = mob;
     }
 
     pub fn next_mob_id(&mut self) -> u32 {
@@ -193,6 +193,12 @@ impl Container {
         }
     }
 
+    pub fn find_mobs_at(&self, room_id: &u32) -> Vec<&Mob> {
+        self.mobs
+            .iter()
+            .filter(|i| i.room_id == *room_id)
+            .collect()
+    }
 }
 
 

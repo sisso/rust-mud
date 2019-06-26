@@ -1,13 +1,28 @@
 use super::domain::*;
 
-pub fn look_description(game: &Container, ctx: &PlayerCtx) -> String {
+pub fn look_description(container: &Container, ctx: &PlayerCtx) -> String {
     let mut exits = vec![];
     for exit in &ctx.room.exits {
         let dir = &exit.0;
         exits.push(dir.to_string());
     }
     let exits = exits.join(", ");
-    format!("{}\n\n{}\n\n[{}]\n", ctx.room.label, ctx.room.desc, exits).to_string()
+    let mobs = container.find_mobs_at(&ctx.avatar.room_id);
+    let mobs =
+        if mobs.is_empty() {
+            "".to_string()
+        } else {
+            let labels: Vec<String> =
+                mobs.iter()
+                    .filter(|i| i.id != ctx.avatar.id)
+                    .map(|i| {
+                        format!("- {} is here", i.label)
+                    }).collect();
+
+            labels.join("\n")
+        };
+
+    format!("{}\n\n{}\n\n[{}]\n\n{}", ctx.room.label, ctx.room.desc, exits, mobs).to_string()
 }
 
 pub fn unknown_input(input: String) -> String {
