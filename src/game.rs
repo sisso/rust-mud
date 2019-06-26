@@ -30,14 +30,9 @@ fn load_rooms(game: &mut Container) {
     game.add_room(room2);
 }
 
-struct DefaultPlayerFactory {
-    room_id: u32,
-}
-
 pub fn run() {
     let mut game = Container::new();
     load_rooms(&mut game);
-    let mut player_factory = DefaultPlayerFactory { room_id: 0 };
     let mut game_controller = GameController::new();
 
     let mut server = server::Server::new();

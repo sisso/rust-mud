@@ -25,7 +25,7 @@ pub fn handle(container: &mut Container, outputs: &mut Vec<Output>, player_id: &
             actions::say(container, outputs, player_id, msg);
         },
         _ => {
-            outputs.push(Output::private(*player_id, format!("unknown command '{}'", input)));
+            outputs.push(Output::private(*player_id, comm::unknown_input(input)));
         },
     }
 }

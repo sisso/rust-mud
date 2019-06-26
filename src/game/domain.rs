@@ -181,7 +181,7 @@ impl Container {
         id
     }
 
-    pub fn get_player_context<'a, 'b>(&'a self, player_id: &'b PlayerId) -> PlayerCtx<'a> {
+    pub fn get_player_context(&self, player_id: &PlayerId) -> PlayerCtx {
         let player = self.get_player_by_id(player_id);
         let mob = self.get_mob(&player.avatar_id);
         let room = self.get_room(&mob.room_id);
