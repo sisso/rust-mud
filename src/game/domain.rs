@@ -1,11 +1,13 @@
 use super::spawn::*;
-use std::collections::HashMap;
+
+#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
+pub struct Tick(u32);
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct PlayerId(pub u32);
 
-#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
-pub struct Seconds(pub u32);
+#[derive(Clone,Copy,Debug)]
+pub struct Seconds(pub f32);
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct RoomId(pub u32);
@@ -88,8 +90,9 @@ pub struct PlayerCtx<'a> {
     pub room: &'a Room,
 }
 
-
 pub struct Container {
+    tick: Tick,
+    time: Seconds,
     next_mob_id: u32,
     next_player_id: u32,
     rooms: Vec<Room>,
@@ -102,6 +105,8 @@ pub struct Container {
 impl Container {
     pub fn new() -> Self {
         Container {
+            tick: Tick(0),
+            time: Seconds(0.0),
             next_mob_id: 0,
             next_player_id: 0,
             rooms: vec![],
@@ -173,18 +178,13 @@ impl Container {
         found.unwrap()
     }
 
-    pub fn get_player_by_login(&self, login: &String) -> &Player {
-        let found = self.players
-            .iter()
-            .find(|p| p.login.eq(login));
-
-        found.expect(format!("player with login {} not found", login).as_str())
-    }
-
-    pub fn get_avatar(&self, player_id: &PlayerId) -> &Mob {
-        let player = self.get_player_by_id(player_id);
-        self.get_mob(&player.avatar_id)
-    }
+//    pub fn get_player_by_login(&self, login: &String) -> &Player {
+//        let found = self.players
+//            .iter()
+//            .find(|p| p.login.eq(login));
+//
+//        found.expect(format!("player with login {} not found", login).as_str())
+//    }
 
     pub fn get_player_by_id(&self, id: &PlayerId) -> &Player {
         let found = self.players
@@ -237,6 +237,31 @@ impl Container {
             .iter()
             .find(|i| i.id == *id)
             .expect("could not found mob prefab")
+    }
+
+    pub fn list_spawn(&self) -> Vec<SpawnId> {
+        self.spawns.iter().map(|i| i.id.clone()).collect()
+    }
+
+    pub fn get_spawn_by_id(&mut self, spawn_id: &SpawnId) -> &mut Spawn {
+        self.spawns
+            .iter_mut()
+            .find(|i| i.id == *spawn_id)
+            .expect("could not find")
+    }
+
+    pub fn update_tick(&mut self, delta_time: Seconds) {
+        self.tick = Tick(self.tick.0 + 1);
+        self.time = Seconds(self.time.0 + delta_time.0);
+//        println!("container {:?}/{:?}", self.tick, self.time);
+    }
+
+//    pub fn get_tick(&self) -> &Tick {
+//        &self.tick
+//    }
+
+    pub fn get_time(&self) -> &Seconds {
+        &self.time
     }
 }
 

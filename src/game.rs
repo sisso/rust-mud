@@ -43,18 +43,16 @@ fn load_rooms(container: &mut Container) {
 
 fn load_spawns(container: &mut Container) {
     container.add_spawn(Spawn {
-        rooms: vec![RoomId(1)],
+        id: SpawnId(0),
+        room_id: RoomId(1),
         max: 4,
         delay: SpawnDelay {
-            min: Seconds(5),
-            max: Seconds(20),
+            min: Seconds(5.0),
+            max: Seconds(20.0),
         },
-        prefabs: vec![
-            SpawnPrefab {
-                probability_0_100: 100,
-                prefab_id: MobPrefabId(0),
-            }
-        ]
+        prefab_id: MobPrefabId(0),
+        next: None,
+        mobs_id: vec![]
     });
 }
 
@@ -68,7 +66,7 @@ pub fn run() {
     let mut container = Container::new();
     load(&mut container);
 
-    let mut controller = GameController::new();
+    let mut controller = GameController::new(container);
 
     let mut server = server::Server::new();
     server.start();
@@ -79,7 +77,6 @@ pub fn run() {
         let result = server.run(pending_outputs);
 
         let params = controller::GameControllerContext {
-            game: &mut container,
             connects: result.connects,
             disconnects: result.disconnects,
             inputs: result.pending_inputs

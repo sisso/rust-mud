@@ -52,3 +52,11 @@ pub fn move_goes(who: &String, dir: &Dir) -> String {
 pub fn move_not_possible(dir: &Dir) -> String {
     format!("not possible to move to {}!\n", dir)
 }
+
+pub fn spawn_mob(mob: &Mob) -> String {
+    format!("a {} appears here from no where", mob.label)
+}
+
+pub fn uptime(time: &Seconds) -> String {
+    format!("now it is {} seconds after start", time.0)
+}

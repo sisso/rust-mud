@@ -2,6 +2,7 @@ use crate::server;
 use crate::server::ConnectionId;
 
 use super::domain::*;
+use super::spawn;
 use super::view_main;
 use super::view_login;
 
@@ -13,6 +14,7 @@ pub struct ConnectionState {
 }
 
 pub struct GameController {
+    container: Container,
     connections: HashMap<ConnectionId, ConnectionState>,
     connection_id_by_player_id: HashMap<PlayerId, ConnectionId>,
 }
@@ -47,25 +49,25 @@ impl Output {
         }
     }
 
-    pub fn player_id(&self) -> Option<PlayerId> {
-        match self {
-            Output::Private { player_id, .. } => Some(player_id.clone()),
-            Output::Room { player_id, .. } => player_id.clone(),
+    pub fn room_all(room_id: u32, msg: String) -> Self {
+        Output::Room {
+            player_id: None,
+            room_id,
+            msg
         }
     }
 }
 
-pub struct GameControllerContext<'a> {
-    pub game: &'a mut Container,
-//    pub new_player_factory: &'a mut NewPlayerFactory,
+pub struct GameControllerContext {
     pub connects: Vec<ConnectionId>,
     pub disconnects: Vec<ConnectionId>,
     pub inputs: Vec<(ConnectionId, String)>
 }
 
 impl GameController {
-    pub fn new() -> Self {
+    pub fn new(container: Container) -> Self {
         GameController {
+            container: container,
             connections: HashMap::new(),
             connection_id_by_player_id: HashMap::new(),
         }
@@ -78,10 +80,13 @@ impl GameController {
     // 4. actions
     // 5. outputs
     //
-    pub fn handle(&mut self, mut params: GameControllerContext) -> Vec<server::Output> {
+    pub fn handle(&mut self, params: GameControllerContext) -> Vec<server::Output> {
         let mut server_outputs: Vec<server::Output> = vec![];
         let mut outputs: Vec<Output> = vec![];
         let mut connections_with_input: HashSet<ConnectionId> = HashSet::new();
+
+        // TODO fix time
+        self.container.update_tick(Seconds(100.0 / 1000.0));
 
         // handle new players
         for connection_id in params.connects {
@@ -104,7 +109,7 @@ impl GameController {
 
             if let Some(player_id) = state.player_id {
                 println!("gamecontroller - {} removing player {}", connection.id, player_id);
-                params.game.player_disconnect(&player_id);
+                self.container.player_disconnect(&player_id);
             } else {
                 println!("gamecontroller - {} removing non logged player", connection.id);
             }
@@ -120,10 +125,10 @@ impl GameController {
 
             if let Some(player_id) = state.player_id {
                 println!("gamecontroller - {} handling input '{}'", connection_id, input);
-                view_main::handle(&mut params.game, &mut outputs, &player_id, input);
+                view_main::handle(&mut self.container, &mut outputs, &player_id, input);
             } else {
                 println!("gamecontroller - {} handling login '{}'", connection_id, input);
-                let result = view_login::handle(&mut params.game, input);
+                let result = view_login::handle(&mut self.container, input);
 
                 server_outputs.push(server::Output {
                     dest_connections_id: vec![connection_id],
@@ -141,7 +146,9 @@ impl GameController {
             }
         }
 
-        self.append_outputs(params.game, &mut server_outputs, outputs);
+        spawn::run(&mut self.container, &mut outputs);
+
+        self.append_outputs(&mut server_outputs, outputs);
         self.normalize_output(&mut server_outputs, &connections_with_input);
         server_outputs
     }
@@ -158,7 +165,7 @@ impl GameController {
                 let player_id = self.player_id_from_connection_id(connection);
 
                 match player_id {
-                    Some(player_id) if !append_cursor_ids.contains(connection) => {
+                    Some(_) if !append_cursor_ids.contains(connection) => {
                         append_cursor_ids.push(connection.clone());
 
                         // if player do not have newline because sent a input, append new line in start
@@ -184,7 +191,7 @@ impl GameController {
 
     /// Convert controller output into server output. Redirect private msg to specific player
     /// connections and room messages to players in room connections.
-    fn append_output(&self, game: &Container, output: &mut Vec<server::Output>, handle_output: Output) {
+    fn append_output(&self, output: &mut Vec<server::Output>, handle_output: Output) {
         match handle_output {
             Output::Private { player_id, msg } => {
                 let connection_id = self.connection_id_from_player_id(&player_id);
@@ -199,14 +206,19 @@ impl GameController {
             Output::Room { player_id, room_id, msg } => {
                 println!("game_controller - {:?}/{}: {}", player_id, room_id, msg);
 
-                let players_per_room = self.players_per_room(game);
+                let players_per_room = self.players_per_room();
 
                 if let Some(players) = players_per_room.get(&room_id) {
                     let connections_id: Vec<ConnectionId> =
                         players
                             .iter()
-                            // exclude player that emit the message from receivers
-                            .filter(|i_player_id| player_id.filter(|j| *j != **i_player_id).is_some())
+                            .filter(|i_player_id| {
+                                match player_id {
+                                    // exclude player that emit the message from receivers
+                                    Some(player_id) if **i_player_id == player_id => false,
+                                    _ => true
+                                }
+                            })
                             .map(|i_player_id| self.connection_id_from_player_id(i_player_id).clone())
                             .collect();
 
@@ -224,9 +236,9 @@ impl GameController {
         }
     }
 
-    fn append_outputs(&self, game: &Container, output: &mut Vec<server::Output>, handle_output: Vec<Output>) {
+    fn append_outputs(&self, output: &mut Vec<server::Output>, handle_output: Vec<Output>) {
         for i in handle_output {
-            self.append_output(game, output, i);
+            self.append_output(output, i);
         }
     }
 
@@ -250,13 +262,13 @@ impl GameController {
 
     }
 
-    fn players_per_room(&self, game: &Container) -> HashMap<u32, Vec<PlayerId>> {
+    fn players_per_room(&self) -> HashMap<u32, Vec<PlayerId>> {
         let room_player: Vec<(u32, PlayerId)> =
-            game.list_players()
+            self.container.list_players()
                 .into_iter()
                 .map(|player_id| {
-                    let player = game.get_player_by_id(player_id);
-                    let avatar = game.get_mob(&player.avatar_id);
+                    let player = self.container.get_player_by_id(player_id);
+                    let avatar = self.container.get_mob(&player.avatar_id);
                     (avatar.room_id, *player_id)
                 })
                 .collect();

@@ -1,4 +1,4 @@
-use crate::game::domain::{Player, PlayerId, Container};
+use crate::game::domain::{PlayerId, Container};
 use crate::game::players;
 
 pub struct LoginResult {
