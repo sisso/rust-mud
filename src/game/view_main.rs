@@ -1,9 +1,9 @@
 use super::actions;
 use super::comm;
 use crate::game::domain::*;
-use crate::game::controller::Output;
+use crate::game::controller::Outputs;
 
-pub fn handle(container: &mut Container, outputs: &mut Vec<Output>, player_id: &PlayerId, input: String) {
+pub fn handle(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId, input: String) {
     match input.as_ref() {
         "l" | "look" => {
             actions::look(container, outputs, player_id);
@@ -22,7 +22,7 @@ pub fn handle(container: &mut Container, outputs: &mut Vec<Output>, player_id: &
         },
 
         "uptime" => {
-            outputs.push(Output::private(player_id.clone(), comm::uptime(&container.get_time())));
+            outputs.private(player_id.clone(), comm::uptime(&container.get_time()));
         },
 
         _ if input.starts_with("say ")  => {
@@ -31,7 +31,7 @@ pub fn handle(container: &mut Container, outputs: &mut Vec<Output>, player_id: &
         },
 
         _ => {
-            outputs.push(Output::private(*player_id, comm::unknown_input(input)));
+            outputs.private(*player_id, comm::unknown_input(input));
         },
     }
 }

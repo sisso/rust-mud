@@ -1,26 +1,26 @@
 use super::comm;
 use super::domain::*;
-use super::controller::Output;
+use super::controller::Outputs;
 
-pub fn look(container: &mut Container, outputs: &mut Vec<Output>, player_id: &PlayerId) {
+pub fn look(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId) {
     let ctx = container.get_player_context(&player_id);
 
-    outputs.push(Output::Private {
-        player_id: player_id.clone(),
-        msg: comm::look_description(container, &ctx)
-    })
+    outputs.private(
+        player_id.clone(),
+        comm::look_description(container, &ctx)
+    );
 }
 
-pub fn say(container: &mut Container, outputs: &mut Vec<Output>, player_id: &PlayerId, msg: String) {
+pub fn say(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId, msg: String) {
     let ctx = container.get_player_context(player_id);
     let player_msg = comm::say_you_say(&msg);
     let room_msg = comm::say_someone_said(&ctx.avatar.label, &msg);
 
-    outputs.push(Output::private(player_id.clone(), player_msg));
-    outputs.push(Output::room(player_id.clone(), ctx.avatar.room_id, room_msg));
+    outputs.private(player_id.clone(), player_msg);
+    outputs.room(player_id.clone(), ctx.avatar.room_id, room_msg);
 }
 
-pub fn mv(container: &mut Container, outputs: &mut Vec<Output>, player_id: &PlayerId, dir: Dir) {
+pub fn mv(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId, dir: Dir) {
     let ctx = container.get_player_context(player_id);
     let player_id = player_id.clone();
 
@@ -48,12 +48,12 @@ pub fn mv(container: &mut Container, outputs: &mut Vec<Output>, player_id: &Play
             let enter_room_msg = comm::move_come(&ctx.avatar.label, &dir.inv());
             let exit_room_msg = comm::move_goes(&ctx.avatar.label, &dir);
 
-            outputs.push(Output::private(player_id, player_msg));
-            outputs.push(Output::room(player_id, previous_room_id, exit_room_msg));
-            outputs.push(Output::room(player_id, ctx.room.id, enter_room_msg));
+            outputs.private(player_id, player_msg);
+            outputs.room(player_id, previous_room_id, exit_room_msg);
+            outputs.room(player_id, ctx.room.id, enter_room_msg);
         },
         None => {
-            outputs.push(Output::private(player_id, comm::move_not_possible(&dir)));
+            outputs.private(player_id, comm::move_not_possible(&dir));
         }
     }
 }

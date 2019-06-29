@@ -1,5 +1,5 @@
 use super::domain::*;
-use crate::game::controller::Output;
+use crate::game::controller::Outputs;
 
 use rand::Rng;
 use super::comm;
@@ -27,7 +27,7 @@ pub struct Spawn {
     pub mobs_id: Vec<MobId>,
 }
 
-pub fn run(container: &mut Container, outputs: &mut Vec<Output>) {
+pub fn run(container: &mut Container, outputs: &mut Outputs) {
     let time = container.get_time().clone();
 
     for spawn_id in container.list_spawn() {
@@ -62,7 +62,7 @@ pub fn run(container: &mut Container, outputs: &mut Vec<Output>) {
                 schedule_next_spawn(&time, spawn);
 
                 // add outputs
-                outputs.push(Output::room_all(room_id, spawn_msg));
+                outputs.room_all(room_id, spawn_msg);
 
             },
             Some(_) => {

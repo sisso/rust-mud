@@ -58,6 +58,38 @@ impl Output {
     }
 }
 
+pub trait Outputs {
+    fn room_all(&mut self, room_id: u32, msg: String);
+    fn room(&mut self, player_id: PlayerId, room_id: u32, msg: String);
+    fn private(&mut self, player_id: PlayerId, msg: String);
+}
+
+struct OutputsImpl {
+    list: Vec<Output>
+}
+
+impl OutputsImpl {
+    fn new() -> Self {
+        OutputsImpl {
+            list: vec![]
+        }
+    }
+}
+
+impl Outputs for OutputsImpl {
+    fn room_all(&mut self, room_id: u32, msg: String) {
+        self.list.push(Output::room_all(room_id, msg));
+    }
+
+    fn room(&mut self, player_id: PlayerId, room_id: u32, msg: String) {
+        self.list.push(Output::room(player_id, room_id, msg));
+    }
+
+    fn private(&mut self, player_id: PlayerId, msg: String) {
+        self.list.push(Output::private(player_id, msg));
+    }
+}
+
 pub struct GameControllerContext {
     pub connects: Vec<ConnectionId>,
     pub disconnects: Vec<ConnectionId>,
@@ -82,7 +114,7 @@ impl GameController {
     //
     pub fn handle(&mut self, params: GameControllerContext) -> Vec<server::Output> {
         let mut server_outputs: Vec<server::Output> = vec![];
-        let mut outputs: Vec<Output> = vec![];
+        let mut outputs = OutputsImpl::new();
         let mut connections_with_input: HashSet<ConnectionId> = HashSet::new();
 
         // TODO fix time
@@ -236,8 +268,8 @@ impl GameController {
         }
     }
 
-    fn append_outputs(&self, output: &mut Vec<server::Output>, handle_output: Vec<Output>) {
-        for i in handle_output {
+    fn append_outputs(&self, output: &mut Vec<server::Output>, handle_output: OutputsImpl) {
+        for i in handle_output.list {
             self.append_output(output, i);
         }
     }
