@@ -1,6 +1,7 @@
 # Todo
 
 - id to specific struct(u32) types
+- move id counters to own unsafe incrementers?
 - log
 
 # Design

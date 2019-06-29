@@ -1,5 +1,6 @@
 use super::comm;
 use super::domain::*;
+use super::mob::*;
 use super::controller::Outputs;
 
 pub fn look(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId) {
@@ -56,4 +57,20 @@ pub fn mv(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId
             outputs.private(player_id, comm::move_not_possible(&dir));
         }
     }
+}
+
+pub fn kill(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId, target: &MobId) {
+    let ctx = container.get_player_context(player_id);
+    let target_mob = container.get_mob(&target.0);
+
+    let player_msg = comm::kill_player_attack(target_mob);
+    let room_msg = comm::kill_mob_attack_someone(&ctx.avatar, &target_mob);
+
+    let avatar_id = ctx.avatar.id.clone();
+    let room_id = ctx.room.id;
+
+    container.set_mob_kill_target(&avatar_id, target);
+
+    outputs.private(player_id.clone(), player_msg);
+    outputs.room(player_id.clone(), room_id, room_msg);
 }

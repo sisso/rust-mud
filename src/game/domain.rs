@@ -1,4 +1,5 @@
 use super::spawn::*;
+use super::mob::*;
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct Tick(u32);
@@ -11,12 +12,6 @@ pub struct Seconds(pub f32);
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct RoomId(pub u32);
-
-#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
-pub struct MobId(pub u32);
-
-#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
-pub struct MobPrefabId(pub u32);
 
 impl std::fmt::Display for PlayerId {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -31,13 +26,6 @@ pub struct Player {
     pub avatar_id: u32
 }
 
-#[derive(Clone, Debug)]
-pub struct Mob {
-    pub id: u32,
-    pub room_id: u32,
-    pub label: String,
-    pub is_avatar: bool
-}
 
 #[derive(Clone, Debug)]
 pub struct MobPrefab {
@@ -178,6 +166,18 @@ impl Container {
         found.unwrap()
     }
 
+    pub fn get_mobs(&self) -> Vec<MobId> {
+        self.mobs.iter().map(|i| MobId(i.id)).collect()
+    }
+
+    fn get_mob_mut(&mut self, id: &u32) -> &mut Mob {
+        let found = self.mobs
+            .iter_mut()
+            .find(|p| p.id == *id);
+
+        found.unwrap()
+    }
+
 //    pub fn get_player_by_login(&self, login: &String) -> &Player {
 //        let found = self.players
 //            .iter()
@@ -185,6 +185,12 @@ impl Container {
 //
 //        found.expect(format!("player with login {} not found", login).as_str())
 //    }
+
+    pub fn find_player_from_avatar_mob_id(&self, mob_id: &MobId) -> Option<&Player> {
+        self.players
+            .iter()
+            .find(|p| p.avatar_id == mob_id.0)
+    }
 
     pub fn get_player_by_id(&self, id: &PlayerId) -> &Player {
         let found = self.players
@@ -222,6 +228,19 @@ impl Container {
             .iter()
             .filter(|i| i.room_id == *room_id)
             .collect()
+    }
+
+    pub fn search_mob_by_name_at(&self, room_id: &RoomId, query: &String) -> Vec<&Mob> {
+        self.mobs
+            .iter()
+            .filter(|i| i.room_id == room_id.0)
+            .filter(|i| i.label.eq(query))
+            .collect()
+    }
+
+    pub fn set_mob_kill_target(&mut self, mob_id: &u32, target: &MobId) {
+        let mob = self.get_mob_mut(mob_id);
+        mob.command = MobCommand::Kill { target: target.clone() };
     }
 
     pub fn add_spawn(&mut self, spawn: Spawn) {

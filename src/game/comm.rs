@@ -1,4 +1,5 @@
 use super::domain::*;
+use super::mob::*;
 
 pub fn look_description(container: &Container, ctx: &PlayerCtx) -> String {
     let mut exits = vec![];
@@ -59,4 +60,24 @@ pub fn spawn_mob(mob: &Mob) -> String {
 
 pub fn uptime(time: &Seconds) -> String {
     format!("now it is {} seconds after start", time.0)
+}
+
+pub fn kill_target_not_found(target: &String) -> String {
+    format!("target [{}] not found!", target)
+}
+
+pub fn kill_player_attack(target: &Mob) -> String {
+    format!("you attack {}!", target.label)
+}
+
+pub fn kill_mob_attack_someone(attacker: &Mob, target: &Mob) -> String {
+    format!("{} attacks {}!", attacker.label, target.label)
+}
+
+pub fn kill_player_cancel(target: &Mob) -> String {
+    format!("you relax, {} is not around", target.label)
+}
+
+pub fn kill_cancel(mob: &Mob, target: &Mob) -> String {
+    format!("{} relax, {} is not around", mob.label, target.label)
 }

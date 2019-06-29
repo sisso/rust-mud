@@ -3,6 +3,7 @@ use crate::server::ConnectionId;
 
 use super::domain::*;
 use super::spawn;
+use super::mob;
 use super::view_main;
 use super::view_login;
 
@@ -179,6 +180,7 @@ impl GameController {
         }
 
         spawn::run(&mut self.container, &mut outputs);
+        mob::run(&mut self.container, &mut outputs);
 
         self.append_outputs(&mut server_outputs, outputs);
         self.normalize_output(&mut server_outputs, &connections_with_input);

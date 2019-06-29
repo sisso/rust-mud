@@ -2,6 +2,7 @@ mod actions;
 mod comm;
 mod controller;
 mod domain;
+mod mob;
 mod players;
 mod spawn;
 mod view_main;
@@ -11,6 +12,7 @@ use crate::server;
 
 use controller::*;
 use domain::*;
+use mob::*;
 use spawn::*;
 
 fn load_mobs_prefabs(container: &mut Container) {
