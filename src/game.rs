@@ -15,13 +15,31 @@ use domain::*;
 use mob::*;
 use spawn::*;
 
-fn load_mobs_prefabs(container: &mut Container) {
-    let id_0_drunk = MobPrefab {
-        id: MobPrefabId(0),
-        label: "Drunk".to_string(),
-    };
+const MOB_PLAYER: MobPrefabId = MobPrefabId(0);
+const MOB_DRUNK: MobPrefabId  = MobPrefabId(1);
 
-    container.add_mob_prefab(id_0_drunk);
+fn load_mobs_prefabs(container: &mut Container) {
+    container.add_mob_prefab(MobPrefab {
+        id: MOB_PLAYER,
+        label: "Avatar".to_string(),
+        attributes: Attributes {
+            attack: 12,
+            defense: 12,
+            damage: Damage { min: 2, max: 4, calm_down: Seconds(1.0) },
+            pv: Pv { current: 10, max: 10 },
+        },
+    });
+
+    container.add_mob_prefab(MobPrefab {
+        id: MOB_PLAYER,
+        label: "Drunk".to_string(),
+        attributes: Attributes {
+            attack: 8,
+            defense: 8,
+            damage: Damage { min: 1, max: 2, calm_down: Seconds(1.0) },
+            pv: Pv { current: 8, max: 8 },
+        },
+    });
 }
 
 fn load_rooms(container: &mut Container) {
@@ -52,9 +70,9 @@ fn load_spawns(container: &mut Container) {
             min: Seconds(5.0),
             max: Seconds(20.0),
         },
-        prefab_id: MobPrefabId(0),
+        prefab_id: MOB_DRUNK,
         next: None,
-        mobs_id: vec![]
+        mobs_id: vec![],
     });
 }
 
@@ -81,10 +99,10 @@ pub fn run() {
         let params = controller::GameControllerContext {
             connects: result.connects,
             disconnects: result.disconnects,
-            inputs: result.pending_inputs
+            inputs: result.pending_inputs,
         };
 
-        pending_outputs = controller.handle(params);
+        pending_outputs = controller.handle(Seconds(0.100), params);
 
         std::thread::sleep(::std::time::Duration::from_millis(100));
     }

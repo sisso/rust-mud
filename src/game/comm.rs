@@ -81,3 +81,19 @@ pub fn kill_player_cancel(target: &Mob) -> String {
 pub fn kill_cancel(mob: &Mob, target: &Mob) -> String {
     format!("{} relax, {} is not around", mob.label, target.label)
 }
+
+pub fn kill_player_execute_attack(target: &Mob, attack_result: &AttackResult) -> String {
+    if attack_result.success {
+        format!("you execute a attack and hit {} causing {} damage!", target.label, attack_result.damage)
+    } else {
+        format!("you execute a attack {} and miss!", target.label)
+    }
+}
+
+pub fn kill_mob_execute_attack(mob: &Mob, target: &Mob, attack_result: &AttackResult) -> String {
+    if attack_result.success {
+        format!("{} execute a attack and hit {} causing {} damage!", mob.label, target.label, attack_result.damage)
+    } else {
+        format!("{} execute a attack {} and miss!", mob.label, target.label)
+    }
+}

@@ -44,7 +44,7 @@ pub fn run(container: &mut Container, outputs: &mut Outputs) {
                 let mob_id = container.next_mob_id();
 
                 let prefab = container.get_mob_prefab(&mob_prefab_id);
-                let mob = Mob::new(mob_id, room_id, prefab.label.clone());
+                let mob = Mob::new(mob_id, room_id, prefab.label.clone(), prefab.attributes.clone());
 
                 println!("spawn - spawning {:?}({}) at {}", mob.label, mob.id, room_id);
 

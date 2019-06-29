@@ -8,7 +8,20 @@ pub fn add_player(game: &mut Container, login: &String) -> PlayerId {
     let mut mob = Mob::new(
         mob_id,
         0,
-        login.clone()
+        login.clone(),
+        Attributes {
+            attack: 12,
+            defense: 12,
+            damage: Damage {
+                min: 1,
+                max: 4,
+                calm_down: Seconds(1.0)
+            },
+            pv: Pv {
+                current: 10,
+                max: 10
+            }
+        }
     );
     mob.is_avatar = true;
 

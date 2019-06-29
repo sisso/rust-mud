@@ -113,7 +113,7 @@ impl GameController {
     // 4. actions
     // 5. outputs
     //
-    pub fn handle(&mut self, params: GameControllerContext) -> Vec<server::Output> {
+    pub fn handle(&mut self, delta: Seconds, params: GameControllerContext) -> Vec<server::Output> {
         let mut server_outputs: Vec<server::Output> = vec![];
         let mut outputs = OutputsImpl::new();
         let mut connections_with_input: HashSet<ConnectionId> = HashSet::new();
@@ -180,7 +180,7 @@ impl GameController {
         }
 
         spawn::run(&mut self.container, &mut outputs);
-        mob::run(&mut self.container, &mut outputs);
+        mob::run(&delta, &mut self.container, &mut outputs);
 
         self.append_outputs(&mut server_outputs, outputs);
         self.normalize_output(&mut server_outputs, &connections_with_input);

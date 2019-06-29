@@ -10,6 +10,22 @@ pub struct PlayerId(pub u32);
 #[derive(Clone,Copy,Debug)]
 pub struct Seconds(pub f32);
 
+impl std::ops::Add<Seconds> for Seconds {
+    type Output = Seconds;
+
+    fn add(self, rhs: Seconds) -> Seconds {
+        Seconds(self.0 + rhs.0)
+    }
+}
+
+impl std::ops::Sub<Seconds> for Seconds {
+    type Output = Seconds;
+
+    fn sub(self, rhs: Seconds) -> Seconds {
+        Seconds(self.0 - rhs.0)
+    }
+}
+
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct RoomId(pub u32);
 
@@ -24,13 +40,6 @@ pub struct Player {
     pub id: PlayerId,
     pub login: String,
     pub avatar_id: u32
-}
-
-
-#[derive(Clone, Debug)]
-pub struct MobPrefab {
-    pub id: MobPrefabId,
-    pub label: String,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -170,7 +179,7 @@ impl Container {
         self.mobs.iter().map(|i| MobId(i.id)).collect()
     }
 
-    fn get_mob_mut(&mut self, id: &u32) -> &mut Mob {
+    pub fn get_mob_mut(&mut self, id: &u32) -> &mut Mob {
         let found = self.mobs
             .iter_mut()
             .find(|p| p.id == *id);
