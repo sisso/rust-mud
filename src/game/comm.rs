@@ -27,7 +27,7 @@ pub fn look_description(container: &Container, ctx: &PlayerCtx) -> String {
 }
 
 pub fn unknown_input(input: String) -> String {
-    format!("unknown command '{}'", input)
+    format!("unknown command '{}'\n", input)
 }
 
 pub fn say_you_say(msg: &String) -> String {
@@ -55,45 +55,53 @@ pub fn move_not_possible(dir: &Dir) -> String {
 }
 
 pub fn spawn_mob(mob: &Mob) -> String {
-    format!("a {} appears here from no where", mob.label)
+    format!("a {} appears here from no where\n", mob.label)
 }
 
 pub fn uptime(time: &Seconds) -> String {
-    format!("now it is {} seconds after start", time.0)
+    format!("now it is {} seconds after start\n", time.0)
 }
 
 pub fn kill_target_not_found(target: &String) -> String {
-    format!("target [{}] not found!", target)
+    format!("target [{}] not found!\n", target)
 }
 
 pub fn kill_player_attack(target: &Mob) -> String {
-    format!("you attack {}!", target.label)
+    format!("you attack {}!\n", target.label)
 }
 
 pub fn kill_mob_attack_someone(attacker: &Mob, target: &Mob) -> String {
-    format!("{} attacks {}!", attacker.label, target.label)
+    format!("{} attacks {}!\n", attacker.label, target.label)
 }
 
 pub fn kill_player_cancel(target: &Mob) -> String {
-    format!("you relax, {} is not around", target.label)
+    format!("you relax, {} is not around\n", target.label)
 }
 
 pub fn kill_cancel(mob: &Mob, target: &Mob) -> String {
-    format!("{} relax, {} is not around", mob.label, target.label)
+    format!("{} relax, {} is not around\n", mob.label, target.label)
 }
 
 pub fn kill_player_execute_attack(target: &Mob, attack_result: &AttackResult) -> String {
     if attack_result.success {
-        format!("you execute a attack and hit {} causing {} damage!", target.label, attack_result.damage)
+        format!("you execute a attack and hit {} causing {} damage!\n", target.label, attack_result.damage)
     } else {
-        format!("you execute a attack {} and miss!", target.label)
+        format!("you execute a attack {} and miss!\n", target.label)
     }
 }
 
 pub fn kill_mob_execute_attack(mob: &Mob, target: &Mob, attack_result: &AttackResult) -> String {
     if attack_result.success {
-        format!("{} execute a attack and hit {} causing {} damage!", mob.label, target.label, attack_result.damage)
+        format!("{} execute a attack and hit {} causing {} damage!\n", mob.label, target.label, attack_result.damage)
     } else {
-        format!("{} execute a attack {} and miss!", mob.label, target.label)
+        format!("{} execute a attack {} and miss!\n", mob.label, target.label)
     }
+}
+
+pub fn killed_by_player(mob: &Mob) -> String {
+    format!("you killed {}.\n", mob.label)
+}
+
+pub fn killed(mob: &Mob) -> String {
+    format!("{} was killed\n", mob.label)
 }

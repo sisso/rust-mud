@@ -32,7 +32,9 @@ pub fn run(container: &mut Container, outputs: &mut Outputs) {
     let time = container.get_time().clone();
 
     for spawn_id in container.list_spawn() {
-        let spawn = container.get_spawn_by_id(&spawn_id);
+        clean_up_dead_mobs(container, &spawn_id);
+
+        let spawn = container.get_spawn_by_id_mut(&spawn_id);
 
         let can_spawn_mobs = spawn.mobs_id.len() < spawn.max as usize;
 
@@ -53,7 +55,7 @@ pub fn run(container: &mut Container, outputs: &mut Outputs) {
                 container.add_mob(mob);
 
                 // update spawn
-                let spawn = container.get_spawn_by_id(&spawn_id);
+                let spawn = container.get_spawn_by_id_mut(&spawn_id);
                 spawn.mobs_id.push(MobId(mob_id));
                 schedule_next_spawn(&time, spawn);
 
@@ -76,4 +78,19 @@ fn schedule_next_spawn(now: &Seconds, spawn: &mut Spawn) {
     spawn.next = Some(Seconds(next + now.0));
 
     println!("spawn - scheduling spawn {:?} to {}", spawn.id, next);
+}
+
+fn clean_up_dead_mobs(container: &mut Container, spawn_id: &SpawnId) {
+    let mut remove_list = vec![];
+    let spawn = container.get_spawn_by_id(spawn_id);
+    for (i, mob_id) in spawn.mobs_id.iter().enumerate() {
+        if !container.is_mob(&mob_id) {
+            remove_list.push(i);
+        }
+    }
+
+    let spawn = container.get_spawn_by_id_mut(spawn_id);
+    for i in remove_list.iter().rev() {
+        spawn.mobs_id.remove(*i);
+    }
 }

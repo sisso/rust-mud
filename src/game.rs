@@ -31,7 +31,7 @@ fn load_mobs_prefabs(container: &mut Container) {
     });
 
     container.add_mob_prefab(MobPrefab {
-        id: MOB_PLAYER,
+        id: MOB_DRUNK,
         label: "Drunk".to_string(),
         attributes: Attributes {
             attack: 8,
@@ -65,13 +65,13 @@ fn load_spawns(container: &mut Container) {
     container.add_spawn(Spawn {
         id: SpawnId(0),
         room_id: RoomId(1),
-        max: 4,
+        max: 1,
         delay: SpawnDelay {
             min: Seconds(5.0),
             max: Seconds(20.0),
         },
         prefab_id: MOB_DRUNK,
-        next: None,
+        next: Some(Seconds(1.0)),
         mobs_id: vec![],
     });
 }

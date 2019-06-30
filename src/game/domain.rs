@@ -175,6 +175,19 @@ impl Container {
         found.unwrap()
     }
 
+    pub fn find_mob(&self, id: &u32) -> Option<&Mob> {
+        self.mobs
+            .iter()
+            .find(|p| p.id == *id)
+    }
+
+    pub fn is_mob(&self, id: &MobId) -> bool {
+        self.mobs
+            .iter()
+            .find(|p| p.id == id.0)
+            .is_some()
+    }
+
     pub fn get_mobs(&self) -> Vec<MobId> {
         self.mobs.iter().map(|i| MobId(i.id)).collect()
     }
@@ -185,6 +198,11 @@ impl Container {
             .find(|p| p.id == *id);
 
         found.unwrap()
+    }
+
+    pub fn remove_mob(&mut self, id: &MobId) {
+        let index = self.mobs.iter().position(|x| x.id == id.0).unwrap();
+        self.mobs.remove(index);
     }
 
 //    pub fn get_player_by_login(&self, login: &String) -> &Player {
@@ -199,6 +217,13 @@ impl Container {
         self.players
             .iter()
             .find(|p| p.avatar_id == mob_id.0)
+    }
+
+    pub fn find_player_id_from_avatar_mob_id(&self, mob_id: &MobId) -> Option<PlayerId> {
+        self.players
+            .iter()
+            .find(|p| p.avatar_id == mob_id.0)
+            .map(|i| i.id.clone())
     }
 
     pub fn get_player_by_id(&self, id: &PlayerId) -> &Player {
@@ -264,16 +289,23 @@ impl Container {
         self.mob_prefabs
             .iter()
             .find(|i| i.id == *id)
-            .expect("could not found mob prefab")
+            .expect(format!("could not found mob prefab id {:?}", id).as_str())
     }
 
     pub fn list_spawn(&self) -> Vec<SpawnId> {
         self.spawns.iter().map(|i| i.id.clone()).collect()
     }
 
-    pub fn get_spawn_by_id(&mut self, spawn_id: &SpawnId) -> &mut Spawn {
+    pub fn get_spawn_by_id_mut(&mut self, spawn_id: &SpawnId) -> &mut Spawn {
         self.spawns
             .iter_mut()
+            .find(|i| i.id == *spawn_id)
+            .expect("could not find")
+    }
+
+    pub fn get_spawn_by_id(&self, spawn_id: &SpawnId) -> &Spawn {
+        self.spawns
+            .iter()
             .find(|i| i.id == *spawn_id)
             .expect("could not find")
     }
