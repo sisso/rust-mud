@@ -1,19 +1,25 @@
+#![allow(dead_code, unused_variables)]
+
+use controller::*;
+use domain::*;
+use mob::*;
+use room::*;
+use spawn::*;
+
+use crate::server;
+
 mod actions;
 mod comm;
 mod controller;
 mod domain;
 mod mob;
-mod players;
+mod player;
+mod room;
 mod spawn;
 mod view_main;
 mod view_login;
 
-use crate::server;
-
-use controller::*;
-use domain::*;
-use mob::*;
-use spawn::*;
+const INITIAL_ROOM_ID: RoomId = RoomId(0);
 
 const MOB_PLAYER: MobPrefabId = MobPrefabId(0);
 const MOB_DRUNK: MobPrefabId  = MobPrefabId(1);
@@ -43,18 +49,20 @@ fn load_mobs_prefabs(container: &mut Container) {
 }
 
 fn load_rooms(container: &mut Container) {
+    let room_id_bar = RoomId(1);
+
     let room1 = Room {
-        id: 0,
+        id: INITIAL_ROOM_ID,
         label: "Main Room".to_string(),
         desc: "Main room where people born".to_string(),
-        exits: vec![(Dir::S, 1)],
+        exits: vec![(Dir::S, room_id_bar)],
     };
 
     let room2 = Room {
-        id: 1,
+        id: room_id_bar,
         label: "Bar".to_string(),
         desc: "Where we relief our duties".to_string(),
-        exits: vec![(Dir::N, 0)],
+        exits: vec![(Dir::N, INITIAL_ROOM_ID)],
     };
 
     container.add_room(room1);

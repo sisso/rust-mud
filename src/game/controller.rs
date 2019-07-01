@@ -1,13 +1,15 @@
+use std::collections::{HashMap, HashSet};
+
 use crate::server;
 use crate::server::ConnectionId;
 
 use super::domain::*;
-use super::spawn;
 use super::mob;
-use super::view_main;
+use super::player::PlayerId;
+use super::room::RoomId;
+use super::spawn;
 use super::view_login;
-
-use std::collections::{HashMap, HashSet};
+use super::view_main;
 
 pub struct ConnectionState {
     pub connection_id: ConnectionId,
@@ -29,7 +31,7 @@ pub enum Output {
     Room {
         /// player that originate the message, he is the only one will not receive the message
         player_id: Option<PlayerId>,
-        room_id: u32,
+        room_id: RoomId,
         msg: String
     }
 }
@@ -42,7 +44,7 @@ impl Output {
         }
     }
 
-    pub fn room(player_id: PlayerId, room_id: u32, msg: String) -> Self {
+    pub fn room(player_id: PlayerId, room_id: RoomId, msg: String) -> Self {
         Output::Room {
             player_id: Some(player_id),
             room_id,
@@ -50,7 +52,7 @@ impl Output {
         }
     }
 
-    pub fn room_all(room_id: u32, msg: String) -> Self {
+    pub fn room_all(room_id: RoomId, msg: String) -> Self {
         Output::Room {
             player_id: None,
             room_id,
@@ -60,8 +62,8 @@ impl Output {
 }
 
 pub trait Outputs {
-    fn room_all(&mut self, room_id: u32, msg: String);
-    fn room(&mut self, player_id: PlayerId, room_id: u32, msg: String);
+    fn room_all(&mut self, room_id: RoomId, msg: String);
+    fn room(&mut self, player_id: PlayerId, room_id: RoomId, msg: String);
     fn private(&mut self, player_id: PlayerId, msg: String);
 }
 
@@ -78,11 +80,11 @@ impl OutputsImpl {
 }
 
 impl Outputs for OutputsImpl {
-    fn room_all(&mut self, room_id: u32, msg: String) {
+    fn room_all(&mut self, room_id: RoomId, msg: String) {
         self.list.push(Output::room_all(room_id, msg));
     }
 
-    fn room(&mut self, player_id: PlayerId, room_id: u32, msg: String) {
+    fn room(&mut self, player_id: PlayerId, room_id: RoomId, msg: String) {
         self.list.push(Output::room(player_id, room_id, msg));
     }
 
@@ -238,7 +240,7 @@ impl GameController {
             },
 
             Output::Room { player_id, room_id, msg } => {
-                println!("game_controller - {:?}/{}: {}", player_id, room_id, msg);
+                println!("game_controller - {:?}/{:?}: {}", player_id, room_id, msg);
 
                 let players_per_room = self.players_per_room();
 
@@ -296,8 +298,8 @@ impl GameController {
 
     }
 
-    fn players_per_room(&self) -> HashMap<u32, Vec<PlayerId>> {
-        let room_player: Vec<(u32, PlayerId)> =
+    fn players_per_room(&self) -> HashMap<RoomId, Vec<PlayerId>> {
+        let room_player: Vec<(RoomId, PlayerId)> =
             self.container.list_players()
                 .into_iter()
                 .map(|player_id| {
@@ -308,7 +310,7 @@ impl GameController {
                 .collect();
 
         // group_by
-        let mut result: HashMap<u32, Vec<PlayerId>> = HashMap::new();
+        let mut result: HashMap<RoomId, Vec<PlayerId>> = HashMap::new();
         for (room_id, player_id) in room_player {
             result.entry(room_id).or_insert(vec![]).push(player_id);
         }

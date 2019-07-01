@@ -1,7 +1,9 @@
-use crate::game::domain::*;
-use crate::game::controller::Outputs;
-use crate::game::comm;
 use rand::Rng;
+
+use super::domain::*;
+use super::controller::Outputs;
+use super::comm;
+use super::room::RoomId;
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct MobId(pub u32);
@@ -69,8 +71,8 @@ pub struct AttackResult {
 
 #[derive(Clone, Debug)]
 pub struct Mob {
-    pub id: u32,
-    pub room_id: u32,
+    pub id: MobId,
+    pub room_id: RoomId,
     pub label: String,
     pub is_avatar: bool,
     pub command: MobCommand,
@@ -79,7 +81,7 @@ pub struct Mob {
 }
 
 impl Mob {
-    pub fn new(id: u32, room_id: u32, label: String, attributes: Attributes) -> Self {
+    pub fn new(id: MobId, room_id: RoomId, label: String, attributes: Attributes) -> Self {
         Mob {
             id,
             room_id,
@@ -109,7 +111,7 @@ pub fn run(delta: &Seconds, container: &mut Container, outputs: &mut Outputs) {
             continue;
         }
 
-        let mob = container.get_mob_mut(&mob_id.0);
+        let mob = container.get_mob_mut(&mob_id);
         mob.state.tick(delta);
 
         match mob.command {
@@ -122,8 +124,8 @@ pub fn run(delta: &Seconds, container: &mut Container, outputs: &mut Outputs) {
 }
 
 fn run_kill(container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, target_mob_id: &MobId) {
-    let attacker = container.get_mob(&mob_id.0);
-    let defender = container.find_mob(&target_mob_id.0);
+    let attacker = container.get_mob(&mob_id);
+    let defender = container.find_mob(&target_mob_id);
 
     if let Some(defender) = defender {
         // TODO: how send references?
@@ -155,15 +157,15 @@ fn kill_cancel(container: &mut Container, outputs: &mut Outputs, mob_id: &MobId,
 //    }
 
 //    let mut mob = attacker.clone();
-    let mob = container.get_mob_mut(&mob_id.0);
+    let mob = container.get_mob_mut(&mob_id);
     mob.command = MobCommand::None;
 }
 
 fn execute_attack(container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, target: &MobId) {
     let player_id = container.find_player_id_from_avatar_mob_id(mob_id);
 
-    let attacker = container.get_mob(&mob_id.0);
-    let defender = container.get_mob(&target.0);
+    let attacker = container.get_mob(&mob_id);
+    let defender = container.get_mob(&target);
 
     let attack_result = roll_attack(&attacker.attributes.attack, &attacker.attributes.damage, &defender.attributes.defense);
     let room_attack_msg = comm::kill_mob_execute_attack(attacker, defender, &attack_result);
@@ -178,7 +180,7 @@ fn execute_attack(container: &mut Container, outputs: &mut Outputs, mob_id: &Mob
 
     if attack_result.success {
         // deduct pv
-        let defender = container.get_mob_mut(&target.0);
+        let defender = container.get_mob_mut(&target);
         defender.attributes.pv.current -= attack_result.damage as i32;
 
         if defender.attributes.pv.current < 0 {
@@ -186,15 +188,15 @@ fn execute_attack(container: &mut Container, outputs: &mut Outputs, mob_id: &Mob
         }
     }
 
-    let attacker = container.get_mob_mut(&mob_id.0);
+    let attacker = container.get_mob_mut(&mob_id);
     attacker.add_attack_calm_time();
 }
 
 // TODO: create body
 fn run_mob_killed(container: &mut Container, outputs: &mut Outputs, attacker_id: &MobId, target_id: &MobId) {
     let attacker_player_id = container.find_player_id_from_avatar_mob_id(attacker_id);
-    let attacker = container.get_mob(&attacker_id.0);
-    let defender = container.get_mob(&target_id.0);
+    let attacker = container.get_mob(&attacker_id);
+    let defender = container.get_mob(&target_id);
 
     let room_attack_msg = comm::killed(&defender);
 

@@ -1,5 +1,22 @@
+use super::mob::MobId;
 use super::domain::*;
 use super::mob::*;
+
+#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
+pub struct PlayerId(pub u32);
+
+impl std::fmt::Display for PlayerId {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "PlayerId({})", self.0)
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct Player {
+    pub id: PlayerId,
+    pub login: String,
+    pub avatar_id: MobId
+}
 
 pub fn add_player(game: &mut Container, login: &String) -> PlayerId {
     // add player avatar
@@ -7,7 +24,7 @@ pub fn add_player(game: &mut Container, login: &String) -> PlayerId {
 
     let mut mob = Mob::new(
         mob_id,
-        0,
+        super::INITIAL_ROOM_ID,
         login.clone(),
         Attributes {
             attack: 12,

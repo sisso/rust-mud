@@ -1,8 +1,9 @@
+use crate::game::controller::Outputs;
+use crate::game::domain::*;
+use crate::game::player::PlayerId;
+
 use super::actions;
 use super::comm;
-use crate::game::domain::*;
-use crate::game::mob::*;
-use crate::game::controller::Outputs;
 
 pub fn handle(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId, input: String) {
     match input.as_ref() {
@@ -29,12 +30,12 @@ pub fn handle(container: &mut Container, outputs: &mut Outputs, player_id: &Play
         _ if has_command(&input, &["k ", "kill "]) => {
             let target = parse_command(input, &["k ", "kill "]);
             let ctx = container.get_player_context(player_id);
-            let mobs = container.search_mob_by_name_at(&RoomId(ctx.avatar.room_id), &target);
+            let mobs = container.search_mob_by_name_at(&ctx.avatar.room_id, &target);
             let candidate = mobs.first().map(|i| i.id);
 
             match candidate {
                 Some(mob_id) => {
-                    actions::kill(container, outputs, player_id, &MobId(mob_id));
+                    actions::kill(container, outputs, player_id, &mob_id);
                 },
                 None => {
                     outputs.private(player_id.clone(), comm::kill_target_not_found(&target));

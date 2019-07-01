@@ -1,5 +1,6 @@
 use super::domain::*;
 use super::mob::*;
+use super::room::RoomId;
 use crate::game::controller::Outputs;
 
 use rand::Rng;
@@ -41,14 +42,14 @@ pub fn run(container: &mut Container, outputs: &mut Outputs) {
         match spawn.next {
             Some(next) if next.0 <= time.0 && can_spawn_mobs => {
                 // spawn mob
-                let room_id = spawn.room_id.0;
+                let room_id = spawn.room_id;
                 let mob_prefab_id = spawn.prefab_id.clone();
                 let mob_id = container.next_mob_id();
 
                 let prefab = container.get_mob_prefab(&mob_prefab_id);
                 let mob = Mob::new(mob_id, room_id, prefab.label.clone(), prefab.attributes.clone());
 
-                println!("spawn - spawning {:?}({}) at {}", mob.label, mob.id, room_id);
+                println!("spawn - spawning {:?}({:?}) at {:?}", mob.label, mob.id, room_id);
 
                 let spawn_msg = comm::spawn_mob(&mob);
 
@@ -56,7 +57,7 @@ pub fn run(container: &mut Container, outputs: &mut Outputs) {
 
                 // update spawn
                 let spawn = container.get_spawn_by_id_mut(&spawn_id);
-                spawn.mobs_id.push(MobId(mob_id));
+                spawn.mobs_id.push(mob_id);
                 schedule_next_spawn(&time, spawn);
 
                 // add outputs

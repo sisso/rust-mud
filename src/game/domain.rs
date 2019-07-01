@@ -1,11 +1,10 @@
-use super::spawn::*;
 use super::mob::*;
+use super::player::*;
+use super::room::*;
+use super::spawn::*;
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct Tick(u32);
-
-#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
-pub struct PlayerId(pub u32);
 
 #[derive(Clone,Copy,Debug)]
 pub struct Seconds(pub f32);
@@ -26,21 +25,6 @@ impl std::ops::Sub<Seconds> for Seconds {
     }
 }
 
-#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
-pub struct RoomId(pub u32);
-
-impl std::fmt::Display for PlayerId {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "PlayerId({})", self.0)
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct Player {
-    pub id: PlayerId,
-    pub login: String,
-    pub avatar_id: u32
-}
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Dir {
@@ -71,15 +55,6 @@ impl std::fmt::Display for Dir {
         }
     }
 }
-
-#[derive(Clone, Debug)]
-pub struct Room {
-    pub id: u32,
-    pub label: String,
-    pub desc: String,
-    pub exits: Vec<(Dir, u32)>,
-}
-
 
 pub struct PlayerCtx<'a> {
     pub player: &'a Player,
@@ -118,7 +93,7 @@ impl Container {
         self.players.iter().map(|i| &i.id).collect()
     }
 
-    pub fn player_connect(&mut self, login: String, avatar_id: u32) -> &Player {
+    pub fn player_connect(&mut self, login: String, avatar_id: MobId) -> &Player {
         let id = PlayerId(self.next_player_id());
 
         println!("game - adding player {}/{}", id, login);
@@ -145,15 +120,7 @@ impl Container {
         self.rooms.push(room);
     }
 
-//    pub fn get_rooms_by_tag(&self, tag: &RoomTag) -> Vec<u32> {
-//        self.rooms
-//            .iter()
-//            .filter(|room| room.tags.contains(tag))
-//            .map(|room| room.id)
-//            .collect()
-//    }
-
-    pub fn get_room(&self, id: &u32) -> &Room {
+    pub fn get_room(&self, id: &RoomId) -> &Room {
         let room = self.rooms
             .iter()
             .find(|room| { room.id == *id })
@@ -167,7 +134,7 @@ impl Container {
         self.mobs.last().unwrap()
     }
 
-    pub fn get_mob(&self, id: &u32) -> &Mob {
+    pub fn get_mob(&self, id: &MobId) -> &Mob {
         let found = self.mobs
             .iter()
             .find(|p| p.id == *id);
@@ -175,7 +142,7 @@ impl Container {
         found.unwrap()
     }
 
-    pub fn find_mob(&self, id: &u32) -> Option<&Mob> {
+    pub fn find_mob(&self, id: &MobId) -> Option<&Mob> {
         self.mobs
             .iter()
             .find(|p| p.id == *id)
@@ -184,15 +151,15 @@ impl Container {
     pub fn is_mob(&self, id: &MobId) -> bool {
         self.mobs
             .iter()
-            .find(|p| p.id == id.0)
+            .find(|p| p.id == *id)
             .is_some()
     }
 
     pub fn get_mobs(&self) -> Vec<MobId> {
-        self.mobs.iter().map(|i| MobId(i.id)).collect()
+        self.mobs.iter().map(|i| i.id).collect()
     }
 
-    pub fn get_mob_mut(&mut self, id: &u32) -> &mut Mob {
+    pub fn get_mob_mut(&mut self, id: &MobId) -> &mut Mob {
         let found = self.mobs
             .iter_mut()
             .find(|p| p.id == *id);
@@ -201,28 +168,20 @@ impl Container {
     }
 
     pub fn remove_mob(&mut self, id: &MobId) {
-        let index = self.mobs.iter().position(|x| x.id == id.0).unwrap();
+        let index = self.mobs.iter().position(|x| x.id == *id).unwrap();
         self.mobs.remove(index);
     }
-
-//    pub fn get_player_by_login(&self, login: &String) -> &Player {
-//        let found = self.players
-//            .iter()
-//            .find(|p| p.login.eq(login));
-//
-//        found.expect(format!("player with login {} not found", login).as_str())
-//    }
 
     pub fn find_player_from_avatar_mob_id(&self, mob_id: &MobId) -> Option<&Player> {
         self.players
             .iter()
-            .find(|p| p.avatar_id == mob_id.0)
+            .find(|p| p.avatar_id == *mob_id)
     }
 
     pub fn find_player_id_from_avatar_mob_id(&self, mob_id: &MobId) -> Option<PlayerId> {
         self.players
             .iter()
-            .find(|p| p.avatar_id == mob_id.0)
+            .find(|p| p.avatar_id == *mob_id)
             .map(|i| i.id.clone())
     }
 
@@ -239,10 +198,10 @@ impl Container {
         self.mobs[index] = mob;
     }
 
-    pub fn next_mob_id(&mut self) -> u32 {
+    pub fn next_mob_id(&mut self) -> MobId {
         let id = self.next_mob_id;
         self.next_mob_id += 1;
-        id
+        MobId(id)
     }
 
     pub fn get_player_context(&self, player_id: &PlayerId) -> PlayerCtx {
@@ -257,7 +216,7 @@ impl Container {
         }
     }
 
-    pub fn find_mobs_at(&self, room_id: &u32) -> Vec<&Mob> {
+    pub fn find_mobs_at(&self, room_id: &RoomId) -> Vec<&Mob> {
         self.mobs
             .iter()
             .filter(|i| i.room_id == *room_id)
@@ -267,12 +226,12 @@ impl Container {
     pub fn search_mob_by_name_at(&self, room_id: &RoomId, query: &String) -> Vec<&Mob> {
         self.mobs
             .iter()
-            .filter(|i| i.room_id == room_id.0)
+            .filter(|i| i.room_id == *room_id)
             .filter(|i| i.label.eq(query))
             .collect()
     }
 
-    pub fn set_mob_kill_target(&mut self, mob_id: &u32, target: &MobId) {
+    pub fn set_mob_kill_target(&mut self, mob_id: &MobId, target: &MobId) {
         let mob = self.get_mob_mut(mob_id);
         mob.command = MobCommand::Kill { target: target.clone() };
     }
