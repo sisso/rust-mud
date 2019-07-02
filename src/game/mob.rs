@@ -4,6 +4,7 @@ use super::domain::*;
 use super::controller::Outputs;
 use super::comm;
 use super::room::RoomId;
+use super::container::Container;
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct MobId(pub u32);

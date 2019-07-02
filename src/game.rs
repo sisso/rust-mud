@@ -1,6 +1,7 @@
 #![allow(dead_code, unused_variables)]
 
 use controller::*;
+use container::*;
 use domain::*;
 use mob::*;
 use room::*;
@@ -11,6 +12,8 @@ use crate::server;
 mod actions;
 mod comm;
 mod controller;
+mod container;
+mod index;
 mod domain;
 mod mob;
 mod player;

@@ -1,4 +1,5 @@
 use super::domain::*;
+use super::container::Container;
 use super::mob::*;
 
 pub fn look_description(container: &Container, ctx: &PlayerCtx) -> String {

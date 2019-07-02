@@ -4,6 +4,7 @@ use crate::server;
 use crate::server::ConnectionId;
 
 use super::domain::*;
+use super::container::Container;
 use super::mob;
 use super::player::PlayerId;
 use super::room::RoomId;

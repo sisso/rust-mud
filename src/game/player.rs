@@ -1,5 +1,6 @@
 use super::mob::MobId;
 use super::domain::*;
+use super::container::Container;
 use super::mob::*;
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
