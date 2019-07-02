@@ -5,13 +5,13 @@ use super::spawn::*;
 use super::domain::*;
 
 pub struct Container {
+    pub players: PlayerRepository,
     tick: Tick,
     time: Seconds,
     next_mob_id: u32,
     next_player_id: u32,
     rooms: Vec<Room>,
     mobs: Vec<Mob>,
-    players: Vec<Player>,
     spawns: Vec<Spawn>,
     mob_prefabs: Vec<MobPrefab>,
 }
@@ -19,43 +19,16 @@ pub struct Container {
 impl Container {
     pub fn new() -> Self {
         Container {
+            players: PlayerRepository::new(),
             tick: Tick(0),
             time: Seconds(0.0),
             next_mob_id: 0,
             next_player_id: 0,
             rooms: vec![],
             mobs: vec![],
-            players: vec![],
             spawns: vec![],
             mob_prefabs: vec![],
         }
-    }
-
-    pub fn list_players(&self) -> Vec<&PlayerId> {
-        self.players.iter().map(|i| &i.id).collect()
-    }
-
-    pub fn player_connect(&mut self, login: String, avatar_id: MobId) -> &Player {
-        let id = PlayerId(self.next_player_id());
-
-        println!("game - adding player {}/{}", id, login);
-
-        let player = Player {
-            id,
-            login: login,
-            avatar_id,
-        };
-
-        self.players.push(player);
-
-        &self.players.last().unwrap()
-    }
-
-    pub fn player_disconnect(&mut self, id: &PlayerId) {
-        println!("game - removing player {}", id);
-
-        let index = self.players.iter().position(|x| x.id == *id).unwrap();
-        self.players.remove(index);
     }
 
     pub fn add_room(&mut self, room: Room) {
@@ -114,28 +87,7 @@ impl Container {
         self.mobs.remove(index);
     }
 
-    pub fn find_player_from_avatar_mob_id(&self, mob_id: &MobId) -> Option<&Player> {
-        self.players
-            .iter()
-            .find(|p| p.avatar_id == *mob_id)
-    }
-
-    pub fn find_player_id_from_avatar_mob_id(&self, mob_id: &MobId) -> Option<PlayerId> {
-        self.players
-            .iter()
-            .find(|p| p.avatar_id == *mob_id)
-            .map(|i| i.id.clone())
-    }
-
-    pub fn get_player_by_id(&self, id: &PlayerId) -> &Player {
-        let found = self.players
-            .iter()
-            .find(|p| p.id == *id);
-
-        found.expect(format!("player with login {} not found", id).as_str())
-    }
-
-    pub fn update_mob(&mut self, mob: Mob) {
+   pub fn update_mob(&mut self, mob: Mob) {
         let index = self.mobs.iter().position(|x| x.id == mob.id).unwrap();
         self.mobs[index] = mob;
     }
@@ -147,7 +99,7 @@ impl Container {
     }
 
     pub fn get_player_context(&self, player_id: &PlayerId) -> PlayerCtx {
-        let player = self.get_player_by_id(player_id);
+        let player = self.players.get_player_by_id(player_id);
         let mob = self.get_mob(&player.avatar_id);
         let room = self.get_room(&mob.room_id);
 

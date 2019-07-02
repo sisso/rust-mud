@@ -13,7 +13,6 @@ mod actions;
 mod comm;
 mod controller;
 mod container;
-mod index;
 mod domain;
 mod mob;
 mod player;

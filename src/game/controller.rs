@@ -145,7 +145,7 @@ impl GameController {
 
             if let Some(player_id) = state.player_id {
                 println!("gamecontroller - {} removing player {}", connection.id, player_id);
-                self.container.player_disconnect(&player_id);
+                self.container.players.player_disconnect(&player_id);
             } else {
                 println!("gamecontroller - {} removing non logged player", connection.id);
             }
@@ -301,10 +301,10 @@ impl GameController {
 
     fn players_per_room(&self) -> HashMap<RoomId, Vec<PlayerId>> {
         let room_player: Vec<(RoomId, PlayerId)> =
-            self.container.list_players()
+            self.container.players.list_players()
                 .into_iter()
                 .map(|player_id| {
-                    let player = self.container.get_player_by_id(player_id);
+                    let player = self.container.players.get_player_by_id(player_id);
                     let avatar = self.container.get_mob(&player.avatar_id);
                     (avatar.room_id, *player_id)
                 })

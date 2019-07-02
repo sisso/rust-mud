@@ -61,3 +61,20 @@ pub struct PlayerCtx<'a> {
     pub room: &'a Room,
 }
 
+pub struct NextId {
+    next: u32,
+}
+
+impl NextId {
+    pub fn new() -> Self {
+        NextId {
+            next: 0
+        }
+    }
+
+    pub fn next(&mut self) -> u32 {
+        let v = self.next;
+        self.next += 1;
+        v
+    }
+}

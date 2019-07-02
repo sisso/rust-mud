@@ -163,7 +163,7 @@ fn kill_cancel(container: &mut Container, outputs: &mut Outputs, mob_id: &MobId,
 }
 
 fn execute_attack(container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, target: &MobId) {
-    let player_id = container.find_player_id_from_avatar_mob_id(mob_id);
+    let player_id = container.players.find_player_id_from_avatar_mob_id(mob_id);
 
     let attacker = container.get_mob(&mob_id);
     let defender = container.get_mob(&target);
@@ -195,7 +195,7 @@ fn execute_attack(container: &mut Container, outputs: &mut Outputs, mob_id: &Mob
 
 // TODO: create body
 fn run_mob_killed(container: &mut Container, outputs: &mut Outputs, attacker_id: &MobId, target_id: &MobId) {
-    let attacker_player_id = container.find_player_id_from_avatar_mob_id(attacker_id);
+    let attacker_player_id = container.players.find_player_id_from_avatar_mob_id(attacker_id);
     let attacker = container.get_mob(&attacker_id);
     let defender = container.get_mob(&target_id);
 
