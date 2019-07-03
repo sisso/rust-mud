@@ -45,7 +45,7 @@ pub fn run(container: &mut Container, outputs: &mut Outputs) {
                 // spawn mob
                 let room_id = spawn.room_id;
                 let mob_prefab_id = spawn.prefab_id.clone();
-                let mob_id = container.next_mob_id();
+                let mob_id = container.mobs.new_id();
 
                 let prefab = container.get_mob_prefab(&mob_prefab_id);
                 let mob = Mob::new(mob_id, room_id, prefab.label.clone(), prefab.attributes.clone());
@@ -54,7 +54,7 @@ pub fn run(container: &mut Container, outputs: &mut Outputs) {
 
                 let spawn_msg = comm::spawn_mob(&mob);
 
-                container.add_mob(mob);
+                container.mobs.add(mob);
 
                 // update spawn
                 let spawn = container.get_spawn_by_id_mut(&spawn_id);
@@ -86,7 +86,7 @@ fn clean_up_dead_mobs(container: &mut Container, spawn_id: &SpawnId) {
     let mut remove_list = vec![];
     let spawn = container.get_spawn_by_id(spawn_id);
     for (i, mob_id) in spawn.mobs_id.iter().enumerate() {
-        if !container.is_mob(&mob_id) {
+        if !container.mobs.exists(&mob_id) {
             remove_list.push(i);
         }
     }

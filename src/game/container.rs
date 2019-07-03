@@ -6,12 +6,12 @@ use super::domain::*;
 
 pub struct Container {
     pub players: PlayerRepository,
+    pub mobs: MobRepository,
     tick: Tick,
     time: Seconds,
     next_mob_id: u32,
     next_player_id: u32,
     rooms: Vec<Room>,
-    mobs: Vec<Mob>,
     spawns: Vec<Spawn>,
     mob_prefabs: Vec<MobPrefab>,
 }
@@ -20,12 +20,12 @@ impl Container {
     pub fn new() -> Self {
         Container {
             players: PlayerRepository::new(),
+            mobs: MobRepository::new(),
             tick: Tick(0),
             time: Seconds(0.0),
             next_mob_id: 0,
             next_player_id: 0,
             rooms: vec![],
-            mobs: vec![],
             spawns: vec![],
             mob_prefabs: vec![],
         }
@@ -44,63 +44,9 @@ impl Container {
         room
     }
 
-    pub fn add_mob(&mut self, mob: Mob) -> &Mob {
-        self.mobs.push(mob);
-        self.mobs.last().unwrap()
-    }
-
-    pub fn get_mob(&self, id: &MobId) -> &Mob {
-        let found = self.mobs
-            .iter()
-            .find(|p| p.id == *id);
-
-        found.unwrap()
-    }
-
-    pub fn find_mob(&self, id: &MobId) -> Option<&Mob> {
-        self.mobs
-            .iter()
-            .find(|p| p.id == *id)
-    }
-
-    pub fn is_mob(&self, id: &MobId) -> bool {
-        self.mobs
-            .iter()
-            .find(|p| p.id == *id)
-            .is_some()
-    }
-
-    pub fn get_mobs(&self) -> Vec<MobId> {
-        self.mobs.iter().map(|i| i.id).collect()
-    }
-
-    pub fn get_mob_mut(&mut self, id: &MobId) -> &mut Mob {
-        let found = self.mobs
-            .iter_mut()
-            .find(|p| p.id == *id);
-
-        found.unwrap()
-    }
-
-    pub fn remove_mob(&mut self, id: &MobId) {
-        let index = self.mobs.iter().position(|x| x.id == *id).unwrap();
-        self.mobs.remove(index);
-    }
-
-   pub fn update_mob(&mut self, mob: Mob) {
-        let index = self.mobs.iter().position(|x| x.id == mob.id).unwrap();
-        self.mobs[index] = mob;
-    }
-
-    pub fn next_mob_id(&mut self) -> MobId {
-        let id = self.next_mob_id;
-        self.next_mob_id += 1;
-        MobId(id)
-    }
-
     pub fn get_player_context(&self, player_id: &PlayerId) -> PlayerCtx {
         let player = self.players.get_player_by_id(player_id);
-        let mob = self.get_mob(&player.avatar_id);
+        let mob = self.mobs.get(&player.avatar_id);
         let room = self.get_room(&mob.room_id);
 
         PlayerCtx {
@@ -108,26 +54,6 @@ impl Container {
             avatar: mob,
             room
         }
-    }
-
-    pub fn find_mobs_at(&self, room_id: &RoomId) -> Vec<&Mob> {
-        self.mobs
-            .iter()
-            .filter(|i| i.room_id == *room_id)
-            .collect()
-    }
-
-    pub fn search_mob_by_name_at(&self, room_id: &RoomId, query: &String) -> Vec<&Mob> {
-        self.mobs
-            .iter()
-            .filter(|i| i.room_id == *room_id)
-            .filter(|i| i.label.eq(query))
-            .collect()
-    }
-
-    pub fn set_mob_kill_target(&mut self, mob_id: &MobId, target: &MobId) {
-        let mob = self.get_mob_mut(mob_id);
-        mob.command = MobCommand::Kill { target: target.clone() };
     }
 
     pub fn add_spawn(&mut self, spawn: Spawn) {

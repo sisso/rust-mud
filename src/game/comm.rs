@@ -9,7 +9,7 @@ pub fn look_description(container: &Container, ctx: &PlayerCtx) -> String {
         exits.push(dir.to_string());
     }
     let exits = exits.join(", ");
-    let mobs = container.find_mobs_at(&ctx.avatar.room_id);
+    let mobs = container.mobs.search(Some(&ctx.avatar.room_id), None);
     let mobs =
         if mobs.is_empty() {
             "".to_string()

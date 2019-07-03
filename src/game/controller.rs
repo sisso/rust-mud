@@ -305,7 +305,7 @@ impl GameController {
                 .into_iter()
                 .map(|player_id| {
                     let player = self.container.players.get_player_by_id(player_id);
-                    let avatar = self.container.get_mob(&player.avatar_id);
+                    let avatar = self.container.mobs.get(&player.avatar_id);
                     (avatar.room_id, *player_id)
                 })
                 .collect();

@@ -31,7 +31,7 @@ pub fn handle(container: &mut Container, outputs: &mut Outputs, player_id: &Play
         _ if has_command(&input, &["k ", "kill "]) => {
             let target = parse_command(input, &["k ", "kill "]);
             let ctx = container.get_player_context(player_id);
-            let mobs = container.search_mob_by_name_at(&ctx.avatar.room_id, &target);
+            let mobs = container.mobs.search(Some(&ctx.avatar.room_id), Some(&target));
             let candidate = mobs.first().map(|i| i.id);
 
             match candidate {

@@ -40,7 +40,7 @@ pub fn mv(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId
             // change entity in place
             let mut mob = ctx.avatar.clone();
             mob.room_id = exit_room_id;
-            container.update_mob(mob);
+            container.mobs.update(mob);
 
             // get new player ctx
             let ctx = container.get_player_context(&player_id);
@@ -63,7 +63,7 @@ pub fn mv(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId
 
 pub fn kill(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId, target: &MobId) {
     let ctx = container.get_player_context(player_id);
-    let target_mob = container.get_mob(&target);
+    let target_mob = container.mobs.get(&target);
 
     let player_msg = comm::kill_player_attack(target_mob);
     let room_msg = comm::kill_mob_attack_someone(&ctx.avatar, &target_mob);
@@ -71,7 +71,7 @@ pub fn kill(container: &mut Container, outputs: &mut Outputs, player_id: &Player
     let avatar_id = ctx.avatar.id.clone();
     let room_id = ctx.room.id;
 
-    container.set_mob_kill_target(&avatar_id, target);
+    container.mobs.set_mob_kill_target(&avatar_id, target);
 
     outputs.private(player_id.clone(), player_msg);
     outputs.room(player_id.clone(), room_id, room_msg);

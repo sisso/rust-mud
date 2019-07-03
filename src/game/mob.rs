@@ -1,10 +1,12 @@
+use std::collections::HashMap;
+
 use rand::Rng;
 
-use super::domain::*;
-use super::controller::Outputs;
 use super::comm;
-use super::room::RoomId;
 use super::container::Container;
+use super::controller::Outputs;
+use super::domain::*;
+use super::room::RoomId;
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct MobId(pub u32);
@@ -106,27 +108,118 @@ pub struct MobPrefab {
     pub attributes: Attributes,
 }
 
+pub struct MobRepository {
+    next_id: NextId,
+    index: HashMap<MobId, Mob>
+}
+
+impl MobRepository {
+    pub fn new() -> Self {
+        MobRepository {
+            next_id: NextId::new(),
+            index: HashMap::new()
+        }
+    }
+
+    // TODO: iterator of ref?
+    pub fn list(&self) -> Vec<MobId> {
+        self.index
+            .iter()
+            .into_iter()
+            .map(| (id, _)| id.clone())
+            .collect()
+    }
+
+    pub fn new_id(&mut self) -> MobId {
+        let id = self.next_id.next();
+        MobId(id)
+    }
+
+    pub fn add(&mut self, mob: Mob) -> &Mob {
+        if self.exists(&mob.id) {
+            panic!("mob already exists")
+        }
+        let id = mob.id;
+        self.index.insert(id, mob);
+        self.index.get(&id).unwrap()
+    }
+
+    pub fn update(&mut self, mob: Mob) -> &Mob {
+        if !self.exists(&mob.id) {
+            panic!("mob do not exists")
+        }
+        let id = mob.id;
+        self.index.insert(id, mob);
+        self.index.get(&id).unwrap()
+    }
+
+    pub fn remove(&mut self, id: &MobId) {
+        self.index.remove(&id);
+    }
+
+    pub fn get(&self, id: &MobId) -> &Mob {
+        self.index.get(id).unwrap()
+    }
+
+    pub fn find(&self, id: &MobId) -> Option<&Mob> {
+        self.index.get(id)
+    }
+
+    pub fn exists(&self, id: &MobId) -> bool {
+        self.index.contains_key(id)
+    }
+
+    pub fn search(&self, room_id: Option<&RoomId>, name: Option<&String>) -> Vec<&Mob> {
+        self.index
+            .iter()
+            .filter(|(_, mob)| {
+                if let Some(room_id) = room_id {
+                    if mob.room_id != *room_id {
+                        return false;
+                    }
+                }
+
+                if let Some(name) = name {
+                    if !mob.label.eq_ignore_ascii_case(&name) {
+                        return false;
+                    }
+                }
+
+                true
+            })
+            .map(|(_, mob)| mob)
+            .collect()
+    }
+
+    pub fn set_mob_kill_target(&mut self, id: &MobId, target: &MobId) {
+        let mut mob = self.index.get_mut(id).unwrap();
+        mob.command = MobCommand::Kill { target: target.clone() };
+    }
+}
+
 pub fn run(delta: &Seconds, container: &mut Container, outputs: &mut Outputs) {
-    for mob_id in container.get_mobs() {
-        if !container.is_mob(&mob_id) {
+    for mob_id in container.mobs.list() {
+        if !container.mobs.exists(&mob_id) {
             continue;
         }
 
-        let mob = container.get_mob_mut(&mob_id);
+        let mut mob = container.mobs.get(&mob_id).clone();
         mob.state.tick(delta);
+        container.mobs.update(mob);
 
+        let mob = container.mobs.get(&mob_id);
         match mob.command {
             MobCommand::None => {},
             MobCommand::Kill { target } => {
-                run_kill(container, outputs, &mob_id.clone(), &target.clone());
+                run_kill(container, outputs, &mob_id, &target);
             }
         }
     }
 }
 
 fn run_kill(container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, target_mob_id: &MobId) {
-    let attacker = container.get_mob(&mob_id);
-    let defender = container.find_mob(&target_mob_id);
+    let attacker = container.mobs.get(&mob_id);
+    let defender = container.mobs.find(&target_mob_id);
 
     if let Some(defender) = defender {
         // TODO: how send references?
@@ -158,15 +251,16 @@ fn kill_cancel(container: &mut Container, outputs: &mut Outputs, mob_id: &MobId,
 //    }
 
 //    let mut mob = attacker.clone();
-    let mob = container.get_mob_mut(&mob_id);
+    let mut mob = container.mobs.get(&mob_id).clone();
     mob.command = MobCommand::None;
+    container.mobs.update(mob);
 }
 
 fn execute_attack(container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, target: &MobId) {
     let player_id = container.players.find_player_id_from_avatar_mob_id(mob_id);
 
-    let attacker = container.get_mob(&mob_id);
-    let defender = container.get_mob(&target);
+    let attacker = container.mobs.get(&mob_id);
+    let defender = container.mobs.get(&target);
 
     let attack_result = roll_attack(&attacker.attributes.attack, &attacker.attributes.damage, &defender.attributes.defense);
     let room_attack_msg = comm::kill_mob_execute_attack(attacker, defender, &attack_result);
@@ -181,23 +275,26 @@ fn execute_attack(container: &mut Container, outputs: &mut Outputs, mob_id: &Mob
 
     if attack_result.success {
         // deduct pv
-        let defender = container.get_mob_mut(&target);
+        let mut defender = container.mobs.get(&target).clone();
         defender.attributes.pv.current -= attack_result.damage as i32;
+        container.mobs.update(defender);
 
+        let defender = container.mobs.get(&target);
         if defender.attributes.pv.current < 0 {
             run_mob_killed(container, outputs, mob_id, target);
         }
     }
 
-    let attacker = container.get_mob_mut(&mob_id);
+    let mut attacker = container.mobs.get(&mob_id).clone();
     attacker.add_attack_calm_time();
+    container.mobs.update(attacker);
 }
 
 // TODO: create body
 fn run_mob_killed(container: &mut Container, outputs: &mut Outputs, attacker_id: &MobId, target_id: &MobId) {
     let attacker_player_id = container.players.find_player_id_from_avatar_mob_id(attacker_id);
-    let attacker = container.get_mob(&attacker_id);
-    let defender = container.get_mob(&target_id);
+    let attacker = container.mobs.get(&attacker_id);
+    let defender = container.mobs.get(&target_id);
 
     let room_attack_msg = comm::killed(&defender);
 
@@ -209,7 +306,7 @@ fn run_mob_killed(container: &mut Container, outputs: &mut Outputs, attacker_id:
         outputs.room_all(attacker.room_id, room_attack_msg);
     }
 
-    container.remove_mob(target_id);
+    container.mobs.remove(target_id);
 }
 
 fn roll_attack(attack: &u32, damage: &Damage, defense: &u32) -> AttackResult {
