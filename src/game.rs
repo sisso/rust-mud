@@ -1,7 +1,7 @@
 #![allow(dead_code, unused_variables)]
 
-use controller::*;
 use container::*;
+use controller::*;
 use domain::*;
 use mob::*;
 use room::*;
@@ -13,6 +13,7 @@ mod actions;
 mod comm;
 mod controller;
 mod container;
+mod combat;
 mod domain;
 mod mob;
 mod player;
