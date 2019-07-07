@@ -9,11 +9,10 @@ pub struct Container {
     pub players: PlayerRepository,
     pub mobs: MobRepository,
     pub items: ItemRepository,
+    pub rooms: RoomRepository,
     tick: Tick,
     time: Seconds,
-    next_mob_id: u32,
     next_player_id: u32,
-    rooms: Vec<Room>,
     spawns: Vec<Spawn>,
     mob_prefabs: Vec<MobPrefab>,
 }
@@ -24,33 +23,19 @@ impl Container {
             players: PlayerRepository::new(),
             mobs: MobRepository::new(),
             items: ItemRepository::new(),
+            rooms: RoomRepository::new(),
             tick: Tick(0),
             time: Seconds(0.0),
-            next_mob_id: 0,
             next_player_id: 0,
-            rooms: vec![],
             spawns: vec![],
             mob_prefabs: vec![],
         }
     }
 
-    pub fn add_room(&mut self, room: Room) {
-        self.rooms.push(room);
-    }
-
-    pub fn get_room(&self, id: &RoomId) -> &Room {
-        let room = self.rooms
-            .iter()
-            .find(|room| { room.id == *id })
-            .unwrap();
-
-        room
-    }
-
     pub fn get_player_context(&self, player_id: &PlayerId) -> PlayerCtx {
         let player = self.players.get_player_by_id(player_id);
         let mob = self.mobs.get(&player.avatar_id);
-        let room = self.get_room(&mob.room_id);
+        let room = self.rooms.get(&mob.room_id);
 
         PlayerCtx {
             player,
@@ -104,6 +89,12 @@ impl Container {
 
     pub fn get_time(&self) -> &Seconds {
         &self.time
+    }
+
+    pub fn add_to_room(&mut self, item_id: ItemId, room_id: RoomId) {
+//        let room = self.get_room(&room_id).clone();
+//        room.inventory.add(item_id);
+//        self.update_room(room);
     }
 }
 

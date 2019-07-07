@@ -3,11 +3,10 @@ use super::container::Container;
 use super::mob::*;
 
 pub fn look_description(container: &Container, ctx: &PlayerCtx) -> String {
-    let mut exits = vec![];
-    for exit in &ctx.room.exits {
-        let dir = &exit.0;
-        exits.push(dir.to_string());
-    }
+    let exits: Vec<String> = ctx.room.exits.iter()
+        .map(|(dir, _)| dir.to_string())
+        .collect();
+
     let exits = exits.join(", ");
     let mobs = container.mobs.search(Some(&ctx.avatar.room_id), None);
     let mobs =

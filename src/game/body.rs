@@ -1,4 +1,5 @@
 use super::item::*;
+use super::inventory;
 use super::mob::*;
 use super::container::*;
 use super::controller::Outputs;
@@ -14,5 +15,6 @@ pub fn create_body(container: &mut Container, outputs: &mut Outputs, mob_id: &Mo
         label: format!("{} body", mob.label).to_string(),
     };
 
-    container.items.add_to_room(room_id, item);
+    container.items.add(item);
+//    container.add_item_to_room(container, item_id, room_id);
 }

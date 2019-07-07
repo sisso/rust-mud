@@ -27,11 +27,7 @@ pub fn mv(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId
     let ctx = container.get_player_context(player_id);
     let player_id = player_id.clone();
 
-    let exit_room_id = ctx.room
-        .exits
-        .iter()
-        .find(|e| e.0 == dir)
-        .map(|i| i.1);
+    let exit_room_id = ctx.room.get_exit(&dir);
 
     match exit_room_id {
         Some(exit_room_id) => {

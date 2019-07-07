@@ -6,6 +6,7 @@ use domain::*;
 use mob::*;
 use room::*;
 use item::*;
+use inventory::*;
 use spawn::*;
 
 use crate::server;
@@ -25,6 +26,7 @@ mod spawn;
 mod view_main;
 mod view_login;
 mod item;
+mod inventory;
 mod actions_items;
 
 const INITIAL_ROOM_ID: RoomId = RoomId(0);
@@ -78,8 +80,8 @@ fn load_rooms(container: &mut Container) {
         exits: vec![(Dir::N, INITIAL_ROOM_ID)],
     };
 
-    container.add_room(room1);
-    container.add_room(room2);
+    container.rooms.add(room1);
+    container.rooms.add(room2);
 }
 
 fn load_spawns(container: &mut Container) {
