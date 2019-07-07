@@ -5,7 +5,6 @@ use super::container::Container;
 use super::controller::Outputs;
 use super::domain::*;
 use super::room::RoomId;
-use super::item::*;
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct MobId(pub u32);
@@ -69,7 +68,6 @@ pub struct Mob {
     pub is_avatar: bool,
     pub command: MobCommand,
     pub attributes: Attributes,
-    pub inventory: Inventory,
     state: MobState,
 }
 
@@ -82,7 +80,6 @@ impl Mob {
             is_avatar: false,
             command: MobCommand::None,
             attributes,
-            inventory: Inventory::new(),
             state: MobState::new(),
         }
     }
@@ -202,7 +199,7 @@ impl MobRepository {
     }
 }
 
-pub fn run(delta: &Seconds, container: &mut Container, outputs: &mut Outputs) {
+pub fn run_tick(delta: &Seconds, container: &mut Container, outputs: &mut Outputs) {
     for mob_id in container.mobs.list() {
         if !container.mobs.exists(&mob_id) {
             continue;
@@ -217,7 +214,7 @@ pub fn run(delta: &Seconds, container: &mut Container, outputs: &mut Outputs) {
         match mob.command {
             MobCommand::None => {},
             MobCommand::Kill { target } => {
-                combat::run_kill(container, outputs, &mob_id, &target);
+                combat::run_attack(container, outputs, &mob_id, &target);
             }
         }
     }

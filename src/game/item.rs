@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 use crate::game::domain::NextId;
+use crate::game::room::RoomId;
+use crate::game::mob::MobId;
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub struct ItemId(pub u32);
@@ -7,10 +9,23 @@ pub struct ItemId(pub u32);
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub struct ItemType(pub u32);
 
+pub const ITEM_TYPE_COIN: ItemType = ItemType(0);
+pub const ITEM_TYPE_BODY: ItemType = ItemType(1);
+
+pub enum ItemPlace {
+    Room {
+        id: RoomId
+    },
+    Mob {
+        id: MobId
+    },
+}
+
 #[derive(Debug, Clone)]
 pub struct Item {
     id: ItemId,
-    def_id: ItemDefId,
+    typ: ItemType,
+    label: String
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
@@ -50,5 +65,9 @@ impl ItemRepository {
             index: HashMap::new(),
             def_index: HashMap::new(),
         }
+    }
+
+    pub fn next_item_id(&mut self) -> ItemId {
+        ItemId(self.next_item_id.next())
     }
 }

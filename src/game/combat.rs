@@ -1,18 +1,20 @@
 use rand::Rng;
 
+use super::item::*;
+use super::body;
 use super::comm;
 use super::container::*;
 use super::controller::Outputs;
 use super::mob::*;
 
-pub fn run_kill(container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, target_mob_id: &MobId) {
+pub fn run_attack(container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, target_mob_id: &MobId) {
     let attacker = container.mobs.get(&mob_id);
     let defender = container.mobs.find(&target_mob_id);
 
     if let Some(defender) = defender {
         // TODO: how send references?
         if attacker.room_id != defender.room_id {
-            kill_cancel(container, outputs, &mob_id, Some(target_mob_id));
+            cancel_attack(container, outputs, &mob_id, Some(target_mob_id));
             return;
         }
 
@@ -20,11 +22,11 @@ pub fn run_kill(container: &mut Container, outputs: &mut Outputs, mob_id: &MobId
             execute_attack(container, outputs, &mob_id, &target_mob_id);
         }
     } else {
-        kill_cancel(container, outputs, &mob_id, None);
+        cancel_attack(container, outputs, &mob_id, None);
     }
 }
 
-fn kill_cancel(container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, target: Option<&MobId>) {
+fn cancel_attack(container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, target: Option<&MobId>) {
 //    let attacker = container.get_mob(&mob_id.0);
 
 //    let msg_others = comm::kill_cancel(attacker, defender);
@@ -70,7 +72,7 @@ fn execute_attack(container: &mut Container, outputs: &mut Outputs, mob_id: &Mob
 
         let defender = container.mobs.get(&target);
         if defender.attributes.pv.current < 0 {
-            run_mob_killed(container, outputs, mob_id, target);
+            kill_mob(container, outputs, mob_id, target);
         }
     }
 
@@ -80,7 +82,7 @@ fn execute_attack(container: &mut Container, outputs: &mut Outputs, mob_id: &Mob
 }
 
 // TODO: create body
-fn run_mob_killed(container: &mut Container, outputs: &mut Outputs, attacker_id: &MobId, target_id: &MobId) {
+fn kill_mob(container: &mut Container, outputs: &mut Outputs, attacker_id: &MobId, target_id: &MobId) {
     let attacker_player_id = container.players.find_player_id_from_avatar_mob_id(attacker_id);
     let attacker = container.mobs.get(&attacker_id);
     let defender = container.mobs.get(&target_id);
@@ -95,8 +97,12 @@ fn run_mob_killed(container: &mut Container, outputs: &mut Outputs, attacker_id:
         outputs.room_all(attacker.room_id, room_attack_msg);
     }
 
+    body::create_body(container, outputs, target_id);
+
     container.mobs.remove(target_id);
+
 }
+
 
 fn roll_attack(attack: &u32, damage: &Damage, defense: &u32) -> AttackResult {
     let attack_dice = roll_dice() + *attack;

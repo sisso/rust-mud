@@ -29,8 +29,6 @@ mod actions_items;
 
 const INITIAL_ROOM_ID: RoomId = RoomId(0);
 
-const ITEM_COIN: ItemDefId = ItemDefId(0);
-
 const MOB_PLAYER: MobPrefabId = MobPrefabId(0);
 const MOB_DRUNK: MobPrefabId  = MobPrefabId(1);
 
@@ -71,7 +69,6 @@ fn load_rooms(container: &mut Container) {
         label: "Main Room".to_string(),
         desc: "Main room where people born".to_string(),
         exits: vec![(Dir::S, room_id_bar)],
-        inventory: Inventory::new(),
     };
 
     let room2 = Room {
@@ -79,7 +76,6 @@ fn load_rooms(container: &mut Container) {
         label: "Bar".to_string(),
         desc: "Where we relief our duties".to_string(),
         exits: vec![(Dir::N, INITIAL_ROOM_ID)],
-        inventory: Inventory::new(),
     };
 
     container.add_room(room1);

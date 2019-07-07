@@ -183,7 +183,7 @@ impl GameController {
         }
 
         spawn::run(&mut self.container, &mut outputs);
-        mob::run(&delta, &mut self.container, &mut outputs);
+        mob::run_tick(&delta, &mut self.container, &mut outputs);
 
         self.append_outputs(&mut server_outputs, outputs);
         self.normalize_output(&mut server_outputs, &connections_with_input);
