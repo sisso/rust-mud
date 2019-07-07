@@ -5,6 +5,7 @@ use super::container::Container;
 use super::controller::Outputs;
 use super::domain::*;
 use super::room::RoomId;
+use super::item::*;
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct MobId(pub u32);
@@ -68,6 +69,7 @@ pub struct Mob {
     pub is_avatar: bool,
     pub command: MobCommand,
     pub attributes: Attributes,
+    pub inventory: Inventory,
     state: MobState,
 }
 
@@ -80,7 +82,8 @@ impl Mob {
             is_avatar: false,
             command: MobCommand::None,
             attributes,
-            state: MobState::new()
+            inventory: Inventory::new(),
+            state: MobState::new(),
         }
     }
 

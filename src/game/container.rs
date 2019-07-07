@@ -3,10 +3,12 @@ use super::player::*;
 use super::room::*;
 use super::spawn::*;
 use super::domain::*;
+use super::item::*;
 
 pub struct Container {
     pub players: PlayerRepository,
     pub mobs: MobRepository,
+    pub items: ItemRepository,
     tick: Tick,
     time: Seconds,
     next_mob_id: u32,
@@ -21,6 +23,7 @@ impl Container {
         Container {
             players: PlayerRepository::new(),
             mobs: MobRepository::new(),
+            items: ItemRepository::new(),
             tick: Tick(0),
             time: Seconds(0.0),
             next_mob_id: 0,

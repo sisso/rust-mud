@@ -1,4 +1,5 @@
 use super::domain::Dir;
+use crate::game::item::Inventory;
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct RoomId(pub u32);
@@ -9,5 +10,9 @@ pub struct Room {
     pub label: String,
     pub desc: String,
     pub exits: Vec<(Dir, RoomId)>,
+    pub inventory: Inventory,
+}
+
+impl Room {
 }
 

@@ -5,11 +5,14 @@ use controller::*;
 use domain::*;
 use mob::*;
 use room::*;
+use item::*;
 use spawn::*;
 
 use crate::server;
+use crate::game::item::ItemDefId;
 
 mod actions;
+mod body;
 mod comm;
 mod controller;
 mod container;
@@ -21,11 +24,20 @@ mod room;
 mod spawn;
 mod view_main;
 mod view_login;
+mod item;
+mod actions_items;
 
 const INITIAL_ROOM_ID: RoomId = RoomId(0);
 
+const ITEM_COIN: ItemDefId = ItemDefId(0);
+
 const MOB_PLAYER: MobPrefabId = MobPrefabId(0);
 const MOB_DRUNK: MobPrefabId  = MobPrefabId(1);
+
+
+fn load_items_prefabs(container: &mut Container) {
+
+}
 
 fn load_mobs_prefabs(container: &mut Container) {
     container.add_mob_prefab(MobPrefab {
@@ -59,6 +71,7 @@ fn load_rooms(container: &mut Container) {
         label: "Main Room".to_string(),
         desc: "Main room where people born".to_string(),
         exits: vec![(Dir::S, room_id_bar)],
+        inventory: Inventory::new(),
     };
 
     let room2 = Room {
@@ -66,6 +79,7 @@ fn load_rooms(container: &mut Container) {
         label: "Bar".to_string(),
         desc: "Where we relief our duties".to_string(),
         exits: vec![(Dir::N, INITIAL_ROOM_ID)],
+        inventory: Inventory::new(),
     };
 
     container.add_room(room1);
@@ -88,6 +102,7 @@ fn load_spawns(container: &mut Container) {
 }
 
 fn load(container: &mut Container) {
+    load_items_prefabs(container);
     load_mobs_prefabs(container);
     load_rooms(container);
     load_spawns(container);
