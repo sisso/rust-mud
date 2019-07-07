@@ -31,7 +31,7 @@ pub struct ItemDef {
 
 #[derive(Debug, Clone)]
 pub struct Inventory {
-    list: Vec<ItemId>,
+    list: Vec<Item>,
 }
 
 impl Inventory {
@@ -41,15 +41,15 @@ impl Inventory {
         }
     }
 
-    pub fn add(&mut self, item_id: ItemId) {
-        self.list.push(item_id);
+    pub fn add(&mut self, item: Item) {
+        self.list.push(item);
     }
 }
 
 pub struct ItemRepository {
     next_item_id: NextId,
     next_item_def_id: NextId,
-    index: HashMap<ItemId, Item>,
+//    index: HashMap<ItemId, Item>,
     room_inventory: HashMap<RoomId, Inventory>,
     mob_inventory: HashMap<MobId, Inventory>,
     def_index: HashMap<ItemDefId, ItemDef>,
@@ -60,7 +60,7 @@ impl ItemRepository {
         ItemRepository {
             next_item_id: NextId::new(),
             next_item_def_id: NextId::new(),
-            index: HashMap::new(),
+//            index: HashMap::new(),
             room_inventory: Default::default(),
             mob_inventory: Default::default(),
             def_index: HashMap::new(),
@@ -73,14 +73,21 @@ impl ItemRepository {
 
     pub fn add_to_room(&mut self, item: Item, room_id: RoomId) {
         let inventory = self.get_room_inventory(room_id);
-        inventory.add(item.id);
+        inventory.add(item);
 
-        self.add(item);
+//        self.add(item);
     }
 
-    fn add(&mut self, item: Item) {
-        self.index.insert(item.id, item);
+    pub fn list_at(&self, room_id: &RoomId) -> Vec<&Item> {
+        match self.room_inventory.get(room_id) {
+            Some(inventoy) => inventoy.list.iter().collect(),
+            None => vec![],
+        }
     }
+
+//    fn add(&mut self, item: Item) {
+//        self.index.insert(item.id, item);
+//    }
 
     fn get_room_inventory(&mut self, room_id: RoomId) -> &mut Inventory {
         self.room_inventory.entry(room_id).or_insert(Inventory::new())

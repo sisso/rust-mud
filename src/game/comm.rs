@@ -24,7 +24,13 @@ pub fn look_description(container: &Container, ctx: &PlayerCtx) -> String {
             labels.join("\n")
         };
 
-    format!("{}\n\n{}\n\n[{}]\n\n{}", ctx.room.label, ctx.room.desc, exits, mobs).to_string()
+    let items: Vec<String> = container.items.list_at(&ctx.avatar.room_id)
+        .iter()
+        .map(|item| format!("- {} in the floor", item.label))
+        .collect();
+    let items = items.join("\n");
+
+    format!("{}\n\n{}\n\n[{}]\n\n{}\n{}\n\n", ctx.room.label, ctx.room.desc, exits, mobs, items).to_string()
 }
 
 pub fn unknown_input(input: String) -> String {

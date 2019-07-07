@@ -1,4 +1,4 @@
-#![allow(dead_code, unused_variables)]
+#![allow(dead_code, unused_variables, unused_imports)]
 
 use container::*;
 use controller::*;
@@ -6,7 +6,6 @@ use domain::*;
 use mob::*;
 use room::*;
 use item::*;
-use inventory::*;
 use spawn::*;
 
 use crate::server;
@@ -25,7 +24,6 @@ mod spawn;
 mod view_main;
 mod view_login;
 mod item;
-mod inventory;
 mod actions_items;
 
 const INITIAL_ROOM_ID: RoomId = RoomId(0);

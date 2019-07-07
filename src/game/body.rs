@@ -1,6 +1,5 @@
 use super::comm;
 use super::item::*;
-use super::inventory;
 use super::mob::*;
 use super::container::*;
 use super::controller::Outputs;
