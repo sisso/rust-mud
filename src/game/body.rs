@@ -1,3 +1,4 @@
+use super::comm;
 use super::item::*;
 use super::inventory;
 use super::mob::*;
@@ -15,6 +16,9 @@ pub fn create_body(container: &mut Container, outputs: &mut Outputs, mob_id: &Mo
         label: format!("{} body", mob.label).to_string(),
     };
 
-    container.items.add(item);
-//    container.add_item_to_room(container, item_id, room_id);
+    let msg = comm::item_body_appears_in_room(&item);
+
+    container.items.add_to_room(item, room_id);
+
+    outputs.room_all(room_id, msg);
 }

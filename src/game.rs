@@ -10,7 +10,6 @@ use inventory::*;
 use spawn::*;
 
 use crate::server;
-use crate::game::item::ItemDefId;
 
 mod actions;
 mod body;

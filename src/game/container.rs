@@ -90,12 +90,6 @@ impl Container {
     pub fn get_time(&self) -> &Seconds {
         &self.time
     }
-
-    pub fn add_to_room(&mut self, item_id: ItemId, room_id: RoomId) {
-//        let room = self.get_room(&room_id).clone();
-//        room.inventory.add(item_id);
-//        self.update_room(room);
-    }
 }
 
 

@@ -71,7 +71,18 @@ impl ItemRepository {
         ItemId(self.next_item_id.next())
     }
 
-    pub fn add(&mut self, item: Item) {
+    pub fn add_to_room(&mut self, item: Item, room_id: RoomId) {
+        let inventory = self.get_room_inventory(room_id);
+        inventory.add(item.id);
+
+        self.add(item);
+    }
+
+    fn add(&mut self, item: Item) {
         self.index.insert(item.id, item);
+    }
+
+    fn get_room_inventory(&mut self, room_id: RoomId) -> &mut Inventory {
+        self.room_inventory.entry(room_id).or_insert(Inventory::new())
     }
 }

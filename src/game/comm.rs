@@ -1,3 +1,4 @@
+use super::item::*;
 use super::domain::*;
 use super::container::Container;
 use super::mob::*;
@@ -108,4 +109,8 @@ pub fn killed_by_player(mob: &Mob) -> String {
 
 pub fn killed(mob: &Mob) -> String {
     format!("{} was killed\n", mob.label)
+}
+
+pub fn item_body_appears_in_room(item: &Item) -> String {
+    format!("a {} appears here!\n", item.label)
 }
