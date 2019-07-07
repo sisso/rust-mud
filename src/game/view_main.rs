@@ -35,8 +35,11 @@ pub fn handle(container: &mut Container, outputs: &mut Outputs, player_id: &Play
             let candidate = mobs.first().map(|i| i.id);
 
             match candidate {
-                Some(mob_id) => {
+                Some(mob_id) if !container.mobs.is_avatar(&mob_id) => {
                     actions::kill(container, outputs, player_id, &mob_id);
+                },
+                Some(_) => {
+                    outputs.private(player_id.clone(), comm::kill_can_not_kill_players(&target));
                 },
                 None => {
                     outputs.private(player_id.clone(), comm::kill_target_not_found(&target));

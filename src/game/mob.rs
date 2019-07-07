@@ -196,6 +196,10 @@ impl MobRepository {
         let mut mob = self.index.get_mut(id).unwrap();
         mob.command = MobCommand::Kill { target: target.clone() };
     }
+
+    pub fn is_avatar(&self, id: &MobId) -> bool {
+        self.index.get(id).unwrap().is_avatar
+    }
 }
 
 pub fn run(delta: &Seconds, container: &mut Container, outputs: &mut Outputs) {

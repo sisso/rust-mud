@@ -67,6 +67,10 @@ pub fn kill_target_not_found(target: &String) -> String {
     format!("target [{}] not found!\n", target)
 }
 
+pub fn kill_can_not_kill_players(target: &String) -> String {
+    format!("target [{}] is friendly, you can not kill him!\n", target)
+}
+
 pub fn kill_player_attack(target: &Mob) -> String {
     format!("you attack {}!\n", target.label)
 }
