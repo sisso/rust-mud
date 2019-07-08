@@ -114,6 +114,9 @@ pub fn run() {
 
     let mut pending_outputs: Vec<server::Output> = vec![];
 
+    let mut total_time: f32 = 0.0;
+    let mut tick_counter: u32 = 0;
+
     loop {
         let result = server.run(pending_outputs);
 
@@ -123,8 +126,15 @@ pub fn run() {
             inputs: result.pending_inputs,
         };
 
-        pending_outputs = controller.handle(Seconds(0.100), params);
+        let game_time = GameTime {
+            tick: Tick(tick_counter),
+            total: Seconds(total_time),
+            delta: Seconds(0.1)
+        };
+        pending_outputs = controller.handle(game_time, params);
 
         std::thread::sleep(::std::time::Duration::from_millis(100));
+        total_time += 0.1;
+        tick_counter += 1;
     }
 }

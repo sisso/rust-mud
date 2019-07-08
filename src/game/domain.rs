@@ -8,6 +8,12 @@ pub struct Tick(pub u32);
 #[derive(Clone,Copy,Debug)]
 pub struct Seconds(pub f32);
 
+impl Seconds {
+    pub fn le(&self, other: &Seconds) -> bool {
+        self.0 <= other.0
+    }
+}
+
 impl std::ops::Add<Seconds> for Seconds {
     type Output = Seconds;
 
@@ -24,6 +30,12 @@ impl std::ops::Sub<Seconds> for Seconds {
     }
 }
 
+#[derive(Clone,Copy,Debug)]
+pub struct GameTime {
+    pub tick: Tick,
+    pub total: Seconds,
+    pub delta: Seconds,
+}
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Dir {

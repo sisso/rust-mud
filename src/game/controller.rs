@@ -6,6 +6,7 @@ use crate::server::ConnectionId;
 use super::domain::*;
 use super::container::Container;
 use super::mob;
+use super::item;
 use super::player::PlayerId;
 use super::room::RoomId;
 use super::spawn;
@@ -116,7 +117,7 @@ impl GameController {
     // 4. actions
     // 5. outputs
     //
-    pub fn handle(&mut self, delta: Seconds, params: GameControllerContext) -> Vec<server::Output> {
+    pub fn handle(&mut self, time: GameTime, params: GameControllerContext) -> Vec<server::Output> {
         let mut server_outputs: Vec<server::Output> = vec![];
         let mut outputs = OutputsImpl::new();
         let mut connections_with_input: HashSet<ConnectionId> = HashSet::new();
@@ -183,7 +184,8 @@ impl GameController {
         }
 
         spawn::run(&mut self.container, &mut outputs);
-        mob::run_tick(&delta, &mut self.container, &mut outputs);
+        mob::run_tick(&time, &mut self.container, &mut outputs);
+        item::run_tick(&time, &mut self.container, &mut outputs);
 
         self.append_outputs(&mut server_outputs, outputs);
         self.normalize_output(&mut server_outputs, &connections_with_input);

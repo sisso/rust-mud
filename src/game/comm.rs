@@ -120,3 +120,7 @@ pub fn killed(mob: &Mob) -> String {
 pub fn item_body_appears_in_room(item: &Item) -> String {
     format!("a {} appears here!\n", item.label)
 }
+
+pub fn item_body_disappears(item: &Item) -> String {
+    format!("a {} disappear.\n", item.label)
+}

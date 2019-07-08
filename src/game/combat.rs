@@ -2,11 +2,12 @@ use rand::Rng;
 
 use super::body;
 use super::comm;
+use super::domain::*;
 use super::container::*;
 use super::controller::Outputs;
 use super::mob::*;
 
-pub fn run_attack(container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, target_mob_id: &MobId) {
+pub fn run_attack(time: &GameTime, container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, target_mob_id: &MobId) {
     let attacker = container.mobs.get(&mob_id);
     let defender = container.mobs.find(&target_mob_id);
 
@@ -17,8 +18,8 @@ pub fn run_attack(container: &mut Container, outputs: &mut Outputs, mob_id: &Mob
             return;
         }
 
-        if attacker.is_read_to_attack() {
-            execute_attack(container, outputs, &mob_id, &target_mob_id);
+        if attacker.is_read_to_attack(&time.total) {
+            execute_attack(time, container, outputs, &mob_id, &target_mob_id);
         }
     } else {
         cancel_attack(container, outputs, &mob_id, None);
@@ -45,7 +46,7 @@ fn cancel_attack(container: &mut Container, outputs: &mut Outputs, mob_id: &MobI
     container.mobs.update(mob);
 }
 
-fn execute_attack(container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, target: &MobId) {
+fn execute_attack(time: &GameTime, container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, target: &MobId) {
     let player_id = container.players.find_player_id_from_avatar_mob_id(mob_id);
 
     let attacker = container.mobs.get(&mob_id);
@@ -71,17 +72,17 @@ fn execute_attack(container: &mut Container, outputs: &mut Outputs, mob_id: &Mob
 
         let defender = container.mobs.get(&target);
         if defender.attributes.pv.current < 0 {
-            kill_mob(container, outputs, mob_id, target);
+            kill_mob(time, container, outputs, mob_id, target);
         }
     }
 
     let mut attacker = container.mobs.get(&mob_id).clone();
-    attacker.add_attack_calm_time();
+    attacker.add_attack_calm_time(&time.total);
     container.mobs.update(attacker);
 }
 
 // TODO: create body
-fn kill_mob(container: &mut Container, outputs: &mut Outputs, attacker_id: &MobId, target_id: &MobId) {
+fn kill_mob(time: &GameTime, container: &mut Container, outputs: &mut Outputs, attacker_id: &MobId, target_id: &MobId) {
     let attacker_player_id = container.players.find_player_id_from_avatar_mob_id(attacker_id);
     let attacker = container.mobs.get(&attacker_id);
     let defender = container.mobs.get(&target_id);
@@ -96,7 +97,7 @@ fn kill_mob(container: &mut Container, outputs: &mut Outputs, attacker_id: &MobI
         outputs.room_all(attacker.room_id, room_attack_msg);
     }
 
-    body::create_body(container, outputs, target_id);
+    body::create_body(time, container, outputs, target_id);
 
     container.mobs.remove(target_id);
 

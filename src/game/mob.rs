@@ -41,6 +41,7 @@ pub struct Attributes {
 
 #[derive(Clone, Debug)]
 struct MobState {
+    // change to ready on > current time
     attack_ready: Seconds
 }
 
@@ -84,18 +85,12 @@ impl Mob {
         }
     }
 
-    pub fn add_attack_calm_time(&mut self) {
-        self.state.attack_ready = self.state.attack_ready + self.attributes.damage.calm_down;
+    pub fn add_attack_calm_time(&mut self, total_time: &Seconds) {
+        self.state.attack_ready = *total_time + self.attributes.damage.calm_down;
     }
 
-    pub fn is_read_to_attack(&self) -> bool {
-        self.state.attack_ready.0 <= 0.0
-    }
-
-    pub fn tick(&mut self, delta: &Seconds) {
-        if self.state.attack_ready.0 > 0.0 {
-            self.state.attack_ready = self.state.attack_ready - *delta;
-        }
+    pub fn is_read_to_attack(&self, total_time: &Seconds) -> bool {
+        self.state.attack_ready.0 <= total_time.0
     }
 }
 
@@ -199,22 +194,17 @@ impl MobRepository {
     }
 }
 
-pub fn run_tick(delta: &Seconds, container: &mut Container, outputs: &mut Outputs) {
+pub fn run_tick(time: &GameTime, container: &mut Container, outputs: &mut Outputs) {
     for mob_id in container.mobs.list() {
         if !container.mobs.exists(&mob_id) {
             continue;
         }
 
-        // TODO: remove get/update/get
-        let mut mob = container.mobs.get(&mob_id).clone();
-        mob.tick(delta);
-        container.mobs.update(mob);
-
         let mob = container.mobs.get(&mob_id);
         match mob.command {
             MobCommand::None => {},
             MobCommand::Kill { target } => {
-                combat::run_attack(container, outputs, &mob_id, &target);
+                combat::run_attack(time, container, outputs, &mob_id, &target);
             }
         }
     }
