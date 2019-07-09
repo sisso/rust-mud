@@ -28,6 +28,11 @@ pub fn handle(container: &mut Container, outputs: &mut Outputs, player_id: &Play
             outputs.private(player_id.clone(), comm::uptime(&container.get_time()));
         },
 
+        "stats" => {
+            let ctx = container.get_player_context(player_id);
+            outputs.private(player_id.clone(), comm::stats(&ctx.avatar));
+        },
+
         _ if has_command(&input, &["k ", "kill "]) => {
             let target = parse_command(input, &["k ", "kill "]);
             let ctx = container.get_player_context(player_id);

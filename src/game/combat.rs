@@ -7,7 +7,7 @@ use super::container::*;
 use super::controller::Outputs;
 use super::mob::*;
 
-pub fn run_attack(time: &GameTime, container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, target_mob_id: &MobId) {
+pub fn tick_attack(time: &GameTime, container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, target_mob_id: &MobId) {
     let attacker = container.mobs.get(&mob_id);
     let defender = container.mobs.find(&target_mob_id);
 
@@ -21,6 +21,8 @@ pub fn run_attack(time: &GameTime, container: &mut Container, outputs: &mut Outp
         if attacker.is_read_to_attack(&time.total) {
             execute_attack(time, container, outputs, &mob_id, &target_mob_id);
         }
+
+        check_return_attack(time, container, outputs, target_mob_id, mob_id);
     } else {
         cancel_attack(container, outputs, &mob_id, None);
     }
@@ -42,7 +44,7 @@ fn cancel_attack(container: &mut Container, outputs: &mut Outputs, mob_id: &MobI
 
 //    let mut mob = attacker.clone();
     let mut mob = container.mobs.get(&mob_id).clone();
-    mob.command = MobCommand::None;
+    mob.command = MobCommand::Idle;
     container.mobs.update(mob);
 }
 
@@ -138,4 +140,18 @@ fn roll_dice() -> u32 {
 fn roll_damage(damage: &Damage) -> u32 {
     let mut rng = rand::thread_rng();
     rng.gen_range(damage.min, damage.max + 1)
+}
+
+
+fn check_return_attack(time: &GameTime, container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, aggressor_mob_id: &MobId) {
+    match container.mobs.find(mob_id) {
+        Some(mob) if mob.command.is_idle() => {
+            let aggressor_mob = container.mobs.get(aggressor_mob_id);
+            let msg = comm::kill_return_attack(&mob.label, &aggressor_mob.label);
+            outputs.room_all(mob.room_id, msg);
+
+            container.mobs.set_mob_kill_target(mob_id, aggressor_mob_id);
+        },
+        _ => {}
+    }
 }

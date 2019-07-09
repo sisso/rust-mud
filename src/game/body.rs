@@ -5,7 +5,7 @@ use super::container::*;
 use super::domain::*;
 use super::controller::Outputs;
 
-const DECAY_TIME: Seconds = Seconds(60.0);
+const DECAY_TIME: Seconds = Seconds(20.0);
 
 pub fn create_body(time: &GameTime, container: &mut Container, outputs: &mut Outputs, mob_id: &MobId) {
     let item_id = container.items.next_item_id();

@@ -14,8 +14,17 @@ pub struct MobPrefabId(pub u32);
 
 #[derive(Clone, Debug)]
 pub enum MobCommand {
-    None,
+    Idle,
     Kill { target: MobId }
+}
+
+impl MobCommand {
+    pub fn is_idle(&self) -> bool {
+        match self {
+            MobCommand::Idle => true,
+            _ => false,
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -79,7 +88,7 @@ impl Mob {
             room_id,
             label,
             is_avatar: false,
-            command: MobCommand::None,
+            command: MobCommand::Idle,
             attributes,
             state: MobState::new(),
         }
@@ -202,9 +211,9 @@ pub fn run_tick(time: &GameTime, container: &mut Container, outputs: &mut Output
 
         let mob = container.mobs.get(&mob_id);
         match mob.command {
-            MobCommand::None => {},
+            MobCommand::Idle => {},
             MobCommand::Kill { target } => {
-                combat::run_attack(time, container, outputs, &mob_id, &target);
+                combat::tick_attack(time, container, outputs, &mob_id, &target);
             }
         }
     }

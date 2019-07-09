@@ -117,6 +117,10 @@ pub fn killed(mob: &Mob) -> String {
     format!("{} was killed\n", mob.label)
 }
 
+pub fn kill_return_attack(mob_label: &String, aggressor_mob_label: &String) -> String {
+    format!("{} give back combat against {}\n", mob_label, aggressor_mob_label)
+}
+
 pub fn item_body_appears_in_room(item: &Item) -> String {
     format!("a {} appears here!\n", item.label)
 }
@@ -124,3 +128,19 @@ pub fn item_body_appears_in_room(item: &Item) -> String {
 pub fn item_body_disappears(item: &Item) -> String {
     format!("a {} disappear.\n", item.label)
 }
+
+pub fn stats(mob: &Mob) -> String {
+    format!("Stats: \n\
+        attack:  {}\n\
+        defense: {}\n\
+        damage:  {}-{}\n\
+        pv:      {}-{}\n",
+            mob.attributes.attack,
+            mob.attributes.defense,
+            mob.attributes.damage.min,
+            mob.attributes.damage.max,
+            mob.attributes.pv.current,
+            mob.attributes.pv.max
+    )
+}
+
