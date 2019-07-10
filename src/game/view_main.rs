@@ -33,6 +33,22 @@ pub fn handle(container: &mut Container, outputs: &mut Outputs, player_id: &Play
             outputs.private(player_id.clone(), comm::stats(&ctx.avatar));
         },
 
+        _ if has_command(&input, &["examine "]) => {
+            let target = parse_command(input, &["examine "]);
+            let ctx = container.get_player_context(player_id);
+            let mobs = container.mobs.search(Some(&ctx.avatar.room_id), Some(&target));
+            let candidate = mobs.first().map(|i| i);
+            match candidate {
+                Some(mob) => {
+                    let mob_inventory = container.items.get_mobs_inventory_list(&mob.id);
+                    outputs.private(player_id.clone(), comm::examine_target(mob, &mob_inventory));
+                },
+                None => {
+                    outputs.private(player_id.clone(), comm::examine_target_not_found(&target));
+                },
+            }
+        },
+
         _ if has_command(&input, &["k ", "kill "]) => {
             let target = parse_command(input, &["k ", "kill "]);
             let ctx = container.get_player_context(player_id);

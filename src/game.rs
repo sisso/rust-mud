@@ -31,13 +31,19 @@ const INITIAL_ROOM_ID: RoomId = RoomId(0);
 const MOB_PLAYER: MobPrefabId = MobPrefabId(0);
 const MOB_DRUNK: MobPrefabId  = MobPrefabId(1);
 
+const ITEM_DEF_COINS_2: ItemDefId = ItemDefId(0);
 
 fn load_items_prefabs(container: &mut Container) {
-
+    container.items.add_def(ItemDef {
+        id: ITEM_DEF_COINS_2,
+        typ: ITEM_TYPE_GOLD,
+        amount: 2,
+        label: "coins".to_string(),
+    });
 }
 
 fn load_mobs_prefabs(container: &mut Container) {
-    container.add_mob_prefab(MobPrefab {
+    container.mobs.add_prefab(MobPrefab {
         id: MOB_PLAYER,
         label: "Avatar".to_string(),
         attributes: Attributes {
@@ -46,9 +52,10 @@ fn load_mobs_prefabs(container: &mut Container) {
             damage: Damage { min: 2, max: 4, calm_down: Seconds(1.0) },
             pv: Pv { current: 10, max: 10 },
         },
+        inventory: vec![],
     });
 
-    container.add_mob_prefab(MobPrefab {
+    container.mobs.add_prefab(MobPrefab {
         id: MOB_DRUNK,
         label: "Drunk".to_string(),
         attributes: Attributes {
@@ -57,6 +64,9 @@ fn load_mobs_prefabs(container: &mut Container) {
             damage: Damage { min: 1, max: 2, calm_down: Seconds(1.0) },
             pv: Pv { current: 8, max: 8 },
         },
+        inventory: vec![
+            ITEM_DEF_COINS_2
+        ],
     });
 }
 

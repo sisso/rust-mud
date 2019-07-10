@@ -4,6 +4,7 @@ use super::combat;
 use super::container::Container;
 use super::controller::Outputs;
 use super::domain::*;
+use super::item::*;
 use super::room::RoomId;
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
@@ -108,18 +109,21 @@ pub struct MobPrefab {
     pub id: MobPrefabId,
     pub label: String,
     pub attributes: Attributes,
+    pub inventory: Vec<ItemDefId>
 }
 
 pub struct MobRepository {
     next_id: NextId,
-    index: HashMap<MobId, Mob>
+    index: HashMap<MobId, Mob>,
+    mob_prefabs: HashMap<MobPrefabId, MobPrefab>,
 }
 
 impl MobRepository {
     pub fn new() -> Self {
         MobRepository {
             next_id: NextId::new(),
-            index: HashMap::new()
+            index: HashMap::new(),
+            mob_prefabs: HashMap::new(),
         }
     }
 
@@ -200,6 +204,15 @@ impl MobRepository {
 
     pub fn is_avatar(&self, id: &MobId) -> bool {
         self.index.get(id).unwrap().is_avatar
+    }
+
+    pub fn add_prefab(&mut self, mob_prefab: MobPrefab) {
+        self.mob_prefabs.insert(mob_prefab.id, mob_prefab);
+    }
+
+    pub fn get_mob_prefab(&mut self, id: &MobPrefabId) -> &MobPrefab {
+        self.mob_prefabs.get(id)
+            .expect(format!("could not found mob prefab id {:?}", id).as_str())
     }
 }
 

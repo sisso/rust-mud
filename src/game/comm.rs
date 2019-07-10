@@ -144,3 +144,24 @@ pub fn stats(mob: &Mob) -> String {
     )
 }
 
+pub fn examine_target_not_found(target: &String) -> String {
+    format!("no [{}] can be found!\n", target)
+}
+
+pub fn examine_target(mob: &Mob, inventory: &Vec<&Item>) -> String {
+    format!("you examine {}!\n{}\n{}", mob.label, stats(&mob), show_inventory(inventory))
+}
+
+pub fn show_inventory(inventory: &Vec<&Item>) -> String {
+    let mut buffer: Vec<String> = vec![
+        "Iventory:".to_string(),
+    ];
+    for item in inventory {
+        if item.amount == 1 {
+            buffer.push(format!("- {}", item.label));
+        } else {
+            buffer.push(format!("- {} ({})", item.label, item.amount));
+        }
+    }
+    buffer.join("\n")
+}

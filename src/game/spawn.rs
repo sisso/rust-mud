@@ -44,17 +44,13 @@ pub fn run(container: &mut Container, outputs: &mut Outputs) {
             Some(next) if next.0 <= time.0 && can_spawn_mobs => {
                 // spawn mob
                 let room_id = spawn.room_id;
-                let mob_prefab_id = spawn.prefab_id.clone();
-                let mob_id = container.mobs.new_id();
-
-                let prefab = container.get_mob_prefab(&mob_prefab_id);
-                let mob = Mob::new(mob_id, room_id, prefab.label.clone(), prefab.attributes.clone());
+                let mob_prefab_id = spawn.prefab_id;
+                let mob = container.instantiate(mob_prefab_id, room_id);
+                let mob_id = mob.id;
 
                 println!("spawn - spawning {:?}({:?}) at {:?}", mob.label, mob.id, room_id);
 
                 let spawn_msg = comm::spawn_mob(&mob);
-
-                container.mobs.add(mob);
 
                 // update spawn
                 let spawn = container.get_spawn_by_id_mut(&spawn_id);

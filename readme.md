@@ -1,6 +1,5 @@
 # Todo
 
-- mob return attacks
 - move id counters to own unsafe incrementer?
 - log
 - acceptance test

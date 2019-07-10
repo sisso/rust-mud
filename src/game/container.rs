@@ -14,7 +14,6 @@ pub struct Container {
     time: Seconds,
     next_player_id: u32,
     spawns: Vec<Spawn>,
-    mob_prefabs: Vec<MobPrefab>,
 }
 
 impl Container {
@@ -28,7 +27,6 @@ impl Container {
             time: Seconds(0.0),
             next_player_id: 0,
             spawns: vec![],
-            mob_prefabs: vec![],
         }
     }
 
@@ -46,17 +44,6 @@ impl Container {
 
     pub fn add_spawn(&mut self, spawn: Spawn) {
         self.spawns.push(spawn);
-    }
-
-    pub fn add_mob_prefab(&mut self, mob_prefab: MobPrefab) {
-        self.mob_prefabs.push(mob_prefab);
-    }
-
-    pub fn get_mob_prefab(&mut self, id: &MobPrefabId) -> &MobPrefab{
-        self.mob_prefabs
-            .iter()
-            .find(|i| i.id == *id)
-            .expect(format!("could not found mob prefab id {:?}", id).as_str())
     }
 
     pub fn list_spawn(&self) -> Vec<SpawnId> {
@@ -90,8 +77,42 @@ impl Container {
     pub fn get_time(&self) -> &Seconds {
         &self.time
     }
-}
 
+    pub fn instantiate_item(&mut self, item_prefab_id: ItemDefId) -> Item {
+        let item_id = self.items.next_item_id();
+        let prefab = self.items.get_prefab(&item_prefab_id);
+
+        let mut item = Item::new(
+            item_id,
+            prefab.typ,
+            prefab.label.clone()
+        );
+
+        item.amount = prefab.amount;
+        item.item_def_id = Some(item_prefab_id);
+
+        item
+    }
+
+    pub fn instantiate(&mut self, mob_prefab_id: MobPrefabId, room_id: RoomId) -> &Mob {
+        let prefab = self.mobs.get_mob_prefab(&mob_prefab_id).clone();
+
+        // create mob
+        let mob_id = self.mobs.new_id();
+
+        // add items
+        let items = prefab.inventory;
+        for item_prefab_id in items {
+            let item = self.instantiate_item(item_prefab_id);
+            self.items.add_to_mob(item, mob_id);
+        }
+
+        // instantiate
+        let mob = Mob::new(mob_id, room_id, prefab.label, prefab.attributes);
+        self.mobs.add(mob);
+        self.mobs.get(&mob_id)
+    }
+}
 
 impl Container {
     fn next_player_id(&mut self) -> u32 {
