@@ -100,9 +100,6 @@ fn kill_mob(time: &GameTime, container: &mut Container, outputs: &mut Outputs, a
     }
 
     body::create_body(time, container, outputs, target_id);
-
-    container.mobs.remove(target_id);
-
 }
 
 

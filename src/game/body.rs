@@ -23,6 +23,10 @@ pub fn create_body(time: &GameTime, container: &mut Container, outputs: &mut Out
     let msg = comm::item_body_appears_in_room(&item);
 
     container.items.add_to_room(item, room_id);
+    container.items.move_items_from_mob_to_item(*mob_id, item_id);
 
     outputs.room_all(room_id, msg);
+
+    // remove mob
+    container.mobs.remove(mob_id);
 }

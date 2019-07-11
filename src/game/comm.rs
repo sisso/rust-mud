@@ -152,6 +152,10 @@ pub fn examine_target(mob: &Mob, inventory: &Vec<&Item>) -> String {
     format!("you examine {}!\n{}\n{}", mob.label, stats(&mob), show_inventory(inventory))
 }
 
+pub fn examine_target_item(item: &Item, inventory: &Vec<&Item>) -> String {
+    format!("you examine {}!\n{}", item.label, show_inventory(inventory))
+}
+
 pub fn show_inventory(inventory: &Vec<&Item>) -> String {
     let mut buffer: Vec<String> = vec![
         "Iventory:".to_string(),

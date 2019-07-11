@@ -37,11 +37,21 @@ pub fn handle(container: &mut Container, outputs: &mut Outputs, player_id: &Play
             let target = parse_command(input, &["examine "]);
             let ctx = container.get_player_context(player_id);
             let mobs = container.mobs.search(Some(&ctx.avatar.room_id), Some(&target));
-            let candidate = mobs.first().map(|i| i);
-            match candidate {
+            match mobs.first() {
                 Some(mob) => {
                     let mob_inventory = container.items.get_mobs_inventory_list(&mob.id);
                     outputs.private(player_id.clone(), comm::examine_target(mob, &mob_inventory));
+                },
+                None => {
+                    outputs.private(player_id.clone(), comm::examine_target_not_found(&target));
+                },
+            }
+
+            let items = container.items.search(&ctx.avatar.room_id, &target);
+            match items.first() {
+                Some(item) => {
+                    let item_inventory = container.items.get_item_inventory_list(&item.id);
+                    outputs.private(player_id.clone(), comm::examine_target_item(item, &item_inventory));
                 },
                 None => {
                     outputs.private(player_id.clone(), comm::examine_target_not_found(&target));

@@ -87,6 +87,7 @@ pub struct ItemRepository {
     index: HashMap<ItemId, Item>,
     room_inventory: HashMap<RoomId, Inventory>,
     mob_inventory: HashMap<MobId, Inventory>,
+    item_inventory: HashMap<ItemId, Inventory>,
     def_index: HashMap<ItemDefId, ItemDef>,
 }
 
@@ -98,6 +99,7 @@ impl ItemRepository {
             index: HashMap::new(),
             room_inventory: Default::default(),
             mob_inventory: Default::default(),
+            item_inventory: Default::default(),
             def_index: HashMap::new(),
         }
     }
@@ -122,6 +124,16 @@ impl ItemRepository {
         inventory.add(item.id);
         item.location = ItemLocation::Mob { mob_id };
         self.add(item);
+    }
+
+    pub fn move_items_from_mob_to_item(&mut self, mob_id: MobId, item_id: ItemId) {
+        if let Some(mob_inventory) = self.mob_inventory.remove(&mob_id) {
+            let item_inventory = self.get_item_inventory(item_id);
+            for item_id in mob_inventory.list {
+                item_inventory.add(item_id);
+            }
+        }
+
     }
 
     pub fn list_at(&self, room_id: &RoomId) -> Vec<&Item> {
@@ -177,6 +189,34 @@ impl ItemRepository {
         }
     }
 
+    pub fn get_item_inventory_list(&self, item_id: &ItemId) -> Vec<&Item> {
+        if let Some(inventory) = self.item_inventory.get(item_id) {
+            inventory.list.iter().map(|item_id| {
+                self.get(item_id)
+            }).collect()
+        } else {
+            vec![]
+        }
+    }
+
+    pub fn search(&self, room_id: &RoomId, name: &String) -> Vec<&Item> {
+        match self.room_inventory.get(room_id) {
+            Some(inventory) => {
+                inventory.list.iter().filter_map(|item_id| {
+                    let item = self.get(item_id);
+                    if item.label.eq_ignore_ascii_case(name) {
+                        Some(item)
+                    } else {
+                        None
+                    }
+                }).collect()
+            },
+            _ => {
+                vec![]
+            }
+        }
+    }
+
     fn get_room_inventory(&mut self, room_id: RoomId) -> &mut Inventory {
         self.room_inventory.entry(room_id).or_insert(Inventory::new())
     }
@@ -184,6 +224,11 @@ impl ItemRepository {
     fn get_mob_inventory(&mut self, mob_id: MobId) -> &mut Inventory {
         self.mob_inventory.entry(mob_id).or_insert(Inventory::new())
     }
+
+    fn get_item_inventory(&mut self, item_id: ItemId) -> &mut Inventory {
+        self.item_inventory.entry(item_id).or_insert(Inventory::new())
+    }
+
 }
 
 pub fn run_tick(time: &GameTime, container: &mut Container, outputs: &mut Outputs) {
