@@ -7,6 +7,7 @@ use super::room::RoomId;
 use super::mob::MobId;
 use super::domain::*;
 use super::comm;
+use std::panic::Location;
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub struct ItemId(pub u32);
@@ -22,6 +23,7 @@ pub enum ItemLocation {
     Limbo,
     Mob { mob_id: MobId },
     Room { room_id: RoomId },
+    Item { item_id: ItemId },
 }
 
 #[derive(Debug, Clone)]
@@ -30,6 +32,7 @@ pub struct Item {
     pub typ: ItemType,
     pub label: String,
     pub decay: Option<Seconds>,
+    // TODO: move location to repository Map
     pub location: ItemLocation,
     pub amount: u32,
     pub item_def_id: Option<ItemDefId>
@@ -113,14 +116,14 @@ impl ItemRepository {
     }
 
     pub fn add_to_room(&mut self, mut item: Item, room_id: RoomId) {
-        let inventory = self.get_room_inventory(room_id);
+        let inventory = self.get_room_inventory(&room_id);
         inventory.add(item.id);
         item.location = ItemLocation::Room { room_id };
         self.add(item);
     }
 
     pub fn add_to_mob(&mut self, mut item: Item, mob_id: MobId) {
-        let inventory = self.get_mob_inventory(mob_id);
+        let inventory = self.get_mob_inventory(&mob_id);
         inventory.add(item.id);
         item.location = ItemLocation::Mob { mob_id };
         self.add(item);
@@ -128,18 +131,25 @@ impl ItemRepository {
 
     pub fn move_items_from_mob_to_item(&mut self, mob_id: MobId, item_id: ItemId) {
         if let Some(mob_inventory) = self.mob_inventory.remove(&mob_id) {
-            let item_inventory = self.get_item_inventory(item_id);
-            for item_id in mob_inventory.list {
-                item_inventory.add(item_id);
+            // add all items to item inventory
+            let item_inventory = self.get_item_inventory(&item_id);
+            for local_item_id in mob_inventory.list.iter() {
+                item_inventory.add(*local_item_id);
+            }
+
+            // move item to new location
+            for local_item_id in mob_inventory.list {
+                let mut item = self.index.get_mut(&local_item_id);
+                let mut item = item.unwrap();
+                item.location = ItemLocation::Item { item_id };
             }
         }
-
     }
 
     pub fn list_at(&self, room_id: &RoomId) -> Vec<&Item> {
         match self.room_inventory.get(room_id) {
-            Some(inventoy) => {
-                inventoy
+            Some(inventory) => {
+                inventory
                     .list
                     .iter()
                     .map(|item_id| {
@@ -161,13 +171,10 @@ impl ItemRepository {
 
     pub fn remove(&mut self, item_id: &ItemId) {
         let item = self.index.remove(item_id).unwrap();
-        match item.location {
-            ItemLocation::Room { room_id } => {
-                let inventory = self.get_room_inventory(room_id);
-                inventory.remove(item_id);
-            },
-            _ => {}
-        }
+        let mut inventory = self.get_location_inventory_mut(&item.location);
+        inventory.iter_mut().for_each(|inventory| {
+            inventory.remove(&item_id);
+        });
     }
 
     pub fn list(&self) -> Vec<&Item> {
@@ -217,18 +224,52 @@ impl ItemRepository {
         }
     }
 
-    fn get_room_inventory(&mut self, room_id: RoomId) -> &mut Inventory {
-        self.room_inventory.entry(room_id).or_insert(Inventory::new())
+    pub fn move_to_mob(&mut self, mob_id: &MobId, item_id: &ItemId) {
+        // remove from previous inventory
+        let mut item = self.index.get(item_id).unwrap();
+        let mut inventory = self.get_location_inventory_mut(&item.location.clone());
+        inventory.iter_mut().for_each(|inventory| inventory.remove(item_id));
+
+        // add to new inventory
+        let inventory = self.get_mob_inventory(&mob_id);
+        inventory.add(*item_id);
+
+        // mudate item location
+        let mut item = self.index.get_mut(item_id);
+        let mut item = item.unwrap();
+        item.location = ItemLocation::Mob { mob_id: *mob_id };
+    }
+}
+
+impl ItemRepository {
+    fn get_room_inventory(&mut self, room_id: &RoomId) -> &mut Inventory {
+        self.room_inventory.entry(*room_id).or_insert(Inventory::new())
     }
 
-    fn get_mob_inventory(&mut self, mob_id: MobId) -> &mut Inventory {
-        self.mob_inventory.entry(mob_id).or_insert(Inventory::new())
+    fn get_mob_inventory(&mut self, mob_id: &MobId) -> &mut Inventory {
+        self.mob_inventory.entry(*mob_id).or_insert(Inventory::new())
     }
 
-    fn get_item_inventory(&mut self, item_id: ItemId) -> &mut Inventory {
-        self.item_inventory.entry(item_id).or_insert(Inventory::new())
+    fn get_item_inventory(&mut self, item_id: &ItemId) -> &mut Inventory {
+        self.item_inventory.entry(*item_id).or_insert(Inventory::new())
     }
 
+    fn get_location_inventory_mut(&mut self, location: &ItemLocation) -> Option<&mut Inventory> {
+        match location {
+            ItemLocation::Room { room_id } => {
+                self.room_inventory.get_mut(room_id)
+            },
+            ItemLocation::Mob { mob_id } => {
+                self.mob_inventory.get_mut(mob_id)
+            },
+            ItemLocation::Item { item_id } => {
+                self.item_inventory.get_mut(item_id)
+            },
+            ItemLocation::Limbo => {
+                None
+            }
+        }
+    }
 }
 
 pub fn run_tick(time: &GameTime, container: &mut Container, outputs: &mut Outputs) {

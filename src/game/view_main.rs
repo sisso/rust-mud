@@ -33,6 +33,10 @@ pub fn handle(container: &mut Container, outputs: &mut Outputs, player_id: &Play
             outputs.private(player_id.clone(), comm::stats(&ctx.avatar));
         },
 
+        _ if has_command(&input, &["pick"]) => {
+            action_pickup(container, outputs, player_id, input)
+        },
+
         _ if has_command(&input, &["examine "]) => {
             let target = parse_command(input, &["examine "]);
             let ctx = container.get_player_context(player_id);
@@ -89,6 +93,51 @@ pub fn handle(container: &mut Container, outputs: &mut Outputs, player_id: &Play
     }
 }
 
+fn action_pickup(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId, input: String) -> () {
+    let ctx = container.get_player_context(player_id);
+
+    let args = parse_arguments(input);
+    let target_inventory = args.get(1);
+    let target_item = args.get(2);
+
+    if target_inventory.is_none() {
+        outputs.private(player_id.clone(), comm::pick_where());
+        return;
+    }
+
+    let target_inventory = target_inventory.unwrap();
+    let target_inventory_item = container.items.search(&ctx.avatar.room_id, target_inventory);
+    let target_inventory_item = target_inventory_item.get(0);
+
+    if target_inventory_item.is_none() {
+        outputs.private(player_id.clone(), comm::pick_where_not_found(target_inventory));
+        return;
+    }
+
+    let target_inventory_item = target_inventory_item.unwrap();
+    let item_id = target_inventory_item.id;
+    let inventory = container.items.get_item_inventory_list(&item_id);
+
+    if target_item.is_none() {
+        outputs.private(player_id.clone(), comm::pick_what(&inventory));
+        return;
+    }
+
+    let target_item= target_item.unwrap();
+
+    let item = inventory.iter()
+        .find(|item| item.label.eq_ignore_ascii_case(target_item));
+
+    if item.is_none() {
+        outputs.private(player_id.clone(), comm::pick_what(&inventory));
+        return;
+    }
+
+    let mob_id = ctx.avatar.id;
+    let item_id = item.unwrap().id;
+    container.items.move_to_mob(&mob_id, &item_id);
+}
+
 fn has_command(input: &String, commands: &[&str]) -> bool {
     for c in commands {
         if input.starts_with(c) {
@@ -107,4 +156,12 @@ fn parse_command(input: String, commands: &[&str]) -> String {
     }
 
     panic!("unable to parse!");
+}
+
+fn parse_arguments(input: String) -> Vec<String> {
+    input
+        .split_ascii_whitespace()
+        .into_iter()
+        .map(|i| i.to_string())
+        .collect()
 }

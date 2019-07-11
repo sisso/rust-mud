@@ -15,7 +15,8 @@ pub fn create_body(time: &GameTime, container: &mut Container, outputs: &mut Out
     let mut item = Item::new(
         item_id,
         ITEM_TYPE_BODY,
-        format!("{} body", mob.label).to_string(),
+//        format!("{} body", mob.label).to_string(),
+        "body".to_string()
     );
 
     item.decay = Some(time.total + DECAY_TIME);

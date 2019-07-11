@@ -158,14 +158,36 @@ pub fn examine_target_item(item: &Item, inventory: &Vec<&Item>) -> String {
 
 pub fn show_inventory(inventory: &Vec<&Item>) -> String {
     let mut buffer: Vec<String> = vec![
-        "Iventory:".to_string(),
+        "Inventory:".to_string(),
     ];
     for item in inventory {
-        if item.amount == 1 {
-            buffer.push(format!("- {}", item.label));
-        } else {
-            buffer.push(format!("- {} ({})", item.label, item.amount));
-        }
+        buffer.push(format!("- {}", print_item(item)));
+    }
+    buffer.join("\n")
+}
+
+fn print_item(item: &&Item) -> String {
+    if item.amount == 1 {
+        format!("{}", item.label)
+    } else {
+        format!("{} ({})", item.label, item.amount)
+    }
+}
+
+pub fn pick_where() -> String {
+    "where? pick where?\n".to_string()
+}
+
+pub fn pick_where_not_found(target: &String) -> String {
+    format!("there is no {} here, what are you talking about?\n", target)
+}
+
+pub fn pick_what(items: &Vec<&Item>) -> String {
+    let mut buffer: Vec<String> = vec![
+        "what do you want to pick?".to_string(),
+    ];
+    for item in items {
+        buffer.push(format!("- {}", print_item(item)));
     }
     buffer.join("\n")
 }
