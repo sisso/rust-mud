@@ -109,7 +109,7 @@ pub struct MobPrefab {
     pub id: MobPrefabId,
     pub label: String,
     pub attributes: Attributes,
-    pub inventory: Vec<ItemDefId>
+    pub inventory: Vec<ItemPrefabId>
 }
 
 pub struct MobRepository {

@@ -78,7 +78,7 @@ impl Container {
         &self.time
     }
 
-    pub fn instantiate_item(&mut self, item_prefab_id: ItemDefId) -> Item {
+    pub fn instantiate_item(&mut self, item_prefab_id: ItemPrefabId) -> Item {
         let item_id = self.items.next_item_id();
         let prefab = self.items.get_prefab(&item_prefab_id);
 
@@ -104,7 +104,7 @@ impl Container {
         let items = prefab.inventory;
         for item_prefab_id in items {
             let item = self.instantiate_item(item_prefab_id);
-            self.items.add_to_mob(item, mob_id);
+            self.items.add(item, ItemLocation::Mob { mob_id });
         }
 
         // instantiate

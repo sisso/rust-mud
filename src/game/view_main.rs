@@ -4,6 +4,7 @@ use super::player::PlayerId;
 
 use super::actions;
 use super::comm;
+use super::item::ItemLocation;
 use super::container::Container;
 
 pub fn handle(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId, input: String) {
@@ -43,7 +44,7 @@ pub fn handle(container: &mut Container, outputs: &mut Outputs, player_id: &Play
             let mobs = container.mobs.search(Some(&ctx.avatar.room_id), Some(&target));
             match mobs.first() {
                 Some(mob) => {
-                    let mob_inventory = container.items.get_mobs_inventory_list(&mob.id);
+                    let mob_inventory = container.items.get_inventory_list(&ItemLocation::Mob { mob_id: mob.id });
                     outputs.private(player_id.clone(), comm::examine_target(mob, &mob_inventory));
                 },
                 None => {

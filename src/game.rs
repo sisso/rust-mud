@@ -31,10 +31,10 @@ const INITIAL_ROOM_ID: RoomId = RoomId(0);
 const MOB_PLAYER: MobPrefabId = MobPrefabId(0);
 const MOB_DRUNK: MobPrefabId  = MobPrefabId(1);
 
-const ITEM_DEF_COINS_2: ItemDefId = ItemDefId(0);
+const ITEM_DEF_COINS_2: ItemPrefabId = ItemPrefabId(0);
 
 fn load_items_prefabs(container: &mut Container) {
-    container.items.add_def(ItemDef {
+    container.items.add_prefab(ItemPrefab {
         id: ITEM_DEF_COINS_2,
         typ: ITEM_TYPE_GOLD,
         amount: 2,
