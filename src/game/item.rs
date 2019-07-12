@@ -7,7 +7,6 @@ use super::room::RoomId;
 use super::mob::MobId;
 use super::domain::*;
 use super::comm;
-use std::panic::Location;
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub struct ItemId(pub u32);
@@ -32,8 +31,6 @@ pub struct Item {
     pub typ: ItemType,
     pub label: String,
     pub decay: Option<Seconds>,
-    // TODO: move location to repository Map
-    pub location: ItemLocation,
     pub amount: u32,
     pub item_def_id: Option<ItemDefId>
 }
@@ -45,7 +42,6 @@ impl Item {
             typ,
             label,
             decay: None,
-            location: ItemLocation::Limbo,
             amount: 1,
             item_def_id: None,
         }
@@ -92,6 +88,7 @@ pub struct ItemRepository {
     mob_inventory: HashMap<MobId, Inventory>,
     item_inventory: HashMap<ItemId, Inventory>,
     def_index: HashMap<ItemDefId, ItemDef>,
+    item_location: HashMap<ItemId, ItemLocation>
 }
 
 impl ItemRepository {
@@ -104,6 +101,7 @@ impl ItemRepository {
             mob_inventory: Default::default(),
             item_inventory: Default::default(),
             def_index: HashMap::new(),
+            item_location: HashMap::new(),
         }
     }
 
@@ -118,15 +116,16 @@ impl ItemRepository {
     pub fn add_to_room(&mut self, mut item: Item, room_id: RoomId) {
         let inventory = self.get_room_inventory(&room_id);
         inventory.add(item.id);
-        item.location = ItemLocation::Room { room_id };
-        self.add(item);
+
+        self.item_location.insert(item.id, ItemLocation::Room { room_id });
+        self.index.insert(item.id, item);
     }
 
-    pub fn add_to_mob(&mut self, mut item: Item, mob_id: MobId) {
+    pub fn add_to_mob(&mut self, item: Item, mob_id: MobId) {
         let inventory = self.get_mob_inventory(&mob_id);
         inventory.add(item.id);
-        item.location = ItemLocation::Mob { mob_id };
-        self.add(item);
+        self.item_location.insert(item.id, ItemLocation::Mob { mob_id });
+        self.index.insert(item.id, item);
     }
 
     pub fn move_items_from_mob_to_item(&mut self, mob_id: MobId, item_id: ItemId) {
@@ -139,9 +138,7 @@ impl ItemRepository {
 
             // move item to new location
             for local_item_id in mob_inventory.list {
-                let mut item = self.index.get_mut(&local_item_id);
-                let mut item = item.unwrap();
-                item.location = ItemLocation::Item { item_id };
+                self.item_location.insert(local_item_id, ItemLocation::Item { item_id });
             }
         }
     }
@@ -171,7 +168,9 @@ impl ItemRepository {
 
     pub fn remove(&mut self, item_id: &ItemId) {
         let item = self.index.remove(item_id).unwrap();
-        let mut inventory = self.get_location_inventory_mut(&item.location);
+        // TODO: remove clone
+        let location = self.item_location.get(item_id).unwrap().clone();
+        let mut inventory = self.get_location_inventory_mut(&location);
         inventory.iter_mut().for_each(|inventory| {
             inventory.remove(&item_id);
         });
@@ -227,7 +226,9 @@ impl ItemRepository {
     pub fn move_to_mob(&mut self, mob_id: &MobId, item_id: &ItemId) {
         // remove from previous inventory
         let mut item = self.index.get(item_id).unwrap();
-        let mut inventory = self.get_location_inventory_mut(&item.location.clone());
+        // TODO: remove clone
+        let location = self.item_location.get(item_id).unwrap().clone();
+        let mut inventory = self.get_location_inventory_mut(&location);
         inventory.iter_mut().for_each(|inventory| inventory.remove(item_id));
 
         // add to new inventory
@@ -235,9 +236,11 @@ impl ItemRepository {
         inventory.add(*item_id);
 
         // mudate item location
-        let mut item = self.index.get_mut(item_id);
-        let mut item = item.unwrap();
-        item.location = ItemLocation::Mob { mob_id: *mob_id };
+        self.item_location.insert(*item_id, ItemLocation::Mob { mob_id: *mob_id });
+    }
+
+    pub fn get_location(&self, item_id: &ItemId) -> &ItemLocation {
+        self.item_location.get(item_id).unwrap()
     }
 }
 
@@ -278,14 +281,21 @@ pub fn run_tick(time: &GameTime, container: &mut Container, outputs: &mut Output
         .list()
         .iter()
         .filter_map(|item| {
-            match (item.location, item.decay) {
-                (ItemLocation::Room { room_id }, Some(sec)) if sec.le(&time.total) => {
-                    let msg = comm::item_body_disappears(item);
-                    outputs.room_all(room_id, msg);
-                    Some(item.id.clone())
+            if let Some(decay) = item.decay {
+                let location = container.items.get_location(&item.id);
+
+                match location {
+                    ItemLocation::Room { room_id } if decay.le(&time.total) => {
+                        let msg = comm::item_body_disappears(item);
+                        outputs.room_all(*room_id, msg);
+                        Some(item.id.clone())
+                    }
+                    _ => None
                 }
-                _ => None
+            } else {
+                None
             }
+
         })
         .collect();
 
