@@ -114,7 +114,7 @@ impl ItemRepository {
     }
 
     pub fn set_location(&mut self, item_id: ItemId, location: ItemLocation) {
-        let mut inventory = self.get_inventory_mut(location);
+        let inventory = self.get_inventory_mut(location);
         inventory.add(item_id);
 
         self.item_location.insert(item_id, location);
@@ -183,7 +183,7 @@ impl ItemRepository {
         self.index.insert(item_id, item);
 
         // update inventory
-        let mut inventory = self.get_inventory_mut(location);
+        let inventory = self.get_inventory_mut(location);
         inventory.add(item_id);
 
         // update location
@@ -198,7 +198,7 @@ impl ItemRepository {
         let item = self.index.remove(item_id).unwrap();
         let location = self.item_location.remove(item_id);
         if let Some(location) = location {
-            let mut inventory = self.get_inventory_mut(location);
+            let inventory = self.get_inventory_mut(location);
             inventory.remove(&item_id);
         }
 
@@ -244,15 +244,15 @@ impl ItemRepository {
     }
 
     fn remove_location(&mut self, item_id: &ItemId) {
-        let location = self.get_location(&item_id);
-        let inventory = self.get_inventory_mut(*location);
+        let location = self.get_location(&item_id).clone();
+        let inventory = self.get_inventory_mut(location);
         inventory.remove(&item_id);
 
         self.item_location.remove(item_id);
     }
 
     fn add_location(&mut self, item_id: &ItemId, location: ItemLocation) {
-        let mut inventory = self.get_inventory_mut(location);
+        let inventory = self.get_inventory_mut(location);
         inventory.add(*item_id);
 
         self.item_location.insert(*item_id, location);

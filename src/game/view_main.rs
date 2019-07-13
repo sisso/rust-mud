@@ -8,6 +8,7 @@ use super::item::ItemLocation;
 use super::container::Container;
 
 pub fn handle(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId, input: String) {
+    // TODO: change to process &[str]
     match input.as_ref() {
         "l" | "look" => {
             actions::look(container, outputs, player_id);
@@ -39,29 +40,7 @@ pub fn handle(container: &mut Container, outputs: &mut Outputs, player_id: &Play
         },
 
         _ if has_command(&input, &["examine "]) => {
-            let target = parse_command(input, &["examine "]);
-            let ctx = container.get_player_context(player_id);
-            let mobs = container.mobs.search(Some(&ctx.avatar.room_id), Some(&target));
-            match mobs.first() {
-                Some(mob) => {
-                    let mob_inventory = container.items.get_inventory_list(&ItemLocation::Mob { mob_id: mob.id });
-                    outputs.private(player_id.clone(), comm::examine_target(mob, &mob_inventory));
-                },
-                None => {
-                    outputs.private(player_id.clone(), comm::examine_target_not_found(&target));
-                },
-            }
-
-            let items = container.items.search(&ctx.avatar.room_id, &target);
-            match items.first() {
-                Some(item) => {
-                    let item_inventory = container.items.get_item_inventory_list(&item.id);
-                    outputs.private(player_id.clone(), comm::examine_target_item(item, &item_inventory));
-                },
-                None => {
-                    outputs.private(player_id.clone(), comm::examine_target_not_found(&target));
-                },
-            }
+            action_examine(container, outputs,player_id, input);
         },
 
         _ if has_command(&input, &["k ", "kill "]) => {
@@ -94,7 +73,33 @@ pub fn handle(container: &mut Container, outputs: &mut Outputs, player_id: &Play
     }
 }
 
-fn action_pickup(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId, input: String) -> () {
+fn action_examine(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId, input: String) {
+    let target = parse_command(input, &["examine "]);
+    let ctx = container.get_player_context(player_id);
+    let mobs = container.mobs.search(Some(&ctx.avatar.room_id), Some(&target));
+    match mobs.first() {
+        Some(mob) => {
+            let mob_inventory = container.items.get_inventory_list(&ItemLocation::Mob { mob_id: mob.id });
+            outputs.private(player_id.clone(), comm::examine_target(mob, &mob_inventory));
+        },
+        None => {
+            outputs.private(player_id.clone(), comm::examine_target_not_found(&target));
+        },
+    }
+
+    let items = container.items.search(&ctx.avatar.room_id, &target);
+    match items.first() {
+        Some(item) => {
+            let item_inventory = container.items.get_item_inventory_list(&item.id);
+            outputs.private(player_id.clone(), comm::examine_target_item(item, &item_inventory));
+        },
+        None => {
+            outputs.private(player_id.clone(), comm::examine_target_not_found(&target));
+        },
+    }
+}
+
+fn action_pickup(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId, input: String) {
     let ctx = container.get_player_context(player_id);
 
     let args = parse_arguments(input);

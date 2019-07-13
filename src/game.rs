@@ -9,6 +9,8 @@ use item::*;
 use spawn::*;
 
 use crate::server;
+use crate::server::SocketServer;
+use std::ops::Add;
 
 mod actions;
 mod body;
@@ -113,38 +115,107 @@ fn load(container: &mut Container) {
     load_spawns(container);
 }
 
+trait GameServer {
+    fn run(&mut self, pending_outputs: Vec<server::Output>) -> server::LoopResult;
+}
+
+struct SocketGameServer {
+    server: server::SocketServer,
+}
+
+impl SocketGameServer {
+    fn new() -> Self {
+        let mut server = server::SocketServer::new();
+        server.start();
+
+        SocketGameServer {
+            server
+        }
+    }
+}
+
+impl GameServer for SocketGameServer {
+    fn run(&mut self, pending_outputs: Vec<server::Output>) -> server::LoopResult {
+        self.server.run(pending_outputs)
+    }
+}
+
 pub fn run() {
-    let mut container = Container::new();
-    load(&mut container);
-
-    let mut controller = GameController::new(container);
-
-    let mut server = server::Server::new();
-    server.start();
-
-    let mut pending_outputs: Vec<server::Output> = vec![];
-
-    let mut total_time: f32 = 0.0;
-    let mut tick_counter: u32 = 0;
+    let server = SocketGameServer::new();
+    let mut game = Game::new(Box::new(server));
 
     loop {
-        let result = server.run(pending_outputs);
+        std::thread::sleep(::std::time::Duration::from_millis(100));
+        game.run(Seconds(0.1));
+    }
+}
 
+struct Game {
+    server: Box<GameServer>,
+    game_time: GameTime,
+    controller: GameController,
+    pending_outputs: Option<Vec<server::Output>>,
+}
+
+impl Game {
+    pub fn new(server: Box<GameServer>) -> Self {
+        let mut container: Container = Container::new();
+        load(&mut container);
+
+        Game {
+            server: server,
+            game_time: GameTime {
+                tick: Tick(0),
+                total: Seconds(0.0),
+                delta: Seconds(0.1)
+            },
+            controller: GameController::new(container),
+            pending_outputs: None
+        }
+    }
+
+    pub fn run(&mut self, delta: Seconds) {
+        self.game_time.tick  = Tick(self.game_time.tick.0 + 1);
+        self.game_time.total = self.game_time.total.add(delta);
+        self.game_time.delta = delta;
+        let outputs = self.pending_outputs.take().unwrap_or(vec![]);
+
+        let result = self.server.run(outputs);
+        
         let params = controller::GameControllerContext {
             connects: result.connects,
             disconnects: result.disconnects,
             inputs: result.pending_inputs,
         };
 
-        let game_time = GameTime {
-            tick: Tick(tick_counter),
-            total: Seconds(total_time),
-            delta: Seconds(0.1)
-        };
-        pending_outputs = controller.handle(game_time, params);
+        self.pending_outputs = Some(self.controller.handle(self.game_time, params));
+    }
+}
 
-        std::thread::sleep(::std::time::Duration::from_millis(100));
-        total_time += 0.1;
-        tick_counter += 1;
+#[cfg(test)]
+mod tests {
+    use super::GameServer;
+
+    struct StubGameServer {
+
+    }
+
+    impl StubGameServer{
+        fn new() -> Self {
+            StubGameServer {
+
+            }
+        }
+    }
+
+    impl GameServer for StubGameServer {
+        fn run(&mut self, pending_outputs: Vec<crate::server::Output>) -> crate::server::LoopResult {
+            unimplemented!()
+        }
+    }
+
+    #[test]
+    fn kill_something() {
+        let server = StubGameServer::new();
     }
 }

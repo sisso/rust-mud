@@ -32,7 +32,7 @@ pub struct LoopResult {
     pub pending_inputs: Vec<(ConnectionId, String)>,
 }
 
-pub struct Server {
+pub struct SocketServer {
     next_conneciton_id: u32,
     tick: u32,
     connections: Vec<Connection>,
@@ -63,7 +63,7 @@ impl Connection {
     }
 }
 
-impl Server {
+impl SocketServer {
     fn next_connection_id(&mut self) -> ConnectionId {
         let id = self.next_conneciton_id;
         self.next_conneciton_id += 1;
@@ -71,7 +71,7 @@ impl Server {
     }
 
     pub fn new() -> Self {
-        Server {
+        SocketServer {
             next_conneciton_id: 0,
             tick: 0,
             connections: Vec::new(),
@@ -134,7 +134,7 @@ impl Server {
             for connection in &mut self.connections {
                 let is_dest = e.dest_connections_id.contains(&connection.id);
                 if is_dest {
-                    println!("server - {} sending '{}'", connection.id, Server::clean_output_to_log(&e.output));
+                    println!("server - {} sending '{}'", connection.id, SocketServer::clean_output_to_log(&e.output));
 
                     if let Err(err) = Connection::write(&mut connection.stream, e.output.as_str()) {
                         println!("server - {} failed: {}", connection.id, err);
