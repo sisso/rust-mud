@@ -9,7 +9,7 @@ use item::*;
 use spawn::*;
 
 use crate::server;
-use crate::socket_server;
+use crate::server_socket;
 use std::ops::Add;
 
 mod actions;
@@ -116,7 +116,7 @@ fn load(container: &mut Container) {
 }
 
 pub fn run() {
-    let server = socket_server::SocketServer::new();
+    let server = server_socket::SocketServer::new();
     let mut game = Game::new(Box::new(server));
 
     loop {
@@ -167,30 +167,80 @@ impl Game {
     }
 }
 
-//#[cfg(test)]
-//mod tests {
-//    use super::GameServer;
-//
-//    struct StubGameServer {
-//
-//    }
-//
-//    impl StubGameServer{
-//        fn new() -> Self {
-//            StubGameServer {
-//
-//            }
-//        }
-//    }
-//
-//    impl GameServer for StubGameServer {
-//        fn run(&mut self, pending_outputs: Vec<crate::server::Output>) -> crate::socket_server::LoopResult {
-//            unimplemented!()
-//        }
-//    }
-//
-//    #[test]
-//    fn kill_something() {
-//        let server = StubGameServer::new();
-//    }
-//}
+#[cfg(test)]
+mod tests {
+    use crate::server;
+    use crate::server_dummy;
+    use crate::server_dummy::ServerDummy;
+    use crate::game::Game;
+    use crate::game::domain::*;
+
+    use std::cell::RefCell;
+    use std::rc::Rc;
+
+    struct TestGame {
+        outputs: Rc<RefCell<Vec<String>>>,
+        inputs: Rc<RefCell<Vec<String>>>,
+        game: Game,
+    }
+
+    const SAFE: u32 = 10;
+
+    impl TestGame {
+        pub fn new() -> Self {
+            let server = ServerDummy::new();
+            let outputs = server.get_outputs_pointer();
+            let inputs = server.get_inputs_pointer();
+            let game = Game::new(Box::new(server));
+
+            TestGame {
+                outputs,
+                inputs,
+                game
+            }
+        }
+
+        pub fn wait_for(&mut self, expected: &str) {
+            for i in 0..SAFE {
+                self.run_tick();
+
+                if self.outputs.borrow().iter().find(|i| i.contains(expected)).is_some() {
+                    break;
+                }
+            }
+        }
+
+        pub fn run_tick(&mut self) {
+            self.game.run(Seconds(1.0));
+        }
+
+        pub fn get_outputs(&self) -> Vec<String> {
+            self.outputs.borrow().to_vec()
+        }
+
+        pub fn input(&mut self, input: String) {
+            self.inputs.borrow_mut().push(input);
+        }
+    }
+
+    #[test]
+    fn kill_something() {
+        let mut g = TestGame::new();
+        g.wait_for("Welcome to MUD");
+        g.input("sisso".to_string());
+        g.wait_for("welcome sisso");
+        g.input("look".to_string());
+        g.wait_for("Main Room");
+        g.input("s".to_string());
+        g.wait_for("Bar");
+        g.input("kill Drunk".to_string());
+
+        for i in 0..10 {
+            g.run_tick();
+            println!("{:?}", g.get_outputs());
+        }
+
+        println!("done");
+        assert!(false);
+    }
+}

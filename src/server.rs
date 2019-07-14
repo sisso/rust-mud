@@ -23,6 +23,7 @@ pub struct LoopResult {
     pub pending_inputs: Vec<(ConnectionId, String)>,
 }
 
+#[derive(Debug)]
 pub struct Output {
     pub dest_connections_id: Vec<ConnectionId>,
     pub output: String

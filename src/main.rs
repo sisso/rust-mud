@@ -1,7 +1,8 @@
 extern crate rand;
 
 mod server;
-mod socket_server;
+mod server_dummy;
+mod server_socket;
 mod game;
 mod lib;
 
