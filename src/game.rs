@@ -9,7 +9,7 @@ use item::*;
 use spawn::*;
 
 use crate::server;
-use crate::server::SocketServer;
+use crate::socket_server;
 use std::ops::Add;
 
 mod actions;
@@ -115,33 +115,8 @@ fn load(container: &mut Container) {
     load_spawns(container);
 }
 
-trait GameServer {
-    fn run(&mut self, pending_outputs: Vec<server::Output>) -> server::LoopResult;
-}
-
-struct SocketGameServer {
-    server: server::SocketServer,
-}
-
-impl SocketGameServer {
-    fn new() -> Self {
-        let mut server = server::SocketServer::new();
-        server.start();
-
-        SocketGameServer {
-            server
-        }
-    }
-}
-
-impl GameServer for SocketGameServer {
-    fn run(&mut self, pending_outputs: Vec<server::Output>) -> server::LoopResult {
-        self.server.run(pending_outputs)
-    }
-}
-
 pub fn run() {
-    let server = SocketGameServer::new();
+    let server = socket_server::SocketServer::new();
     let mut game = Game::new(Box::new(server));
 
     loop {
@@ -151,14 +126,14 @@ pub fn run() {
 }
 
 struct Game {
-    server: Box<GameServer>,
+    server: Box<server::Server>,
     game_time: GameTime,
     controller: GameController,
     pending_outputs: Option<Vec<server::Output>>,
 }
 
 impl Game {
-    pub fn new(server: Box<GameServer>) -> Self {
+    pub fn new(server: Box<server::Server>) -> Self {
         let mut container: Container = Container::new();
         load(&mut container);
 
@@ -192,30 +167,30 @@ impl Game {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::GameServer;
-
-    struct StubGameServer {
-
-    }
-
-    impl StubGameServer{
-        fn new() -> Self {
-            StubGameServer {
-
-            }
-        }
-    }
-
-    impl GameServer for StubGameServer {
-        fn run(&mut self, pending_outputs: Vec<crate::server::Output>) -> crate::server::LoopResult {
-            unimplemented!()
-        }
-    }
-
-    #[test]
-    fn kill_something() {
-        let server = StubGameServer::new();
-    }
-}
+//#[cfg(test)]
+//mod tests {
+//    use super::GameServer;
+//
+//    struct StubGameServer {
+//
+//    }
+//
+//    impl StubGameServer{
+//        fn new() -> Self {
+//            StubGameServer {
+//
+//            }
+//        }
+//    }
+//
+//    impl GameServer for StubGameServer {
+//        fn run(&mut self, pending_outputs: Vec<crate::server::Output>) -> crate::socket_server::LoopResult {
+//            unimplemented!()
+//        }
+//    }
+//
+//    #[test]
+//    fn kill_something() {
+//        let server = StubGameServer::new();
+//    }
+//}
