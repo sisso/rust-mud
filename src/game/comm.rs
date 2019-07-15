@@ -129,18 +129,22 @@ pub fn item_body_disappears(item: &Item) -> String {
     format!("a {} disappear.\n", item.label)
 }
 
-pub fn stats(mob: &Mob) -> String {
+pub fn stats(mob: &Mob, inventory: &Vec<&Item>) -> String {
+    let inventory_str = show_inventory(inventory);
+
     format!("Stats: \n\
         attack:  {}\n\
         defense: {}\n\
         damage:  {}-{}\n\
-        pv:      {}-{}\n",
+        pv:      {}-{}\n\
+        {}\n",
             mob.attributes.attack,
             mob.attributes.defense,
             mob.attributes.damage.min,
             mob.attributes.damage.max,
             mob.attributes.pv.current,
-            mob.attributes.pv.max
+            mob.attributes.pv.max,
+            inventory_str
     )
 }
 
@@ -149,7 +153,7 @@ pub fn examine_target_not_found(target: &String) -> String {
 }
 
 pub fn examine_target(mob: &Mob, inventory: &Vec<&Item>) -> String {
-    format!("you examine {}!\n{}\n{}", mob.label, stats(&mob), show_inventory(inventory))
+    format!("you examine {}!\n{}", mob.label, stats(&mob, inventory))
 }
 
 pub fn examine_target_item(item: &Item, inventory: &Vec<&Item>) -> String {
@@ -190,4 +194,12 @@ pub fn pick_what(items: &Vec<&Item>) -> String {
         buffer.push(format!("- {}", print_item(item)));
     }
     buffer.join("\n")
+}
+
+pub fn pick_player_from(target_inventory: &str, target_item: &str) -> String {
+    format!("you pick a {} from {}\n", target_item, target_inventory)
+}
+
+pub fn pick_from(actor: &str, target_inventory: &str, target_item: &str) -> String {
+    format!("{} pick a {} from {}\n", actor, target_item, target_inventory)
 }

@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use super::server::*;
 
 use std::cell::RefCell;
@@ -35,8 +37,8 @@ impl Server for ServerDummy {
 
         // TODO: validate only connnections to 0
         // if pending_outputs.iter().find(|i| i.dest_connections_id.)
-        let output_messages = pending_outputs.into_iter().map(|i| i.output).collect();
-        self.outputs.replace(output_messages);
+        let output_messages: Vec<String>= pending_outputs.into_iter().map(|i| i.output).collect();
+        self.outputs.borrow_mut().extend(output_messages);
 
         let connects: Vec<ConnectionId> =
             if self.connected {

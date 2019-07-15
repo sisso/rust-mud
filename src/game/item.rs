@@ -249,6 +249,8 @@ impl ItemRepository {
         inventory.remove(&item_id);
 
         self.item_location.remove(item_id);
+
+        println!("itemrepostitory - remove_location {:?}", item_id);
     }
 
     fn add_location(&mut self, item_id: &ItemId, location: ItemLocation) {
@@ -256,6 +258,11 @@ impl ItemRepository {
         inventory.add(*item_id);
 
         self.item_location.insert(*item_id, location);
+
+        println!("itemrepostitory - add_location {:?} {:?}", item_id, location);
+
+        let inventory = self.get_inventory(&location);
+        println!("itemrepostitory - inventory {:?}", inventory);
     }
 }
 

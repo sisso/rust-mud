@@ -200,11 +200,21 @@ mod tests {
             }
         }
 
+        pub fn look_and_wait_for(&mut self, expected: &str) {
+            for i in 0..SAFE {
+                self.input("look");
+                self.run_tick();
+                if self.get_outputs().iter().find(|i| i.contains(expected)).is_some() {
+                    break;
+                }
+            }
+        }
+
         pub fn wait_for(&mut self, expected: &str) {
             for i in 0..SAFE {
                 self.run_tick();
 
-                if self.outputs.borrow().iter().find(|i| i.contains(expected)).is_some() {
+                if self.get_outputs().iter().find(|i| i.contains(expected)).is_some() {
                     break;
                 }
             }
@@ -215,11 +225,13 @@ mod tests {
         }
 
         pub fn get_outputs(&self) -> Vec<String> {
-            self.outputs.borrow().to_vec()
+            let outputs = self.outputs.replace(vec![]);
+            println!("{:?}", outputs);
+            outputs
         }
 
-        pub fn input(&mut self, input: String) {
-            self.inputs.borrow_mut().push(input);
+        pub fn input(&mut self, input: &str) {
+            self.inputs.borrow_mut().push(input.to_string());
         }
     }
 
@@ -227,20 +239,25 @@ mod tests {
     fn kill_something() {
         let mut g = TestGame::new();
         g.wait_for("Welcome to MUD");
-        g.input("sisso".to_string());
+        g.input("sisso");
         g.wait_for("welcome sisso");
-        g.input("look".to_string());
+        g.input("look");
         g.wait_for("Main Room");
-        g.input("s".to_string());
+        g.input("s");
         g.wait_for("Bar");
-        g.input("kill Drunk".to_string());
-
-        for i in 0..10 {
-            g.run_tick();
-            println!("{:?}", g.get_outputs());
-        }
-
-        println!("done");
-        assert!(false);
+        g.look_and_wait_for("Drunk");
+        g.input("kill Drunk");
+        g.wait_for("killed");
+        g.input("examine body");
+        g.run_tick();
+        let _ = g.get_outputs();
+        g.input("pick body coins");
+        g.run_tick();
+        let _ = g.get_outputs();
+        g.input("stats");
+        g.run_tick();
+        let _ = g.get_outputs();
+        g.run_tick();
+        assert!(g.get_outputs().iter().find(|msg| msg.contains("- coins (2)")).is_some());
     }
 }
