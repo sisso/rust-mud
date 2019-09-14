@@ -5,6 +5,8 @@ use super::domain::*;
 use super::mob::*;
 use super::mob::MobId;
 
+use crate::utils::*;
+
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct PlayerId(pub u32);
 

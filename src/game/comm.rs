@@ -3,6 +3,8 @@ use super::domain::*;
 use super::container::Container;
 use super::mob::*;
 
+use crate::utils::*;
+
 pub fn look_description(container: &Container, ctx: &PlayerCtx) -> String {
     let exits: Vec<String> = ctx.room.exits.iter()
         .map(|(dir, _)| dir.to_string())

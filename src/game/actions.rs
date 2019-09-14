@@ -5,7 +5,7 @@ use super::container::Container;
 use super::mob::*;
 use super::player::*;
 
-pub fn look(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId) {
+pub fn look(container: &mut Container, outputs: &mut dyn Outputs, player_id: &PlayerId) {
     let ctx = container.get_player_context(&player_id);
 
     outputs.private(
@@ -14,7 +14,7 @@ pub fn look(container: &mut Container, outputs: &mut Outputs, player_id: &Player
     );
 }
 
-pub fn say(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId, msg: String) {
+pub fn say(container: &mut Container, outputs: &mut dyn Outputs, player_id: &PlayerId, msg: String) {
     let ctx = container.get_player_context(player_id);
     let player_msg = comm::say_you_say(&msg);
     let room_msg = comm::say_someone_said(&ctx.avatar.label, &msg);
@@ -23,7 +23,7 @@ pub fn say(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerI
     outputs.room(player_id.clone(), ctx.avatar.room_id, room_msg);
 }
 
-pub fn mv(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId, dir: Dir) {
+pub fn mv(container: &mut Container, outputs: &mut dyn Outputs, player_id: &PlayerId, dir: Dir) {
     let ctx = container.get_player_context(player_id);
     let player_id = player_id.clone();
 
@@ -57,7 +57,7 @@ pub fn mv(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId
     }
 }
 
-pub fn kill(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId, target: &MobId) {
+pub fn kill(container: &mut Container, outputs: &mut dyn Outputs, player_id: &PlayerId, target: &MobId) {
     let ctx = container.get_player_context(player_id);
     let target_mob = container.mobs.get(&target);
 

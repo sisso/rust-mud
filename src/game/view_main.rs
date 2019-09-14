@@ -7,7 +7,7 @@ use super::comm;
 use super::item::ItemLocation;
 use super::container::Container;
 
-pub fn handle(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId, input: String) {
+pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: &PlayerId, input: String) {
     // TODO: change to process &[str]
     match input.as_ref() {
         "l" | "look" => {
@@ -74,7 +74,7 @@ pub fn handle(container: &mut Container, outputs: &mut Outputs, player_id: &Play
     }
 }
 
-fn action_examine(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId, input: String) {
+fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_id: &PlayerId, input: String) {
     let target = parse_command(input, &["examine "]);
     let ctx = container.get_player_context(player_id);
     let mobs = container.mobs.search(Some(&ctx.avatar.room_id), Some(&target));
@@ -102,7 +102,7 @@ fn action_examine(container: &mut Container, outputs: &mut Outputs, player_id: &
     outputs.private(player_id.clone(), comm::examine_target_not_found(&target));
 }
 
-fn action_pickup(container: &mut Container, outputs: &mut Outputs, player_id: &PlayerId, input: String) {
+fn action_pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: &PlayerId, input: String) {
     let ctx = container.get_player_context(player_id);
 
     let args = parse_arguments(input);

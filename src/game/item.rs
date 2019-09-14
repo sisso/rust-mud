@@ -7,8 +7,7 @@ use super::room::RoomId;
 use super::mob::MobId;
 use super::domain::*;
 use super::comm;
-
-use crate::lib::*;
+use crate::utils::*;
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub struct ItemId(pub u32);
@@ -266,7 +265,7 @@ impl ItemRepository {
     }
 }
 
-pub fn run_tick(time: &GameTime, container: &mut Container, outputs: &mut Outputs) {
+pub fn run_tick(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs) {
     let items_to_remove: Vec<ItemId> = container
         .items
         .list()

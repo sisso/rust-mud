@@ -28,6 +28,8 @@ mod view_login;
 mod item;
 mod actions_items;
 
+use crate::utils::*;
+
 const INITIAL_ROOM_ID: RoomId = RoomId(0);
 
 const MOB_PLAYER: MobPrefabId = MobPrefabId(0);
@@ -115,25 +117,17 @@ fn load(container: &mut Container) {
     load_spawns(container);
 }
 
-pub fn run() {
-    let server = server_socket::SocketServer::new();
-    let mut game = Game::new(Box::new(server));
 
-    loop {
-        std::thread::sleep(::std::time::Duration::from_millis(100));
-        game.run(Seconds(0.1));
-    }
-}
 
-struct Game {
-    server: Box<server::Server>,
+pub struct Game {
+    server: Box<dyn server::Server>,
     game_time: GameTime,
     controller: GameController,
     pending_outputs: Option<Vec<server::Output>>,
 }
 
 impl Game {
-    pub fn new(server: Box<server::Server>) -> Self {
+    pub fn new(server: Box<dyn server::Server>) -> Self {
         let mut container: Container = Container::new();
         load(&mut container);
 
@@ -174,6 +168,7 @@ mod tests {
     use crate::server_dummy::ServerDummy;
     use crate::game::Game;
     use crate::game::domain::*;
+    use crate::utils::*;
 
     use std::cell::RefCell;
     use std::rc::Rc;

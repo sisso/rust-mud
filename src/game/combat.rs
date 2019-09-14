@@ -7,7 +7,7 @@ use super::container::*;
 use super::controller::Outputs;
 use super::mob::*;
 
-pub fn tick_attack(time: &GameTime, container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, target_mob_id: &MobId) {
+pub fn tick_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: &MobId, target_mob_id: &MobId) {
     let attacker = container.mobs.get(&mob_id);
     let defender = container.mobs.find(&target_mob_id);
 
@@ -28,7 +28,7 @@ pub fn tick_attack(time: &GameTime, container: &mut Container, outputs: &mut Out
     }
 }
 
-fn cancel_attack(container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, target: Option<&MobId>) {
+fn cancel_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: &MobId, target: Option<&MobId>) {
 //    let attacker = container.get_mob(&mob_id.0);
 
 //    let msg_others = comm::kill_cancel(attacker, defender);
@@ -48,7 +48,7 @@ fn cancel_attack(container: &mut Container, outputs: &mut Outputs, mob_id: &MobI
     container.mobs.update(mob);
 }
 
-fn execute_attack(time: &GameTime, container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, target: &MobId) {
+fn execute_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: &MobId, target: &MobId) {
     let player_id = container.players.find_player_id_from_avatar_mob_id(mob_id);
 
     let attacker = container.mobs.get(&mob_id);
@@ -84,7 +84,7 @@ fn execute_attack(time: &GameTime, container: &mut Container, outputs: &mut Outp
 }
 
 // TODO: create body
-fn kill_mob(time: &GameTime, container: &mut Container, outputs: &mut Outputs, attacker_id: &MobId, target_id: &MobId) {
+fn kill_mob(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, attacker_id: &MobId, target_id: &MobId) {
     let attacker_player_id = container.players.find_player_id_from_avatar_mob_id(attacker_id);
     let attacker = container.mobs.get(&attacker_id);
     let defender = container.mobs.get(&target_id);
@@ -140,7 +140,7 @@ fn roll_damage(damage: &Damage) -> u32 {
 }
 
 
-fn check_return_attack(time: &GameTime, container: &mut Container, outputs: &mut Outputs, mob_id: &MobId, aggressor_mob_id: &MobId) {
+fn check_return_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: &MobId, aggressor_mob_id: &MobId) {
     match container.mobs.find(mob_id) {
         Some(mob) if mob.command.is_idle() => {
             let aggressor_mob = container.mobs.get(aggressor_mob_id);

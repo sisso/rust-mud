@@ -7,6 +7,8 @@ use super::domain::*;
 use super::item::*;
 use super::room::RoomId;
 
+use crate::utils::*;
+
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct MobId(pub u32);
 
@@ -216,7 +218,7 @@ impl MobRepository {
     }
 }
 
-pub fn run_tick(time: &GameTime, container: &mut Container, outputs: &mut Outputs) {
+pub fn run_tick(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs) {
     for mob_id in container.mobs.list() {
         if !container.mobs.exists(&mob_id) {
             continue;

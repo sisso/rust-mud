@@ -10,6 +10,8 @@ use super::room::RoomId;
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct SpawnId(pub u32);
 
+use crate::utils::*;
+
 pub struct SpawnDelay {
     pub min: Seconds,
     pub max: Seconds
@@ -30,7 +32,7 @@ pub struct Spawn {
     pub mobs_id: Vec<MobId>,
 }
 
-pub fn run(container: &mut Container, outputs: &mut Outputs) {
+pub fn run(container: &mut Container, outputs: &mut dyn Outputs) {
     let time = container.get_time().clone();
 
     for spawn_id in container.list_spawn() {

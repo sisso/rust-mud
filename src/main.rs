@@ -1,11 +1,13 @@
 extern crate rand;
 
-mod server;
-mod server_dummy;
-mod server_socket;
-mod game;
-mod lib;
+pub mod utils;
+pub mod server;
+pub mod server_dummy;
+pub mod server_socket;
+pub mod game;
+
+mod main_server;
 
 fn main() {
-    crate::game::run();
+    crate::main_server::run();
 }
