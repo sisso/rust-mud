@@ -77,6 +77,7 @@ fn load_mobs_prefabs(container: &mut Container) {
 
 fn load_rooms(container: &mut Container) {
     let room_id_bar = RoomId(1);
+    let room_id_florest = RoomId(2);
 
     let room1 = Room {
         id: INITIAL_ROOM_ID,
@@ -89,11 +90,19 @@ fn load_rooms(container: &mut Container) {
         id: room_id_bar,
         label: "Bar".to_string(),
         desc: "Where we relief our duties".to_string(),
-        exits: vec![(Dir::N, INITIAL_ROOM_ID)],
+        exits: vec![(Dir::N, INITIAL_ROOM_ID), (Dir::S, room_id_florest)],
+    };
+
+    let room3 = Room {
+        id: room_id_florest,
+        label: "Florest".to_string(),
+        desc: "A deep, ugly and dark florest.".to_string(),
+        exits: vec![(Dir::N, room_id_bar)],
     };
 
     container.rooms.add(room1);
     container.rooms.add(room2);
+    container.rooms.add(room3);
 }
 
 fn load_spawns(container: &mut Container) {
@@ -122,23 +131,25 @@ pub struct Game {
     server: Box<dyn server::Server>,
     game_time: GameTime,
     controller: GameController,
-    save: Option<String>,
+    save: Option<(String, TimeTrigger)>,
 }
 
 impl Game {
-    pub fn new(server: Box<dyn server::Server>, save: Option<String>) -> Self {
+    pub fn new(server: Box<dyn server::Server>, save: Option<(String, Seconds)>) -> Self {
         let mut container: Container = Container::new();
         load(&mut container);
 
         Game {
-            server: server,
+            server,
             game_time: GameTime {
                 tick: Tick(0),
                 total: Seconds(0.0),
                 delta: Seconds(0.1)
             },
             controller: GameController::new(container),
-            save: save,
+            save: save.map(|(file, seconds)| {
+                (file, TimeTrigger::new(seconds))
+            }),
         }
     }
 
@@ -158,11 +169,13 @@ impl Game {
         let outputs = self.controller.handle(self.game_time, params);
         self.server.append_output(outputs);
 
-        if let Some(save_file) = self.save.as_ref() {
-            let save_file = format!("{}_{}.jsonp", save_file, self.game_time.tick.0);
-            let mut save = SaveToFile::new(save_file.as_ref());
-            self.controller.save(&mut save);
-            save.close()
+        if let Some((save_file, trigger)) = self.save.as_mut() {
+            if trigger.check(self.game_time.delta) {
+                let save_file = format!("{}_{}.jsonp", save_file, self.game_time.tick.0);
+                let mut save = SaveToFile::new(save_file.as_ref());
+                self.controller.save(&mut save);
+                save.close()
+            }
         }
     }
 }
@@ -186,6 +199,7 @@ mod tests {
         game: Game,
     }
 
+    const DELTA: Seconds = Seconds(1.0);
     const SAFE: u32 = 10;
     const SAVE: &str = "/tmp/test";
 
@@ -195,7 +209,7 @@ mod tests {
             let outputs = server.get_outputs_pointer();
             let inputs = server.get_inputs_pointer();
             let _ = std::fs::remove_file(SAVE);
-            let game = Game::new(Box::new(server), Some(SAVE.to_string()));
+            let game = Game::new(Box::new(server), Some((SAVE.to_string(), DELTA)));
 
             TestGame {
                 outputs,
@@ -225,7 +239,7 @@ mod tests {
         }
 
         pub fn run_tick(&mut self) {
-            self.game.run(Seconds(1.0));
+            self.game.run(DELTA);
         }
 
         pub fn get_outputs(&self) -> Vec<String> {
