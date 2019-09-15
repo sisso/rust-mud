@@ -221,7 +221,7 @@ mod tests {
 
         pub fn get_outputs(&self) -> Vec<String> {
             let outputs = self.outputs.replace(vec![]);
-            println!("{:?}", outputs);
+            debug!("{:?}", outputs);
             outputs
         }
 

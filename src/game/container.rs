@@ -69,7 +69,7 @@ impl Container {
     pub fn update_tick(&mut self, delta_time: Seconds) {
         self.tick = Tick(self.tick.0 + 1);
         self.time = Seconds(self.time.0 + delta_time.0);
-//        println!("container {:?}/{:?}", self.tick, self.time);
+//        info!("container {:?}/{:?}", self.tick, self.time);
     }
 
 //    pub fn get_tick(&self) -> &Tick {

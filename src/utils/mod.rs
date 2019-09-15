@@ -1,4 +1,5 @@
 pub mod macros;
+pub mod logs;
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct Tick(pub u32);

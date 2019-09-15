@@ -50,7 +50,7 @@ pub fn run(container: &mut Container, outputs: &mut dyn Outputs) {
                 let mob = container.instantiate(mob_prefab_id, room_id);
                 let mob_id = mob.id;
 
-                println!("spawn - spawning {:?}({:?}) at {:?}", mob.label, mob.id, room_id);
+                debug!("{:?}({:?}) at {:?}", mob.label, mob.id, room_id);
 
                 let spawn_msg = comm::spawn_mob(&mob);
 
@@ -77,7 +77,7 @@ fn schedule_next_spawn(now: &Seconds, spawn: &mut Spawn) {
     let next = rng.gen_range(spawn.delay.min.0, spawn.delay.max.0);
     spawn.next = Some(Seconds(next + now.0));
 
-    println!("spawn - scheduling spawn {:?} to {}", spawn.id, next);
+    debug!("scheduling spawn {:?} to {}", spawn.id, next);
 }
 
 fn clean_up_dead_mobs(container: &mut Container, spawn_id: &SpawnId) {

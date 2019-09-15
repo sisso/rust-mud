@@ -120,7 +120,7 @@ impl ItemRepository {
     }
 
     pub fn move_all(&mut self, from: ItemLocation, to: ItemLocation) {
-        println!("itemrepostitory - move_all {:?} to {:?}", from, to);
+        debug!("itemrepostitory - move_all {:?} to {:?}", from, to);
         let from_inventory = self.inventory.remove(&from);
         if from_inventory.is_none() {
             return;
@@ -128,13 +128,13 @@ impl ItemRepository {
 
         let from_inventory = from_inventory.unwrap();
         for item_id in from_inventory.list.iter() {
-            println!("itemrepostitory - set {:?} to {:?}", item_id, to);
+            debug!("itemrepostitory - set {:?} to {:?}", item_id, to);
             self.item_location.insert(*item_id, to);
         }
 
         let to_inventory = self.get_inventory_mut(to);
         for item_id in from_inventory.list {
-            println!("itemrepostitory - add {:?} to {:?}", item_id, to_inventory);
+            debug!("itemrepostitory - add {:?} to {:?}", item_id, to_inventory);
             to_inventory.add(item_id);
         }
     }
@@ -249,7 +249,7 @@ impl ItemRepository {
 
         self.item_location.remove(item_id);
 
-        println!("itemrepostitory - remove_location {:?}", item_id);
+        debug!("itemrepostitory - remove_location {:?}", item_id);
     }
 
     fn add_location(&mut self, item_id: &ItemId, location: ItemLocation) {
@@ -258,10 +258,10 @@ impl ItemRepository {
 
         self.item_location.insert(*item_id, location);
 
-        println!("itemrepostitory - add_location {:?} {:?}", item_id, location);
+        debug!("itemrepostitory - add_location {:?} {:?}", item_id, location);
 
         let inventory = self.get_inventory(&location);
-        println!("itemrepostitory - inventory {:?}", inventory);
+        debug!("itemrepostitory - inventory {:?}", inventory);
     }
 }
 

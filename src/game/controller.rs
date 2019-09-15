@@ -129,7 +129,7 @@ impl GameController {
 
         // handle new players
         for connection_id in params.connects {
-            println!("gamecontroller - {} receive new player", connection_id.id);
+            info!("gamecontroller - {} receive new player", connection_id.id);
             self.connections.insert(connection_id.clone(), ConnectionState {
                 connection_id: connection_id,
                 player_id: None
@@ -147,10 +147,10 @@ impl GameController {
             let state = self.get_state(&connection);
 
             if let Some(player_id) = state.player_id {
-                println!("gamecontroller - {} removing player {}", connection.id, player_id);
+                info!("gamecontroller - {} removing player {}", connection.id, player_id);
                 self.container.players.player_disconnect(&player_id);
             } else {
-                println!("gamecontroller - {} removing non logged player", connection.id);
+                info!("gamecontroller - {} removing non logged player", connection.id);
             }
 
             self.connections.remove(&connection);
@@ -163,10 +163,10 @@ impl GameController {
             let state = self.get_state(&connection_id);
 
             if let Some(player_id) = state.player_id {
-                println!("gamecontroller - {} handling input '{}'", connection_id, input);
+                debug!("gamecontroller - {} handling input '{}'", connection_id, input);
                 view_main::handle(&mut self.container, &mut outputs, &player_id, input);
             } else {
-                println!("gamecontroller - {} handling login '{}'", connection_id, input);
+                debug!("gamecontroller - {} handling login '{}'", connection_id, input);
                 let result = view_login::handle(&mut self.container, input);
 
                 server_outputs.push(server::Output {
@@ -175,7 +175,7 @@ impl GameController {
                 });
 
                 if let Some(player_id) = result.player_id {
-                    println!("gamecontroller - {} login complete for {}", connection_id, player_id);
+                    debug!("gamecontroller - {} login complete for {}", connection_id, player_id);
 
                     self.set_state(ConnectionState {
                         connection_id: connection_id,
@@ -245,7 +245,7 @@ impl GameController {
             },
 
             Output::Room { player_id, room_id, msg } => {
-                println!("game_controller - {:?}/{:?}: {}", player_id, room_id, msg);
+                debug!("game_controller - {:?}/{:?}: {}", player_id, room_id, msg);
 
                 let players_per_room = self.players_per_room();
 
@@ -263,14 +263,14 @@ impl GameController {
                             .map(|i_player_id| self.connection_id_from_player_id(i_player_id).clone())
                             .collect();
 
-                    println!("game_controller - players at room {:?}, selected connections: {:?}", players, connections_id);
+                    debug!("game_controller - players at room {:?}, selected connections: {:?}", players, connections_id);
 
                     output.push(server::Output {
                         dest_connections_id: connections_id,
                         output: msg
                     });
                 } else {
-                    println!("game_controller - no players at room");
+                    debug!("game_controller - no players at room");
                 }
             },
 

@@ -65,7 +65,7 @@ impl SocketServer {
         let listener = TcpListener::bind("0.0.0.0:3333").unwrap();
         listener.set_nonblocking(true).expect("non blocking failed");
         // accept connections and process them, spawning a new thread for each one
-        println!("server - listening on port 3333");
+        info!("server - listening on port 3333");
 
         self.listener = Some(listener);
     }
@@ -83,7 +83,7 @@ impl SocketServer {
         if let Ok((stream, addr)) = listener.accept() {
             let id = self.next_connection_id();
 
-            println!("server - new connection ({}) {:?}, total connections {}", addr, id, self.connections.len());
+            info!("server - new connection ({}) {:?}, total connections {}", addr, id, self.connections.len());
             stream.set_nonblocking(true)
                 .expect(format!("failed to set non_blocking stream for {:?}", id).as_str());
 
@@ -105,7 +105,7 @@ impl SocketServer {
                 },
                 Err(ref err) if err.kind() == std::io::ErrorKind::WouldBlock => (),
                 Err(e) => {
-                    println!("server - {:?} failed: {}", connection.id, e);
+                    warn!("server - {:?} failed: {}", connection.id, e);
                     broken_connections.push(connection.id)
                 }
             }
@@ -116,10 +116,10 @@ impl SocketServer {
             for connection in &mut self.connections {
                 let is_dest = e.dest_connections_id.contains(&connection.id);
                 if is_dest {
-                    println!("server - {} sending '{}'", connection.id, SocketServer::clean_output_to_log(&e.output));
+                    debug!("server - {} sending '{}'", connection.id, SocketServer::clean_output_to_log(&e.output));
 
                     if let Err(err) = Connection::write(&mut connection.stream, e.output.as_str()) {
-                        println!("server - {} failed: {}", connection.id, err);
+                        warn!("server - {} failed: {}", connection.id, err);
                         broken_connections.push(connection.id);
                     }
                 }
@@ -131,7 +131,7 @@ impl SocketServer {
             let index = self.connections.iter().position(|i| i.id == *connection).unwrap();
             self.connections.remove(index);
 
-            println!("server - {} removed, total connections {}", connection.id, self.connections.len());
+            info!("server - {} removed, total connections {}", connection.id, self.connections.len());
         }
 
         LoopResult {

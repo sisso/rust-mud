@@ -78,7 +78,7 @@ impl PlayerRepository {
     pub fn player_connect(&mut self, login: String, avatar_id: MobId) -> &Player {
         let id = PlayerId(self.next_id.next());
 
-        println!("game - adding player {}/{}", id, login);
+        info!("game - adding player {}/{}", id, login);
 
         let player = Player {
             id,
@@ -91,7 +91,7 @@ impl PlayerRepository {
     }
 
     pub fn player_disconnect(&mut self, id: &PlayerId) {
-        println!("game - removing player {}", id);
+        info!("game - removing player {}", id);
         self.index.remove(&id);
     }
 
