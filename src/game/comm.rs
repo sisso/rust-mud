@@ -11,13 +11,13 @@ pub fn help() -> String {
     let str = r#"-------------------------------------------------------------
   [Help]
 -------------------------------------------------------------
-  look|l            - look around
+  look              - look around
   examine <target>  - examine target insides carefully
   n,s,e,w           - move to different directions
   say <msg>         - say something in the room
   uptime            - server uptime
   stats             - show your stats information and inventory
-  kill|k <target>   - attack something and try to kill it
+  kill <target>     - attack something and try to kill it
   pick <from> <obj> - pick a <obj> from <from>
 -------------------------------------------------------------"#;
 

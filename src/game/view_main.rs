@@ -3,6 +3,7 @@ use super::domain::*;
 use super::player::PlayerId;
 
 use super::actions;
+use super::actions_items;
 use super::comm;
 use super::item::ItemLocation;
 use super::container::Container;
@@ -40,8 +41,8 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
             outputs.private(player_id.clone(), comm::stats(&ctx.avatar, &item_inventory));
         },
 
-        _ if has_command(&input, &["pick"]) => {
-            action_pickup(container, outputs, player_id, input)
+        _ if has_command(&input, &["pick"]) || has_command(&input, &["get"]) => {
+            actions_items::pickup(container, outputs, player_id, parse_arguments(input))
         },
 
         _ if has_command(&input, &["examine "]) => {
@@ -104,54 +105,6 @@ fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_i
 
     // else
     outputs.private(player_id.clone(), comm::examine_target_not_found(&target));
-}
-
-fn action_pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: String) {
-    let ctx = container.get_player_context(player_id);
-
-    let args = parse_arguments(input);
-    let target_inventory = args.get(1);
-    let target_item = args.get(2);
-
-    if target_inventory.is_none() {
-        outputs.private(player_id.clone(), comm::pick_where());
-        return;
-    }
-
-    let target_inventory = target_inventory.unwrap();
-    let target_inventory_item = container.items.search(&ctx.avatar.room_id, target_inventory);
-    let target_inventory_item = target_inventory_item.get(0);
-
-    if target_inventory_item.is_none() {
-        outputs.private(player_id.clone(), comm::pick_where_not_found(target_inventory));
-        return;
-    }
-
-    let target_inventory_item = target_inventory_item.unwrap();
-    let item_id = target_inventory_item.id;
-    let inventory = container.items.get_item_inventory_list(&item_id);
-
-    if target_item.is_none() {
-        outputs.private(player_id.clone(), comm::pick_what(&inventory));
-        return;
-    }
-
-    let target_item= target_item.unwrap();
-
-    let item = inventory.iter()
-        .find(|item| item.label.eq_ignore_ascii_case(target_item));
-
-    if item.is_none() {
-        outputs.private(player_id, comm::pick_what(&inventory));
-        return;
-    }
-
-    outputs.private(player_id, comm::pick_player_from(target_inventory, target_item));
-    outputs.room(player_id, ctx.room.id ,comm::pick_from(ctx.avatar.label.as_str(), target_inventory, target_item));
-
-    let mob_id = ctx.avatar.id;
-    let item_id = item.unwrap().id;
-    container.items.move_to_mob(&mob_id, &item_id);
 }
 
 fn has_command(input: &String, commands: &[&str]) -> bool {
