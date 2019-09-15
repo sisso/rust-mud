@@ -17,7 +17,7 @@ impl std::fmt::Display for ConnectionId {
     }
 }
 
-pub struct LoopResult {
+pub struct ServerChanges {
     pub connects: Vec<ConnectionId>,
     pub disconnects: Vec<ConnectionId>,
     pub pending_inputs: Vec<(ConnectionId, String)>,
@@ -30,5 +30,6 @@ pub struct Output {
 }
 
 pub trait Server {
-    fn run(&mut self, pending_outputs: Vec<Output>) -> LoopResult;
+    fn run(&mut self) -> ServerChanges;
+    fn append_output(&mut self, pending_outputs: Vec<Output>);
 }

@@ -117,17 +117,15 @@ fn load(container: &mut Container) {
     load_spawns(container);
 }
 
-
-
 pub struct Game {
     server: Box<dyn server::Server>,
     game_time: GameTime,
     controller: GameController,
-    pending_outputs: Option<Vec<server::Output>>,
+    save: Option<String>,
 }
 
 impl Game {
-    pub fn new(server: Box<dyn server::Server>) -> Self {
+    pub fn new(server: Box<dyn server::Server>, save: Option<String>) -> Self {
         let mut container: Container = Container::new();
         load(&mut container);
 
@@ -139,7 +137,7 @@ impl Game {
                 delta: Seconds(0.1)
             },
             controller: GameController::new(container),
-            pending_outputs: None
+            save: save,
         }
     }
 
@@ -147,9 +145,8 @@ impl Game {
         self.game_time.tick  = Tick(self.game_time.tick.0 + 1);
         self.game_time.total = self.game_time.total.add(delta);
         self.game_time.delta = delta;
-        let outputs = self.pending_outputs.take().unwrap_or(vec![]);
 
-        let result = self.server.run(outputs);
+        let result = self.server.run();
         
         let params = controller::GameControllerContext {
             connects: result.connects,
@@ -157,7 +154,8 @@ impl Game {
             inputs: result.pending_inputs,
         };
 
-        self.pending_outputs = Some(self.controller.handle(self.game_time, params));
+        let outputs = self.controller.handle(self.game_time, params);
+        self.server.append_output(outputs);
     }
 }
 
@@ -172,6 +170,7 @@ mod tests {
 
     use std::cell::RefCell;
     use std::rc::Rc;
+    use std::fs::File;
 
     struct TestGame {
         outputs: Rc<RefCell<Vec<String>>>,
@@ -180,13 +179,15 @@ mod tests {
     }
 
     const SAFE: u32 = 10;
+    const SAVE: &str = "/tmp/test.jsonp";
 
     impl TestGame {
         pub fn new() -> Self {
             let server = ServerDummy::new();
             let outputs = server.get_outputs_pointer();
             let inputs = server.get_inputs_pointer();
-            let game = Game::new(Box::new(server));
+            let _ = std::fs::remove_file(SAVE);
+            let game = Game::new(Box::new(server), Some(SAVE.to_string()));
 
             TestGame {
                 outputs,
@@ -221,7 +222,7 @@ mod tests {
 
         pub fn get_outputs(&self) -> Vec<String> {
             let outputs = self.outputs.replace(vec![]);
-            debug!("{:?}", outputs);
+            debug!("testserver.get_outputs - {:?}", outputs);
             outputs
         }
 
@@ -250,8 +251,6 @@ mod tests {
         g.run_tick();
         let _ = g.get_outputs();
         g.input("stats");
-        g.run_tick();
-        let _ = g.get_outputs();
         g.run_tick();
         assert!(g.get_outputs().iter().find(|msg| msg.contains("- coins (2)")).is_some());
     }

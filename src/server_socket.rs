@@ -1,5 +1,5 @@
 use super::server;
-use super::server::{ConnectionId, Output, LoopResult};
+use super::server::{ConnectionId, Output, ServerChanges};
 
 use std::net::{TcpStream, TcpListener};
 use std::io;
@@ -15,6 +15,7 @@ pub struct SocketServer {
     tick: u32,
     connections: Vec<Connection>,
     listener: Option<TcpListener>,
+    pending_outputs: Option<Vec<Output>>,
 }
 
 impl Connection {
@@ -37,8 +38,14 @@ impl Connection {
 }
 
 impl server::Server for SocketServer {
-    fn run(&mut self, pending_outputs: Vec<Output>) -> LoopResult {
-        self.read_write(pending_outputs)
+    fn run(&mut self) -> ServerChanges {
+        let outputs = self.pending_outputs.take().unwrap_or(vec![]);
+        self.read_write(outputs)
+    }
+
+    fn append_output(&mut self, pending_outputs: Vec<Output>) {
+        assert!(self.pending_outputs.is_none());
+        self.pending_outputs = Some(pending_outputs);
     }
 }
 
@@ -55,6 +62,7 @@ impl SocketServer {
             tick: 0,
             connections: Vec::new(),
             listener: None,
+            pending_outputs: None
         };
 
         ins.start();
@@ -70,7 +78,7 @@ impl SocketServer {
         self.listener = Some(listener);
     }
 
-    fn read_write(&mut self, pending_outputs: Vec<Output>) -> LoopResult {
+    fn read_write(&mut self, pending_outputs: Vec<Output>) -> ServerChanges {
         let mut new_connections: Vec<ConnectionId> = vec![];
         let mut broken_connections: Vec<ConnectionId> = vec![];
         let mut pending_inputs: Vec<(ConnectionId, String)> = vec![];
@@ -134,7 +142,7 @@ impl SocketServer {
             info!("server - {} removed, total connections {}", connection.id, self.connections.len());
         }
 
-        LoopResult {
+        ServerChanges {
             connects: new_connections,
             disconnects: broken_connections,
             pending_inputs: pending_inputs

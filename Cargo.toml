@@ -7,3 +7,4 @@ edition = "2018"
 [dependencies]
 rand="*"
 termion = "*"
+serde_json = "1.*"
