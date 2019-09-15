@@ -6,6 +6,7 @@ use super::mob::*;
 use super::mob::MobId;
 
 use crate::utils::*;
+use crate::utils::save::Save;
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct PlayerId(pub u32);
@@ -115,5 +116,16 @@ impl PlayerRepository {
             .find(|(pid, _)| **pid == id)
             .map(|(_, p)| p)
             .expect(format!("player with id {} not found", id).as_str())
+    }
+
+    pub fn save(&self, save: &mut dyn Save) {
+        use serde_json::json;
+
+        for (player_id, player) in self.index.iter() {
+            save.add(player_id.0, "player", json!({
+                "mob_id": player.avatar_id.0,
+                "login": player.login
+            }));
+        }
     }
 }

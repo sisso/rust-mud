@@ -29,6 +29,7 @@ pub mod item;
 pub mod actions_items;
 
 use crate::utils::*;
+use crate::utils::save::{SaveToFile, Save};
 
 const INITIAL_ROOM_ID: RoomId = RoomId(0);
 
@@ -156,6 +157,13 @@ impl Game {
 
         let outputs = self.controller.handle(self.game_time, params);
         self.server.append_output(outputs);
+
+        if let Some(save_file) = self.save.as_ref() {
+            let save_file = format!("{}_{}.jsonp", save_file, self.game_time.tick.0);
+            let mut save = SaveToFile::new(save_file.as_ref());
+            self.controller.save(&mut save);
+            save.close()
+        }
     }
 }
 
@@ -179,7 +187,7 @@ mod tests {
     }
 
     const SAFE: u32 = 10;
-    const SAVE: &str = "/tmp/test.jsonp";
+    const SAVE: &str = "/tmp/test";
 
     impl TestGame {
         pub fn new() -> Self {

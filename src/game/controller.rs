@@ -14,6 +14,7 @@ use super::view_login;
 use super::view_main;
 
 use crate::utils::*;
+use crate::utils::save::Save;
 
 pub struct ConnectionState {
     pub connection_id: ConnectionId,
@@ -192,6 +193,10 @@ impl GameController {
         self.append_outputs(&mut server_outputs, outputs);
         self.normalize_output(&mut server_outputs, &connections_with_input);
         server_outputs
+    }
+
+    pub fn save(&self, save: &mut dyn Save) {
+        self.container.save(save);
     }
 
     /// For each player that will receive output, append new line with cursor.

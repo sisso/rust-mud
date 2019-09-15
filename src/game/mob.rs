@@ -8,6 +8,7 @@ use super::item::*;
 use super::room::RoomId;
 
 use crate::utils::*;
+use crate::utils::save::Save;
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct MobId(pub u32);
@@ -215,6 +216,38 @@ impl MobRepository {
     pub fn get_mob_prefab(&mut self, id: &MobPrefabId) -> &MobPrefab {
         self.mob_prefabs.get(id)
             .expect(format!("could not found mob prefab id {:?}", id).as_str())
+    }
+
+    pub fn save(&self, save: &mut dyn Save) {
+        use serde_json::json;
+
+        for (id, obj) in self.index.iter() {
+            let command_json = match obj.command {
+                MobCommand::Idle => json!({ "kind": "idle" }),
+                MobCommand::Kill { target } => json!({ "kind": "kill", "target": target.0 }),
+            };
+
+            let obj_json = json!({
+                "room_id": obj.room_id.0,
+                "label": obj.label,
+                "is_avatar": obj.is_avatar,
+                "command": command_json,
+                "attributes": {
+                    "attack": obj.attributes.attack,
+                    "defense": obj.attributes.defense,
+                    "damage_min": obj.attributes.damage.min,
+                    "damage_max": obj.attributes.damage.max,
+                    "damage_calm_down": obj.attributes.damage.calm_down.0,
+                    "pv": obj.attributes.pv.current,
+                    "pv_max": obj.attributes.pv.max,
+                },
+                "state": {
+                    "attack_ready": obj.state.attack_ready.0
+                }
+            });
+
+            save.add(id.0, "mob", obj_json);
+        }
     }
 }
 

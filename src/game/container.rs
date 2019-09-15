@@ -6,6 +6,7 @@ use super::domain::*;
 use super::item::*;
 
 use crate::utils::*;
+use crate::utils::save::Save;
 
 pub struct Container {
     pub players: PlayerRepository,
@@ -113,6 +114,12 @@ impl Container {
         let mob = Mob::new(mob_id, room_id, prefab.label, prefab.attributes);
         self.mobs.add(mob);
         self.mobs.get(&mob_id)
+    }
+
+    pub fn save(&self, save: &mut dyn Save) {
+        self.players.save(save);
+        self.mobs.save(save);
+        self.items.save(save);
     }
 }
 
