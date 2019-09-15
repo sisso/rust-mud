@@ -7,8 +7,9 @@ use super::actions_items;
 use super::comm;
 use super::item::ItemLocation;
 use super::container::Container;
+use crate::game::actions_admin;
 
-pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: String) {
+pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: String) {
     // TODO: change to process &[str]
     match input.as_ref() {
         "h" | "help" => {
@@ -60,10 +61,10 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
                     actions::kill(container, outputs, player_id, &mob_id);
                 },
                 Some(_) => {
-                    outputs.private(player_id.clone(), comm::kill_can_not_kill_players(&target));
+                    outputs.private(player_id, comm::kill_can_not_kill_players(&target));
                 },
                 None => {
-                    outputs.private(player_id.clone(), comm::kill_target_not_found(&target));
+                    outputs.private(player_id, comm::kill_target_not_found(&target));
                 }
             }
         },
@@ -71,6 +72,28 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
         _ if input.starts_with("say ")  => {
             let msg = input["say ".len()..].to_string();
             actions::say(container, outputs, player_id, msg);
+        },
+
+        _ if input.starts_with("admin ")  => {
+            let arguments = parse_arguments(input);
+            if arguments.len() != 2 {
+                outputs.private(player_id, comm::admin_invalid_command());
+                return;
+            }
+
+            match arguments.get(1).unwrap().as_ref() {
+                "suicide" => {
+                    let pctx = container.get_player_context(player_id);
+                    outputs.private(player_id, comm::admin_suicide());
+                    outputs.room(player_id, pctx.room.id, comm::admin_suicide_others(pctx.avatar.label.as_ref()));
+
+                    let mob_id = pctx.avatar.id;
+                    actions_admin::kill(time, container, outputs, mob_id);
+                },
+                other => {
+                    outputs.private(player_id, comm::admin_invalid_command());
+                }
+            }
         },
 
         _ => {

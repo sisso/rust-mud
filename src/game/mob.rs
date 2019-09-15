@@ -5,10 +5,14 @@ use super::container::Container;
 use super::controller::Outputs;
 use super::domain::*;
 use super::item::*;
+use super::comm;
 use super::room::RoomId;
 
 use crate::utils::*;
 use crate::utils::save::Save;
+use crate::game::body::create_body;
+
+pub const INITIAL_ROOM_ID: RoomId = RoomId(0);
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct MobId(pub u32);
@@ -265,4 +269,32 @@ pub fn run_tick(time: &GameTime, container: &mut Container, outputs: &mut dyn Ou
             }
         }
     }
+}
+
+pub fn kill_mob(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) {
+    create_body(time, container, outputs, mob_id);
+
+    // remove mob
+    let mob = container.mobs.get(&mob_id);
+    if mob.is_avatar {
+        respawn_avatar(time, container, outputs, mob_id);
+    } else {
+        container.mobs.remove(&mob_id);
+    }
+}
+
+pub fn respawn_avatar(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) {
+    let mut mob = container.mobs.get(&mob_id).clone();
+    assert!(mob.is_avatar);
+
+    mob.attributes.pv.current = 1;
+    mob.room_id = INITIAL_ROOM_ID;
+
+    let player = container.players.find_player_from_avatar_mob_id(&mob.id);
+    let player = player.unwrap();
+
+    outputs.private(player.id, comm::mob_you_resurrected());
+    outputs.room(player.id, mob.room_id, comm::mob_resurrected(mob.label.as_ref()));
+
+    container.mobs.update(mob);
 }

@@ -6,6 +6,7 @@ use super::domain::*;
 use super::container::*;
 use super::controller::Outputs;
 use super::mob::*;
+use crate::game::mob;
 
 pub fn tick_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: &MobId, target_mob_id: &MobId) {
     let attacker = container.mobs.get(&mob_id);
@@ -74,7 +75,7 @@ fn execute_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn 
 
         let defender = container.mobs.get(&target);
         if defender.attributes.pv.current < 0 {
-            kill_mob(time, container, outputs, mob_id, target);
+            execute_attack_killed(time, container, outputs, mob_id, target);
         }
     }
 
@@ -83,8 +84,7 @@ fn execute_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn 
     container.mobs.update(attacker);
 }
 
-// TODO: create body
-fn kill_mob(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, attacker_id: &MobId, target_id: &MobId) {
+fn execute_attack_killed(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, attacker_id: &MobId, target_id: &MobId) {
     let attacker_player_id = container.players.find_player_id_from_avatar_mob_id(attacker_id);
     let attacker = container.mobs.get(&attacker_id);
     let defender = container.mobs.get(&target_id);
@@ -99,7 +99,7 @@ fn kill_mob(time: &GameTime, container: &mut Container, outputs: &mut dyn Output
         outputs.room_all(attacker.room_id, room_attack_msg);
     }
 
-    body::create_body(time, container, outputs, target_id);
+    mob::kill_mob(time, container, outputs, *target_id);
 }
 
 

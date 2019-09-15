@@ -9,9 +9,9 @@ use crate::utils::*;
 
 const DECAY_TIME: Seconds = Seconds(20.0);
 
-pub fn create_body(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: &MobId) {
+pub fn create_body(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) {
     let item_id = container.items.next_item_id();
-    let mob = container.mobs.get(mob_id);
+    let mob = container.mobs.get(&mob_id);
     let room_id = mob.room_id;
 
     let mut item = Item::new(
@@ -26,10 +26,7 @@ pub fn create_body(time: &GameTime, container: &mut Container, outputs: &mut dyn
     let msg = comm::item_body_appears_in_room(&item);
 
     container.items.add(item, ItemLocation::Room {room_id});
-    container.items.move_items_from_mob_to_item(*mob_id, item_id);
+    container.items.move_items_from_mob_to_item(mob_id, item_id);
 
     outputs.room_all(room_id, msg);
-
-    // remove mob
-    container.mobs.remove(mob_id);
 }

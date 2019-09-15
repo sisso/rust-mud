@@ -27,11 +27,10 @@ pub mod view_main;
 pub mod view_login;
 pub mod item;
 pub mod actions_items;
+pub mod actions_admin;
 
 use crate::utils::*;
 use crate::utils::save::{SaveToFile, Save};
-
-const INITIAL_ROOM_ID: RoomId = RoomId(0);
 
 const MOB_PLAYER: MobPrefabId = MobPrefabId(0);
 const MOB_DRUNK: MobPrefabId  = MobPrefabId(1);
@@ -256,14 +255,8 @@ mod tests {
     #[test]
     fn kill_something() {
         let mut g = TestGame::new();
-        g.wait_for("Welcome to MUD");
-        g.input("sisso");
-        g.wait_for("welcome sisso");
-        g.input("look");
-        g.wait_for("Main Room");
-        g.input("s");
-        g.wait_for("Bar");
-        g.look_and_wait_for("Drunk");
+        do_login(&mut g);
+        do_move_to_bar_wait_for_drunk(&mut g);
         g.input("kill Drunk");
         g.wait_for("killed");
         g.input("examine body");
@@ -275,5 +268,34 @@ mod tests {
         g.input("stats");
         g.run_tick();
         assert!(g.get_outputs().iter().find(|msg| msg.contains("- coins (2)")).is_some());
+    }
+
+    #[test]
+    fn admin_kill_test() {
+        let mut g = TestGame::new();
+        do_login(&mut g);
+        do_move_to_bar_wait_for_drunk(&mut g);
+        g.input("admin suicide");
+        g.run_tick();
+        g.wait_for("you have resurrected!");
+        do_look_main_room(&mut g);
+    }
+
+    fn do_move_to_bar_wait_for_drunk(g: &mut TestGame) {
+        g.input("s");
+        g.wait_for("Bar");
+        g.look_and_wait_for("Drunk");
+    }
+
+    fn do_login(g: &mut TestGame) {
+        g.wait_for("Welcome to MUD");
+        g.input("sisso");
+        g.wait_for("welcome sisso");
+        do_look_main_room(g);
+    }
+
+    fn do_look_main_room(g: &mut TestGame) {
+        g.input("look");
+        g.wait_for("Main Room");
     }
 }

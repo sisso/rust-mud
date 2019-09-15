@@ -7,6 +7,7 @@ use super::item::*;
 
 use crate::utils::*;
 use crate::utils::save::Save;
+use crate::game::body::create_body;
 
 pub struct Container {
     pub players: PlayerRepository,

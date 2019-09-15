@@ -225,6 +225,26 @@ pub fn pick_from(actor: &str, target_inventory: &str, target_item: &str) -> Stri
     format!("{} pick a {} from {}\n", actor, target_item, target_inventory)
 }
 
+pub fn admin_invalid_command() -> String {
+    format!("invalid admin command")
+}
+
+pub fn admin_suicide() -> String {
+    format!("you committed suicide")
+}
+
+pub fn admin_suicide_others(label: &str) -> String {
+    format!("{} committed suicide", label)
+}
+
+pub fn mob_you_resurrected() -> String {
+    format!("you have resurrected!")
+}
+
+pub fn mob_resurrected(label: &str) -> String {
+    format!("{} have resurrected!", label)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -165,7 +165,7 @@ impl GameController {
 
             if let Some(player_id) = state.player_id {
                 debug!("gamecontroller - {} handling input '{}'", connection_id, input);
-                view_main::handle(&mut self.container, &mut outputs, player_id, input);
+                view_main::handle(&time, &mut self.container, &mut outputs, player_id, input);
             } else {
                 debug!("gamecontroller - {} handling login '{}'", connection_id, input);
                 let result = view_login::handle(&mut self.container, input);

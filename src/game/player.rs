@@ -30,7 +30,7 @@ pub fn add_player(container: &mut Container, login: &String) -> PlayerId {
 
     let mut mob = Mob::new(
         mob_id,
-        super::INITIAL_ROOM_ID,
+        super::mob::INITIAL_ROOM_ID,
         login.clone(),
         Attributes {
             attack: 12,
