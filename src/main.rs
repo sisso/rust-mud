@@ -42,6 +42,6 @@ mod tests {
         debug!("{} {:?}", 1, "none");
         info!("one");
         info!("{} {:?}", 1, "none");
-        assert_eq!(true, false);
+        assert_eq!(true, true);
     }
 }

@@ -12,21 +12,21 @@ use crate::server;
 use crate::server_socket;
 use std::ops::Add;
 
-mod actions;
-mod body;
-mod comm;
-mod controller;
-mod container;
-mod combat;
-mod domain;
-mod mob;
-mod player;
-mod room;
-mod spawn;
-mod view_main;
-mod view_login;
-mod item;
-mod actions_items;
+pub mod actions;
+pub mod body;
+pub mod comm;
+pub mod controller;
+pub mod container;
+pub mod combat;
+pub mod domain;
+pub mod mob;
+pub mod player;
+pub mod room;
+pub mod spawn;
+pub mod view_main;
+pub mod view_login;
+pub mod item;
+pub mod actions_items;
 
 use crate::utils::*;
 

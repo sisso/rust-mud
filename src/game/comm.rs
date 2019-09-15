@@ -1,9 +1,28 @@
+use crate::utils::*;
+
 use super::item::*;
 use super::domain::*;
 use super::container::Container;
 use super::mob::*;
 
-use crate::utils::*;
+use termion;
+
+pub fn help() -> String {
+    let str = r#"-------------------------------------------------------------
+  [Help]
+-------------------------------------------------------------
+  look|l            - look around
+  examine <target>  - examine target insides carefully
+  n,s,e,w           - move to different directions
+  say <msg>         - say something in the room
+  uptime            - server uptime
+  stats             - show your stats information and inventory
+  kill|k <target>   - attack something and try to kill it
+  pick <from> <obj> - pick a <obj> from <from>
+-------------------------------------------------------------"#;
+
+    str.to_string()
+}
 
 pub fn look_description(container: &Container, ctx: &PlayerCtx) -> String {
     let exits: Vec<String> = ctx.room.exits.iter()
@@ -204,4 +223,36 @@ pub fn pick_player_from(target_inventory: &str, target_item: &str) -> String {
 
 pub fn pick_from(actor: &str, target_inventory: &str, target_item: &str) -> String {
     format!("{} pick a {} from {}\n", actor, target_item, target_inventory)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn item_0_coins() -> Item {
+        Item::new(
+            ItemId(0),
+            ITEM_TYPE_GOLD,
+            "coins".to_string()
+        )
+    }
+
+    fn strip_colors(input: String) -> String {
+        input
+    }
+
+    #[test]
+    fn show_inventory_test() {
+        let coins = item_0_coins();
+        let items = &vec![&coins];
+        let string = show_inventory(items);
+        assert_eq!("Inventory:\n\
+                    - coins", string);
+    }
+
+    #[test]
+    fn help_test() {
+        let result = help();
+        assert!(result.len() > 0);
+    }
 }

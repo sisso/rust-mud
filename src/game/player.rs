@@ -67,11 +67,11 @@ impl PlayerRepository {
         }
     }
 
-    pub fn list_players(&self) -> Vec<&PlayerId> {
+    pub fn list_players(&self) -> Vec<PlayerId> {
         self.index
             .iter()
             .into_iter()
-            .map(| (id, _)| id)
+            .map(| (id, _)| *id)
             .collect()
     }
 
@@ -90,7 +90,7 @@ impl PlayerRepository {
         self.index.get(&id).unwrap()
     }
 
-    pub fn player_disconnect(&mut self, id: &PlayerId) {
+    pub fn player_disconnect(&mut self, id: PlayerId) {
         info!("game - removing player {}", id);
         self.index.remove(&id);
     }
@@ -109,10 +109,10 @@ impl PlayerRepository {
             .map(|(id, _)| id.clone())
     }
 
-    pub fn get_player_by_id(&self, id: &PlayerId) -> &Player {
+    pub fn get_player_by_id(&self, id: PlayerId) -> &Player {
         self.index
             .iter()
-            .find(|(pid, _)| **pid == *id)
+            .find(|(pid, _)| **pid == id)
             .map(|(_, p)| p)
             .expect(format!("player with id {} not found", id).as_str())
     }

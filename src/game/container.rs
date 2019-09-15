@@ -32,7 +32,7 @@ impl Container {
         }
     }
 
-    pub fn get_player_context(&self, player_id: &PlayerId) -> PlayerCtx {
+    pub fn get_player_context(&self, player_id: PlayerId) -> PlayerCtx {
         let player = self.players.get_player_by_id(player_id);
         let mob = self.mobs.get(&player.avatar_id);
         let room = self.rooms.get(&mob.room_id);

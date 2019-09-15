@@ -7,9 +7,13 @@ use super::comm;
 use super::item::ItemLocation;
 use super::container::Container;
 
-pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: &PlayerId, input: String) {
+pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: String) {
     // TODO: change to process &[str]
     match input.as_ref() {
+        "h" | "help" => {
+            outputs.private(player_id, comm::help());
+        },
+
         "l" | "look" => {
             actions::look(container, outputs, player_id);
         },
@@ -69,12 +73,12 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: &
         },
 
         _ => {
-            outputs.private(*player_id, comm::unknown_input(input));
+            outputs.private(player_id, comm::unknown_input(input));
         },
     }
 }
 
-fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_id: &PlayerId, input: String) {
+fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: String) {
     let target = parse_command(input, &["examine "]);
     let ctx = container.get_player_context(player_id);
     let mobs = container.mobs.search(Some(&ctx.avatar.room_id), Some(&target));
@@ -102,7 +106,7 @@ fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_i
     outputs.private(player_id.clone(), comm::examine_target_not_found(&target));
 }
 
-fn action_pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: &PlayerId, input: String) {
+fn action_pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: String) {
     let ctx = container.get_player_context(player_id);
 
     let args = parse_arguments(input);
@@ -138,12 +142,12 @@ fn action_pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id
         .find(|item| item.label.eq_ignore_ascii_case(target_item));
 
     if item.is_none() {
-        outputs.private(*player_id, comm::pick_what(&inventory));
+        outputs.private(player_id, comm::pick_what(&inventory));
         return;
     }
 
-    outputs.private(*player_id, comm::pick_player_from(target_inventory, target_item));
-    outputs.room(*player_id, ctx.room.id ,comm::pick_from(ctx.avatar.label.as_str(), target_inventory, target_item));
+    outputs.private(player_id, comm::pick_player_from(target_inventory, target_item));
+    outputs.room(player_id, ctx.room.id ,comm::pick_from(ctx.avatar.label.as_str(), target_inventory, target_item));
 
     let mob_id = ctx.avatar.id;
     let item_id = item.unwrap().id;

@@ -1,5 +1,5 @@
 [package]
-name = "rust-mud"
+name = "mud"
 version = "0.1.0"
 authors = ["sisso <sisso@sisso.com.br>"]
 edition = "2018"

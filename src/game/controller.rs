@@ -148,7 +148,7 @@ impl GameController {
 
             if let Some(player_id) = state.player_id {
                 info!("gamecontroller - {} removing player {}", connection.id, player_id);
-                self.container.players.player_disconnect(&player_id);
+                self.container.players.player_disconnect(player_id);
             } else {
                 info!("gamecontroller - {} removing non logged player", connection.id);
             }
@@ -164,7 +164,7 @@ impl GameController {
 
             if let Some(player_id) = state.player_id {
                 debug!("gamecontroller - {} handling input '{}'", connection_id, input);
-                view_main::handle(&mut self.container, &mut outputs, &player_id, input);
+                view_main::handle(&mut self.container, &mut outputs, player_id, input);
             } else {
                 debug!("gamecontroller - {} handling login '{}'", connection_id, input);
                 let result = view_login::handle(&mut self.container, input);
@@ -235,7 +235,7 @@ impl GameController {
     fn append_output(&self, output: &mut Vec<server::Output>, handle_output: Output) {
         match handle_output {
             Output::Private { player_id, msg } => {
-                let connection_id = self.connection_id_from_player_id(&player_id);
+                let connection_id = self.connection_id_from_player_id(player_id);
 
                 output.push(server::Output {
                     dest_connections_id: vec![connection_id.clone()],
@@ -260,7 +260,7 @@ impl GameController {
                                     _ => true
                                 }
                             })
-                            .map(|i_player_id| self.connection_id_from_player_id(i_player_id).clone())
+                            .map(|i_player_id| self.connection_id_from_player_id(*i_player_id).clone())
                             .collect();
 
                     debug!("game_controller - players at room {:?}, selected connections: {:?}", players, connections_id);
@@ -283,9 +283,9 @@ impl GameController {
         }
     }
 
-    fn connection_id_from_player_id(&self, player_id: &PlayerId) -> &ConnectionId {
+    fn connection_id_from_player_id(&self, player_id: PlayerId) -> &ConnectionId {
         self.connection_id_by_player_id
-            .get(player_id)
+            .get(&player_id)
             .expect(format!("could not found connection for {}", player_id).as_str())
     }
 
@@ -310,7 +310,7 @@ impl GameController {
                 .map(|player_id| {
                     let player = self.container.players.get_player_by_id(player_id);
                     let avatar = self.container.mobs.get(&player.avatar_id);
-                    (avatar.room_id, *player_id)
+                    (avatar.room_id, player_id)
                 })
                 .collect();
 
@@ -322,9 +322,9 @@ impl GameController {
         result
     }
 
-    fn player_id_from_connection_id(&self, connection_id: &ConnectionId) -> Option<&PlayerId> {
+    fn player_id_from_connection_id(&self, connection_id: &ConnectionId) -> Option<PlayerId> {
         let state = self.connections.get(connection_id).expect(format!("could not found state for connection {}", connection_id).as_str());
-        state.player_id.as_ref()
+        state.player_id
     }
 }
 
