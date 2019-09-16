@@ -17,6 +17,8 @@ pub fn help() -> String {
   say <msg>         - say something in the room
   uptime            - server uptime
   stats             - show your stats information and inventory
+  rest              - rest to recovery from wounds, see stand
+  stand             - sand up and stop to rest, see rest
   kill <target>     - attack something and try to kill it
   pick <from> <obj> - pick a <obj> from <from>
 -------------------------------------------------------------"#;
@@ -98,11 +100,11 @@ pub fn kill_can_not_kill_players(target: &String) -> String {
     format!("target [{}] is friendly, you can not kill him!\n", target)
 }
 
-pub fn kill_player_attack(target: &Mob) -> String {
+pub fn attack_player_initiate(target: &Mob) -> String {
     format!("you attack {}!\n", target.label)
 }
 
-pub fn kill_mob_attack_someone(attacker: &Mob, target: &Mob) -> String {
+pub fn attack_mob_initiate_attack(attacker: &Mob, target: &Mob) -> String {
     format!("{} attacks {}!\n", attacker.label, target.label)
 }
 
@@ -243,6 +245,38 @@ pub fn mob_you_resurrected() -> String {
 
 pub fn mob_resurrected(label: &str) -> String {
     format!("{} have resurrected!", label)
+}
+
+pub fn rest_fail_in_combat() -> String {
+    "you can not rest, you are FIGHTING!".to_string()
+}
+
+pub fn rest_start() -> String {
+    "you sit and rest".to_string()
+}
+
+pub fn rest_healing(current_hp: i32) -> String {
+    format!("you are healing, current hp {}", current_hp)
+}
+
+pub fn rest_healed() -> String {
+    format!("you feel fully healed")
+}
+
+pub fn rest_start_others(label: &str) -> String {
+    format!("{} sit and rest", label)
+}
+
+pub fn stand_fail_not_resting() -> String {
+    "you are already standing".to_string()
+}
+
+pub fn stand_up() -> String {
+    "you stand up".to_string()
+}
+
+pub fn stand_up_others(label: &str) -> String {
+    format!("{} stand up", label)
 }
 
 #[cfg(test)]

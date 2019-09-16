@@ -96,10 +96,10 @@ impl PlayerRepository {
         self.index.remove(&id);
     }
 
-    pub fn find_player_from_avatar_mob_id(&self, mob_id: &MobId) -> Option<&Player> {
+    pub fn find_player_from_avatar_mob_id(&self, mob_id: MobId) -> Option<&Player> {
         self.index
             .iter()
-            .find(|(_, p)| p.avatar_id == *mob_id)
+            .find(|(_, p)| p.avatar_id == mob_id)
             .map(|(_, player)| player)
     }
 

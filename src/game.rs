@@ -232,9 +232,11 @@ mod tests {
                 self.run_tick();
 
                 if self.get_outputs().iter().find(|i| i.contains(expected)).is_some() {
-                    break;
+                    return;
                 }
             }
+
+            panic!(format!("failed to wait for expected '{}' after {} ticks", expected, SAFE));
         }
 
         pub fn run_tick(&mut self) {
@@ -274,11 +276,16 @@ mod tests {
     fn admin_kill_test() {
         let mut g = TestGame::new();
         do_login(&mut g);
-        do_move_to_bar_wait_for_drunk(&mut g);
         g.input("admin suicide");
         g.run_tick();
         g.wait_for("you have resurrected!");
         do_look_main_room(&mut g);
+        g.input("rest");
+        g.wait_for("sit and rest");
+        g.wait_for("healing");
+        g.wait_for("healed");
+        g.input("stand");
+        do_move_to_bar_wait_for_drunk(&mut g);
     }
 
     fn do_move_to_bar_wait_for_drunk(g: &mut TestGame) {

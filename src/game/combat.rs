@@ -8,14 +8,14 @@ use super::controller::Outputs;
 use super::mob::*;
 use crate::game::mob;
 
-pub fn tick_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: &MobId, target_mob_id: &MobId) {
+pub fn tick_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, target_mob_id: MobId) {
     let attacker = container.mobs.get(&mob_id);
     let defender = container.mobs.find(&target_mob_id);
 
     if let Some(defender) = defender {
         // TODO: how send references?
         if attacker.room_id != defender.room_id {
-            cancel_attack(container, outputs, &mob_id, Some(target_mob_id));
+            cancel_attack(container, outputs, mob_id, Some(&target_mob_id));
             return;
         }
 
@@ -25,11 +25,11 @@ pub fn tick_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn
 
         check_return_attack(time, container, outputs, target_mob_id, mob_id);
     } else {
-        cancel_attack(container, outputs, &mob_id, None);
+        cancel_attack(container, outputs, mob_id, None);
     }
 }
 
-fn cancel_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: &MobId, target: Option<&MobId>) {
+fn cancel_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, target: Option<&MobId>) {
 //    let attacker = container.get_mob(&mob_id.0);
 
 //    let msg_others = comm::kill_cancel(attacker, defender);
@@ -44,9 +44,7 @@ fn cancel_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: &
 //    }
 
 //    let mut mob = attacker.clone();
-    let mut mob = container.mobs.get(&mob_id).clone();
-    mob.command = MobCommand::Idle;
-    container.mobs.update(mob);
+    container.mobs.cancel_attack(mob_id);
 }
 
 fn execute_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: &MobId, target: &MobId) {
@@ -140,14 +138,14 @@ fn roll_damage(damage: &Damage) -> u32 {
 }
 
 
-fn check_return_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: &MobId, aggressor_mob_id: &MobId) {
-    match container.mobs.find(mob_id) {
+fn check_return_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, aggressor_mob_id: MobId) {
+    match container.mobs.find(&mob_id) {
         Some(mob) if mob.command.is_idle() => {
-            let aggressor_mob = container.mobs.get(aggressor_mob_id);
+            let aggressor_mob = container.mobs.get(&aggressor_mob_id);
             let msg = comm::kill_return_attack(&mob.label, &aggressor_mob.label);
             outputs.room_all(mob.room_id, msg);
 
-            container.mobs.set_mob_kill_target(mob_id, aggressor_mob_id);
+            container.mobs.set_mob_attack_target(mob_id, &aggressor_mob_id);
         },
         _ => {}
     }

@@ -1,5 +1,3 @@
-use crate::game::comm::help;
-
 pub mod macros;
 pub mod logs;
 pub mod jsons;
@@ -34,6 +32,8 @@ impl std::ops::Sub<Seconds> for Seconds {
 }
 
 /// @see Trigger::check
+///
+#[derive(Clone,Debug)]
 pub struct TimeTrigger {
     each_second: Seconds,
     next_trigger: Option<Seconds>,
@@ -44,24 +44,36 @@ impl TimeTrigger {
         TimeTrigger { each_second, next_trigger: None }
     }
 
+    pub fn get_wait_time(&self) -> Seconds {
+        self.each_second
+    }
+
+    pub fn get_current_time(&self) -> Option<Seconds> {
+        self.next_trigger
+    }
+
     /// Update local counter and return true if time has elapsed
     pub fn check(&mut self, elapsed: Seconds) -> bool {
         match self.next_trigger {
             Some(nx) => {
-                let nt = nx.0 - elapsed.0;
-                if nt <= 0.0 {
-                    self.next_trigger = Some(elapsed);
+                let nt = nx - elapsed;
+                if nt.0 <= 0.0 {
+                    self.next_trigger = Some(self.each_second);
                     true
                 } else {
-                    self.next_trigger = Some(Seconds(nt));
+                    self.next_trigger = Some(nt);
                     false
                 }
             },
             None => {
-                self.next_trigger = Some(elapsed);
+                self.next_trigger = Some(self.each_second - elapsed);
                 false
             }
         }
+    }
+
+    pub fn reset(&mut self) {
+        self.next_trigger = None;
     }
 }
 
@@ -72,9 +84,10 @@ mod test {
     #[test]
     fn test_trigger() {
         let mut t = TimeTrigger::new(Seconds(1.0));
-        assert_eq!(false, t.check(Seconds(0.5)));  // 0.5
-        assert_eq!(false, t.check(Seconds(0.49))); // 0.99
-        assert_eq!(true, t.check(Seconds(0.10)));  // 1.09
-        assert_eq!(true, t.check(Seconds(1.00)));  // 2.09
+        assert_eq!(false, t.check(Seconds(0.1)));  // 0.9
+        assert_eq!(false, t.check(Seconds(0.4)));  // 0.5
+        assert_eq!(false, t.check(Seconds(0.39))); // 0.11
+        assert_eq!(true, t.check(Seconds(0.16)));  // 1.05
+        assert_eq!(true, t.check(Seconds(1.00)));  // 2.05
     }
 }

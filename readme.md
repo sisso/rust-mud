@@ -1,14 +1,24 @@
 # Todo
 
+- rest and recovery HP
 - change body to a dead mob, it will be never possible to store all info into Item. Many things like resurrect will be broken.
 - normalize inventory in more generic way
-- advancaed parse commands like "examine drunk body" || examine body || examine body.2 || examine all body?
+- advanced parse commands like "examine drunk body" || examine body || examine body.2 || examine all body?
 - move id counters to own unsafe incrementer?
 - log
 - acceptance test
+- items
 
 # Design
 
 ## MVC
 
 - Controller and view can have knowledge about connection id, but should not be expose internally to game.
+
+inputs:
+Socket -> SocketServer -> Controller -> view -> action_<kind> -> <domain> -> <container>
+
+tick:
+game -> <domain> -> <container>
+
+[] How separate better? currently most of functions are outside of container but same module. We need Business -> Repository

@@ -20,7 +20,7 @@ pub struct MobId(pub u32);
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct MobPrefabId(pub u32);
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Copy)]
 pub enum MobCommand {
     Idle,
     Kill { target: MobId }
@@ -48,6 +48,12 @@ pub struct Pv {
     pub max: u32,
 }
 
+impl Pv {
+    pub fn is_damaged(&self) -> bool {
+        self.current < self.max as i32
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Attributes {
     pub attack: u32,
@@ -59,13 +65,19 @@ pub struct Attributes {
 #[derive(Clone, Debug)]
 struct MobState {
     // change to ready on > current time
-    attack_ready: Seconds
+    attack_ready: Seconds,
+    combat: bool,
+    resting: bool,
+    resting_heal_trigger: TimeTrigger,
 }
 
 impl MobState {
     fn new() -> Self {
         MobState {
             attack_ready: Seconds(0.0),
+            combat: false,
+            resting: false,
+            resting_heal_trigger: TimeTrigger::new(Seconds(1.0))
         }
     }
 }
@@ -108,6 +120,36 @@ impl Mob {
 
     pub fn is_read_to_attack(&self, total_time: &Seconds) -> bool {
         self.state.attack_ready.0 <= total_time.0
+    }
+
+    pub fn is_combat(&self) -> bool {
+        self.state.combat
+    }
+
+    pub fn set_combat(&mut self, enable: bool) {
+        self.state.combat = enable;
+    }
+
+    pub fn set_resting(&mut self, enable: bool) {
+        self.state.resting = enable;
+    }
+
+    pub fn is_resting(&self) -> bool {
+        self.state.resting
+    }
+
+    pub fn update_resting(&mut self, delta: Seconds) -> bool {
+        if !self.attributes.pv.is_damaged() {
+            self.state.resting_heal_trigger.reset();
+            return false;
+        }
+
+        if self.state.resting_heal_trigger.check(delta) {
+            self.attributes.pv.current += 1;
+            true
+        } else {
+            false
+        }
     }
 }
 
@@ -204,9 +246,16 @@ impl MobRepository {
             .collect()
     }
 
-    pub fn set_mob_kill_target(&mut self, id: &MobId, target: &MobId) {
-        let mut mob = self.index.get_mut(id).unwrap();
+    pub fn set_mob_attack_target(&mut self, mob_id: MobId, target: &MobId) {
+        let mut mob = self.index.get_mut(&mob_id).unwrap();
         mob.command = MobCommand::Kill { target: target.clone() };
+        mob.state.combat = true;
+    }
+
+    pub fn cancel_attack(&mut self, mob_id: MobId) {
+        let mut mob = self.index.get_mut(&mob_id).unwrap();
+        mob.command = MobCommand::Idle;
+        mob.state.combat = false;
     }
 
     pub fn is_avatar(&self, id: &MobId) -> bool {
@@ -220,6 +269,14 @@ impl MobRepository {
     pub fn get_mob_prefab(&mut self, id: &MobPrefabId) -> &MobPrefab {
         self.mob_prefabs.get(id)
             .expect(format!("could not found mob prefab id {:?}", id).as_str())
+    }
+
+    pub fn set_state_resting(&mut self, id: MobId, enable: bool) {
+        self.index.get_mut(&id).unwrap().state.resting = enable;
+    }
+
+    pub fn set_state_combat(&mut self, id: MobId, enable: bool) {
+        self.index.get_mut(&id).unwrap().state.combat = enable;
     }
 
     pub fn save(&self, save: &mut dyn Save) {
@@ -246,7 +303,11 @@ impl MobRepository {
                     "pv_max": obj.attributes.pv.max,
                 },
                 "state": {
-                    "attack_ready": obj.state.attack_ready.0
+                    "attack_ready": obj.state.attack_ready.0,
+                    "combat": obj.state.combat,
+                    "resting": obj.state.resting,
+                    "resting_wait_time": obj.state.resting_heal_trigger.get_wait_time().0,
+                    "resting_current_time": obj.state.resting_heal_trigger.get_current_time().map(|i| i.0),
                 }
             });
 
@@ -262,11 +323,28 @@ pub fn run_tick(time: &GameTime, container: &mut Container, outputs: &mut dyn Ou
         }
 
         let mob = container.mobs.get(&mob_id);
+
         match mob.command {
             MobCommand::Idle => {},
             MobCommand::Kill { target } => {
-                combat::tick_attack(time, container, outputs, &mob_id, &target);
+                combat::tick_attack(time, container, outputs, mob_id, target);
             }
+        }
+
+        let mob = container.mobs.get(&mob_id);
+        if mob.is_resting() {
+            let mut mob = mob.clone();
+            if mob.update_resting(time.delta) {
+                if mob.is_avatar {
+                    let player = container.players.find_player_from_avatar_mob_id(mob.id).unwrap();
+                    if mob.attributes.pv.is_damaged() {
+                        outputs.private(player.id, comm::rest_healing(mob.attributes.pv.current));
+                    } else {
+                        outputs.private(player.id, comm::rest_healed());
+                    }
+                }
+            }
+            container.mobs.update(mob);
         }
     }
 }
@@ -290,7 +368,7 @@ pub fn respawn_avatar(time: &GameTime, container: &mut Container, outputs: &mut 
     mob.attributes.pv.current = 1;
     mob.room_id = INITIAL_ROOM_ID;
 
-    let player = container.players.find_player_from_avatar_mob_id(&mob.id);
+    let player = container.players.find_player_from_avatar_mob_id(mob.id);
     let player = player.unwrap();
 
     outputs.private(player.id, comm::mob_you_resurrected());

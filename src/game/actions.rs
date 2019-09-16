@@ -57,18 +57,50 @@ pub fn mv(container: &mut Container, outputs: &mut dyn Outputs, player_id: Playe
     }
 }
 
-pub fn kill(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, target: &MobId) {
+pub fn attack(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, target: &MobId) {
     let ctx = container.get_player_context(player_id);
     let target_mob = container.mobs.get(&target);
 
-    let player_msg = comm::kill_player_attack(target_mob);
-    let room_msg = comm::kill_mob_attack_someone(&ctx.avatar, &target_mob);
+    let player_msg = comm::attack_player_initiate(target_mob);
+    let room_msg = comm::attack_mob_initiate_attack(&ctx.avatar, &target_mob);
 
-    let avatar_id = ctx.avatar.id.clone();
+    let avatar_id = ctx.avatar.id;
     let room_id = ctx.room.id;
 
-    container.mobs.set_mob_kill_target(&avatar_id, target);
+    container.mobs.set_mob_attack_target(avatar_id, target);
 
-    outputs.private(player_id.clone(), player_msg);
-    outputs.room(player_id.clone(), room_id, room_msg);
+    outputs.private(player_id, player_msg);
+    outputs.room(player_id, room_id, room_msg);
+}
+
+pub fn rest(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) {
+    let player = container.players.get_player_by_id(player_id);
+    let mob = container.mobs.get(&player.avatar_id);
+    let mob_id = mob.id;
+
+    if mob.is_combat() {
+        outputs.private(player_id, comm::rest_fail_in_combat());
+        return;
+    }
+
+    outputs.private(player_id, comm::rest_start());
+    outputs.room(player_id, mob.room_id,comm::rest_start_others(mob.label.as_str()));
+
+    container.mobs.set_state_resting(mob_id, true);
+}
+
+pub fn stand(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) {
+    let player = container.players.get_player_by_id(player_id);
+    let mob = container.mobs.get(&player.avatar_id);
+    let mob_id = mob.id;
+
+    if mob.is_resting() {
+        outputs.private(player_id, comm::stand_fail_not_resting());
+        return;
+    }
+
+    outputs.private(player_id, comm::stand_up());
+    outputs.room(player_id, mob.room_id,comm::stand_up_others(mob.label.as_str()));
+
+    container.mobs.set_state_resting(mob_id, false);
 }

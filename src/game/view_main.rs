@@ -33,13 +33,21 @@ pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outp
         },
 
         "uptime" => {
-            outputs.private(player_id.clone(), comm::uptime(&container.get_time()));
+            outputs.private(player_id, comm::uptime(&container.get_time()));
+        },
+
+        "rest" => {
+            actions::rest(container, outputs, player_id);
+        },
+
+        "stand" => {
+            actions::stand(container, outputs, player_id);
         },
 
         "stats" => {
             let ctx = container.get_player_context(player_id);
             let item_inventory = container.items.get_inventory_list(&ItemLocation::Mob { mob_id: ctx.avatar.id });
-            outputs.private(player_id.clone(), comm::stats(&ctx.avatar, &item_inventory));
+            outputs.private(player_id, comm::stats(&ctx.avatar, &item_inventory));
         },
 
         _ if has_command(&input, &["pick"]) || has_command(&input, &["get"]) => {
@@ -58,7 +66,7 @@ pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outp
 
             match candidate {
                 Some(mob_id) if !container.mobs.is_avatar(&mob_id) => {
-                    actions::kill(container, outputs, player_id, &mob_id);
+                    actions::attack(container, outputs, player_id, &mob_id);
                 },
                 Some(_) => {
                     outputs.private(player_id, comm::kill_can_not_kill_players(&target));
