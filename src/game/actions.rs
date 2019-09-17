@@ -86,7 +86,9 @@ pub fn rest(container: &mut Container, outputs: &mut dyn Outputs, player_id: Pla
     outputs.private(player_id, comm::rest_start());
     outputs.room(player_id, mob.room_id,comm::rest_start_others(mob.label.as_str()));
 
-    container.mobs.set_state_resting(mob_id, true);
+    let mut mob = mob.clone();
+    mob.set_action(MobAction::Resting);
+    container.mobs.update(mob);
 }
 
 pub fn stand(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) {
@@ -102,5 +104,7 @@ pub fn stand(container: &mut Container, outputs: &mut dyn Outputs, player_id: Pl
     outputs.private(player_id, comm::stand_up());
     outputs.room(player_id, mob.room_id,comm::stand_up_others(mob.label.as_str()));
 
-    container.mobs.set_state_resting(mob_id, false);
+    let mut mob = mob.clone();
+    mob.set_action(MobAction::Resting);
+    container.mobs.update(mob);
 }

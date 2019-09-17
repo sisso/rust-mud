@@ -1,3 +1,5 @@
+use std::ops::{Sub, Add};
+
 pub mod macros;
 pub mod logs;
 pub mod jsons;
@@ -12,6 +14,10 @@ pub struct Seconds(pub f32);
 impl Seconds {
     pub fn le(&self, other: &Seconds) -> bool {
         self.0 <= other.0
+    }
+
+    pub fn ge(&self, other: &Seconds) -> bool {
+        self.0 >= other.0
     }
 }
 
@@ -35,45 +41,53 @@ impl std::ops::Sub<Seconds> for Seconds {
 ///
 #[derive(Clone,Debug)]
 pub struct TimeTrigger {
-    each_second: Seconds,
-    next_trigger: Option<Seconds>,
+    total: Seconds,
+    current: Seconds,
+}
+
+pub struct TimeTriggerResult {
+    pub trigger: bool,
+    pub new_value: Seconds
 }
 
 impl TimeTrigger {
     pub fn new(each_second: Seconds) -> Self {
-        TimeTrigger { each_second, next_trigger: None }
+        TimeTrigger { total: each_second, current: Seconds(0.0) }
     }
 
     pub fn get_wait_time(&self) -> Seconds {
-        self.each_second
+        self.total
     }
 
-    pub fn get_current_time(&self) -> Option<Seconds> {
-        self.next_trigger
+    pub fn get_current_time(&self) -> Seconds {
+        self.current
     }
 
     /// Update local counter and return true if time has elapsed
     pub fn check(&mut self, elapsed: Seconds) -> bool {
-        match self.next_trigger {
-            Some(nx) => {
-                let nt = nx - elapsed;
-                if nt.0 <= 0.0 {
-                    self.next_trigger = Some(self.each_second);
-                    true
-                } else {
-                    self.next_trigger = Some(nt);
-                    false
-                }
-            },
-            None => {
-                self.next_trigger = Some(self.each_second - elapsed);
-                false
-            }
-        }
+        let result = TimeTrigger::check_value(elapsed, self.current, self.total);
+        self.current = result.new_value;
+        result.trigger
     }
 
     pub fn reset(&mut self) {
-        self.next_trigger = None;
+        self.current = Seconds(0.0);
+    }
+
+    /// execute a timer giving arguments
+    pub fn check_value(elapsed: Seconds, current: Seconds, total: Seconds) -> TimeTriggerResult {
+        let next = current + elapsed;
+        if next.ge(&total) {
+            TimeTriggerResult {
+                trigger: true,
+                new_value: total.sub(total)
+            }
+        } else {
+            TimeTriggerResult {
+                trigger: false,
+                new_value: next
+            }
+        }
     }
 }
 

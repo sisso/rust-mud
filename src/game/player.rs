@@ -42,7 +42,8 @@ pub fn add_player(container: &mut Container, login: &String) -> PlayerId {
             },
             pv: Pv {
                 current: 10,
-                max: 10
+                max: 10,
+                heal_rate: Seconds(1.0),
             }
         }
     );

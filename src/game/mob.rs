@@ -20,19 +20,28 @@ pub struct MobId(pub u32);
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct MobPrefabId(pub u32);
 
+/// What mob should be doing
 #[derive(Clone, Debug, Copy)]
 pub enum MobCommand {
-    Idle,
+    None,
     Kill { target: MobId }
 }
 
 impl MobCommand {
     pub fn is_idle(&self) -> bool {
         match self {
-            MobCommand::Idle => true,
+            MobCommand::None => true,
             _ => false,
         }
     }
+}
+
+/// What is current doing
+#[derive(Clone,Debug, PartialEq)]
+pub enum MobAction {
+    None,
+    Combat,
+    Resting
 }
 
 #[derive(Clone, Debug)]
@@ -46,6 +55,7 @@ pub struct Damage {
 pub struct Pv {
     pub current: i32,
     pub max: u32,
+    pub heal_rate: Seconds,
 }
 
 impl Pv {
@@ -64,20 +74,17 @@ pub struct Attributes {
 
 #[derive(Clone, Debug)]
 struct MobState {
-    // change to ready on > current time
     attack_ready: Seconds,
-    combat: bool,
-    resting: bool,
-    resting_heal_trigger: TimeTrigger,
+    heal_ready: Seconds,
+    action: MobAction
 }
 
 impl MobState {
     fn new() -> Self {
         MobState {
             attack_ready: Seconds(0.0),
-            combat: false,
-            resting: false,
-            resting_heal_trigger: TimeTrigger::new(Seconds(1.0))
+            heal_ready: Seconds(0.0),
+            action: MobAction::None
         }
     }
 }
@@ -108,7 +115,7 @@ impl Mob {
             room_id,
             label,
             is_avatar: false,
-            command: MobCommand::Idle,
+            command: MobCommand::None,
             attributes,
             state: MobState::new(),
         }
@@ -123,28 +130,27 @@ impl Mob {
     }
 
     pub fn is_combat(&self) -> bool {
-        self.state.combat
-    }
-
-    pub fn set_combat(&mut self, enable: bool) {
-        self.state.combat = enable;
-    }
-
-    pub fn set_resting(&mut self, enable: bool) {
-        self.state.resting = enable;
+        self.state.action == MobAction::Combat
     }
 
     pub fn is_resting(&self) -> bool {
-        self.state.resting
+        self.state.action == MobAction::Resting
+    }
+
+    pub fn set_action(&mut self, action: MobAction) {
+        self.state.action = action;
     }
 
     pub fn update_resting(&mut self, delta: Seconds) -> bool {
         if !self.attributes.pv.is_damaged() {
-            self.state.resting_heal_trigger.reset();
+            self.state.heal_ready = Seconds(0.0);
             return false;
         }
 
-        if self.state.resting_heal_trigger.check(delta) {
+        let result= TimeTrigger::check_value(delta, self.state.heal_ready, self.attributes.pv.heal_rate);
+        self.state.heal_ready = result.new_value;
+
+        if result.trigger {
             self.attributes.pv.current += 1;
             true
         } else {
@@ -200,10 +206,13 @@ impl MobRepository {
     }
 
     pub fn update(&mut self, mob: Mob) -> &Mob {
-        if !self.exists(&mob.id) {
+        let id = mob.id;
+
+        let old_mob = self.index.remove(&id);
+        if old_mob.is_none() {
             panic!("mob do not exists")
         }
-        let id = mob.id;
+
         self.index.insert(id, mob);
         self.index.get(&id).unwrap()
     }
@@ -249,13 +258,13 @@ impl MobRepository {
     pub fn set_mob_attack_target(&mut self, mob_id: MobId, target: &MobId) {
         let mut mob = self.index.get_mut(&mob_id).unwrap();
         mob.command = MobCommand::Kill { target: target.clone() };
-        mob.state.combat = true;
+        mob.state.action = MobAction::Combat;
     }
 
     pub fn cancel_attack(&mut self, mob_id: MobId) {
         let mut mob = self.index.get_mut(&mob_id).unwrap();
-        mob.command = MobCommand::Idle;
-        mob.state.combat = false;
+        mob.command = MobCommand::None;
+        mob.state.action = MobAction::None;
     }
 
     pub fn is_avatar(&self, id: &MobId) -> bool {
@@ -271,20 +280,12 @@ impl MobRepository {
             .expect(format!("could not found mob prefab id {:?}", id).as_str())
     }
 
-    pub fn set_state_resting(&mut self, id: MobId, enable: bool) {
-        self.index.get_mut(&id).unwrap().state.resting = enable;
-    }
-
-    pub fn set_state_combat(&mut self, id: MobId, enable: bool) {
-        self.index.get_mut(&id).unwrap().state.combat = enable;
-    }
-
     pub fn save(&self, save: &mut dyn Save) {
         use serde_json::json;
 
         for (id, obj) in self.index.iter() {
             let command_json = match obj.command {
-                MobCommand::Idle => json!({ "kind": "idle" }),
+                MobCommand::None => json!({ "kind": "idle" }),
                 MobCommand::Kill { target } => json!({ "kind": "kill", "target": target.0 }),
             };
 
@@ -301,13 +302,16 @@ impl MobRepository {
                     "damage_calm_down": obj.attributes.damage.calm_down.0,
                     "pv": obj.attributes.pv.current,
                     "pv_max": obj.attributes.pv.max,
+                    "pv_heal_rate": obj.attributes.pv.heal_rate.0,
                 },
                 "state": {
                     "attack_ready": obj.state.attack_ready.0,
-                    "combat": obj.state.combat,
-                    "resting": obj.state.resting,
-                    "resting_wait_time": obj.state.resting_heal_trigger.get_wait_time().0,
-                    "resting_current_time": obj.state.resting_heal_trigger.get_current_time().map(|i| i.0),
+                    "heal_ready": obj.state.heal_ready.0,
+                    "action": match obj.state.action {
+                        MobAction::None => "none",
+                        MobAction::Combat => "combat",
+                        MobAction::Resting => "rest",
+                    },
                 }
             });
 
@@ -325,7 +329,7 @@ pub fn run_tick(time: &GameTime, container: &mut Container, outputs: &mut dyn Ou
         let mob = container.mobs.get(&mob_id);
 
         match mob.command {
-            MobCommand::Idle => {},
+            MobCommand::None => {},
             MobCommand::Kill { target } => {
                 combat::tick_attack(time, container, outputs, mob_id, target);
             }
