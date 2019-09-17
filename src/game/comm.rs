@@ -118,9 +118,9 @@ pub fn kill_cancel(mob: &Mob, target: &Mob) -> String {
 
 pub fn kill_player_execute_attack(target: &Mob, attack_result: &AttackResult) -> String {
     if attack_result.success {
-        format!("you execute a attack and hit {} causing {} damage!\n", target.label, attack_result.damage)
+        format!("you attack {} and hit, causing {} damage!\n", target.label, attack_result.damage)
     } else {
-        format!("you execute a attack {} and miss!\n", target.label)
+        format!("you attack {} and miss!\n", target.label)
     }
 }
 

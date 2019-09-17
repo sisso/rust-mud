@@ -19,7 +19,7 @@ pub fn tick_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn
             return;
         }
 
-        if attacker.is_read_to_attack(&time.total) {
+        if attacker.is_read_to_attack(time.total) {
             execute_attack(time, container, outputs, &mob_id, &target_mob_id);
         }
 
@@ -78,7 +78,7 @@ fn execute_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn 
     }
 
     let mut attacker = container.mobs.get(&mob_id).clone();
-    attacker.add_attack_calm_time(&time.total);
+    attacker.add_attack_calm_time(time.total);
     container.mobs.update(attacker);
 }
 

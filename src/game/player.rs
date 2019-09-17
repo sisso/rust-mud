@@ -38,13 +38,13 @@ pub fn add_player(container: &mut Container, login: &String) -> PlayerId {
             damage: Damage {
                 min: 1,
                 max: 4,
-                calm_down: Seconds(1.0)
             },
             pv: Pv {
                 current: 10,
                 max: 10,
                 heal_rate: Seconds(1.0),
-            }
+            },
+            attack_calm_down: Seconds(1.0)
         }
     );
     mob.is_avatar = true;

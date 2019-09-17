@@ -48,7 +48,6 @@ pub enum MobAction {
 pub struct Damage {
     pub min: u32,
     pub max: u32,
-    pub calm_down: Seconds,
 }
 
 #[derive(Clone, Debug)]
@@ -70,20 +69,23 @@ pub struct Attributes {
     pub defense: u32,
     pub damage: Damage,
     pub pv: Pv,
+    pub attack_calm_down: Seconds,
 }
 
 #[derive(Clone, Debug)]
 struct MobState {
-    attack_ready: Seconds,
-    heal_ready: Seconds,
+    // after this total time can attack
+    attack_calm_down: Seconds,
+    // after this total time can heal
+    heal_calm_down: Seconds,
     action: MobAction
 }
 
 impl MobState {
     fn new() -> Self {
         MobState {
-            attack_ready: Seconds(0.0),
-            heal_ready: Seconds(0.0),
+            attack_calm_down: Seconds(0.0),
+            heal_calm_down: Seconds(0.0),
             action: MobAction::None
         }
     }
@@ -121,12 +123,14 @@ impl Mob {
         }
     }
 
-    pub fn add_attack_calm_time(&mut self, total_time: &Seconds) {
-        self.state.attack_ready = *total_time + self.attributes.damage.calm_down;
+    pub fn add_attack_calm_time(&mut self, total_time: Seconds) {
+        let next = TimeTrigger::next(self.attributes.attack_calm_down, total_time);
+        self.state.attack_calm_down = next;
     }
 
-    pub fn is_read_to_attack(&self, total_time: &Seconds) -> bool {
-        self.state.attack_ready.0 <= total_time.0
+    pub fn is_read_to_attack(&self, total_time: Seconds) -> bool {
+        let trigger = TimeTrigger::should_trigger(self.state.attack_calm_down, total_time);
+        trigger
     }
 
     pub fn is_combat(&self) -> bool {
@@ -142,7 +146,7 @@ impl Mob {
 
         match self.state.action {
             MobAction::Resting => {
-                self.state.heal_ready = TimeTrigger::next(self.attributes.pv.heal_rate, total);
+                self.state.heal_calm_down = TimeTrigger::next(self.attributes.pv.heal_rate, total);
             },
             _ => {}
         }
@@ -153,9 +157,9 @@ impl Mob {
             return false;
         }
 
-        match TimeTrigger::check_trigger(self.attributes.pv.heal_rate, self.state.heal_ready, total) {
+        match TimeTrigger::check_trigger(self.attributes.pv.heal_rate, self.state.heal_calm_down, total) {
             Some(next) => {
-                self.state.heal_ready = next;
+                self.state.heal_calm_down = next;
                 self.attributes.pv.current += 1;
                 true
             },
@@ -304,14 +308,14 @@ impl MobRepository {
                     "defense": obj.attributes.defense,
                     "damage_min": obj.attributes.damage.min,
                     "damage_max": obj.attributes.damage.max,
-                    "damage_calm_down": obj.attributes.damage.calm_down.0,
+                    "damage_calm_down": obj.attributes.attack_calm_down.as_float(),
                     "pv": obj.attributes.pv.current,
                     "pv_max": obj.attributes.pv.max,
-                    "pv_heal_rate": obj.attributes.pv.heal_rate.0,
+                    "pv_heal_rate": obj.attributes.pv.heal_rate.as_float(),
                 },
                 "state": {
-                    "attack_ready": obj.state.attack_ready.0,
-                    "heal_ready": obj.state.heal_ready.0,
+                    "attack_ready": obj.state.attack_calm_down.as_float(),
+                    "heal_ready": obj.state.heal_calm_down.as_float(),
                     "action": match obj.state.action {
                         MobAction::None => "none",
                         MobAction::Combat => "combat",

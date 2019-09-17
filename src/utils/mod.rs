@@ -19,6 +19,10 @@ impl Seconds {
     pub fn ge(&self, other: Seconds) -> bool {
         self.0 >= other.0
     }
+
+    pub fn as_float(&self) -> f32 {
+        self.0
+    }
 }
 
 impl std::ops::Add<Seconds> for Seconds {
@@ -71,13 +75,13 @@ impl TimeTrigger {
         total + next_trigger
     }
 
-    pub fn should_trigger(total: Seconds, next_trigger: Seconds) -> bool {
+    pub fn should_trigger(next_trigger: Seconds, total: Seconds) -> bool {
         total.ge(next_trigger)
     }
 
     /// If trigger, return next trigger
     pub fn check_trigger(calm_down: Seconds, next_trigger: Seconds, total: Seconds) -> Option<Seconds> {
-        if TimeTrigger::should_trigger(total, next_trigger) {
+        if TimeTrigger::should_trigger(next_trigger, total) {
             let next = total - next_trigger + calm_down;
             Some(next)
         } else {

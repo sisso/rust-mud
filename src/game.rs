@@ -53,8 +53,9 @@ fn load_mobs_prefabs(container: &mut Container) {
         attributes: Attributes {
             attack: 12,
             defense: 12,
-            damage: Damage { min: 2, max: 4, calm_down: Seconds(1.0) },
+            damage: Damage { min: 2, max: 4 },
             pv: Pv { current: 10, max: 10, heal_rate: Seconds(1.0) },
+            attack_calm_down: Seconds(1.0)
         },
         inventory: vec![],
     });
@@ -65,8 +66,9 @@ fn load_mobs_prefabs(container: &mut Container) {
         attributes: Attributes {
             attack: 8,
             defense: 8,
-            damage: Damage { min: 1, max: 2, calm_down: Seconds(1.0) },
+            damage: Damage { min: 1, max: 2 },
             pv: Pv { current: 8, max: 8, heal_rate: Seconds(1.0) },
+            attack_calm_down: Seconds(1.0),
         },
         inventory: vec![
             ITEM_DEF_COINS_2
