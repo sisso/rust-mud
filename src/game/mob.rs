@@ -137,24 +137,29 @@ impl Mob {
         self.state.action == MobAction::Resting
     }
 
-    pub fn set_action(&mut self, action: MobAction) {
+    pub fn set_action(&mut self, action: MobAction, total: Seconds) {
         self.state.action = action;
+
+        match self.state.action {
+            MobAction::Resting => {
+                self.state.heal_ready = TimeTrigger::next(self.attributes.pv.heal_rate, total);
+            },
+            _ => {}
+        }
     }
 
-    pub fn update_resting(&mut self, delta: Seconds) -> bool {
+    pub fn update_resting(&mut self, total: Seconds) -> bool {
         if !self.attributes.pv.is_damaged() {
-            self.state.heal_ready = Seconds(0.0);
             return false;
         }
 
-        let result= TimeTrigger::check_value(delta, self.state.heal_ready, self.attributes.pv.heal_rate);
-        self.state.heal_ready = result.new_value;
-
-        if result.trigger {
-            self.attributes.pv.current += 1;
-            true
-        } else {
-            false
+        match TimeTrigger::check_trigger(self.attributes.pv.heal_rate, self.state.heal_ready, total) {
+            Some(next) => {
+                self.state.heal_ready = next;
+                self.attributes.pv.current += 1;
+                true
+            },
+            None => false,
         }
     }
 }
@@ -338,7 +343,7 @@ pub fn run_tick(time: &GameTime, container: &mut Container, outputs: &mut dyn Ou
         let mob = container.mobs.get(&mob_id);
         if mob.is_resting() {
             let mut mob = mob.clone();
-            if mob.update_resting(time.delta) {
+            if mob.update_resting(time.total) {
                 if mob.is_avatar {
                     let player = container.players.find_player_from_avatar_mob_id(mob.id).unwrap();
                     if mob.attributes.pv.is_damaged() {

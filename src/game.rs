@@ -147,7 +147,7 @@ impl Game {
             },
             controller: GameController::new(container),
             save: save.map(|(file, seconds)| {
-                (file, TimeTrigger::new(seconds))
+                (file, TimeTrigger::new(seconds, Seconds(0.0)))
             }),
         }
     }
@@ -169,7 +169,7 @@ impl Game {
         self.server.append_output(outputs);
 
         if let Some((save_file, trigger)) = self.save.as_mut() {
-            if trigger.check(self.game_time.delta) {
+            if trigger.check(self.game_time.total) {
                 let save_file = format!("{}_{}.jsonp", save_file, self.game_time.tick.0);
                 let mut save = SaveToFile::new(save_file.as_ref());
                 self.controller.save(&mut save);

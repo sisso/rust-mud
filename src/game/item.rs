@@ -308,7 +308,7 @@ pub fn run_tick(time: &GameTime, container: &mut Container, outputs: &mut dyn Ou
                 let location = container.items.get_location(&item.id);
 
                 match location {
-                    ItemLocation::Room { room_id } if decay.le(&time.total) => {
+                    ItemLocation::Room { room_id } if decay.le(time.total) => {
                         let msg = comm::item_body_disappears(item);
                         outputs.room_all(*room_id, msg);
                         Some(item.id.clone())

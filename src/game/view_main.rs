@@ -37,11 +37,11 @@ pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outp
         },
 
         "rest" => {
-            actions::rest(container, outputs, player_id);
+            actions::rest(time, container, outputs, player_id);
         },
 
         "stand" => {
-            actions::stand(container, outputs, player_id);
+            actions::stand(time, container, outputs, player_id);
         },
 
         "stats" => {

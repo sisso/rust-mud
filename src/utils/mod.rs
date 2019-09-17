@@ -12,11 +12,11 @@ pub struct Tick(pub u32);
 pub struct Seconds(pub f32);
 
 impl Seconds {
-    pub fn le(&self, other: &Seconds) -> bool {
+    pub fn le(&self, other: Seconds) -> bool {
         self.0 <= other.0
     }
 
-    pub fn ge(&self, other: &Seconds) -> bool {
+    pub fn ge(&self, other: Seconds) -> bool {
         self.0 >= other.0
     }
 }
@@ -41,52 +41,47 @@ impl std::ops::Sub<Seconds> for Seconds {
 ///
 #[derive(Clone,Debug)]
 pub struct TimeTrigger {
-    total: Seconds,
-    current: Seconds,
-}
-
-pub struct TimeTriggerResult {
-    pub trigger: bool,
-    pub new_value: Seconds
+    calm_down: Seconds,
+    next_trigger: Seconds,
 }
 
 impl TimeTrigger {
-    pub fn new(each_second: Seconds) -> Self {
-        TimeTrigger { total: each_second, current: Seconds(0.0) }
-    }
-
-    pub fn get_wait_time(&self) -> Seconds {
-        self.total
-    }
-
-    pub fn get_current_time(&self) -> Seconds {
-        self.current
+    pub fn new(calm_down: Seconds, total: Seconds) -> Self {
+        let mut t = TimeTrigger { calm_down, next_trigger: Seconds(0.0) };
+        t.reset(total);
+        t
     }
 
     /// Update local counter and return true if time has elapsed
-    pub fn check(&mut self, elapsed: Seconds) -> bool {
-        let result = TimeTrigger::check_value(elapsed, self.current, self.total);
-        self.current = result.new_value;
-        result.trigger
+    pub fn check(&mut self, total: Seconds) -> bool {
+        match TimeTrigger::check_trigger(self.calm_down, self.next_trigger, total) {
+            Some(next) => {
+                self.next_trigger = next;
+                true
+            },
+            _ => false
+        }
     }
 
-    pub fn reset(&mut self) {
-        self.current = Seconds(0.0);
+    pub fn reset(&mut self, total: Seconds) {
+        self.next_trigger = total.add(self.calm_down);
     }
 
-    /// execute a timer giving arguments
-    pub fn check_value(elapsed: Seconds, current: Seconds, total: Seconds) -> TimeTriggerResult {
-        let next = current + elapsed;
-        if next.ge(&total) {
-            TimeTriggerResult {
-                trigger: true,
-                new_value: total.sub(total)
-            }
+    pub fn next(next_trigger: Seconds, total: Seconds) -> Seconds {
+        total + next_trigger
+    }
+
+    pub fn should_trigger(total: Seconds, next_trigger: Seconds) -> bool {
+        total.ge(next_trigger)
+    }
+
+    /// If trigger, return next trigger
+    pub fn check_trigger(calm_down: Seconds, next_trigger: Seconds, total: Seconds) -> Option<Seconds> {
+        if TimeTrigger::should_trigger(total, next_trigger) {
+            let next = total - next_trigger + calm_down;
+            Some(next)
         } else {
-            TimeTriggerResult {
-                trigger: false,
-                new_value: next
-            }
+            None
         }
     }
 }
@@ -97,11 +92,11 @@ mod test {
 
     #[test]
     fn test_trigger() {
-        let mut t = TimeTrigger::new(Seconds(1.0));
-        assert_eq!(false, t.check(Seconds(0.1)));  // 0.9
-        assert_eq!(false, t.check(Seconds(0.4)));  // 0.5
-        assert_eq!(false, t.check(Seconds(0.39))); // 0.11
-        assert_eq!(true, t.check(Seconds(0.16)));  // 1.05
-        assert_eq!(true, t.check(Seconds(1.00)));  // 2.05
+        let mut t = TimeTrigger::new(Seconds(1.0), Seconds(0.0));
+        assert_eq!(false, t.check(Seconds(0.1)));
+        assert_eq!(false, t.check(Seconds(0.2)));
+        assert_eq!(false, t.check(Seconds(0.99)));
+        assert_eq!(true, t.check(Seconds(1.01)));
+        assert_eq!(true, t.check(Seconds(2.02)));
     }
 }
