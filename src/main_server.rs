@@ -1,6 +1,6 @@
 use crate::server_socket;
-use crate::game::ServerRunner;
 use crate::utils::*;
+use crate::game::server_runner::ServerRunner;
 
 pub fn run() {
     let server = server_socket::SocketServer::new();
