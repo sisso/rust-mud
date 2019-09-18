@@ -1,4 +1,4 @@
-use super::controller::Outputs;
+use super::runner::Outputs;
 use super::domain::*;
 use super::player::PlayerId;
 

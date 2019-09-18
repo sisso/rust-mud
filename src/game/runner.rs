@@ -21,7 +21,7 @@ pub struct ConnectionState {
     pub player_id: Option<PlayerId>,
 }
 
-pub struct GameController {
+pub struct Runner {
     container: Container,
     connections: HashMap<ConnectionId, ConnectionState>,
     connection_id_by_player_id: HashMap<PlayerId, ConnectionId>,
@@ -105,16 +105,16 @@ pub struct CtrlContext<'a> {
     pub outputs: &'a mut dyn Outputs
 }
 
-pub struct GameControllerContext {
+pub struct RunnerParams {
     pub connects: Vec<ConnectionId>,
     pub disconnects: Vec<ConnectionId>,
     pub inputs: Vec<(ConnectionId, String)>
 }
 
-impl GameController {
+impl Runner {
     pub fn new(container: Container) -> Self {
-        GameController {
-            container: container,
+        Runner {
+            container,
             connections: HashMap::new(),
             connection_id_by_player_id: HashMap::new(),
         }
@@ -127,7 +127,7 @@ impl GameController {
     // 4. actions
     // 5. outputs
     //
-    pub fn handle(&mut self, time: GameTime, params: GameControllerContext) -> Vec<server::Output> {
+    pub fn handle(&mut self, time: GameTime, params: RunnerParams) -> Vec<server::Output> {
         let mut server_outputs: Vec<server::Output> = vec![];
         let mut outputs = OutputsImpl::new();
         let mut connections_with_input: HashSet<ConnectionId> = HashSet::new();
@@ -196,6 +196,7 @@ impl GameController {
 
         self.append_outputs(&mut server_outputs, outputs);
         self.normalize_output(&mut server_outputs, &connections_with_input);
+
         server_outputs
     }
 

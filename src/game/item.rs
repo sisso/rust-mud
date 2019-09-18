@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use super::container::Container;
-use super::controller::Outputs;
+use super::runner::Outputs;
 use super::domain::NextId;
 use super::room::RoomId;
 use super::mob::MobId;

@@ -1,10 +1,10 @@
 use crate::server_socket;
-use crate::game::Game;
+use crate::game::ServerRunner;
 use crate::utils::*;
 
 pub fn run() {
     let server = server_socket::SocketServer::new();
-    let mut game = Game::new(Box::new(server), Some(("/tmp/current".to_string(), Second(1.0))));
+    let mut game = ServerRunner::new(Box::new(server), Some(("/tmp/current".to_string(), Second(1.0))));
 
     loop {
         std::thread::sleep(::std::time::Duration::from_millis(100));

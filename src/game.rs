@@ -1,7 +1,7 @@
 #![allow(dead_code, unused_variables, unused_imports)]
 
 use container::*;
-use controller::*;
+use runner::*;
 use domain::*;
 use mob::*;
 use room::*;
@@ -15,7 +15,7 @@ use std::ops::Add;
 pub mod actions;
 pub mod body;
 pub mod comm;
-pub mod controller;
+pub mod runner;
 pub mod container;
 pub mod combat;
 pub mod domain;
@@ -28,6 +28,7 @@ pub mod view_login;
 pub mod item;
 pub mod actions_items;
 pub mod actions_admin;
+pub mod loader;
 
 use crate::utils::*;
 use crate::utils::save::{SaveToFile, Save};
@@ -37,117 +38,26 @@ const MOB_DRUNK: MobPrefabId  = MobPrefabId(1);
 
 const ITEM_DEF_COINS_2: ItemPrefabId = ItemPrefabId(0);
 
-fn load_items_prefabs(container: &mut Container) {
-    container.items.add_prefab(ItemPrefab {
-        id: ITEM_DEF_COINS_2,
-        typ: ITEM_TYPE_GOLD,
-        amount: 2,
-        label: "coins".to_string(),
-    });
-}
-
-fn load_mobs_prefabs(container: &mut Container) {
-    container.mobs.add_prefab(MobPrefab {
-        id: MOB_PLAYER,
-        label: "Avatar".to_string(),
-        attributes: Attributes {
-            attack: 12,
-            defense: 12,
-            damage: Damage { min: 2, max: 4 },
-            pv: Pv { current: 10, max: 10, heal_rate: Second(1.0) },
-            attack_calm_down: Second(1.0)
-        },
-        inventory: vec![],
-    });
-
-    container.mobs.add_prefab(MobPrefab {
-        id: MOB_DRUNK,
-        label: "Drunk".to_string(),
-        attributes: Attributes {
-            attack: 8,
-            defense: 8,
-            damage: Damage { min: 1, max: 2 },
-            pv: Pv { current: 8, max: 8, heal_rate: Second(1.0) },
-            attack_calm_down: Second(1.0),
-        },
-        inventory: vec![
-            ITEM_DEF_COINS_2
-        ],
-    });
-}
-
-fn load_rooms(container: &mut Container) {
-    let room_id_bar = RoomId(1);
-    let room_id_florest = RoomId(2);
-
-    let room1 = Room {
-        id: INITIAL_ROOM_ID,
-        label: "Main Room".to_string(),
-        desc: "Main room where people born".to_string(),
-        exits: vec![(Dir::S, room_id_bar)],
-    };
-
-    let room2 = Room {
-        id: room_id_bar,
-        label: "Bar".to_string(),
-        desc: "Where we relief our duties".to_string(),
-        exits: vec![(Dir::N, INITIAL_ROOM_ID), (Dir::S, room_id_florest)],
-    };
-
-    let room3 = Room {
-        id: room_id_florest,
-        label: "Florest".to_string(),
-        desc: "A deep, ugly and dark florest.".to_string(),
-        exits: vec![(Dir::N, room_id_bar)],
-    };
-
-    container.rooms.add(room1);
-    container.rooms.add(room2);
-    container.rooms.add(room3);
-}
-
-fn load_spawns(container: &mut Container) {
-    container.add_spawn(Spawn {
-        id: SpawnId(0),
-        room_id: RoomId(1),
-        max: 1,
-        delay: SpawnDelay {
-            min: Second(5.0),
-            max: Second(20.0),
-        },
-        prefab_id: MOB_DRUNK,
-        next: Some(Second(1.0)),
-        mobs_id: vec![],
-    });
-}
-
-fn load(container: &mut Container) {
-    load_items_prefabs(container);
-    load_mobs_prefabs(container);
-    load_rooms(container);
-    load_spawns(container);
-}
-
-pub struct Game {
+pub struct ServerRunner {
     server: Box<dyn server::Server>,
     game_time: GameTime,
-    controller: GameController,
+    controller: Runner,
     save: Option<(String, TimeTrigger)>,
 }
 
-impl Game {
+impl ServerRunner {
     pub fn new(server: Box<dyn server::Server>, save: Option<(String, Second)>) -> Self {
         let mut container: Container = Container::new();
-        load(&mut container);
+        loader::load(&mut container);
 
-        Game {
+        ServerRunner {
             server,
             game_time: GameTime {
                 tick: Tick(0),
                 total: Second(0.0),
                 delta: Second(0.1)
             },
-            controller: GameController::new(container),
+            controller: Runner::new(container),
             save: save.map(|(file, seconds)| {
                 (file, TimeTrigger::new(seconds, Second(0.0)))
             }),
@@ -161,7 +71,7 @@ impl Game {
 
         let result = self.server.run();
         
-        let params = controller::GameControllerContext {
+        let params = runner::RunnerParams {
             connects: result.connects,
             disconnects: result.disconnects,
             inputs: result.pending_inputs,
@@ -186,7 +96,7 @@ mod tests {
     use crate::server;
     use crate::server_dummy;
     use crate::server_dummy::ServerDummy;
-    use crate::game::Game;
+    use crate::game::ServerRunner;
     use crate::game::domain::*;
     use crate::utils::*;
 
@@ -197,7 +107,7 @@ mod tests {
     struct TestGame {
         outputs: Rc<RefCell<Vec<String>>>,
         inputs: Rc<RefCell<Vec<String>>>,
-        game: Game,
+        game: ServerRunner,
     }
 
     const DELTA: Second = Second(1.0);
@@ -210,7 +120,7 @@ mod tests {
             let outputs = server.get_outputs_pointer();
             let inputs = server.get_inputs_pointer();
             let _ = std::fs::remove_file(SAVE);
-            let game = Game::new(Box::new(server), Some((SAVE.to_string(), DELTA)));
+            let game = ServerRunner::new(Box::new(server), Some((SAVE.to_string(), DELTA)));
 
             TestGame {
                 outputs,

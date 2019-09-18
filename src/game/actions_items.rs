@@ -4,7 +4,7 @@ use super::room::*;
 use super::mob::*;
 use crate::game::comm;
 use crate::game::player::PlayerId;
-use crate::game::controller::Outputs;
+use crate::game::runner::Outputs;
 
 pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<String>) {
     let ctx = container.get_player_context(player_id);

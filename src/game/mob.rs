@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use super::combat;
 use super::container::Container;
-use super::controller::Outputs;
+use super::runner::Outputs;
 use super::domain::*;
 use super::item::*;
 use super::comm;

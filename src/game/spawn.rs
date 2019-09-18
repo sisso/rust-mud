@@ -2,7 +2,7 @@ use rand::Rng;
 
 use super::comm;
 use super::container::Container;
-use super::controller::Outputs;
+use super::runner::Outputs;
 use super::domain::*;
 use super::mob::*;
 use super::room::RoomId;

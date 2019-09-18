@@ -3,7 +3,7 @@ use super::item::*;
 use super::mob::*;
 use super::container::*;
 use super::domain::*;
-use super::controller::Outputs;
+use super::runner::Outputs;
 
 use crate::utils::*;
 
