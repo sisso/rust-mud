@@ -9,6 +9,7 @@ use super::domain::*;
 use super::comm;
 use crate::utils::*;
 use crate::utils::save::Save;
+use crate::game::runner::Ctx;
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub struct ItemId(pub u32);
@@ -109,8 +110,8 @@ impl ItemRepository {
         ItemId(self.next_item_id.next())
     }
 
-    pub fn get(&self, item_id: &ItemId) -> &Item {
-        self.index.get(item_id).unwrap()
+    pub fn get(&self, item_id: ItemId) -> &Item {
+        self.index.get(&item_id).unwrap()
     }
 
     pub fn set_location(&mut self, item_id: ItemId, location: ItemLocation) {
@@ -141,7 +142,7 @@ impl ItemRepository {
     }
 
     pub fn move_item(&mut self, item_id: ItemId, location: ItemLocation) {
-        self.remove_location(&item_id);
+        self.remove_location(item_id);
         self.add_location(&item_id, location);
     }
 
@@ -164,7 +165,7 @@ impl ItemRepository {
                     .list
                     .iter()
                     .map(|item_id| {
-                        self.get(&item_id)
+                        self.get(*item_id)
                     })
                     .collect()
             },
@@ -194,9 +195,9 @@ impl ItemRepository {
         self.prefab_index.insert(item_def.id, item_def);
     }
 
-    pub fn remove(&mut self, item_id: &ItemId) {
-        let item = self.index.remove(item_id).unwrap();
-        let location = self.item_location.remove(item_id);
+    pub fn remove(&mut self, item_id: ItemId) {
+        let item = self.index.remove(&item_id).unwrap();
+        let location = self.item_location.remove(&item_id);
         if let Some(location) = location {
             let inventory = self.get_inventory_mut(location);
             inventory.remove(&item_id);
@@ -205,8 +206,8 @@ impl ItemRepository {
         // TODO: remove recursive all items in inventory
     }
 
-    pub fn list(&self) -> Vec<&Item> {
-        self.index.values().collect()
+    pub fn list(&self) -> Vec<ItemId> {
+        self.index.keys().map(|i| *i).collect()
     }
 
     pub fn get_prefab(&self, item_prefab_id: &ItemPrefabId) -> &ItemPrefab {
@@ -217,7 +218,7 @@ impl ItemRepository {
         match self.inventory.get(&ItemLocation::Room { room_id: *room_id }) {
             Some(inventory) => {
                 inventory.list.iter().filter_map(|item_id| {
-                    let item = self.get(item_id);
+                    let item = self.get(*item_id);
                     if item.label.eq_ignore_ascii_case(name) {
                         Some(item)
                     } else {
@@ -231,8 +232,8 @@ impl ItemRepository {
         }
     }
 
-    pub fn get_location(&self, item_id: &ItemId) -> &ItemLocation {
-        self.item_location.get(item_id).unwrap()
+    pub fn get_location(&self, item_id: ItemId) -> &ItemLocation {
+        self.item_location.get(&item_id).unwrap()
     }
 
     pub fn get_inventory(&self, location: &ItemLocation) -> Option<&Inventory> {
@@ -243,12 +244,12 @@ impl ItemRepository {
         self.inventory.entry(location).or_insert(Inventory::new(location.clone()))
     }
 
-    fn remove_location(&mut self, item_id: &ItemId) {
-        let location = self.get_location(&item_id).clone();
+    fn remove_location(&mut self, item_id: ItemId) {
+        let location = self.get_location(item_id).clone();
         let inventory = self.get_inventory_mut(location);
         inventory.remove(&item_id);
 
-        self.item_location.remove(item_id);
+        self.item_location.remove(&item_id);
 
         debug!("itemrepostitory - remove_location {:?}", item_id);
     }
@@ -298,31 +299,25 @@ impl ItemRepository {
     }
 }
 
-pub fn run_tick(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs) {
-    let items_to_remove: Vec<ItemId> = container
+pub fn run_tick(ctx: &mut Ctx) {
+    ctx.container
         .items
         .list()
-        .iter()
-        .filter_map(|item| {
+        .into_iter()
+        .for_each(|item_id| {
+            let item = ctx.container.items.get(item_id);
+
             if let Some(decay) = item.decay {
-                let location = container.items.get_location(&item.id);
+                let location = ctx.container.items.get_location(item.id);
 
                 match location {
-                    ItemLocation::Room { room_id } if decay.le(time.total) => {
+                    ItemLocation::Room { room_id } if decay.le(ctx.time.total) => {
                         let msg = comm::item_body_disappears(item);
-                        outputs.room_all(*room_id, msg);
-                        Some(item.id.clone())
+                        ctx.outputs.room_all(*room_id, msg);
+                        ctx.container.items.remove(item_id);
                     }
-                    _ => None
+                    _ => {}
                 }
-            } else {
-                None
             }
-
-        })
-        .collect();
-
-    for id in items_to_remove.iter() {
-        container.items.remove(&id);
-    };
+        });
 }

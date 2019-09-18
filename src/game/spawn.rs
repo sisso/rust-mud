@@ -11,6 +11,7 @@ use super::room::RoomId;
 pub struct SpawnId(pub u32);
 
 use crate::utils::*;
+use crate::game::runner::Ctx;
 
 pub struct SpawnDelay {
     pub min: Second,
@@ -32,20 +33,20 @@ pub struct Spawn {
     pub mobs_id: Vec<MobId>,
 }
 
-pub fn run(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs) {
-    for spawn_id in container.list_spawn() {
-        clean_up_dead_mobs(container, &spawn_id);
+pub fn run(ctx: &mut Ctx) {
+    for spawn_id in ctx.container.list_spawn() {
+        clean_up_dead_mobs(ctx.container, &spawn_id);
 
-        let spawn = container.get_spawn_by_id_mut(&spawn_id);
+        let spawn = ctx.container.get_spawn_by_id_mut(&spawn_id);
 
         let can_spawn_mobs = spawn.mobs_id.len() < spawn.max as usize;
 
         match spawn.next {
-            Some(next) if next.le(time.total) && can_spawn_mobs => {
+            Some(next) if next.le(ctx.time.total) && can_spawn_mobs => {
                 // spawn mob
                 let room_id = spawn.room_id;
                 let mob_prefab_id = spawn.prefab_id;
-                let mob = container.instantiate(mob_prefab_id, room_id);
+                let mob = ctx.container.instantiate(mob_prefab_id, room_id);
                 let mob_id = mob.id;
 
                 debug!("{:?}({:?}) at {:?}", mob.label, mob.id, room_id);
@@ -53,18 +54,18 @@ pub fn run(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs
                 let spawn_msg = comm::spawn_mob(&mob);
 
                 // update spawn
-                let spawn = container.get_spawn_by_id_mut(&spawn_id);
+                let spawn = ctx.container.get_spawn_by_id_mut(&spawn_id);
                 spawn.mobs_id.push(mob_id);
-                schedule_next_spawn(time.total, spawn);
+                schedule_next_spawn(ctx.time.total, spawn);
 
                 // add outputs
-                outputs.room_all(room_id, spawn_msg);
+                ctx.outputs.room_all(room_id, spawn_msg);
 
             },
             Some(_) => {
             },
             None => {
-                schedule_next_spawn(time.total, spawn);
+                schedule_next_spawn(ctx.time.total, spawn);
             },
         };
     }

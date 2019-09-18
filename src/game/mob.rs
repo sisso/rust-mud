@@ -11,6 +11,7 @@ use super::room::RoomId;
 use crate::utils::*;
 use crate::utils::save::Save;
 use crate::game::body::create_body;
+use crate::game::runner::Ctx;
 
 pub const INITIAL_ROOM_ID: RoomId = RoomId(0);
 
@@ -329,35 +330,35 @@ impl MobRepository {
     }
 }
 
-pub fn run_tick(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs) {
-    for mob_id in container.mobs.list() {
-        if !container.mobs.exists(&mob_id) {
+pub fn run_tick(ctx: &mut Ctx) {
+    for mob_id in ctx.container.mobs.list() {
+        if !ctx.container.mobs.exists(&mob_id) {
             continue;
         }
 
-        let mob = container.mobs.get(&mob_id);
+        let mob = ctx.container.mobs.get(&mob_id);
 
         match mob.command {
             MobCommand::None => {},
             MobCommand::Kill { target } => {
-                combat::tick_attack(time, container, outputs, mob_id, target);
+                combat::tick_attack(ctx.time, ctx.container, ctx.outputs, mob_id, target);
             }
         }
 
-        let mob = container.mobs.get(&mob_id);
+        let mob = ctx.container.mobs.get(&mob_id);
         if mob.is_resting() {
             let mut mob = mob.clone();
-            if mob.update_resting(time.total) {
+            if mob.update_resting(ctx.time.total) {
                 if mob.is_avatar {
-                    let player = container.players.find_player_from_avatar_mob_id(mob.id).unwrap();
+                    let player = ctx.container.players.find_player_from_avatar_mob_id(mob.id).unwrap();
                     if mob.attributes.pv.is_damaged() {
-                        outputs.private(player.id, comm::rest_healing(mob.attributes.pv.current));
+                        ctx.outputs.private(player.id, comm::rest_healing(mob.attributes.pv.current));
                     } else {
-                        outputs.private(player.id, comm::rest_healed());
+                        ctx.outputs.private(player.id, comm::rest_healed());
                     }
                 }
             }
-            container.mobs.update(mob);
+            ctx.container.mobs.update(mob);
         }
     }
 }

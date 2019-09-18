@@ -1,5 +1,3 @@
-use std::ops::{Sub, Add};
-
 pub mod macros;
 pub mod logs;
 pub mod jsons;
@@ -74,7 +72,7 @@ impl TimeTrigger {
     }
 
     pub fn reset(&mut self, total: Second) {
-        self.next_trigger = total.add(self.calm_down);
+        self.next_trigger = total + self.calm_down;
     }
 
     pub fn next(next_trigger: Second, total: Second) -> Second {

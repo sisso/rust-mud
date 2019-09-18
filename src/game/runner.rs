@@ -98,8 +98,7 @@ impl Outputs for OutputsImpl {
     }
 }
 
-// TODO: should we use? Since Container contains time?
-pub struct CtrlContext<'a> {
+pub struct Ctx<'a> {
     pub time: &'a GameTime,
     pub container: &'a mut Container,
     pub outputs: &'a mut dyn Outputs
@@ -149,7 +148,7 @@ impl Runner {
 
         // handle disconnected players
         for connection in params.disconnects {
-            let state = self.get_state(&connection);
+            let state = self.get_state(connection);
 
             if let Some(player_id) = state.player_id {
                 info!("gamecontroller - {} removing player {}", connection.id, player_id);
@@ -165,7 +164,7 @@ impl Runner {
         for (connection_id, input) in params.inputs {
             connections_with_input.insert(connection_id.clone());
 
-            let state = self.get_state(&connection_id);
+            let state = self.get_state(connection_id);
 
             if let Some(player_id) = state.player_id {
                 debug!("gamecontroller - {} handling input '{}'", connection_id, input);
@@ -190,9 +189,18 @@ impl Runner {
             }
         }
 
-        spawn::run(&time, &mut self.container, &mut outputs);
-        mob::run_tick(&time, &mut self.container, &mut outputs);
-        item::run_tick(&time, &mut self.container, &mut outputs);
+        // run game tick
+        {
+            let mut ctx = Ctx {
+                time: &time,
+                container: &mut self.container,
+                outputs: &mut outputs,
+            };
+
+            spawn::run(&mut ctx);
+            mob::run_tick(&mut ctx);
+            item::run_tick(&mut ctx);
+        }
 
         self.append_outputs(&mut server_outputs, outputs);
         self.normalize_output(&mut server_outputs, &connections_with_input);
@@ -299,9 +307,9 @@ impl Runner {
             .expect(format!("could not found connection for {}", player_id).as_str())
     }
 
-    fn get_state(&self, connection_id: &ConnectionId) -> &ConnectionState {
+    fn get_state(&self, connection_id: ConnectionId) -> &ConnectionState {
         self.connections
-            .get(connection_id)
+            .get(&connection_id)
             .expect(format!("could not found connection for {}", connection_id).as_str())
     }
 
