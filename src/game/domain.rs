@@ -7,8 +7,8 @@ use crate::utils::*;
 #[derive(Clone,Copy,Debug)]
 pub struct GameTime {
     pub tick: Tick,
-    pub total: Seconds,
-    pub delta: Seconds,
+    pub total: Second,
+    pub delta: Second,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]

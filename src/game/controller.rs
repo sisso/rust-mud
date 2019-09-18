@@ -98,6 +98,13 @@ impl Outputs for OutputsImpl {
     }
 }
 
+// TODO: should we use? Since Container contains time?
+pub struct CtrlContext<'a> {
+    pub time: &'a GameTime,
+    pub container: &'a mut Container,
+    pub outputs: &'a mut dyn Outputs
+}
+
 pub struct GameControllerContext {
     pub connects: Vec<ConnectionId>,
     pub disconnects: Vec<ConnectionId>,
@@ -125,14 +132,11 @@ impl GameController {
         let mut outputs = OutputsImpl::new();
         let mut connections_with_input: HashSet<ConnectionId> = HashSet::new();
 
-        // TODO fix time
-        self.container.update_tick(Seconds(100.0 / 1000.0));
-
         // handle new players
         for connection_id in params.connects {
             info!("gamecontroller - {} receive new player", connection_id.id);
             self.connections.insert(connection_id.clone(), ConnectionState {
-                connection_id: connection_id,
+                connection_id,
                 player_id: None
             });
 
@@ -186,7 +190,7 @@ impl GameController {
             }
         }
 
-        spawn::run(&mut self.container, &mut outputs);
+        spawn::run(&time, &mut self.container, &mut outputs);
         mob::run_tick(&time, &mut self.container, &mut outputs);
         item::run_tick(&time, &mut self.container, &mut outputs);
 

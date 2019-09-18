@@ -33,7 +33,7 @@ pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outp
         },
 
         "uptime" => {
-            outputs.private(player_id, comm::uptime(&container.get_time()));
+            outputs.private(player_id, comm::uptime(time.total));
         },
 
         "rest" => {

@@ -54,8 +54,8 @@ fn load_mobs_prefabs(container: &mut Container) {
             attack: 12,
             defense: 12,
             damage: Damage { min: 2, max: 4 },
-            pv: Pv { current: 10, max: 10, heal_rate: Seconds(1.0) },
-            attack_calm_down: Seconds(1.0)
+            pv: Pv { current: 10, max: 10, heal_rate: Second(1.0) },
+            attack_calm_down: Second(1.0)
         },
         inventory: vec![],
     });
@@ -67,8 +67,8 @@ fn load_mobs_prefabs(container: &mut Container) {
             attack: 8,
             defense: 8,
             damage: Damage { min: 1, max: 2 },
-            pv: Pv { current: 8, max: 8, heal_rate: Seconds(1.0) },
-            attack_calm_down: Seconds(1.0),
+            pv: Pv { current: 8, max: 8, heal_rate: Second(1.0) },
+            attack_calm_down: Second(1.0),
         },
         inventory: vec![
             ITEM_DEF_COINS_2
@@ -112,11 +112,11 @@ fn load_spawns(container: &mut Container) {
         room_id: RoomId(1),
         max: 1,
         delay: SpawnDelay {
-            min: Seconds(5.0),
-            max: Seconds(20.0),
+            min: Second(5.0),
+            max: Second(20.0),
         },
         prefab_id: MOB_DRUNK,
-        next: Some(Seconds(1.0)),
+        next: Some(Second(1.0)),
         mobs_id: vec![],
     });
 }
@@ -136,7 +136,7 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(server: Box<dyn server::Server>, save: Option<(String, Seconds)>) -> Self {
+    pub fn new(server: Box<dyn server::Server>, save: Option<(String, Second)>) -> Self {
         let mut container: Container = Container::new();
         load(&mut container);
 
@@ -144,18 +144,18 @@ impl Game {
             server,
             game_time: GameTime {
                 tick: Tick(0),
-                total: Seconds(0.0),
-                delta: Seconds(0.1)
+                total: Second(0.0),
+                delta: Second(0.1)
             },
             controller: GameController::new(container),
             save: save.map(|(file, seconds)| {
-                (file, TimeTrigger::new(seconds, Seconds(0.0)))
+                (file, TimeTrigger::new(seconds, Second(0.0)))
             }),
         }
     }
 
-    pub fn run(&mut self, delta: Seconds) {
-        self.game_time.tick  = Tick(self.game_time.tick.0 + 1);
+    pub fn run(&mut self, delta: Second) {
+        self.game_time.tick  = self.game_time.tick.next();
         self.game_time.total = self.game_time.total.add(delta);
         self.game_time.delta = delta;
 
@@ -200,7 +200,7 @@ mod tests {
         game: Game,
     }
 
-    const DELTA: Seconds = Seconds(1.0);
+    const DELTA: Second = Second(1.0);
     const SAFE: u32 = 10;
     const SAVE: &str = "/tmp/test";
 

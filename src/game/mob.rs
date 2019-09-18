@@ -54,7 +54,7 @@ pub struct Damage {
 pub struct Pv {
     pub current: i32,
     pub max: u32,
-    pub heal_rate: Seconds,
+    pub heal_rate: Second,
 }
 
 impl Pv {
@@ -69,23 +69,23 @@ pub struct Attributes {
     pub defense: u32,
     pub damage: Damage,
     pub pv: Pv,
-    pub attack_calm_down: Seconds,
+    pub attack_calm_down: Second,
 }
 
 #[derive(Clone, Debug)]
 struct MobState {
     // after this total time can attack
-    attack_calm_down: Seconds,
+    attack_calm_down: Second,
     // after this total time can heal
-    heal_calm_down: Seconds,
+    heal_calm_down: Second,
     action: MobAction
 }
 
 impl MobState {
     fn new() -> Self {
         MobState {
-            attack_calm_down: Seconds(0.0),
-            heal_calm_down: Seconds(0.0),
+            attack_calm_down: Second(0.0),
+            heal_calm_down: Second(0.0),
             action: MobAction::None
         }
     }
@@ -123,12 +123,12 @@ impl Mob {
         }
     }
 
-    pub fn add_attack_calm_time(&mut self, total_time: Seconds) {
+    pub fn add_attack_calm_time(&mut self, total_time: Second) {
         let next = TimeTrigger::next(self.attributes.attack_calm_down, total_time);
         self.state.attack_calm_down = next;
     }
 
-    pub fn is_read_to_attack(&self, total_time: Seconds) -> bool {
+    pub fn is_read_to_attack(&self, total_time: Second) -> bool {
         let trigger = TimeTrigger::should_trigger(self.state.attack_calm_down, total_time);
         trigger
     }
@@ -141,7 +141,7 @@ impl Mob {
         self.state.action == MobAction::Resting
     }
 
-    pub fn set_action(&mut self, action: MobAction, total: Seconds) {
+    pub fn set_action(&mut self, action: MobAction, total: Second) {
         self.state.action = action;
 
         match self.state.action {
@@ -152,7 +152,7 @@ impl Mob {
         }
     }
 
-    pub fn update_resting(&mut self, total: Seconds) -> bool {
+    pub fn update_resting(&mut self, total: Second) -> bool {
         if !self.attributes.pv.is_damaged() {
             return false;
         }

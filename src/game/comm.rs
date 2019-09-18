@@ -88,15 +88,15 @@ pub fn spawn_mob(mob: &Mob) -> String {
     format!("a {} appears here from no where\n", mob.label)
 }
 
-pub fn uptime(time: &Seconds) -> String {
+pub fn uptime(time: Second) -> String {
     format!("now it is {} seconds after start\n", time.0)
 }
 
-pub fn kill_target_not_found(target: &String) -> String {
+pub fn kill_target_not_found(target: &str) -> String {
     format!("target [{}] not found!\n", target)
 }
 
-pub fn kill_can_not_kill_players(target: &String) -> String {
+pub fn kill_can_not_kill_players(target: &str) -> String {
     format!("target [{}] is friendly, you can not kill him!\n", target)
 }
 

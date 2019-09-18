@@ -14,9 +14,6 @@ pub struct Container {
     pub mobs: MobRepository,
     pub items: ItemRepository,
     pub rooms: RoomRepository,
-    tick: Tick,
-    time: Seconds,
-    next_player_id: u32,
     spawns: Vec<Spawn>,
 }
 
@@ -27,9 +24,6 @@ impl Container {
             mobs: MobRepository::new(),
             items: ItemRepository::new(),
             rooms: RoomRepository::new(),
-            tick: Tick(0),
-            time: Seconds(0.0),
-            next_player_id: 0,
             spawns: vec![],
         }
     }
@@ -66,20 +60,6 @@ impl Container {
             .iter()
             .find(|i| i.id == *spawn_id)
             .expect("could not find")
-    }
-
-    pub fn update_tick(&mut self, delta_time: Seconds) {
-        self.tick = Tick(self.tick.0 + 1);
-        self.time = Seconds(self.time.0 + delta_time.0);
-//        info!("container {:?}/{:?}", self.tick, self.time);
-    }
-
-//    pub fn get_tick(&self) -> &Tick {
-//        &self.tick
-//    }
-
-    pub fn get_time(&self) -> &Seconds {
-        &self.time
     }
 
     pub fn instantiate_item(&mut self, item_prefab_id: ItemPrefabId) -> Item {
@@ -121,13 +101,5 @@ impl Container {
         self.players.save(save);
         self.mobs.save(save);
         self.items.save(save);
-    }
-}
-
-impl Container {
-    fn next_player_id(&mut self) -> u32 {
-        let id = self.next_player_id;
-        self.next_player_id += 1;
-        id
     }
 }

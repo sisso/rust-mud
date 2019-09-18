@@ -7,7 +7,7 @@ use super::controller::Outputs;
 
 use crate::utils::*;
 
-const DECAY_TIME: Seconds = Seconds(20.0);
+const DECAY_TIME: Second = Second(20.0);
 
 pub fn create_body(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) {
     let item_id = container.items.next_item_id();

@@ -32,7 +32,7 @@ pub struct Item {
     pub id: ItemId,
     pub typ: ItemType,
     pub label: String,
-    pub decay: Option<Seconds>,
+    pub decay: Option<Second>,
     pub amount: u32,
     pub item_def_id: Option<ItemPrefabId>
 }

@@ -13,8 +13,8 @@ pub struct SpawnId(pub u32);
 use crate::utils::*;
 
 pub struct SpawnDelay {
-    pub min: Seconds,
-    pub max: Seconds
+    pub min: Second,
+    pub max: Second
 }
 
 //pub struct SpawnPrefab {
@@ -28,13 +28,11 @@ pub struct Spawn {
     pub max: u32,
     pub delay: SpawnDelay,
     pub prefab_id: MobPrefabId,
-    pub next: Option<Seconds>,
+    pub next: Option<Second>,
     pub mobs_id: Vec<MobId>,
 }
 
-pub fn run(container: &mut Container, outputs: &mut dyn Outputs) {
-    let time = container.get_time().clone();
-
+pub fn run(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs) {
     for spawn_id in container.list_spawn() {
         clean_up_dead_mobs(container, &spawn_id);
 
@@ -43,7 +41,7 @@ pub fn run(container: &mut Container, outputs: &mut dyn Outputs) {
         let can_spawn_mobs = spawn.mobs_id.len() < spawn.max as usize;
 
         match spawn.next {
-            Some(next) if next.0 <= time.0 && can_spawn_mobs => {
+            Some(next) if next.le(time.total) && can_spawn_mobs => {
                 // spawn mob
                 let room_id = spawn.room_id;
                 let mob_prefab_id = spawn.prefab_id;
@@ -57,7 +55,7 @@ pub fn run(container: &mut Container, outputs: &mut dyn Outputs) {
                 // update spawn
                 let spawn = container.get_spawn_by_id_mut(&spawn_id);
                 spawn.mobs_id.push(mob_id);
-                schedule_next_spawn(&time, spawn);
+                schedule_next_spawn(time.total, spawn);
 
                 // add outputs
                 outputs.room_all(room_id, spawn_msg);
@@ -66,18 +64,18 @@ pub fn run(container: &mut Container, outputs: &mut dyn Outputs) {
             Some(_) => {
             },
             None => {
-                schedule_next_spawn(&time, spawn);
+                schedule_next_spawn(time.total, spawn);
             },
         };
     }
 }
 
-fn schedule_next_spawn(now: &Seconds, spawn: &mut Spawn) {
+fn schedule_next_spawn(now: Second, spawn: &mut Spawn) {
     let mut rng = rand::thread_rng();
-    let next = rng.gen_range(spawn.delay.min.0, spawn.delay.max.0);
-    spawn.next = Some(Seconds(next + now.0));
+    let next = Second(rng.gen_range(spawn.delay.min.0, spawn.delay.max.0));
+    spawn.next = Some(next + now);
 
-    debug!("scheduling spawn {:?} to {}", spawn.id, next);
+    debug!("scheduling spawn {:?} to {:?}", spawn.id, next);
 }
 
 fn clean_up_dead_mobs(container: &mut Container, spawn_id: &SpawnId) {
