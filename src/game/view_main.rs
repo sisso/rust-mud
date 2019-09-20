@@ -9,9 +9,8 @@ use super::item::ItemLocation;
 use super::container::Container;
 use crate::game::actions_admin;
 
-pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: String) {
-    // TODO: change to process &[str]
-    match input.as_ref() {
+pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) {
+    match input {
         "h" | "help" => {
             outputs.private(player_id, comm::help());
         },
@@ -50,15 +49,15 @@ pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outp
             outputs.private(player_id, comm::stats(&ctx.avatar, &item_inventory));
         },
 
-        _ if has_command(&input, &["pick"]) || has_command(&input, &["get"]) => {
+        _ if has_command(input, &["pick"]) || has_command(&input, &["get"]) => {
             actions_items::pickup(container, outputs, player_id, parse_arguments(input))
         },
 
-        _ if has_command(&input, &["examine "]) => {
+        _ if has_command(input, &["examine "]) => {
             action_examine(container, outputs,player_id, input);
         },
 
-        _ if has_command(&input, &["k ", "kill "]) => {
+        _ if has_command(input, &["k ", "kill "]) => {
             let target = parse_command(input, &["k ", "kill "]);
             let ctx = container.get_player_context(player_id);
             let mobs = container.mobs.search(Some(&ctx.avatar.room_id), Some(&target));
@@ -110,7 +109,7 @@ pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outp
     }
 }
 
-fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: String) {
+fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) {
     let target = parse_command(input, &["examine "]);
     let ctx = container.get_player_context(player_id);
     let mobs = container.mobs.search(Some(&ctx.avatar.room_id), Some(&target));
@@ -138,7 +137,7 @@ fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_i
     outputs.private(player_id.clone(), comm::examine_target_not_found(&target));
 }
 
-fn has_command(input: &String, commands: &[&str]) -> bool {
+fn has_command(input: &str, commands: &[&str]) -> bool {
     for c in commands {
         if input.starts_with(c) {
             return true;
@@ -148,7 +147,7 @@ fn has_command(input: &String, commands: &[&str]) -> bool {
     return false;
 }
 
-fn parse_command(input: String, commands: &[&str]) -> String {
+fn parse_command(input: &str, commands: &[&str]) -> String {
     for c in commands {
         if input.starts_with(c) {
             return input[c.len()..].to_string();
@@ -158,7 +157,7 @@ fn parse_command(input: String, commands: &[&str]) -> String {
     panic!("unable to parse!");
 }
 
-fn parse_arguments(input: String) -> Vec<String> {
+fn parse_arguments(input: &str) -> Vec<String> {
     input
         .split_ascii_whitespace()
         .into_iter()

@@ -7,10 +7,10 @@ pub struct LoginResult {
     pub msg: String,
 }
 
-pub fn handle(game: &mut Container, input: String) -> LoginResult {
+pub fn handle(game: &mut Container, input: &str) -> LoginResult {
     if input.len() > 3 {
         let login = input;
-        let player_id = player::add_player(game, &login);
+        let player_id = player::add_player(game, login);
         let msg = format!("login success, welcome {}\n\n", login);
         LoginResult {
             player_id: Some(player_id),

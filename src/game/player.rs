@@ -24,14 +24,14 @@ pub struct Player {
     pub avatar_id: MobId
 }
 
-pub fn add_player(container: &mut Container, login: &String) -> PlayerId {
+pub fn add_player(container: &mut Container, login: &str) -> PlayerId {
     // add player avatar
     let mob_id = container.mobs.new_id();
 
     let mut mob = Mob::new(
         mob_id,
         super::mob::INITIAL_ROOM_ID,
-        login.clone(),
+        login.to_string(),
         Attributes {
             attack: 12,
             defense: 12,
@@ -52,7 +52,7 @@ pub fn add_player(container: &mut Container, login: &String) -> PlayerId {
     container.mobs.add(mob);
 
     // add player to game
-    let player = container.players.player_connect(login.clone(), mob_id);
+    let player = container.players.player_connect(login.to_string(), mob_id);
     player.id
 }
 

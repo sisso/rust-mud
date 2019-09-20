@@ -1,4 +1,4 @@
-use crate::game::{Game, RunnerParams};
+use crate::game::{Game};
 use crate::game::container::Container;
 use crate::game::domain::GameTime;
 use crate::game::loader;
@@ -39,13 +39,21 @@ impl ServerRunner {
 
         let result = self.server.run();
 
-        let params = RunnerParams {
-            connects: result.connects,
-            disconnects: result.disconnects,
-            inputs: result.pending_inputs,
-        };
+        for connection_id in result.connects {
+            self.game.add_connection(connection_id);
+        }
 
-        let outputs = self.game.handle(self.game_time, params);
+        for connection_id in result.disconnects {
+            self.game.disconnect(connection_id);
+        }
+
+        for (connection_id, input) in result.pending_inputs {
+            self.game.handle_input(&self.game_time, connection_id, input.as_ref());
+        }
+
+        self.game.tick(&self.game_time);
+
+        let outputs = self.game.get_outputs();
         self.server.append_output(outputs);
 
         if let Some((save_file, trigger)) = self.save.as_mut() {
