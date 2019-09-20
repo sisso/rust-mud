@@ -4,7 +4,7 @@ use super::body;
 use super::comm;
 use super::domain::*;
 use super::container::*;
-use super::runner::Outputs;
+use super::Outputs;
 use super::mob::*;
 use crate::game::mob;
 

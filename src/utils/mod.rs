@@ -94,6 +94,26 @@ impl TimeTrigger {
     }
 }
 
+
+#[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
+pub struct ConnectionId {
+    pub id: u32
+}
+
+impl ConnectionId {
+    pub fn new(id: u32) -> Self {
+        ConnectionId {
+            id
+        }
+    }
+}
+
+impl std::fmt::Display for ConnectionId {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "ConnectionId({})", self.id)
+    }
+}
+
 #[cfg(test)]
 mod test {
     use crate::utils::{TimeTrigger, Second};

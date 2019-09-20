@@ -1,9 +1,10 @@
-use super::server;
-use super::server::{ConnectionId, Output, ServerChanges};
+use super::*;
 
 use std::net::{TcpStream, TcpListener};
 use std::io;
 use std::io::{Write, BufRead, ErrorKind};
+
+use crate::utils::{ConnectionId};
 
 struct Connection {
     id: ConnectionId,
@@ -37,7 +38,7 @@ impl Connection {
     }
 }
 
-impl server::Server for SocketServer {
+impl Server for SocketServer {
     fn run(&mut self) -> ServerChanges {
         let outputs = self.pending_outputs.take().unwrap_or(vec![]);
         self.read_write(outputs)

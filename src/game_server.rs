@@ -1,17 +1,15 @@
+use crate::game::{Game, RunnerParams};
+use crate::game::container::Container;
+use crate::game::domain::GameTime;
+use crate::game::loader;
 use crate::server;
-
 use crate::utils::*;
 use crate::utils::save::*;
-
-use crate::game::runner::{Runner, RunnerParams};
-use crate::game::domain::GameTime;
-use crate::game::container::Container;
-use crate::game::{loader, runner};
 
 pub struct ServerRunner {
     server: Box<dyn server::Server>,
     game_time: GameTime,
-    controller: Runner,
+    game: Game,
     save: Option<(String, TimeTrigger)>,
 }
 
@@ -27,7 +25,7 @@ impl ServerRunner {
                 total: Second(0.0),
                 delta: Second(0.1)
             },
-            controller: Runner::new(container),
+            game: Game::new(container),
             save: save.map(|(file, seconds)| {
                 (file, TimeTrigger::new(seconds, Second(0.0)))
             }),
@@ -47,16 +45,26 @@ impl ServerRunner {
             inputs: result.pending_inputs,
         };
 
-        let outputs = self.controller.handle(self.game_time, params);
+        let outputs = self.game.handle(self.game_time, params);
         self.server.append_output(outputs);
 
         if let Some((save_file, trigger)) = self.save.as_mut() {
             if trigger.check(self.game_time.total) {
                 let save_file = format!("{}_{}.jsonp", save_file, self.game_time.tick.0);
                 let mut save = SaveToFile::new(save_file.as_ref());
-                self.controller.save(&mut save);
+                self.game.save(&mut save);
                 save.close()
             }
         }
+    }
+}
+
+pub fn run() {
+    let server = server::server_socket::SocketServer::new();
+    let mut game = ServerRunner::new(Box::new(server), Some(("/tmp/current".to_string(), Second(1.0))));
+
+    loop {
+        std::thread::sleep(::std::time::Duration::from_millis(100));
+        game.run(Second(0.1));
     }
 }

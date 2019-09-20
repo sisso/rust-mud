@@ -1,6 +1,7 @@
 extern crate rand;
 extern crate termion;
 
+// need to be before log macros
 pub mod utils;
 
 #[macro_export]
@@ -21,15 +22,12 @@ macro_rules! warn {
     ($fmt:expr, $($arg:tt)*) => (crate::utils::logs::warn(file!(), format!($fmt, $($arg)*).as_ref()));
 }
 
-pub mod server;
-pub mod server_dummy;
-pub mod server_socket;
 pub mod game;
-
-mod main_server;
+pub mod server;
+pub mod game_server;
 
 fn main() {
-    crate::main_server::run();
+    crate::game_server::run();
 }
 
 #[cfg(test)]

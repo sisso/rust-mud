@@ -1,3 +1,4 @@
+// need to be before log macros
 pub mod utils;
 
 #[macro_export]
@@ -19,6 +20,5 @@ macro_rules! warn {
 }
 
 pub mod server;
-pub mod server_dummy;
-pub mod server_socket;
 pub mod game;
+pub mod game_server;

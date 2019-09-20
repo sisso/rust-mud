@@ -1,21 +1,7 @@
-#[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
-pub struct ConnectionId {
-    pub id: u32
-}
+use crate::utils::{ConnectionId};
 
-impl ConnectionId {
-    pub fn new(id: u32) -> Self {
-        ConnectionId {
-            id
-        }
-    }
-}
-
-impl std::fmt::Display for ConnectionId {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "ConnectionId({})", self.id)
-    }
-}
+pub mod server_dummy;
+pub mod server_socket;
 
 pub struct ServerChanges {
     pub connects: Vec<ConnectionId>,

@@ -1,27 +1,50 @@
+pub mod actions;
+pub mod body;
+pub mod comm;
+pub mod container;
+pub mod combat;
+pub mod domain;
+pub mod mob;
+pub mod player;
+pub mod room;
+pub mod spawn;
+pub mod view_main;
+pub mod view_login;
+pub mod item;
+pub mod actions_items;
+pub mod actions_admin;
+pub mod loader;
+
 use std::collections::{HashMap, HashSet};
 
 use crate::server;
-use crate::server::ConnectionId;
+use crate::utils::ConnectionId;
 
-use super::domain::*;
-use super::container::Container;
-use super::mob;
-use super::item;
-use super::player::PlayerId;
-use super::room::RoomId;
-use super::spawn;
-use super::view_login;
-use super::view_main;
+use domain::*;
+use container::Container;
+use mob::*;
+use item::*;
+use player::*;
+use room::*;
+use spawn::*;
 
 use crate::utils::*;
 use crate::utils::save::Save;
+use mob::MobPrefabId;
+use item::ItemPrefabId;
+
+
+const MOB_PLAYER: MobPrefabId = MobPrefabId(0);
+const MOB_DRUNK: MobPrefabId  = MobPrefabId(1);
+
+const ITEM_DEF_COINS_2: ItemPrefabId = ItemPrefabId(0);
 
 pub struct ConnectionState {
     pub connection_id: ConnectionId,
     pub player_id: Option<PlayerId>,
 }
 
-pub struct Runner {
+pub struct Game {
     container: Container,
     connections: HashMap<ConnectionId, ConnectionState>,
     connection_id_by_player_id: HashMap<PlayerId, ConnectionId>,
@@ -110,9 +133,9 @@ pub struct RunnerParams {
     pub inputs: Vec<(ConnectionId, String)>
 }
 
-impl Runner {
+impl Game {
     pub fn new(container: Container) -> Self {
-        Runner {
+        Game {
             container,
             connections: HashMap::new(),
             connection_id_by_player_id: HashMap::new(),
@@ -345,13 +368,3 @@ impl Runner {
         state.player_id
     }
 }
-
-//#[cfg(test)]
-//mod tests {
-//    use super::*;
-//
-//    #[test]
-//    fn sample_test() {
-//        assert_eq!(true, true);
-//    }
-//}

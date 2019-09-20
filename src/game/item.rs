@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use super::container::Container;
-use super::runner::Outputs;
+use super::Outputs;
 use super::domain::NextId;
 use super::room::RoomId;
 use super::mob::MobId;
@@ -9,7 +9,7 @@ use super::domain::*;
 use super::comm;
 use crate::utils::*;
 use crate::utils::save::Save;
-use crate::game::runner::Ctx;
+use crate::game::Ctx;
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub struct ItemId(pub u32);

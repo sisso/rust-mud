@@ -1,5 +1,5 @@
 use super::comm;
-use super::runner::Outputs;
+use super::Outputs;
 use super::domain::*;
 use super::container::Container;
 use super::mob::*;

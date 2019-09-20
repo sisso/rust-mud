@@ -1,15 +1,10 @@
 extern crate mud;
 
-use mud::server;
-use mud::server_dummy;
-use mud::server_dummy::ServerDummy;
-use mud::game::domain::*;
-use mud::utils::*;
+use mud::server::server_dummy::ServerDummy;
 
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::fs::File;
-use mud::game::server_runner::ServerRunner;
+use mud::game_server::ServerRunner;
 use mud::utils::Second;
 
 struct TestGame {
@@ -38,7 +33,7 @@ impl TestGame {
     }
 
     pub fn look_and_wait_for(&mut self, expected: &str) {
-        for i in 0..SAFE {
+        for _ in 0..SAFE {
             self.input("look");
             self.run_tick();
             if self.get_outputs().iter().find(|i| i.contains(expected)).is_some() {
@@ -48,7 +43,7 @@ impl TestGame {
     }
 
     pub fn wait_for(&mut self, expected: &str) {
-        for i in 0..SAFE {
+        for _ in 0..SAFE {
             self.run_tick();
 
             if self.get_outputs().iter().find(|i| i.contains(expected)).is_some() {

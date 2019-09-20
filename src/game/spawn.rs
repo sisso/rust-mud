@@ -2,7 +2,7 @@ use rand::Rng;
 
 use super::comm;
 use super::container::Container;
-use super::runner::Outputs;
+use super::Outputs;
 use super::domain::*;
 use super::mob::*;
 use super::room::RoomId;
@@ -11,7 +11,7 @@ use super::room::RoomId;
 pub struct SpawnId(pub u32);
 
 use crate::utils::*;
-use crate::game::runner::Ctx;
+use crate::game::Ctx;
 
 pub struct SpawnDelay {
     pub min: Second,
