@@ -5,6 +5,10 @@ authors = ["sisso <sisso@sisso.com.br>"]
 edition = "2018"
 
 [dependencies]
-rand="*"
+rand ="*"
 termion = "*"
 serde_json = "1.*"
+
+[dependencies.hocon]
+version = "0.3.0"
+default-features = false
