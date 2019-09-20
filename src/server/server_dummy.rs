@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 use super::*;
-use crate::utils::{ConnectionId};
+use crate::utils::{ConnectionId, ConnectionOutput};
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -33,12 +33,12 @@ impl ServerDummy {
 }
 
 impl Server for ServerDummy {
-    fn append_output(&mut self, pending_outputs: Vec<Output>) {
+    fn append_output(&mut self, pending_outputs: Vec<ConnectionOutput>) {
         self.outputs.borrow_mut().extend(pending_outputs.into_iter().map(|i| i.output));
     }
 
     fn run(&mut self) -> ServerChanges {
-        let connection_id = ConnectionId::new(0);
+        let connection_id = ConnectionId(0);
 
         // TODO: validate only connnections to 0
         // if pending_outputs.iter().find(|i| i.dest_connections_id.)

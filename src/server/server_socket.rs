@@ -4,7 +4,7 @@ use std::net::{TcpStream, TcpListener};
 use std::io;
 use std::io::{Write, BufRead, ErrorKind};
 
-use crate::utils::{ConnectionId};
+use crate::utils::{ConnectionId, ConnectionOutput};
 
 struct Connection {
     id: ConnectionId,
@@ -16,7 +16,7 @@ pub struct SocketServer {
     tick: u32,
     connections: Vec<Connection>,
     listener: Option<TcpListener>,
-    pending_outputs: Option<Vec<Output>>,
+    pending_outputs: Option<Vec<ConnectionOutput>>,
 }
 
 impl Connection {
@@ -44,7 +44,7 @@ impl Server for SocketServer {
         self.read_write(outputs)
     }
 
-    fn append_output(&mut self, pending_outputs: Vec<Output>) {
+    fn append_output(&mut self, pending_outputs: Vec<ConnectionOutput>) {
         assert!(self.pending_outputs.is_none());
         self.pending_outputs = Some(pending_outputs);
     }
@@ -54,7 +54,7 @@ impl SocketServer {
     fn next_connection_id(&mut self) -> ConnectionId {
         let id = self.next_conneciton_id;
         self.next_conneciton_id += 1;
-        ConnectionId::new(id)
+        ConnectionId(id)
     }
 
     pub fn new() -> Self {
@@ -79,7 +79,7 @@ impl SocketServer {
         self.listener = Some(listener);
     }
 
-    fn read_write(&mut self, pending_outputs: Vec<Output>) -> ServerChanges {
+    fn read_write(&mut self, pending_outputs: Vec<ConnectionOutput>) -> ServerChanges {
         let mut new_connections: Vec<ConnectionId> = vec![];
         let mut broken_connections: Vec<ConnectionId> = vec![];
         let mut pending_inputs: Vec<(ConnectionId, String)> = vec![];
@@ -125,10 +125,10 @@ impl SocketServer {
             for connection in &mut self.connections {
                 let is_dest = e.dest_connections_id.contains(&connection.id);
                 if is_dest {
-                    debug!("server - {} sending '{}'", connection.id, SocketServer::clean_output_to_log(&e.output));
+                    debug!("server - {:?} sending '{}'", connection.id, SocketServer::clean_output_to_log(&e.output));
 
                     if let Err(err) = Connection::write(&mut connection.stream, e.output.as_str()) {
-                        warn!("server - {} failed: {}", connection.id, err);
+                        warn!("server - {:?} failed: {}", connection.id, err);
                         broken_connections.push(connection.id);
                     }
                 }
@@ -140,7 +140,7 @@ impl SocketServer {
             let index = self.connections.iter().position(|i| i.id == *connection).unwrap();
             self.connections.remove(index);
 
-            info!("server - {} removed, total connections {}", connection.id, self.connections.len());
+            info!("server - {:?} removed, total connections {}", connection, self.connections.len());
         }
 
         ServerChanges {

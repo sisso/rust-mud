@@ -1,4 +1,4 @@
-use crate::utils::{ConnectionId};
+use crate::utils::{ConnectionId, ConnectionOutput};
 
 pub mod server_dummy;
 pub mod server_socket;
@@ -9,13 +9,7 @@ pub struct ServerChanges {
     pub pending_inputs: Vec<(ConnectionId, String)>,
 }
 
-#[derive(Debug)]
-pub struct Output {
-    pub dest_connections_id: Vec<ConnectionId>,
-    pub output: String
-}
-
 pub trait Server {
     fn run(&mut self) -> ServerChanges;
-    fn append_output(&mut self, pending_outputs: Vec<Output>);
+    fn append_output(&mut self, pending_outputs: Vec<ConnectionOutput>);
 }
