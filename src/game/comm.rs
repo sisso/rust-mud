@@ -47,7 +47,7 @@ pub fn look_description(container: &Container, ctx: &PlayerCtx) -> String {
             labels.join("\n")
         };
 
-    let items: Vec<String> = container.items.get_inventory_list(&ItemLocation::Room { room_id: ctx.avatar.room_id })
+    let items: Vec<String> = container.items.get_inventory_list(ItemLocation::Room { room_id: ctx.avatar.room_id })
         .iter()
         .map(|item| format!("- {} in the floor", item.label))
         .collect();
@@ -227,6 +227,14 @@ pub fn pick_from(actor: &str, target_inventory: &str, target_item: &str) -> Stri
     format!("{} pick a {} from {}\n", actor, target_item, target_inventory)
 }
 
+pub fn pick_player_from_room(target_item: &str) -> String {
+    format!("you pick a {} from the floor\n", target_item)
+}
+
+pub fn pick_from_room(actor: &str, target_item: &str) -> String {
+    format!("{} pick a {} from the floor\n", actor, target_item)
+}
+
 pub fn admin_invalid_command() -> String {
     format!("invalid admin command")
 }
@@ -286,7 +294,7 @@ mod tests {
     fn item_0_coins() -> Item {
         Item::new(
             ItemId(0),
-            ITEM_TYPE_GOLD,
+            ITEM_KIND_GOLD,
             "coins".to_string()
         )
     }

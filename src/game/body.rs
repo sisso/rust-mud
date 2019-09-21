@@ -16,7 +16,7 @@ pub fn create_body(time: &GameTime, container: &mut Container, outputs: &mut dyn
 
     let mut item = Item::new(
         item_id,
-        ITEM_TYPE_BODY,
+        ITEM_KIND_BODY,
 //        format!("{} body", mob.label).to_string(),
         "body".to_string()
     );

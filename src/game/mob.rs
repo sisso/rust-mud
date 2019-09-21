@@ -330,6 +330,7 @@ impl MobRepository {
     }
 }
 
+// TODO: move game rules with output outside of mobs module
 pub fn run_tick(ctx: &mut Ctx) {
     for mob_id in ctx.container.mobs.list() {
         if !ctx.container.mobs.exists(&mob_id) {
@@ -363,6 +364,7 @@ pub fn run_tick(ctx: &mut Ctx) {
     }
 }
 
+// TODO: move game rules with output outside of mobs module
 pub fn kill_mob(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) {
     create_body(time, container, outputs, mob_id);
 
@@ -375,6 +377,7 @@ pub fn kill_mob(time: &GameTime, container: &mut Container, outputs: &mut dyn Ou
     }
 }
 
+// TODO: move game rules with output outside of mobs module
 pub fn respawn_avatar(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) {
     let mut mob = container.mobs.get(&mob_id).clone();
     assert!(mob.is_avatar);

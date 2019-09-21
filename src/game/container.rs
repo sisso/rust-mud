@@ -62,22 +62,7 @@ impl Container {
             .expect("could not find")
     }
 
-    pub fn instantiate_item(&mut self, item_prefab_id: ItemPrefabId) -> Item {
-        let item_id = self.items.next_item_id();
-        let prefab = self.items.get_prefab(&item_prefab_id);
-
-        let mut item = Item::new(
-            item_id,
-            prefab.typ,
-            prefab.label.clone()
-        );
-
-        item.amount = prefab.amount;
-        item.item_def_id = Some(item_prefab_id);
-
-        item
-    }
-
+    // TODO: move outside of container
     pub fn instantiate(&mut self, mob_prefab_id: MobPrefabId, room_id: RoomId) -> &Mob {
         let prefab = self.mobs.get_mob_prefab(&mob_prefab_id).clone();
 
@@ -87,8 +72,7 @@ impl Container {
         // add items
         let items = prefab.inventory;
         for item_prefab_id in items {
-            let item = self.instantiate_item(item_prefab_id);
-            self.items.add(item, ItemLocation::Mob { mob_id });
+            self.items.instantiate_item(item_prefab_id, ItemLocation::Mob { mob_id });
         }
 
         // instantiate

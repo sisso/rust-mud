@@ -94,7 +94,6 @@ pub fn rest(time: &GameTime, container: &mut Container, outputs: &mut dyn Output
 pub fn stand(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) {
     let player = container.players.get_player_by_id(player_id);
     let mob = container.mobs.get(&player.avatar_id);
-    let mob_id = mob.id;
 
     if mob.is_resting() {
         outputs.private(player_id, comm::stand_fail_not_resting());

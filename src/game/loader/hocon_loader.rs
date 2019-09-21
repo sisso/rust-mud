@@ -36,11 +36,28 @@ impl Loader for HoconLoader {
         match doc {
             Hocon::Hash(map) => {
                 let items = map.get("items");
+                let rooms = map.get("rooms");
+                let mobs = map.get("mobs");
+                let tags = map.get("tags");
+                let spawns = map.get("spawns");
             },
             _ => return Err(LoaderError::Unknown.into())
         }
 
+        unimplemented!()
+    }
+}
 
+struct HoconLoad {
+
+}
+
+impl Load for HoconLoad {
+    fn get_headers(&mut self, header: &str) -> Vec<&Value> {
+        unimplemented!()
+    }
+
+    fn get_components(&mut self, component: &str) -> Vec<&(u32, Value)> {
         unimplemented!()
     }
 }

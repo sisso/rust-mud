@@ -31,11 +31,6 @@ pub mod actions_items;
 pub mod actions_admin;
 pub mod loader;
 
-const MOB_PLAYER: MobPrefabId = MobPrefabId(0);
-const MOB_DRUNK: MobPrefabId = MobPrefabId(1);
-
-const ITEM_DEF_COINS_2: ItemPrefabId = ItemPrefabId(0);
-
 pub struct ConnectionState {
     pub connection_id: ConnectionId,
     pub player_id: Option<PlayerId>,

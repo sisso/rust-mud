@@ -12,8 +12,16 @@ impl Tick {
     }
 }
 
+pub const ONE_SECOND: Second = Second(1.0);
+
 #[derive(Clone,Copy,Debug)]
 pub struct Second(pub f32);
+
+impl Second {
+    pub fn one() -> Second {
+        Second(1.0)
+    }
+}
 
 impl Second {
     pub fn le(&self, other: Second) -> bool {

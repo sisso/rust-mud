@@ -2,7 +2,6 @@ use std::path::Path;
 
 use crate::game::container::Container;
 use crate::game::item::*;
-use crate::game::{ITEM_DEF_COINS_2, MOB_PLAYER, MOB_DRUNK};
 use crate::game::mob::*;
 use crate::game::domain::*;
 use crate::game::room::*;
@@ -10,13 +9,42 @@ use crate::game::spawn::*;
 use crate::utils::*;
 use crate::utils::save::Load;
 
+
+const MOB_PLAYER: MobPrefabId = MobPrefabId(0);
+const MOB_DRUNK: MobPrefabId = MobPrefabId(1);
+
+const ITEM_DEF_COINS_2: ItemPrefabId = ItemPrefabId(0);
+const ITEM_DEF_SWORD: ItemPrefabId = ItemPrefabId(1);
+const ITEM_DEF_ARMOR: ItemPrefabId = ItemPrefabId(2);
+
+const ROOM_ID_FLOREST: RoomId = RoomId(2);
+
 fn load_items_prefabs(container: &mut Container) {
-    container.items.add_prefab(ItemPrefab {
-        id: ITEM_DEF_COINS_2,
-        typ: ITEM_TYPE_GOLD,
-        amount: 2,
-        label: "coins".to_string(),
-    });
+    container.items.add_prefab(
+        ItemPrefab::build(ITEM_DEF_COINS_2, "coins".to_string())
+            .with_kind(ITEM_KIND_GOLD)
+            .with_amount(2)
+            .build()
+    );
+
+    container.items.add_prefab(
+        ItemPrefab::build(ITEM_DEF_SWORD, "sword".to_string())
+            .with_weapon(Weapon {
+                damage_min: 2,
+                damage_max: 4,
+                reload: Second::one()
+            })
+            .build()
+    );
+
+    container.items.add_prefab(
+        ItemPrefab::build(ITEM_DEF_ARMOR, "armor".to_string())
+            .with_armor(Armor {
+                rd: 2,
+                dp: 1
+            })
+            .build()
+    );
 }
 
 fn load_mobs_prefabs(container: &mut Container) {
@@ -51,7 +79,6 @@ fn load_mobs_prefabs(container: &mut Container) {
 
 fn load_rooms(container: &mut Container) {
     let room_id_bar = RoomId(1);
-    let room_id_florest = RoomId(2);
 
     let room1 = Room {
         id: INITIAL_ROOM_ID,
@@ -64,11 +91,11 @@ fn load_rooms(container: &mut Container) {
         id: room_id_bar,
         label: "Bar".to_string(),
         desc: "Where we relief our duties".to_string(),
-        exits: vec![(Dir::N, INITIAL_ROOM_ID), (Dir::S, room_id_florest)],
+        exits: vec![(Dir::N, INITIAL_ROOM_ID), (Dir::S, ROOM_ID_FLOREST)],
     };
 
     let room3 = Room {
-        id: room_id_florest,
+        id: ROOM_ID_FLOREST,
         label: "Florest".to_string(),
         desc: "A deep, ugly and dark florest.".to_string(),
         exits: vec![(Dir::N, room_id_bar)],
@@ -94,10 +121,16 @@ fn load_spawns(container: &mut Container) {
     });
 }
 
+pub fn load_rooms_objects(container: &mut Container) {
+    container.items.instantiate_item(ITEM_DEF_ARMOR, ItemLocation::Room { room_id: ROOM_ID_FLOREST });
+    container.items.instantiate_item(ITEM_DEF_SWORD, ItemLocation::Room { room_id: ROOM_ID_FLOREST });
+}
+
 pub fn load(container: &mut Container) {
     load_items_prefabs(container);
     load_mobs_prefabs(container);
     load_rooms(container);
+    load_rooms_objects(container);
     load_spawns(container);
 }
 

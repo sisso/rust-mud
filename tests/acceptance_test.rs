@@ -103,10 +103,36 @@ fn admin_kill_test() {
     do_move_to_bar_wait_for_drunk(&mut g);
 }
 
+#[test]
+fn pickup_equipment_at_florest() {
+    let mut g = TestGame::new();
+    do_login(&mut g);
+    do_move_to_florest(&mut g);
+    g.look_and_wait_for("sword");
+    g.look_and_wait_for("armor");
+    g.input("pick sword");
+    g.wait_for("you pick a sword");
+    g.input("pick armor");
+    g.wait_for("you pick a armor");
+    g.input("stats");
+    g.run_tick();
+
+    let outputs = g.get_outputs();
+    assert!(outputs.iter().find(|msg| msg.contains("- armor")).is_some());
+    assert!(outputs.iter().find(|msg| msg.contains("- sword")).is_some());
+}
+
 fn do_move_to_bar_wait_for_drunk(g: &mut TestGame) {
     g.input("s");
     g.wait_for("Bar");
     g.look_and_wait_for("Drunk");
+}
+
+fn do_move_to_florest(g: &mut TestGame) {
+    g.input("s");
+    g.wait_for("Bar");
+    g.input("s");
+    g.wait_for("Florest");
 }
 
 fn do_login(g: &mut TestGame) {

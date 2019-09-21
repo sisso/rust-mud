@@ -29,7 +29,7 @@ pub fn tick_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn
     }
 }
 
-fn cancel_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, target: Option<&MobId>) {
+fn cancel_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, _target: Option<&MobId>) {
 //    let attacker = container.get_mob(&mob_id.0);
 
 //    let msg_others = comm::kill_cancel(attacker, defender);
@@ -138,7 +138,7 @@ fn roll_damage(damage: &Damage) -> u32 {
 }
 
 
-fn check_return_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, aggressor_mob_id: MobId) {
+fn check_return_attack(_time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, aggressor_mob_id: MobId) {
     match container.mobs.find(&mob_id) {
         Some(mob) if mob.command.is_idle() => {
             let aggressor_mob = container.mobs.get(&aggressor_mob_id);

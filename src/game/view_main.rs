@@ -45,7 +45,7 @@ pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outp
 
         "stats" => {
             let ctx = container.get_player_context(player_id);
-            let item_inventory = container.items.get_inventory_list(&ItemLocation::Mob { mob_id: ctx.avatar.id });
+            let item_inventory = container.items.get_inventory_list(ItemLocation::Mob { mob_id: ctx.avatar.id });
             outputs.private(player_id, comm::stats(&ctx.avatar, &item_inventory));
         },
 
@@ -116,7 +116,7 @@ fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_i
 
     match mobs.first() {
         Some(mob) => {
-            let mob_inventory = container.items.get_inventory_list(&ItemLocation::Mob { mob_id: mob.id });
+            let mob_inventory = container.items.get_inventory_list(ItemLocation::Mob { mob_id: mob.id });
             outputs.private(player_id.clone(), comm::examine_target(mob, &mob_inventory));
             return;
         },
@@ -126,7 +126,7 @@ fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_i
     let items = container.items.search(&ctx.avatar.room_id, &target);
     match items.first() {
         Some(item) => {
-            let item_inventory = container.items.get_item_inventory_list(&item.id);
+            let item_inventory = container.items.get_inventory_list(ItemLocation::Item { item_id: item.id });
             outputs.private(player_id.clone(), comm::examine_target_item(item, &item_inventory));
             return;
         },
