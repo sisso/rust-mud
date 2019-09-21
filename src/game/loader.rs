@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use crate::game::container::Container;
 use crate::game::item::*;
 use crate::game::{ITEM_DEF_COINS_2, MOB_PLAYER, MOB_DRUNK};
@@ -6,6 +8,7 @@ use crate::game::domain::*;
 use crate::game::room::*;
 use crate::game::spawn::*;
 use crate::utils::*;
+use crate::utils::save::Load;
 
 fn load_items_prefabs(container: &mut Container) {
     container.items.add_prefab(ItemPrefab {
@@ -96,4 +99,33 @@ pub fn load(container: &mut Container) {
     load_mobs_prefabs(container);
     load_rooms(container);
     load_spawns(container);
+}
+
+pub mod hocon_loader;
+
+#[derive(Debug)]
+pub enum LoaderError {
+    Unknown
+}
+impl std::fmt::Display for LoaderError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "unknown error when parsing a configuration file")
+    }
+}
+
+impl std::error::Error for LoaderError {
+    fn description(&self) -> &str {
+        "unknown error when parsing a configuration file"
+    }
+
+    fn cause(&self) -> Option<&std::error::Error> {
+        // Generic error, underlying cause isn't tracked.
+        None
+    }
+}
+
+pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+pub trait Loader {
+    fn load(path: &Path) -> Result<Box<dyn Load>>;
 }
