@@ -103,7 +103,7 @@ impl TimeTrigger {
     /// If trigger, return next trigger
     pub fn check_trigger(calm_down: Second, next_trigger: Second, total: Second) -> Option<Second> {
         if TimeTrigger::should_trigger(next_trigger, total) {
-            let next = total - next_trigger + calm_down;
+            let next = next_trigger + calm_down;
             Some(next)
         } else {
             None

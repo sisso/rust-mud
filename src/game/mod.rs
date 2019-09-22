@@ -8,7 +8,6 @@ use mob::*;
 use mob::MobPrefabId;
 use player::*;
 use room::*;
-use spawn::*;
 
 use crate::utils::{ConnectionId, ConnectionOutput};
 use crate::utils::*;
@@ -335,7 +334,7 @@ impl Game {
                 .into_iter()
                 .map(|player_id| {
                     let player = self.container.players.get_player_by_id(player_id);
-                    let avatar = self.container.mobs.get(&player.avatar_id);
+                    let avatar = self.container.mobs.get(player.avatar_id);
                     (avatar.room_id, player_id)
                 })
                 .collect();

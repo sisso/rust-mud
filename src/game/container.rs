@@ -30,7 +30,7 @@ impl Container {
 
     pub fn get_player_context(&self, player_id: PlayerId) -> PlayerCtx {
         let player = self.players.get_player_by_id(player_id);
-        let mob = self.mobs.get(&player.avatar_id);
+        let mob = self.mobs.get(player.avatar_id);
         let room = self.rooms.get(&mob.room_id);
 
         PlayerCtx {
@@ -78,7 +78,7 @@ impl Container {
         // instantiate
         let mob = Mob::new(mob_id, room_id, prefab.label, prefab.attributes);
         self.mobs.add(mob);
-        self.mobs.get(&mob_id)
+        self.mobs.get(mob_id)
     }
 
     pub fn save(&self, save: &mut dyn Save) {

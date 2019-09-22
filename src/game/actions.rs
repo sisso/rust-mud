@@ -57,9 +57,9 @@ pub fn mv(container: &mut Container, outputs: &mut dyn Outputs, player_id: Playe
     }
 }
 
-pub fn attack(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, target: &MobId) {
+pub fn attack(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, target: MobId) {
     let ctx = container.get_player_context(player_id);
-    let target_mob = container.mobs.get(&target);
+    let target_mob = container.mobs.get(target);
 
     let player_msg = comm::attack_player_initiate(target_mob);
     let room_msg = comm::attack_mob_initiate_attack(&ctx.avatar, &target_mob);
@@ -75,7 +75,7 @@ pub fn attack(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
 
 pub fn rest(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) {
     let player = container.players.get_player_by_id(player_id);
-    let mob = container.mobs.get(&player.avatar_id);
+    let mob = container.mobs.get(player.avatar_id);
     let mob_id = mob.id;
 
     if mob.is_combat() {
@@ -93,7 +93,7 @@ pub fn rest(time: &GameTime, container: &mut Container, outputs: &mut dyn Output
 
 pub fn stand(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) {
     let player = container.players.get_player_by_id(player_id);
-    let mob = container.mobs.get(&player.avatar_id);
+    let mob = container.mobs.get(player.avatar_id);
 
     if mob.is_resting() {
         outputs.private(player_id, comm::stand_fail_not_resting());

@@ -231,8 +231,8 @@ impl MobRepository {
         self.index.remove(&id);
     }
 
-    pub fn get(&self, id: &MobId) -> &Mob {
-        self.index.get(id).unwrap()
+    pub fn get(&self, id: MobId) -> &Mob {
+        self.index.get(&id).unwrap()
     }
 
     pub fn find(&self, id: &MobId) -> Option<&Mob> {
@@ -265,7 +265,7 @@ impl MobRepository {
             .collect()
     }
 
-    pub fn set_mob_attack_target(&mut self, mob_id: MobId, target: &MobId) {
+    pub fn set_mob_attack_target(&mut self, mob_id: MobId, target: MobId) {
         let mut mob = self.index.get_mut(&mob_id).unwrap();
         mob.command = MobCommand::Kill { target: target.clone() };
         mob.state.action = MobAction::Combat;
@@ -337,7 +337,7 @@ pub fn run_tick(ctx: &mut Ctx) {
             continue;
         }
 
-        let mob = ctx.container.mobs.get(&mob_id);
+        let mob = ctx.container.mobs.get(mob_id);
 
         match mob.command {
             MobCommand::None => {},
@@ -346,7 +346,7 @@ pub fn run_tick(ctx: &mut Ctx) {
             }
         }
 
-        let mob = ctx.container.mobs.get(&mob_id);
+        let mob = ctx.container.mobs.get(mob_id);
         if mob.is_resting() {
             let mut mob = mob.clone();
             if mob.update_resting(ctx.time.total) {
@@ -369,7 +369,7 @@ pub fn kill_mob(time: &GameTime, container: &mut Container, outputs: &mut dyn Ou
     create_body(time, container, outputs, mob_id);
 
     // remove mob
-    let mob = container.mobs.get(&mob_id);
+    let mob = container.mobs.get(mob_id);
     if mob.is_avatar {
         respawn_avatar(time, container, outputs, mob_id);
     } else {
@@ -379,7 +379,7 @@ pub fn kill_mob(time: &GameTime, container: &mut Container, outputs: &mut dyn Ou
 
 // TODO: move game rules with output outside of mobs module
 pub fn respawn_avatar(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) {
-    let mut mob = container.mobs.get(&mob_id).clone();
+    let mut mob = container.mobs.get(mob_id).clone();
     assert!(mob.is_avatar);
 
     mob.attributes.pv.current = 1;

@@ -41,7 +41,7 @@ pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
             let target_inventory_item = target_inventory_item.get(0);
 
             if target_inventory_item.is_none() {
-                outputs.private(player_id.clone(), comm::pick_where_not_found(target_inventory_label));
+                outputs.private(player_id, comm::pick_where_not_found(target_inventory_label));
                 return;
             }
 
@@ -50,7 +50,7 @@ pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
             let inventory = container.items.get_inventory_list(ItemLocation::Item { item_id });
 
             if target_item.is_none() {
-                outputs.private(player_id.clone(), comm::pick_what(&inventory));
+                outputs.private(player_id, comm::pick_what(&inventory));
                 return;
             }
 
@@ -75,33 +75,85 @@ pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
         }
 
         (_, _) => {
-            outputs.private(player_id.clone(), comm::pick_where());
+            outputs.private(player_id, comm::pick_where());
         },
     }
 }
 
-pub enum PickUpAction {
-    ToMob {
-        mob_id: MobId,
+pub fn equip(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<String>) {
+    match do_equip(container, player_id, args) {
+        Ok(EquipAction::Success { item_id }) => {
+            let ctx = container.get_player_context(player_id);
+            let item = container.items.get(item_id);
+            outputs.private(player_id, comm::equip_player_from_room(item.label.as_str()));
+            outputs.room(player_id, ctx.room.id, comm::equip_from_room(ctx.avatar.label.as_str(), item.label.as_str()));
+        },
+
+        Err(EquipError::ItemNotProvide) | Err(EquipError::Fail) => {
+            outputs.private(player_id, comm::equip_what());
+        },
+
+        Err(EquipError::ItemNotEquipable { item_id }) => {
+            let item = container.items.get(item_id);
+            outputs.private(player_id, comm::equip_item_invalid(item.label.as_str()));
+        },
+
+        Err(EquipError::ItemNotFound { label }) => {
+            outputs.private(player_id, comm::equip_item_not_found(label.as_str()));
+        },
+    }
+}
+
+pub enum EquipAction {
+    Success {
         item_id: ItemId,
     }
 }
 
-pub enum PickUpError {
-    Where,
-    What
+pub enum EquipError {
+    Fail,
+    ItemNotProvide,
+    ItemNotEquipable { item_id: ItemId },
+    ItemNotFound { label: String },
 }
 
-pub fn do_pickup(container: &mut Container, player_id: PlayerId, args: Vec<String>) -> Result<PickUpAction, PickUpError> {
-    Err(PickUpError::Where)
-}
+pub fn do_equip(container: &mut Container, player_id: PlayerId, args: Vec<String>) -> Result<EquipAction, EquipError> {
+    let item_label = match args.get(1) {
+        Some(str) => str,
+        None => {
+            return Err(EquipError::ItemNotProvide);
+        }
+    };
 
-#[cfg(test)]
-mod test {
-    use super::*;
+    let ctx = container.get_player_context(player_id);
+    let inventory = container.items.get_inventory_list(ItemLocation::Mob { mob_id: ctx.avatar.id });
 
-    #[test]
-    pub fn test1() {
-        assert!(false);
+    // TODO: move to a util search with more powerful capabilities
+    let item = inventory.iter()
+        .find(|item| item.label.eq_ignore_ascii_case(item_label));
+
+    match item {
+        Some(item) if item.can_equip() => {
+            let mob_id = ctx.avatar.id;
+            let item_id = item.id;
+
+            container.items.equip(ItemLocation::Mob { mob_id }, item_id)
+                .map_err(|_| EquipError::Fail)?;
+
+            Ok(EquipAction::Success { item_id })
+        },
+
+        Some(item) => {
+            Err(EquipError::ItemNotEquipable { item_id: item.id })
+        },
+
+        None => {
+            Err(EquipError::ItemNotFound { label: item_label.to_string() })
+        }
     }
+}
+
+#[test]
+pub fn test1() {
+    assert!(false);
 }

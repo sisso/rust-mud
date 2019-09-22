@@ -151,7 +151,7 @@ impl std::error::Error for LoaderError {
         "unknown error when parsing a configuration file"
     }
 
-    fn cause(&self) -> Option<&std::error::Error> {
+    fn cause(&self) -> Option<&dyn std::error::Error> {
         // Generic error, underlying cause isn't tracked.
         None
     }

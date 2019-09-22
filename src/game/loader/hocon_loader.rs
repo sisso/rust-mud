@@ -6,7 +6,6 @@ use std::fs::ReadDir;
 use serde_json::{Number, Value};
 
 use crate::game::loader::{Loader, Result, LoaderError};
-use crate::game::container::Container;
 use crate::utils::save::Load;
 
 pub struct HoconLoader {

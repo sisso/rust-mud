@@ -1,16 +1,16 @@
 use std::collections::HashMap;
 
-use super::container::Container;
-use super::Outputs;
-use super::domain::NextId;
-use super::room::RoomId;
-use super::mob::MobId;
-use super::domain::*;
-use super::comm;
-use crate::utils::*;
-use crate::utils::save::Save;
 use crate::game::Ctx;
 use crate::game::mob::Attributes;
+use crate::utils::*;
+use crate::utils::save::Save;
+
+use super::comm;
+use super::container::Container;
+use super::domain::*;
+use super::domain::NextId;
+use super::mob::MobId;
+use super::room::RoomId;
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub struct ItemId(pub u32);
@@ -38,6 +38,8 @@ pub struct Item {
     pub decay: Option<Second>,
     pub amount: u32,
     pub item_def_id: Option<ItemPrefabId>,
+    pub weapon: Option<Weapon>,
+    pub armor: Option<Armor>,
 }
 
 impl Item {
@@ -49,7 +51,13 @@ impl Item {
             decay: None,
             amount: 1,
             item_def_id: None,
+            weapon: None,
+            armor: None
         }
+    }
+
+    pub fn can_equip(&self) -> bool {
+        self.weapon.is_some() || self.armor.is_some()
     }
 }
 
@@ -122,6 +130,7 @@ pub struct Armor {
 pub struct Inventory {
     location: ItemLocation,
     list: Vec<ItemId>,
+    equip: Vec<ItemId>,
 }
 
 impl Inventory {
@@ -129,6 +138,7 @@ impl Inventory {
         Inventory {
             location: location,
             list: vec![],
+            equip: vec![]
         }
     }
 
@@ -204,6 +214,13 @@ impl ItemRepository {
 
     pub fn move_items_from_mob_to_item(&mut self, mob_id: MobId, item_id: ItemId) {
         self.move_all(ItemLocation::Mob { mob_id: mob_id }, ItemLocation::Item { item_id: item_id });
+    }
+
+    pub fn get_equiped(&self, location: ItemLocation) -> Vec<ItemId> {
+        match self.inventory.get(&location) {
+            Some(inventory) => inventory.equip.clone(),
+            None => vec![],
+        }
     }
 
     pub fn get_inventory_list(&self, location: ItemLocation) -> Vec<&Item> {
@@ -287,8 +304,39 @@ impl ItemRepository {
         self.item_location.get(&item_id).unwrap()
     }
 
-    pub fn get_inventory(&self, location: &ItemLocation) -> Option<&Inventory> {
-        self.inventory.get(location)
+    pub fn get_inventory(&self, location: ItemLocation) -> Option<&Inventory> {
+        self.inventory.get(&location)
+    }
+
+    pub fn equip(&mut self, location: ItemLocation, item_id: ItemId) -> Result<(),()> {
+        let item = self.index.get(&item_id).unwrap();
+        let is_weapon = item.weapon.is_some();
+        let is_armor = item.armor.is_some();
+
+        if !is_weapon && !is_armor {
+            debug!("itemrepostitory - {:?} try to equip invalid item {:?}", location, item_id);
+            return Err(());
+        }
+
+        let mut inventory = self.get_inventory_mut(location).clone();
+
+        // remove equipments of same type
+        inventory.equip.retain(|item_id| {
+            let item = self.index.get(&item_id).unwrap();
+            let remove = is_weapon && item.weapon.is_some() || is_armor && item.armor.is_some();
+            if remove {
+                debug!("itemrepostitory - {:?} unequip {:?}", location, item_id);
+            }
+            !remove
+        });
+
+        // add new item
+        inventory.equip.push(item_id);
+        self.inventory.insert(location, inventory);
+
+        debug!("itemrepostitory - {:?} equip {:?}", location, item_id);
+
+        Ok(())
     }
 
     fn get_inventory_mut(&mut self, location: ItemLocation) -> &mut Inventory {
@@ -312,9 +360,6 @@ impl ItemRepository {
         self.item_location.insert(*item_id, location);
 
         debug!("itemrepostitory - add_location {:?} {:?}", item_id, location);
-
-        let inventory = self.get_inventory(&location);
-        debug!("itemrepostitory - inventory {:?}", inventory);
     }
 
     pub fn instantiate_item(&mut self, item_prefab_id: ItemPrefabId, location: ItemLocation) -> ItemId {
@@ -329,6 +374,8 @@ impl ItemRepository {
 
         item.amount = prefab.amount;
         item.item_def_id = Some(item_prefab_id);
+        item.weapon = prefab.weapon.clone();
+        item.armor = prefab.armor.clone();
 
         self.add(item, location);
 

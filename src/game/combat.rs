@@ -9,7 +9,7 @@ use super::mob::*;
 use crate::game::mob;
 
 pub fn tick_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, target_mob_id: MobId) {
-    let attacker = container.mobs.get(&mob_id);
+    let attacker = container.mobs.get(mob_id);
     let defender = container.mobs.find(&target_mob_id);
 
     if let Some(defender) = defender {
@@ -20,7 +20,7 @@ pub fn tick_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn
         }
 
         if attacker.is_read_to_attack(time.total) {
-            execute_attack(time, container, outputs, &mob_id, &target_mob_id);
+            execute_attack(time, container, outputs, mob_id, target_mob_id);
         }
 
         check_return_attack(time, container, outputs, target_mob_id, mob_id);
@@ -47,11 +47,11 @@ fn cancel_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: M
     container.mobs.cancel_attack(mob_id);
 }
 
-fn execute_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: &MobId, target: &MobId) {
+fn execute_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, target: MobId) {
     let player_id = container.players.find_player_id_from_avatar_mob_id(mob_id);
 
-    let attacker = container.mobs.get(&mob_id);
-    let defender = container.mobs.get(&target);
+    let attacker = container.mobs.get(mob_id);
+    let defender = container.mobs.get(target);
 
     let attack_result = roll_attack(&attacker.attributes.attack, &attacker.attributes.damage, &defender.attributes.defense);
     let room_attack_msg = comm::kill_mob_execute_attack(attacker, defender, &attack_result);
@@ -67,25 +67,25 @@ fn execute_attack(time: &GameTime, container: &mut Container, outputs: &mut dyn 
     if attack_result.success {
         // TODO: remove get/update/get
         // deduct pv
-        let mut defender = container.mobs.get(&target).clone();
+        let mut defender = container.mobs.get(target).clone();
         defender.attributes.pv.current -= attack_result.damage as i32;
         container.mobs.update(defender);
 
-        let defender = container.mobs.get(&target);
+        let defender = container.mobs.get(target);
         if defender.attributes.pv.current < 0 {
             execute_attack_killed(time, container, outputs, mob_id, target);
         }
     }
 
-    let mut attacker = container.mobs.get(&mob_id).clone();
+    let mut attacker = container.mobs.get(mob_id).clone();
     attacker.add_attack_calm_time(time.total);
     container.mobs.update(attacker);
 }
 
-fn execute_attack_killed(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, attacker_id: &MobId, target_id: &MobId) {
+fn execute_attack_killed(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, attacker_id: MobId, target_id: MobId) {
     let attacker_player_id = container.players.find_player_id_from_avatar_mob_id(attacker_id);
-    let attacker = container.mobs.get(&attacker_id);
-    let defender = container.mobs.get(&target_id);
+    let attacker = container.mobs.get(attacker_id);
+    let defender = container.mobs.get(target_id);
 
     let room_attack_msg = comm::killed(&defender);
 
@@ -97,7 +97,7 @@ fn execute_attack_killed(time: &GameTime, container: &mut Container, outputs: &m
         outputs.room_all(attacker.room_id, room_attack_msg);
     }
 
-    mob::kill_mob(time, container, outputs, *target_id);
+    mob::kill_mob(time, container, outputs, target_id);
 }
 
 
@@ -141,11 +141,11 @@ fn roll_damage(damage: &Damage) -> u32 {
 fn check_return_attack(_time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, aggressor_mob_id: MobId) {
     match container.mobs.find(&mob_id) {
         Some(mob) if mob.command.is_idle() => {
-            let aggressor_mob = container.mobs.get(&aggressor_mob_id);
+            let aggressor_mob = container.mobs.get(aggressor_mob_id);
             let msg = comm::kill_return_attack(&mob.label, &aggressor_mob.label);
             outputs.room_all(mob.room_id, msg);
 
-            container.mobs.set_mob_attack_target(mob_id, &aggressor_mob_id);
+            container.mobs.set_mob_attack_target(mob_id, aggressor_mob_id);
         },
         _ => {}
     }

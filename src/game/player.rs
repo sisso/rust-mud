@@ -104,10 +104,10 @@ impl PlayerRepository {
             .map(|(_, player)| player)
     }
 
-    pub fn find_player_id_from_avatar_mob_id(&self, mob_id: &MobId) -> Option<PlayerId> {
+    pub fn find_player_id_from_avatar_mob_id(&self, mob_id: MobId) -> Option<PlayerId> {
         self.index
             .iter()
-            .find(|(_, p)| p.avatar_id == *mob_id)
+            .find(|(_, p)| p.avatar_id == mob_id)
             .map(|(id, _)| id.clone())
     }
 

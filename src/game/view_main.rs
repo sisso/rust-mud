@@ -45,12 +45,18 @@ pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outp
 
         "stats" => {
             let ctx = container.get_player_context(player_id);
-            let item_inventory = container.items.get_inventory_list(ItemLocation::Mob { mob_id: ctx.avatar.id });
-            outputs.private(player_id, comm::stats(&ctx.avatar, &item_inventory));
+            let location = ItemLocation::Mob { mob_id: ctx.avatar.id };
+            let item_inventory = container.items.get_inventory_list(location);
+            let equiped = container.items.get_equiped(location);
+            outputs.private(player_id, comm::stats(&ctx.avatar, &item_inventory, &equiped));
         },
 
         _ if has_command(input, &["pick"]) || has_command(&input, &["get"]) => {
             actions_items::pickup(container, outputs, player_id, parse_arguments(input))
+        },
+
+        _ if has_command(input, &["equip"]) => {
+            actions_items::equip(container, outputs, player_id, parse_arguments(input))
         },
 
         _ if has_command(input, &["examine "]) => {
@@ -65,7 +71,7 @@ pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outp
 
             match candidate {
                 Some(mob_id) if !container.mobs.is_avatar(&mob_id) => {
-                    actions::attack(container, outputs, player_id, &mob_id);
+                    actions::attack(container, outputs, player_id, mob_id);
                 },
                 Some(_) => {
                     outputs.private(player_id, comm::kill_can_not_kill_players(&target));
@@ -116,8 +122,10 @@ fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_i
 
     match mobs.first() {
         Some(mob) => {
-            let mob_inventory = container.items.get_inventory_list(ItemLocation::Mob { mob_id: mob.id });
-            outputs.private(player_id.clone(), comm::examine_target(mob, &mob_inventory));
+            let item_location = ItemLocation::Mob { mob_id: mob.id };
+            let mob_inventory = container.items.get_inventory_list(item_location);
+            let equiped = container.items.get_equiped(item_location);
+            outputs.private(player_id, comm::examine_target(mob, &mob_inventory, &equiped));
             return;
         },
         _ => {},
@@ -127,14 +135,14 @@ fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_i
     match items.first() {
         Some(item) => {
             let item_inventory = container.items.get_inventory_list(ItemLocation::Item { item_id: item.id });
-            outputs.private(player_id.clone(), comm::examine_target_item(item, &item_inventory));
+            outputs.private(player_id, comm::examine_target_item(item, &item_inventory));
             return;
         },
         _ => {},
     }
 
     // else
-    outputs.private(player_id.clone(), comm::examine_target_not_found(&target));
+    outputs.private(player_id, comm::examine_target_not_found(&target));
 }
 
 fn has_command(input: &str, commands: &[&str]) -> bool {

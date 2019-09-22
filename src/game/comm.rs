@@ -20,7 +20,9 @@ pub fn help() -> String {
   rest              - rest to recovery from wounds, see stand
   stand             - sand up and stop to rest, see rest
   kill <target>     - attack something and try to kill it
-  pick <from> <obj> - pick a <obj> from <from>
+  get <obj>         - pick up a <obj> from floor
+  get <from> <obj>  - pick up a <obj> from <from>
+  equip <item>      - use a weapon or wear a armor
 -------------------------------------------------------------"#;
 
     str.to_string()
@@ -152,8 +154,8 @@ pub fn item_body_disappears(item: &Item) -> String {
     format!("a {} disappear.\n", item.label)
 }
 
-pub fn stats(mob: &Mob, inventory: &Vec<&Item>) -> String {
-    let inventory_str = show_inventory(inventory);
+pub fn stats(mob: &Mob, inventory: &Vec<&Item>, equiped: &Vec<ItemId>) -> String {
+    let inventory_str = show_inventory(inventory, equiped);
 
     format!("Stats: \n\
         attack:  {}\n\
@@ -175,20 +177,25 @@ pub fn examine_target_not_found(target: &String) -> String {
     format!("no [{}] can be found!\n", target)
 }
 
-pub fn examine_target(mob: &Mob, inventory: &Vec<&Item>) -> String {
-    format!("you examine {}!\n{}", mob.label, stats(&mob, inventory))
+pub fn examine_target(mob: &Mob, inventory: &Vec<&Item>, equiped: &Vec<ItemId>) -> String {
+    format!("you examine {}!\n{}", mob.label, stats(&mob, inventory, equiped))
 }
 
 pub fn examine_target_item(item: &Item, inventory: &Vec<&Item>) -> String {
-    format!("you examine {}!\n{}", item.label, show_inventory(inventory))
+    format!("you examine {}!\n{}", item.label, show_inventory(inventory, &vec![]))
 }
 
-pub fn show_inventory(inventory: &Vec<&Item>) -> String {
+pub fn show_inventory(inventory: &Vec<&Item>, equiped: &Vec<ItemId>) -> String {
     let mut buffer: Vec<String> = vec![
         "Inventory:".to_string(),
     ];
     for item in inventory {
-        buffer.push(format!("- {}", print_item(item)));
+        let is_equiped = equiped.iter().find(|item_id| **item_id == item.id).is_some();
+        if is_equiped {
+            buffer.push(format!("- {}*", print_item(item)));
+        } else {
+            buffer.push(format!("- {}", print_item(item)));
+        }
     }
     buffer.join("\n")
 }
@@ -233,6 +240,26 @@ pub fn pick_player_from_room(target_item: &str) -> String {
 
 pub fn pick_from_room(actor: &str, target_item: &str) -> String {
     format!("{} pick a {} from the floor\n", actor, target_item)
+}
+
+pub fn equip_what() -> String {
+    "what? what do you want to equip?\n".to_string()
+}
+
+pub fn equip_item_not_found(label: &str) -> String {
+    format!("you can not find a {} to equip\n", label)
+}
+
+pub fn equip_item_invalid(label: &str) -> String {
+    format!("you can not equip a {}\n", label)
+}
+
+pub fn equip_player_from_room(target_item: &str) -> String {
+    format!("you equip a {}\n", target_item)
+}
+
+pub fn equip_from_room(actor: &str, target_item: &str) -> String {
+    format!("{} equip a {}\n", actor, target_item)
 }
 
 pub fn admin_invalid_command() -> String {
@@ -292,11 +319,31 @@ mod tests {
     use super::*;
 
     fn item_0_coins() -> Item {
-        Item::new(
+        let mut item = Item::new(
             ItemId(0),
             ITEM_KIND_GOLD,
             "coins".to_string()
-        )
+        );
+
+        item.amount = 2;
+
+        item
+    }
+
+    fn item_1_weapon() -> Item {
+        let mut item = Item::new(
+            ItemId(1),
+            ITEM_KIND_UNDEFINED,
+            "weapon".to_string()
+        );
+
+        item.weapon = Some(Weapon {
+            damage_min: 1,
+            damage_max: 2,
+            reload: Second::one()
+        });
+
+        item
     }
 
     fn strip_colors(input: String) -> String {
@@ -306,10 +353,13 @@ mod tests {
     #[test]
     fn show_inventory_test() {
         let coins = item_0_coins();
-        let items = &vec![&coins];
-        let string = show_inventory(items);
+        let weapon = item_1_weapon();
+        let items = vec![&coins, &weapon];
+        let equip = vec![weapon.id];
+        let string = show_inventory(&items, &equip);
         assert_eq!("Inventory:\n\
-                    - coins", string);
+                    - coins (2)\n\
+                    - weapon*", string);
     }
 
     #[test]
