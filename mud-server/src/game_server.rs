@@ -1,10 +1,27 @@
-use crate::game::{Game};
-use crate::game::container::Container;
-use crate::game::domain::GameTime;
-use crate::game::loader;
-use crate::server;
-use crate::utils::*;
-use crate::utils::save::*;
+use mud_domain::game::{Game};
+use mud_domain::game::container::Container;
+use mud_domain::game::domain::GameTime;
+use mud_domain::game::loader;
+use mud_domain::utils::save::*;
+use server::*;
+use mud_domain::utils::{ConnectionId, TimeTrigger, Second, Tick, ConnectionOutput};
+
+fn to_server(connection_id: ConnectionId) -> ServerConnectionId {
+    ServerConnectionId(connection_id.0)
+}
+
+fn from_server(connection_id: ServerConnectionId) -> ConnectionId {
+    ConnectionId(connection_id.0)
+}
+
+fn outputs_to_server(outputs: Vec<ConnectionOutput>) -> Vec<ServerConnectionOutput> {
+    outputs.into_iter().map(|output| {
+        ServerConnectionOutput {
+            dest_connections_id: output.dest_connections_id.into_iter().map(to_server).collect(),
+            output: output.output
+        }
+    }).collect()
+}
 
 pub struct ServerRunner {
     server: Box<dyn server::Server>,
@@ -40,21 +57,21 @@ impl ServerRunner {
         let result = self.server.run();
 
         for connection_id in result.connects {
-            self.game.add_connection(connection_id);
+            self.game.add_connection(from_server(connection_id));
         }
 
         for connection_id in result.disconnects {
-            self.game.disconnect(connection_id);
+            self.game.disconnect(from_server(connection_id));
         }
 
         for (connection_id, input) in result.pending_inputs {
-            self.game.handle_input(&self.game_time, connection_id, input.as_ref());
+            self.game.handle_input(&self.game_time, from_server(connection_id), input.as_ref());
         }
 
         self.game.tick(&self.game_time);
 
         let outputs = self.game.get_outputs();
-        self.server.append_output(outputs);
+        self.server.append_output(outputs_to_server(outputs));
 
         if let Some((save_file, trigger)) = self.save.as_mut() {
             if trigger.check(self.game_time.total) {

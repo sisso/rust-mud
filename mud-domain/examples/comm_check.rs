@@ -1,6 +1,6 @@
-extern crate mud;
+extern crate mud_domain;
 
-use mud::game::comm;
+use mud_domain::game::comm;
 
 fn main() {
     println!();

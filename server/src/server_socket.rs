@@ -1,13 +1,12 @@
-use super::*;
-
 use std::net::{TcpStream, TcpListener};
 use std::io;
 use std::io::{Write, BufRead, ErrorKind};
+use commons::*;
 
-use crate::utils::{ConnectionId, ConnectionOutput};
+use super::*;
 
 struct Connection {
-    id: ConnectionId,
+    id: ServerConnectionId,
     stream: TcpStream,
 }
 
@@ -16,7 +15,7 @@ pub struct SocketServer {
     tick: u32,
     connections: Vec<Connection>,
     listener: Option<TcpListener>,
-    pending_outputs: Option<Vec<ConnectionOutput>>,
+    pending_outputs: Option<Vec<ServerConnectionOutput>>,
 }
 
 impl Connection {
@@ -44,17 +43,17 @@ impl Server for SocketServer {
         self.read_write(outputs)
     }
 
-    fn append_output(&mut self, pending_outputs: Vec<ConnectionOutput>) {
+    fn append_output(&mut self, pending_outputs: Vec<ServerConnectionOutput>) {
         assert!(self.pending_outputs.is_none());
         self.pending_outputs = Some(pending_outputs);
     }
 }
 
 impl SocketServer {
-    fn next_connection_id(&mut self) -> ConnectionId {
+    fn next_connection_id(&mut self) -> ServerConnectionId {
         let id = self.next_conneciton_id;
         self.next_conneciton_id += 1;
-        ConnectionId(id)
+        ServerConnectionId(id)
     }
 
     pub fn new() -> Self {
@@ -79,10 +78,10 @@ impl SocketServer {
         self.listener = Some(listener);
     }
 
-    fn read_write(&mut self, pending_outputs: Vec<ConnectionOutput>) -> ServerChanges {
-        let mut new_connections: Vec<ConnectionId> = vec![];
-        let mut broken_connections: Vec<ConnectionId> = vec![];
-        let mut pending_inputs: Vec<(ConnectionId, String)> = vec![];
+    fn read_write(&mut self, pending_outputs: Vec<ServerConnectionOutput>) -> ServerChanges {
+        let mut new_connections: Vec<ServerConnectionId> = vec![];
+        let mut broken_connections: Vec<ServerConnectionId> = vec![];
+        let mut pending_inputs: Vec<(ServerConnectionId, String)> = vec![];
 
         let listener = self.listener.as_ref().expect("server not started!");
 

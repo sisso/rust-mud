@@ -1,14 +1,8 @@
-[package]
-name = "mud"
-version = "0.1.0"
-authors = ["sisso <sisso@sisso.com.br>"]
-edition = "2018"
-
-[dependencies]
-rand ="*"
-termion = "*"
-serde_json = "1.*"
-
-[dependencies.hocon]
-version = "0.3.0"
-default-features = false
+[workspace]
+members = [
+  "mud-domain",
+  "server",
+  "mud-server",
+  "mud-console",
+  "commons",
+]

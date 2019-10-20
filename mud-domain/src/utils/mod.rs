@@ -1,7 +1,15 @@
 pub mod macros;
-pub mod logs;
 pub mod jsons;
 pub mod save;
+
+#[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
+pub struct ConnectionId(pub u32);
+
+#[derive(Debug,Clone)]
+pub struct ConnectionOutput {
+    pub dest_connections_id: Vec<ConnectionId>,
+    pub output: String
+}
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct Tick(pub u32);
@@ -14,6 +22,7 @@ impl Tick {
 
 pub const ONE_SECOND: Second = Second(1.0);
 
+// TODO: to DeltaTime and TotalTime
 #[derive(Clone,Copy,Debug)]
 pub struct Second(pub f32);
 
@@ -51,15 +60,6 @@ impl std::ops::Sub<Second> for Second {
     fn sub(self, rhs: Second) -> Second {
         Second(self.0 - rhs.0)
     }
-}
-
-#[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
-pub struct ConnectionId(pub u32);
-
-#[derive(Debug)]
-pub struct ConnectionOutput {
-    pub dest_connections_id: Vec<ConnectionId>,
-    pub output: String
 }
 
 /// @see Trigger::check
