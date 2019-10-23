@@ -1,8 +1,10 @@
 [package]
-name = "server"
+name = "socket-server"
 version = "0.1.0"
 authors = ["sisso <sisso@sisso.com.br>"]
 edition = "2018"
+
+[lib]
 
 [dependencies]
 logs = { version = "*", path = "../logs" }
