@@ -2,6 +2,7 @@ extern crate logs;
 
 pub mod server_dummy;
 pub mod server_socket;
+pub mod local_server;
 
 #[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
 pub struct ConnectionId(pub u32);

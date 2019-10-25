@@ -41,6 +41,12 @@
 
 ## Modules
 
+Main modules
+
+- Servers
+- Controllers
+- Views
+
 - core-engine: share between all engines, basic domain classes and utilities
 - $game-engine: game specific rules and running code
     - mud-engine

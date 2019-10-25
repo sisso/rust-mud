@@ -10,6 +10,8 @@ members = [
   "core-engine",
   "mud-engine",
   "socket-server",
+  "http-server",
   "mud-socket-controller",
   "core-controller",
+  "mud-main",
 ]

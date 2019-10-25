@@ -1,10 +1,11 @@
 [package]
-name = "server"
+name = "mud-main"
 version = "0.1.0"
 authors = ["sisso <sisso@sisso.com.br>"]
 edition = "2018"
 
 [dependencies]
 logs = { version = "*", path = "../logs" }
+core = { version = "*", path = "../core" }
 socket-server = { version = "*", path = "../socket-server" }
 http-server = { version = "*", path = "../http-server" }
