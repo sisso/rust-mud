@@ -11,6 +11,13 @@ pub struct DeltaTime(pub f32);
 #[derive(Clone,Copy,Debug)]
 pub struct TotalTime(pub f64);
 
+///
+/// User connected to the engine, not necessary logged
+///
+#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
+pub struct UserId(pub u32);
+
+
 impl Second {
     pub fn one() -> Second {
         Second(1.0)
@@ -93,6 +100,14 @@ impl TimeTrigger {
         } else {
             None
         }
+    }
+}
+
+pub fn vec_take<T, F>(collection: &mut Vec<T>, closure: F) -> Option<T>
+    where F: FnMut(&T) -> bool {
+    match collection.iter().position(closure) {
+        Some(index) => Some(collection.remove(index)),
+        other => None,
     }
 }
 

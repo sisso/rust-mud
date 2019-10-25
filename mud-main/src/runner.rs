@@ -1,29 +1,14 @@
 use std::path::Path;
+
 use socket_server::server_socket::SocketServer;
+use socket_server::local_server::LocalServer;
 use http_server::HttpServer;
+
+use core::utils::DeltaTime;
+use core_engine::Engine;
+
 use crate::command_line_controller::CommandLineController;
 use crate::http_controller::HttpController;
-use socket_server::local_server::LocalServer;
-use core::utils::DeltaTime;
-
-// TODO: move to proper package
-pub struct Engine {
-
-}
-
-impl Engine {
-    pub fn new() -> Self {
-        Engine {}
-    }
-
-    pub fn load(&mut self, data_dir: &str) {
-
-    }
-
-    pub fn tick(&mut self, delta_time: DeltaTime) {
-
-    }
-}
 
 #[derive(Debug)]
 pub struct Params {
@@ -31,24 +16,29 @@ pub struct Params {
 }
 
 pub fn run(params: Params) {
-    let mut engine = Engine::new();
+    let mut engine: &mut Engine = unimplemented!();
     engine.load(params.data_dir.as_str());
 
     let mut local_server = LocalServer::new();
     let mut socket_server = SocketServer::new();
     let mut http_server = HttpServer::new();
 
-    let mut command_line_controller = CommandLineController::new(vec![
-        Box::new(local_server),
-        Box::new(socket_server)
-    ]);
+    let mut local_controller = CommandLineController::new(Box::new(local_server));
+    let mut socket_controller = CommandLineController::new(Box::new(socket_server));
     let mut http_controller = HttpController::new(http_server);
 
     let delta_time = DeltaTime(0.1);
 
     loop {
-        command_line_controller.handle(&mut engine);
-        http_controller.handle(&mut engine);
+        local_controller.handle_inputs(&mut engine);
+        socket_controller.handle_inputs(&mut engine);
+        http_controller.handle_inputs(&mut engine);
+
         engine.tick(delta_time);
+
+        let events = engine.take_events();
+        local_controller.handle_events(&mut engine, &events);
+        socket_controller.handle_events(&mut engine, &events);
+        http_controller.handle_events(&mut engine, &events);
     }
 }

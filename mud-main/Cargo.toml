@@ -7,5 +7,6 @@ edition = "2018"
 [dependencies]
 logs = { version = "*", path = "../logs" }
 core = { version = "*", path = "../core" }
+core-engine = { version = "*", path = "../core-engine" }
 socket-server = { version = "*", path = "../socket-server" }
 http-server = { version = "*", path = "../http-server" }
