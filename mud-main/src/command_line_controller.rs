@@ -1,6 +1,6 @@
 use socket_server::{Server, ConnectionId};
 use core::utils::{UserId, vec_take};
-use core_engine::{Engine, Output};
+use mud_engine::{Engine, Output};
 use std::collections::HashMap;
 use crate::command_line_controller::input_handler::handle_input;
 use crate::command_line_controller::output_handler::handle_outputs;

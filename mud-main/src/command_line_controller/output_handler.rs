@@ -1,5 +1,5 @@
 use core::utils::UserId;
-use core_engine::{Engine, Output};
+use mud_engine::{Engine, Output};
 use socket_server::{ServerOutput, ConnectionId};
 use std::collections::HashMap;
 

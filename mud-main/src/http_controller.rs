@@ -1,5 +1,5 @@
 use http_server::HttpServer;
-use core_engine::{Engine, Output};
+use mud_engine::{Engine, Output};
 
 pub struct HttpController {
 

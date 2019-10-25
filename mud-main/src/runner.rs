@@ -5,7 +5,7 @@ use socket_server::local_server::LocalServer;
 use http_server::HttpServer;
 
 use core::utils::DeltaTime;
-use core_engine::Engine;
+use mud_engine::Engine;
 
 use crate::command_line_controller::CommandLineController;
 use crate::http_controller::HttpController;
@@ -16,7 +16,7 @@ pub struct Params {
 }
 
 pub fn run(params: Params) {
-    let mut engine: &mut Engine = unimplemented!();
+    let mut engine: Engine = Engine::new();
     engine.load(params.data_dir.as_str());
 
     let mut local_server = LocalServer::new();
