@@ -1,4 +1,4 @@
-use core::utils::{DeltaTime, UserId};
+use core::utils::{DeltaTime, PlayerId};
 
 pub struct Engine {
 
@@ -17,11 +17,7 @@ impl Engine {
 
     }
 
-    pub fn add_connection(&mut self) -> UserId {
-        unimplemented!()
-    }
-
-    pub fn remove_connection(&mut self, user_id: UserId) {
+    pub fn disconnect(&mut self, player_id: PlayerId) {
         unimplemented!()
     }
 
@@ -29,7 +25,7 @@ impl Engine {
         unimplemented!()
     }
 
-    pub fn login(&mut self, user_id: UserId, login: &str, pass: &str) -> bool {
+    pub fn login(&mut self, login: &str, pass: &str) -> Result<PlayerId, ()> {
         unimplemented!()
     }
 }

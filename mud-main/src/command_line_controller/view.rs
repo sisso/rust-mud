@@ -1,8 +1,7 @@
 use socket_server::ConnectionId;
 use mud_engine::Engine;
-use core::utils::UserId;
+use core::utils::PlayerId;
 
-use super::Outputs;
 use super::comm;
 
 pub enum ViewKind {
@@ -51,7 +50,7 @@ impl GameViewData {
 
 pub struct ViewData {
     pub connection_id: ConnectionId,
-    pub user_id: Option<UserId>,
+    pub player_id: Option<PlayerId>,
     pub current: ViewKind,
 }
 
@@ -59,15 +58,15 @@ impl ViewData {
     pub fn new(connection_id: ConnectionId) -> Self {
         ViewData {
             connection_id,
-            user_id: None,
+            player_id: None,
             current: ViewKind::Login,
         }
     }
 }
 
-pub trait ViewManager<'a> {
+pub trait ViewManager {
     fn output(&mut self, connection_id: ConnectionId, msg: String);
-    fn execute_login(&mut self, login: &str, pass: &str) -> Result<UserId, ()>;
+    fn execute_login(&mut self, connection_id: ConnectionId, login: &str, pass: &str) -> Result<PlayerId, ()>;
 }
 
 pub trait View {
@@ -94,9 +93,9 @@ impl View for LoginView {
     fn handle(&mut self, view_manager: &mut dyn ViewManager, input: String, data: &mut ViewData) -> ViewAction {
         match self.login.take() {
             Some(login) => {
-                match view_manager.execute_login(login.as_str(), input.as_str()) {
-                    Ok(user_id) => {
-                        data.user_id = Some(user_id);
+                match view_manager.execute_login(data.connection_id, login.as_str(), input.as_str()) {
+                    Ok(player_id) => {
+                        data.player_id = Some(player_id);
                         ViewAction::SetView { kind: ViewKind::Menu }
                     },
                     Err(_) => {
@@ -104,6 +103,9 @@ impl View for LoginView {
                         ViewAction::None
                     }
                 }
+            },
+            None if input.eq("new") => {
+                ViewAction::SetView { kind: ViewKind::CharacterCreation }
             },
             None => {
                 if input.len() < 3 {
@@ -146,5 +148,24 @@ impl View for MenuView {
                 ViewAction::None
             },
         }
+    }
+}
+
+pub struct CharacterCreationView {
+
+}
+
+impl CharacterCreationView {
+    pub fn new() -> Self {
+        CharacterCreationView {}
+    }
+}
+
+impl View for CharacterCreationView {
+    fn init(&mut self, view_manager: &mut dyn ViewManager, data: &mut ViewData) {
+    }
+
+    fn handle(&mut self, view_manager: &mut dyn ViewManager, input: String, data: &mut ViewData) -> ViewAction {
+        ViewAction::None
     }
 }

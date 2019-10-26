@@ -1,48 +1,20 @@
 use socket_server::{Server, ConnectionId, ServerOutput, ServerChanges};
-use core::utils::{UserId, vec_take};
+use core::utils::{PlayerId, vec_take};
 use mud_engine::{Engine, Output};
 use std::collections::HashMap;
 use std::borrow::BorrowMut;
-use crate::command_line_controller::view::{ViewData, LoginView, MenuView, View, ViewManager, ViewKind, ViewAction};
+use crate::command_line_controller::view::{ViewData, LoginView, MenuView, View, ViewManager, ViewKind, ViewAction, CharacterCreationView};
 
 // TODO: how to normalize outputs to add $hp $
 
-//mod input_handler;
-//mod output_handler;
 mod view;
 mod comm;
-
-pub trait Outputs {
-    fn add(&mut self, connection_id: ConnectionId, msg: String);
-}
-
-pub struct OutputsBuffer {
-    buffer: Vec<(ConnectionId, String)>,
-}
-
-impl OutputsBuffer {
-    pub fn new() -> Self {
-        OutputsBuffer { buffer: vec![] }
-    }
-
-    pub fn flush(&mut self, server: &mut Server) {
-        let buffer = std::mem::replace(&mut self.buffer, Vec::new());
-        for (connection_id, msg) in buffer {
-            server.output(connection_id, msg);
-        }
-    }
-}
-
-impl Outputs for OutputsBuffer {
-    fn add(&mut self, connection_id: ConnectionId, msg: String) {
-        self.buffer.push((connection_id, msg));
-    }
-}
 
 struct ConnectionView {
     data: ViewData,
     view_login: LoginView,
     view_menu: MenuView,
+    view_character_creation: CharacterCreationView,
 }
 
 impl ConnectionView {
@@ -51,6 +23,25 @@ impl ConnectionView {
             data: ViewData::new(connection_id),
             view_login: LoginView::new(),
             view_menu: MenuView::new(),
+            view_character_creation: CharacterCreationView::new(),
+        }
+    }
+
+    pub fn init(&mut self, view_manager: &mut dyn ViewManager) {
+        match self.data.current {
+            ViewKind::Login => self.view_login.init(view_manager, &mut self.data),
+            ViewKind::Menu => self.view_menu.init(view_manager, &mut self.data),
+            ViewKind::CharacterCreation => self.view_character_creation.init(view_manager, &mut self.data),
+            _ => panic!(),
+        }
+    }
+
+    pub fn handle(&mut self, view_manager: &mut dyn ViewManager, input: String) -> ViewAction {
+        match self.data.current {
+            ViewKind::Login => self.view_login.handle(view_manager, input, &mut self.data),
+            ViewKind::Menu => self.view_menu.handle(view_manager, input, &mut self.data),
+            ViewKind::CharacterCreation => self.view_character_creation.handle(view_manager, input, &mut self.data),
+            _ => panic!(),
         }
     }
 }
@@ -58,6 +49,7 @@ impl ConnectionView {
 pub struct CommandLineController {
     server: Box<dyn Server>,
     connections: HashMap<ConnectionId, ConnectionView>,
+    connection_per_player_id: HashMap<PlayerId, ConnectionId>,
 }
 
 impl CommandLineController {
@@ -65,26 +57,27 @@ impl CommandLineController {
         CommandLineController {
             server,
             connections: Default::default(),
+            connection_per_player_id: Default::default(),
         }
     }
 
 //    fn login() {
-//        let user_id = engine.add_connection();
-//        let _ = self.per_user_id.insert(user_id, connection_id);
-//        let _ = self.per_connection_id.insert(connection_id, user_id);
+//        let player_id = engine.add_connection();
+//        let _ = self.per_player_id.insert(player_id, connection_id);
+//        let _ = self.per_connection_id.insert(connection_id, player_id);
 //        let mut view = ViewData::new(connection_id);
 //        init_login(engine, &mut self.outputs, &mut view);
-//        let _ = self.view_data.insert(user_id, view);
+//        let _ = self.view_data.insert(player_id, view);
 //    }
 //
 //    fn disconnect() {
-//        let user_id = self.per_connection_id.remove(&connection_id).unwrap();
-//        let _ = self.per_user_id.remove(&user_id);
-//        engine.remove_connection(user_id);
+//        let player_id = self.per_connection_id.remove(&connection_id).unwrap();
+//        let _ = self.per_player_id.remove(&player_id);
+//        engine.remove_connection(player_id);
 //    }
 
     pub fn handle_inputs(&mut self, engine: &mut Engine) {
-        let mut view_manager = ControllerViewManager::new(engine);
+        let mut view_manager = ControllerViewManager::new(engine, &mut self.connection_per_player_id);
 
         let result = self.server.run();
 
@@ -134,7 +127,7 @@ impl CommandLineController {
     }
 
     pub fn handle_events(&mut self, engine: &mut Engine, events: &Vec<Output>) {
-        let mut view_manager = ControllerViewManager::new(engine);
+        let mut view_manager = ControllerViewManager::new(engine, &mut self.connection_per_player_id);
 //        handle_outputs(engine, &mut self.outputs, events);
         view_manager.flush(&mut *self.server);
     }
@@ -143,17 +136,19 @@ impl CommandLineController {
 struct ControllerViewManager<'a> {
     engine: &'a mut Engine,
     buffer: Vec<(ConnectionId, String)>,
+    connection_per_player_id: &'a mut HashMap<PlayerId, ConnectionId>,
 }
 
 impl<'a> ControllerViewManager<'a> {
-    pub fn new(engine: &'a mut Engine) -> Self {
+    pub fn new(engine: &'a mut Engine, connection_per_player_id: &'a mut HashMap<PlayerId, ConnectionId>) -> Self {
         ControllerViewManager {
             engine,
             buffer: Vec::new(),
+            connection_per_player_id,
         }
     }
 
-    pub fn flush(&mut self, server: &mut Server) {
+    pub fn flush(&mut self, server: &mut dyn Server) {
         let buffer = std::mem::replace(&mut self.buffer, Vec::new());
         for (connection_id, msg) in buffer {
             server.output(connection_id, msg);
@@ -161,13 +156,15 @@ impl<'a> ControllerViewManager<'a> {
     }
 }
 
-impl<'a> ViewManager<'a> for ControllerViewManager<'a> {
+impl<'a> ViewManager for ControllerViewManager<'a> {
     fn output(&mut self, connection_id: ConnectionId, msg: String) {
         self.buffer.push((connection_id, msg));
     }
 
-    fn execute_login(&mut self, login: &str, pass: &str) -> Result<UserId, ()> {
-        let user_id = self.engine.add_connection();
-        Ok(user_id)
+    fn execute_login(&mut self, connection_id: ConnectionId, login: &str, pass: &str) -> Result<PlayerId, ()> {
+        self.engine.login(login, pass).map(|player_id| {
+            self.connection_per_player_id.insert(player_id, connection_id);
+            player_id
+        })
     }
 }

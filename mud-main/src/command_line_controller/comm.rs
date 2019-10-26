@@ -1,6 +1,8 @@
 pub fn welcome() -> String {
     r#"--== Welcome to Mud ==--
 
+To create a new characer, type new in login.
+
 login: "#.to_string()
 }
 

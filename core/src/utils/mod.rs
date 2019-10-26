@@ -11,12 +11,8 @@ pub struct DeltaTime(pub f32);
 #[derive(Clone,Copy,Debug)]
 pub struct TotalTime(pub f64);
 
-///
-/// User connected to the engine, not necessary logged
-///
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
-pub struct UserId(pub u32);
-
+pub struct PlayerId(pub u32);
 
 impl Second {
     pub fn one() -> Second {
