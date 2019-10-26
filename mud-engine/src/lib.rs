@@ -28,6 +28,10 @@ impl Engine {
     pub fn take_events(&mut self) -> Vec<Output> {
         unimplemented!()
     }
+
+    pub fn login(&mut self, user_id: UserId, login: &str, pass: &str) -> bool {
+        unimplemented!()
+    }
 }
 
 pub enum Output {

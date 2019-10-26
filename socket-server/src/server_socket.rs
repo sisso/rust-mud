@@ -43,9 +43,11 @@ impl Server for SocketServer {
         self.read_write(outputs)
     }
 
-    fn append_output(&mut self, pending_outputs: Vec<ServerOutput>) {
-        assert!(self.pending_outputs.is_none());
-        self.pending_outputs = Some(pending_outputs);
+    fn output(&mut self, connection_id: ConnectionId, msg: String) {
+        self.pending_outputs.get_or_insert(vec![]).push(ServerOutput {
+            connection_id,
+            msg
+        });
     }
 }
 

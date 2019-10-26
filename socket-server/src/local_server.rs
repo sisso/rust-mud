@@ -1,4 +1,4 @@
-use crate::{Server, ServerOutput, ServerChanges};
+use crate::{Server, ServerOutput, ServerChanges, ConnectionId};
 
 pub struct LocalServer {
 
@@ -15,7 +15,7 @@ impl Server for LocalServer {
         unimplemented!()
     }
 
-    fn append_output(&mut self, outputs: Vec<ServerOutput>) {
+    fn output(&mut self, connection_id: ConnectionId, msg: String) {
         unimplemented!()
     }
 }

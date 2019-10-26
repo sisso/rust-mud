@@ -36,5 +36,5 @@ pub struct ServerChanges {
 
 pub trait Server {
     fn run(&mut self) -> ServerChanges;
-    fn append_output(&mut self, outputs: Vec<ServerOutput>);
+    fn output(&mut self, connection_id: ConnectionId, msg: String);
 }
