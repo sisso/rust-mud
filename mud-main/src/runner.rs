@@ -15,6 +15,7 @@ pub struct Params {
     pub data_dir: String
 }
 
+// TODO: read from params what servers to start and forward configurations, like port
 pub fn run(params: Params) {
     let mut engine: Engine = Engine::new();
     engine.load(params.data_dir.as_str());

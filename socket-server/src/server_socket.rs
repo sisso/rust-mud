@@ -49,6 +49,10 @@ impl Server for SocketServer {
             msg
         });
     }
+
+    fn disconnect(&mut self, connection_id: ConnectionId) {
+        unimplemented!()
+    }
 }
 
 impl SocketServer {

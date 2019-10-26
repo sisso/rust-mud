@@ -18,3 +18,7 @@ pub fn menu_welcome() -> String {
   2) Disconnect
 "#.to_string()
 }
+
+pub fn menu_invalid(input: &str) -> String {
+    format!("Invalid option '{}'.", input)
+}

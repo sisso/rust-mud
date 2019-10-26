@@ -37,4 +37,5 @@ pub struct ServerChanges {
 pub trait Server {
     fn run(&mut self) -> ServerChanges;
     fn output(&mut self, connection_id: ConnectionId, msg: String);
+    fn disconnect(&mut self, connection_id: ConnectionId);
 }
