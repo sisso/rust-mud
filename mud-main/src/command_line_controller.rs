@@ -17,13 +17,12 @@ pub enum ViewKind {
 }
 
 pub struct LoginViewData {
-    login: Option<String>,
-    password: Option<String>,
+    pub login: Option<String>,
 }
 
 impl LoginViewData {
     pub fn new() -> Self {
-        LoginViewData { login: None, password: None }
+        LoginViewData { login: None }
     }
 }
 
@@ -49,12 +48,12 @@ impl GameViewData {
 }
 
 pub struct ViewData {
-    connection_id: ConnectionId,
-    user_id: Option<UserId>,
-    current: ViewKind,
-    login_data: LoginViewData,
-    character_creation_data: CharacterCreationViewData,
-    game_data: GameViewData,
+    pub connection_id: ConnectionId,
+    pub user_id: Option<UserId>,
+    pub current: ViewKind,
+    pub login_data: LoginViewData,
+    pub character_creation_data: CharacterCreationViewData,
+    pub game_data: GameViewData,
 }
 
 impl ViewData {
