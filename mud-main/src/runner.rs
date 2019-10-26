@@ -12,7 +12,10 @@ use crate::http_controller::HttpController;
 
 #[derive(Debug)]
 pub struct Params {
-    pub data_dir: String
+    pub data_dir: String,
+    pub local: bool,
+    pub socket: bool,
+    pub http: bool,
 }
 
 // TODO: read from params what servers to start and forward configurations, like port
@@ -20,26 +23,45 @@ pub fn run(params: Params) {
     let mut engine: Engine = Engine::new();
     engine.load(params.data_dir.as_str());
 
-    let mut local_server = LocalServer::new();
-    let mut socket_server = SocketServer::new();
-    let mut http_server = HttpServer::new();
+    let mut local_controller = if params.local {
+        let mut local_server = LocalServer::new();
+        Some(CommandLineController::new(Box::new(local_server)))
+    } else { None };
 
-    let mut local_controller = CommandLineController::new(Box::new(local_server));
-    let mut socket_controller = CommandLineController::new(Box::new(socket_server));
-    let mut http_controller = HttpController::new(http_server);
+    let mut socket_controller = if params.socket {
+        let mut socket_server = SocketServer::new();
+        Some(CommandLineController::new(Box::new(socket_server)))
+    } else { None };
+
+    let mut http_controller = if params.http {
+        let mut http_server = HttpServer::new();
+        Some(HttpController::new(http_server))
+    } else { None };
 
     let delta_time = DeltaTime(0.1);
 
     loop {
-        local_controller.handle_inputs(&mut engine);
-        socket_controller.handle_inputs(&mut engine);
-        http_controller.handle_inputs(&mut engine);
+        if let Some(controller) = &mut local_controller {
+            controller.handle_inputs(&mut engine);
+        }
+        if let Some(controller) = &mut socket_controller {
+            controller.handle_inputs(&mut engine);
+        }
+        if let Some(controller) = &mut http_controller {
+            controller.handle_inputs(&mut engine);
+        }
 
         engine.tick(delta_time);
 
         let events = engine.take_events();
-        local_controller.handle_events(&mut engine, &events);
-        socket_controller.handle_events(&mut engine, &events);
-        http_controller.handle_events(&mut engine, &events);
+        if let Some(controller) = &mut local_controller {
+            controller.handle_events(&mut engine, &events);
+        }
+        if let Some(controller) = &mut socket_controller {
+            controller.handle_events(&mut engine, &events);
+        }
+        if let Some(controller) = &mut http_controller {
+            controller.handle_events(&mut engine, &events);
+        }
     }
 }

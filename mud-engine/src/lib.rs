@@ -22,11 +22,11 @@ impl Engine {
     }
 
     pub fn take_events(&mut self) -> Vec<Output> {
-        unimplemented!()
+        vec![]
     }
 
     pub fn login(&mut self, login: &str, pass: &str) -> Result<PlayerId, ()> {
-        unimplemented!()
+        Err(())
     }
 }
 

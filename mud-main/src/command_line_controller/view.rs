@@ -95,7 +95,9 @@ impl ViewContext {
         }
     }
 
-    pub fn handle(&mut self, view_manager: &mut dyn ViewController, input: String) {
+    pub fn handle(&mut self, view_manager: &mut dyn ViewController, mut input: String) {
+        let input = input.trim();
+
         let action = match self.data.current {
             ViewKind::Login => self.view_login.handle(view_manager, input, &mut self.data),
             ViewKind::Menu => self.view_menu.handle(view_manager, input, &mut self.data),
@@ -127,7 +129,7 @@ pub trait ViewController {
 pub trait View {
     fn init(&mut self, view_manager: &mut dyn ViewController, data: &mut ViewData);
 
-    fn handle(&mut self, view_manager: &mut dyn ViewController, input: String, data: &mut ViewData) -> ViewAction;
+    fn handle(&mut self, view_manager: &mut dyn ViewController, input: &str, data: &mut ViewData) -> ViewAction;
 }
 
 pub struct LoginView {
@@ -145,10 +147,10 @@ impl View for LoginView {
         view_manager.output(data.connection_id, comm::welcome());
     }
 
-    fn handle(&mut self, view_manager: &mut dyn ViewController, input: String, data: &mut ViewData) -> ViewAction {
+    fn handle(&mut self, view_manager: &mut dyn ViewController, input: &str, data: &mut ViewData) -> ViewAction {
         match self.login.take() {
             Some(login) => {
-                match view_manager.execute_login(data.connection_id, login.as_str(), input.as_str()) {
+                match view_manager.execute_login(data.connection_id, login.as_str(), input) {
                     Ok(player_id) => {
                         data.player_id = Some(player_id);
                         data.current = ViewKind::Menu;
@@ -156,6 +158,7 @@ impl View for LoginView {
                     },
                     Err(_) => {
                         view_manager.output(data.connection_id, comm::login_fail(login.as_str()));
+                        view_manager.output(data.connection_id, comm::login_request_login());
                         ViewAction::None
                     }
                 }
@@ -166,9 +169,11 @@ impl View for LoginView {
             },
             None => {
                 if input.len() < 3 {
-                    view_manager.output(data.connection_id, comm::login_invalid(input.as_str()));
+                    view_manager.output(data.connection_id, comm::login_invalid(input));
+                    view_manager.output(data.connection_id, comm::login_request_login());
                 } else {
-                    self.login = Some(input);
+                    self.login = Some(input.to_string());
+                    view_manager.output(data.connection_id, comm::login_request_password());
                 }
 
                 ViewAction::None
@@ -192,8 +197,8 @@ impl View for MenuView {
         view_manager.output(data.connection_id, comm::menu_welcome());
     }
 
-    fn handle(&mut self, view_manager: &mut dyn ViewController, input: String, data: &mut ViewData) -> ViewAction {
-        match input.as_str() {
+    fn handle(&mut self, view_manager: &mut dyn ViewController, input: &str, data: &mut ViewData) -> ViewAction {
+        match input {
             "1" => {
                 data.current = ViewKind::Game;
                 ViewAction::ChangeView
@@ -203,7 +208,7 @@ impl View for MenuView {
                 ViewAction::None
             },
             other => {
-                view_manager.output(data.connection_id, comm::menu_invalid(input.as_str()));
+                view_manager.output(data.connection_id, comm::menu_invalid(input));
                 ViewAction::None
             },
         }
@@ -224,7 +229,7 @@ impl View for CharacterCreationView {
     fn init(&mut self, view_manager: &mut dyn ViewController, data: &mut ViewData) {
     }
 
-    fn handle(&mut self, view_manager: &mut dyn ViewController, input: String, data: &mut ViewData) -> ViewAction {
+    fn handle(&mut self, view_manager: &mut dyn ViewController, input: &str, data: &mut ViewData) -> ViewAction {
         // TODO: query game classes
         // TODO: query game races
         // TODO: create character for player
