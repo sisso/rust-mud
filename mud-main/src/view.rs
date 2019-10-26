@@ -1,8 +1,9 @@
-use mud_engine::Engine;
-use crate::command_line_controller::{Outputs, ViewData};
 use socket_server::ConnectionId;
-use crate::comm;
+use mud_engine::Engine;
 use core::utils::UserId;
+
+use crate::command_line_controller::{Outputs, ViewData};
+use crate::comm;
 
 enum ViewKind {
     Login,
@@ -11,26 +12,22 @@ enum ViewKind {
     Game
 }
 
-pub trait ViewManager {
-    fn output(&mut self, connection_id: ConnectionId, msg: String);
-    fn push_view(&mut self, connection_id: ConnectionId, kind: ViewKind);
-    fn pop_view(&mut self, connection_id: ConnectionId);
+enum ViewAction {
+    None,
+    SetView { kind: ViewKind },
+    Disconnect,
 }
 
-pub trait ConnectionView {
-    fn output(&mut self, msg: String);
-    fn push_view(&mut self, kind: ViewKind);
-    fn set_view(&mut self, kind: ViewKind);
-    fn pop_view(&mut self);
-    fn get_view_data(&mut self) -> &mut ViewData;
+pub trait ViewManager {
+    fn output(&mut self, connection_id: ConnectionId, msg: String);
     fn execute_login(&mut self, login: &str, pass: &str) -> Result<UserId, ()>;
-    fn disconnect(&mut self);
+    fn disconnect(&mut self, connection_id: ConnectionId);
 }
 
 pub trait View {
-    fn init(view: &mut dyn ConnectionView);
+    fn init(view_manager: &mut dyn ViewManager, data: &mut ViewData);
 
-    fn handle(view: &mut dyn ConnectionView, input: String);
+    fn handle(view_manager: &mut dyn ViewManager, data: &mut ViewData, input: String) -> ViewAction;
 }
 
 pub struct LoginView {
@@ -38,30 +35,32 @@ pub struct LoginView {
 }
 
 impl View for LoginView {
-    fn init(view: &mut dyn ConnectionView) {
-        view.output(comm::welcome());
+    fn init(view_manager: &mut dyn ViewManager, data: &mut ViewData) {
+        view_manager.output(data.connection_id, comm::welcome());
     }
 
-    fn handle(view: &mut dyn ConnectionView, input: String) {
-        let mut login= view.get_view_data().login_data.login.take();
-        if let Some(login) = login {
-            let login_result = view.execute_login(login.as_str(), input.as_str());
-            match login_result {
-                Ok(user_id) => {
-                    let mut data = view.get_view_data();
-                    data.user_id = Some(user_id);
-                    view.set_view(ViewKind::Menu);
-                },
-                Err(_) => {
-                    view.output(comm::login_fail(login.as_str()));
+    fn handle(view_manager: &mut dyn ViewManager, data: &mut ViewData, input: String) -> ViewAction {
+        match data.login_data.login.take() {
+            Some(login) => {
+                match view_manager.execute_login(login.as_str(), input.as_str()) {
+                    Ok(user_id) => {
+                        data.user_id = Some(user_id);
+                        ViewAction::SetView { kind: ViewKind::Menu }
+                    },
+                    Err(_) => {
+                        view_manager.output(data.connection_id, comm::login_fail(login.as_str()));
+                        ViewAction::None
+                    }
                 }
-            }
-        } else {
-            if input.len() < 3 {
-                view.output(comm::login_invalid(input.as_str()));
-            } else {
-                let mut data = view.get_view_data();
-                data.login_data.login = Some(input);
+            },
+            None => {
+                if input.len() < 3 {
+                    view_manager.output(data.connection_id, comm::login_invalid(input.as_str()));
+                } else {
+                    data.login_data.login = Some(input);
+                }
+
+                ViewAction::None
             }
         }
     }
@@ -72,19 +71,21 @@ pub struct MenuView {
 }
 
 impl View for MenuView {
-    fn init(view: &mut dyn ConnectionView) {
-        view.output(comm::menu_welcome());
+    fn init(view_manager: &mut dyn ViewManager, data: &mut ViewData) {
+        view_manager.output(data.connection_id, comm::menu_welcome());
     }
 
-    fn handle(view: &mut dyn ConnectionView, input: String) {
+    fn handle(view_manager: &mut dyn ViewManager, data: &mut ViewData, input: String) -> ViewAction {
         match input.as_str() {
             "1" => {
-                view.set_view(ViewKind::Game);
+                ViewAction::SetView { kind: ViewKind::Game }
             },
             "2" => {
-                view.disconnect();
+                ViewAction::Disconnect
             },
-            other => {},
+            other => {
+                ViewAction::None
+            },
         }
     }
 }
