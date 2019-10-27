@@ -19,10 +19,12 @@
 
 ## long improvements
 
+- comm need to be defined by configuration files
 - there is no server buffering to send and receive messages, if user can not read, is possible that we lose output or stuck
 
 ## Refactoring
 
+- replace seconds by DeltaTime
 - acceptance test do not need to use server
 - normalize inventory in more generic way
 - better layering between view commands, game logic, container, etc.
@@ -134,8 +136,6 @@ Hocon
 In the case we have a long running persistent. How can I add new areas? obs and objects?
 - the way will be use the data files that will always be loaded before the persistent files.
 
- 
-
 ## DoAction and messages
 
 Testing with do_pickup can improve a lot. But how to deal with comm messages? Most of time all Error enuns will need
@@ -143,3 +143,21 @@ to fetch the information again just to show the error. For instance.
 
 PickError.ItemNotFoundIn { inventory_id }, we will need to fetch the inventory again just to show whats options
 are available and why we can not found it.
+
+## Login async?
+
+The plan is to have all communication between engine as a single channel. 
+
+This will create by default a system that will support multiples controllers/servers. Otherwise is to easy to simple decide to add a if and print messages.
+
+What about login? We send a login message?
+
+Engine is not aware of connection since we are stabilizing only during login. 
+
+It will require UserId and PlayerId
+
+This give the power to sudo or even same player connected multiple times. Same playerId, multiples userId.
+
+A lot of random benefit, none required
+
+SOLUTION: Lets keep for now and verify further
