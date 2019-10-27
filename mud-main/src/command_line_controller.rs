@@ -52,70 +52,90 @@ impl CommandLineController {
             view.handle(&mut view_controller, input.msg);
         }
 
-        for (player_id, connection_id) in view_controller.take_login() {
-            self.connection_per_player_id.insert(player_id, connection_id);
-        }
-
-        view_controller.flush(&mut *self.server);
+        self.flush(view_controller.take());
     }
 
     pub fn handle_events(&mut self, engine: &mut Engine, events: &Vec<Output>) {
-        let mut view_manager = CommandLineViewController::new(engine);
+        let mut view_controller = CommandLineViewController::new(engine);
 //        handle_outputs(engine, &mut self.outputs, events);
-        view_manager.flush(&mut *self.server);
+        self.flush(view_controller.take());
+    }
+
+    // TODO: normalize new lines?
+    // TODO: show prompt?
+    fn flush(&mut self, actions: Vec<ControllerAction>) {
+
+        for action in actions {
+            match action {
+                ControllerAction::Output { connection_id, msg } => {
+                    self.server.output(connection_id, msg);
+                },
+                ControllerAction::Login { connection_id, player_id } => {
+                    self.connection_per_player_id.insert(player_id, connection_id);
+                },
+                ControllerAction::Logout { connection_id } => {
+                    let view = self.connections.get(&connection_id).unwrap();
+                    if let Some(player_id) = &view.data.player_id {
+                        self.connection_per_player_id.remove(&player_id);
+                    }
+                    self.connections.remove(&connection_id);
+                    self.server.disconnect(connection_id);
+                },
+
+            }
+        }
     }
 }
 
-/// Used to map view commands into CommandLineController and Engine
-///
-/// Is create temporary when needed
-///
+enum ControllerAction {
+    Login  { connection_id: ConnectionId, player_id: PlayerId },
+    Logout { connection_id: ConnectionId },
+    Output { connection_id: ConnectionId, msg: String },
+}
+
+/// Temporary instance used to collect actions that need to be applied
+/// to CommandLineController and Engine
+/// 
+/// Give access to engine data
 struct CommandLineViewController<'a> {
     engine: &'a mut Engine,
-    buffer: Vec<(ConnectionId, String)>,
-    disconnects_request: Vec<ConnectionId>,
-    logins: Vec<(PlayerId, ConnectionId)>,
+    actions: Vec<ControllerAction>,
 }
 
 impl<'a> CommandLineViewController<'a> {
-    pub fn new(engine: &'a mut Engine) -> Self {
+    fn new(engine: &'a mut Engine) -> Self {
         CommandLineViewController {
             engine,
-            buffer: Vec::new(),
-            disconnects_request: Vec::new(),
-            logins: Vec::new(),
+            actions: Vec::new(),
         }
     }
 
-    pub fn flush(&mut self, server: &mut dyn Server) {
-        let buffer = std::mem::replace(&mut self.buffer, Vec::new());
-        for (connection_id, msg) in buffer {
-            server.output(connection_id, msg);
-        }
-
-        for connection_id in std::mem::replace(&mut self.disconnects_request, Vec::new()) {
-            server.disconnect(connection_id);
-        }
-    }
-
-    pub fn take_login(&mut self) -> Vec<(PlayerId, ConnectionId)> {
-        std::mem::replace(&mut self.logins, Vec::new())
+    fn take(&mut self) -> Vec<ControllerAction> {
+        std::mem::replace(&mut self.actions, Vec::new())
     }
 }
 
 impl<'a> ViewController for CommandLineViewController<'a> {
     fn output(&mut self, connection_id: ConnectionId, msg: String) {
-        self.buffer.push((connection_id, msg));
+        self.actions.push(ControllerAction::Output {
+            connection_id,
+            msg
+        });
     }
 
     fn execute_login(&mut self, connection_id: ConnectionId, login: &str, pass: &str) -> Result<PlayerId, ()> {
         self.engine.login(login, pass).map(|player_id| {
-            self.logins.push((player_id, connection_id));
+            self.actions.push(ControllerAction::Login {
+                connection_id,
+                player_id
+            });
             player_id
         })
     }
 
     fn disconnect(&mut self, connection_id: ConnectionId) {
-        self.disconnects_request.push(connection_id);
+        self.actions.push(ControllerAction::Logout {
+            connection_id,
+        });
     }
 }

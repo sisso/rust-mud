@@ -3,6 +3,7 @@ use mud_engine::Engine;
 use core::utils::PlayerId;
 
 use super::comm;
+use crate::command_line_controller::ControllerAction;
 
 pub enum ViewKind {
     Login,

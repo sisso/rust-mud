@@ -161,3 +161,8 @@ This give the power to sudo or even same player connected multiple times. Same p
 A lot of random benefit, none required
 
 SOLUTION: Lets keep for now and verify further
+
+## View Controler Flow
+
+- view need to
+  - login
