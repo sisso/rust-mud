@@ -16,37 +16,6 @@ pub enum ViewAction {
     ChangeView,
 }
 
-pub struct LoginViewData {
-    pub login: Option<String>,
-}
-
-impl LoginViewData {
-    pub fn new() -> Self {
-        LoginViewData { login: None }
-    }
-}
-
-pub struct CharacterCreationViewData {
-    race: Option<String>,
-    class: Option<String>,
-}
-
-impl CharacterCreationViewData {
-    pub fn new() -> Self {
-        CharacterCreationViewData { race: None, class: None }
-    }
-}
-
-pub struct GameViewData {
-
-}
-
-impl GameViewData {
-    pub fn new() -> Self {
-        GameViewData {}
-    }
-}
-
 pub struct ViewData {
     pub connection_id: ConnectionId,
     pub player_id: Option<PlayerId>,
@@ -95,7 +64,7 @@ impl ViewContext {
         }
     }
 
-    pub fn handle(&mut self, view_manager: &mut dyn ViewController, mut input: String) {
+    pub fn handle(&mut self, view_manager: &mut dyn ViewController, input: String) {
         let input = input.trim();
 
         let action = match self.data.current {

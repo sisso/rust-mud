@@ -15,6 +15,10 @@ impl ConnectionId {
 pub struct Tick(pub u32);
 
 impl Tick {
+    pub fn new() -> Self {
+        Tick(0)
+    }
+
     pub fn next(&self) -> Tick {
         Tick(self.0 + 1)
     }
@@ -26,8 +30,20 @@ pub struct PlayerId(pub u32);
 #[derive(Clone,Copy,Debug)]
 pub struct DeltaTime(pub f32);
 
+impl DeltaTime{
+    pub fn as_second(&self) -> Second {
+        Second(self.0)
+    }
+}
+
 #[derive(Clone,Copy,Debug)]
 pub struct TotalTime(pub f64);
+
+impl TotalTime{
+    pub fn as_second(&self) -> Second {
+        Second(self.0 as f32)
+    }
+}
 
 // TODO: to DeltaTime and TotalTime
 #[derive(Clone,Copy,Debug)]

@@ -3,12 +3,9 @@ members = [
   "mud-domain",
   "logs",
   "mud-server",
-#  "mud-console",
   "commons",
-  "core-engine",
   "mud-engine",
   "socket-server",
   "http-server",
-  "core-controller",
   "mud-main",
 ]

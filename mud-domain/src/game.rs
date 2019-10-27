@@ -78,18 +78,18 @@ pub trait Outputs {
     fn private(&mut self, player_id: PlayerId, msg: String);
 }
 
-struct OutputsImpl {
+pub struct OutputsImpl {
     list: Vec<Output>
 }
 
 impl OutputsImpl {
-    fn new() -> Self {
+    pub fn new() -> Self {
         OutputsImpl {
             list: vec![]
         }
     }
 
-    fn replace(&mut self) -> Vec<Output> {
+    pub fn take(&mut self) -> Vec<Output> {
         std::mem::replace(&mut self.list, vec![])
     }
 }
@@ -251,14 +251,14 @@ impl Game {
     ///
     /// game output will be empty after this process
     fn convert_to_connections_output(&mut self) {
-        let outputs = self.outputs.replace();
+        let outputs = self.outputs.take();
 
         for game_output in outputs {
             match game_output {
                 Output::Room { player_id, room_id, msg } => {
                     debug!("game_controller - {:?}/{:?}: {}", player_id, room_id, msg);
 
-                    let players_per_room = self.players_per_room();
+                    let players_per_room = find_players_per_room(&self.container);
 
                     if let Some(players) = players_per_room.get(&room_id) {
                         let connections_id: Vec<ConnectionId> =
@@ -310,27 +310,27 @@ impl Game {
         self.connections.insert(state.connection_id.clone(), state);
     }
 
-    fn players_per_room(&self) -> HashMap<RoomId, Vec<PlayerId>> {
-        let room_player: Vec<(RoomId, PlayerId)> =
-            self.container.players.list_players()
-                .into_iter()
-                .map(|player_id| {
-                    let player = self.container.players.get_player_by_id(player_id);
-                    let avatar = self.container.mobs.get(player.avatar_id);
-                    (avatar.room_id, player_id)
-                })
-                .collect();
-
-        // group_by
-        let mut result: HashMap<RoomId, Vec<PlayerId>> = HashMap::new();
-        for (room_id, player_id) in room_player {
-            result.entry(room_id).or_insert(vec![]).push(player_id);
-        }
-        result
-    }
-
     fn player_id_from_connection_id(&self, connection_id: &ConnectionId) -> Option<PlayerId> {
         let state = self.connections.get(connection_id).expect(format!("could not found state for connection {:?}", connection_id).as_str());
         state.player_id
     }
+}
+
+pub fn find_players_per_room(container: &Container) -> HashMap<RoomId, Vec<PlayerId>> {
+    let room_player: Vec<(RoomId, PlayerId)> =
+        container.players.list_players()
+            .into_iter()
+            .map(|player_id| {
+                let player = container.players.get_player_by_id(player_id);
+                let avatar = container.mobs.get(player.avatar_id);
+                (avatar.room_id, player_id)
+            })
+            .collect();
+
+    // group_by
+    let mut result: HashMap<RoomId, Vec<PlayerId>> = HashMap::new();
+    for (room_id, player_id) in room_player {
+        result.entry(room_id).or_insert(vec![]).push(player_id);
+    }
+    result
 }

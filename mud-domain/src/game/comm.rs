@@ -33,7 +33,7 @@ pub fn look_description(container: &Container, ctx: &PlayerCtx) -> String {
         .collect();
 
     let exits = exits.join(", ");
-    let mobs = container.mobs.search(Some(&ctx.avatar.room_id), None);
+    let mobs = container.mobs.search(Some(ctx.avatar.room_id), None);
     let mobs =
         if mobs.is_empty() {
             "".to_string()

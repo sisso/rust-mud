@@ -7,3 +7,4 @@ edition = "2018"
 [dependencies]
 logs = { version = "*", path = "../logs" }
 commons = { version = "*", path = "../commons" }
+mud-domain = { version = "*", path = "../mud-domain" }

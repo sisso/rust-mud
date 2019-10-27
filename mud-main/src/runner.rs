@@ -24,17 +24,17 @@ pub fn run(params: Params) {
     engine.load(params.data_dir.as_str());
 
     let mut local_controller = if params.local {
-        let mut local_server = LocalServer::new();
+        let local_server = LocalServer::new();
         Some(CommandLineController::new(Box::new(local_server)))
     } else { None };
 
     let mut socket_controller = if params.socket {
-        let mut socket_server = SocketServer::new();
+        let socket_server = SocketServer::new();
         Some(CommandLineController::new(Box::new(socket_server)))
     } else { None };
 
     let mut http_controller = if params.http {
-        let mut http_server = HttpServer::new();
+        let http_server = HttpServer::new();
         Some(HttpController::new(http_server))
     } else { None };
 

@@ -243,12 +243,12 @@ impl MobRepository {
         self.index.contains_key(id)
     }
 
-    pub fn search(&self, room_id: Option<&RoomId>, name: Option<&String>) -> Vec<&Mob> {
+    pub fn search(&self, room_id: Option<RoomId>, name: Option<&str>) -> Vec<&Mob> {
         self.index
             .iter()
             .filter(|(_, mob)| {
                 if let Some(room_id) = room_id {
-                    if mob.room_id != *room_id {
+                    if mob.room_id != room_id {
                         return false;
                     }
                 }

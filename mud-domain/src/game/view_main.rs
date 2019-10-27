@@ -66,7 +66,7 @@ pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outp
         _ if has_command(input, &["k ", "kill "]) => {
             let target = parse_command(input, &["k ", "kill "]);
             let ctx = container.get_player_context(player_id);
-            let mobs = container.mobs.search(Some(&ctx.avatar.room_id), Some(&target));
+            let mobs = container.mobs.search(Some(ctx.avatar.room_id), Some(target.as_str()));
             let candidate = mobs.first().map(|i| i.id);
 
             match candidate {
@@ -118,7 +118,7 @@ pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outp
 fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) {
     let target = parse_command(input, &["examine "]);
     let ctx = container.get_player_context(player_id);
-    let mobs = container.mobs.search(Some(&ctx.avatar.room_id), Some(&target));
+    let mobs = container.mobs.search(Some(ctx.avatar.room_id), Some(&target.as_str()));
 
     match mobs.first() {
         Some(mob) => {

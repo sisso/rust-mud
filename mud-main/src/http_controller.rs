@@ -1,5 +1,5 @@
 use http_server::HttpServer;
-use mud_engine::{Engine, Output};
+use mud_engine::{Engine, ConnectionEvent};
 
 pub struct HttpController {
 
@@ -14,6 +14,6 @@ impl HttpController {
 
     }
 
-    pub fn handle_events(&mut self, engine: &mut Engine, events: &Vec<Output>) {
+    pub fn handle_events(&mut self, engine: &mut Engine, events: &Vec<ConnectionEvent>) {
     }
 }

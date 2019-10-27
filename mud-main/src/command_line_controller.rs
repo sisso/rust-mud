@@ -6,7 +6,7 @@ use std::borrow::BorrowMut;
 
 use socket_server::{Server, ServerOutput, ServerChanges};
 use commons::{PlayerId, vec_take, ConnectionId};
-use mud_engine::{Engine, Output};
+use mud_engine::{Engine, ConnectionEvent};
 
 use view::*;
 
@@ -36,7 +36,7 @@ impl CommandLineController {
 
         for connection_id in result.connects {
             self.connections.insert(connection_id, ViewContext::new(connection_id));
-            let mut view = self.connections.get_mut(&connection_id).unwrap();
+            let view = self.connections.get_mut(&connection_id).unwrap();
             view.init(&mut view_controller);
         }
 
@@ -48,14 +48,14 @@ impl CommandLineController {
         }
 
         for input in result.inputs {
-            let mut view = self.connections.get_mut(&input.connection_id).unwrap();
+            let view = self.connections.get_mut(&input.connection_id).unwrap();
             view.handle(&mut view_controller, input.msg);
         }
 
         self.flush(view_controller.take());
     }
 
-    pub fn handle_events(&mut self, engine: &mut Engine, events: &Vec<Output>) {
+    pub fn handle_events(&mut self, engine: &mut Engine, events: &Vec<ConnectionEvent>) {
         let mut view_controller = CommandLineViewController::new(engine);
 //        handle_outputs(engine, &mut self.outputs, events);
         self.flush(view_controller.take());

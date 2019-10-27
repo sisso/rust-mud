@@ -6,7 +6,9 @@ use commons::{Second, Tick};
 #[derive(Clone,Copy,Debug)]
 pub struct GameTime {
     pub tick: Tick,
+    // TODO: use total_time
     pub total: Second,
+    // TODO: use delta_time
     pub delta: Second,
 }
 
