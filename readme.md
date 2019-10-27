@@ -166,3 +166,72 @@ SOLUTION: Lets keep for now and verify further
 
 - view need to
   - login
+
+## ECS Container, At Room
+
+We can use a generic Container to hold other objects. Any object that can contain other object ( like all ??? ) will
+implement it.
+
+How do we represent rooms, inventory and mobs? How do we restrict a player not pick up other? 
+- Weight? Volume?
+    - so we can easy pick up small enemies?
+        - if you have skill, what the problem if a giant pick you up?
+    - we can say only pick items
+    
+
+
+# ECS
+
+# Engine
+
+## Furniture
+
+Normal furniuture
+
+## Mob
+
+Intelligent controlled by server
+
+## Region
+- label
+
+## Zone
+- label
+- region
+
+## Room
+- zone
+- label
+- description
+- exists
+
+Contains  
+
+## Container
+- object list?
+
+Can contains objects. A room, mob or container.
+
+## AtContainer
+- container_id
+
+## Avatar
+
+Controlled by player
+
+## Item
+
+General item. Can be pickup, dropped, put into a bag, etc. 
+
+## Weapon
+
+Can be used as weapon
+
+## Wear
+
+Can be wear
+
+## SizeWeight
+
+- size m3
+- weight kg
