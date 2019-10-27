@@ -55,6 +55,14 @@ pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outp
             actions_items::pickup(container, outputs, player_id, parse_arguments(input))
         },
 
+        _ if has_command(input, &["drop"]) => {
+            actions_items::drop(container, outputs, player_id, parse_arguments(input))
+        },
+
+        _ if has_command(input, &["strip"]) => {
+            actions_items::strip(container, outputs, player_id, parse_arguments(input))
+        },
+
         _ if has_command(input, &["equip"]) => {
             actions_items::equip(container, outputs, player_id, parse_arguments(input))
         },

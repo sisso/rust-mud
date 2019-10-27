@@ -104,20 +104,39 @@ pub fn equip(container: &mut Container, outputs: &mut dyn Outputs, player_id: Pl
     }
 }
 
-pub enum EquipAction {
+
+pub fn drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<String>) {
+    match do_drop(container, player_id, args) {
+        DropResult::Success { item_id } => {
+            let ctx = container.get_player_context(player_id);
+            let item = container.items.get(item_id);
+            outputs.private(player_id, comm::drop_item(item.label.as_str()));
+            outputs.room(player_id, ctx.room.id, comm::drop_item_others(ctx.avatar.label.as_str(), item.label.as_str()));
+        },
+        DropResult::FailItemNotProvided => outputs.private(player_id, comm::drop_item_no_target()),
+        DropResult::ItemNotFound { label } => outputs.private(player_id, comm::drop_item_not_found(label.as_str())),
+    }
+}
+
+pub fn strip(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<String>) {
+
+}
+
+
+enum EquipAction {
     Success {
         item_id: ItemId,
     }
 }
 
-pub enum EquipError {
+enum EquipError {
     Fail,
     ItemNotProvide,
     ItemNotEquipable { item_id: ItemId },
     ItemNotFound { label: String },
 }
 
-pub fn do_equip(container: &mut Container, player_id: PlayerId, args: Vec<String>) -> Result<EquipAction, EquipError> {
+fn do_equip(container: &mut Container, player_id: PlayerId, args: Vec<String>) -> Result<EquipAction, EquipError> {
     let item_label = match args.get(1) {
         Some(str) => str,
         None => {
@@ -152,6 +171,39 @@ pub fn do_equip(container: &mut Container, player_id: PlayerId, args: Vec<String
         }
     }
 }
+
+enum DropResult {
+    Success { item_id: ItemId },
+    ItemNotFound { label: String },
+    FailItemNotProvided,
+}
+
+fn do_drop(container: &mut Container, player_id: PlayerId, args: Vec<String>) -> DropResult {
+    let item_label = match args.get(1) {
+        Some(string) => string,
+        None => return DropResult::FailItemNotProvided,
+    };
+
+    let ctx = container.get_player_context(player_id);
+    let item = container.items.search_inventory(ItemLocation::Mob { mob_id: ctx.avatar.id }, item_label.as_str());
+
+    match item {
+        Some(item) => {
+            let item_id = item.id;
+            let mob_id = ctx.avatar.id;
+            let room_id = ctx.room.id;
+
+            // unequip if is in use
+            let _ = container.items.strip(item_id);
+
+            container.items.move_item(item_id, ItemLocation::Room { room_id });
+
+            DropResult::Success { item_id }
+        },
+        None => DropResult::ItemNotFound { label: item_label.to_string() },
+    }
+}
+
 
 #[test]
 pub fn test1() {

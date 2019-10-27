@@ -22,6 +22,9 @@ pub fn help() -> String {
   get <obj>         - pick up a <obj> from floor
   get <from> <obj>  - pick up a <obj> from <from>
   equip <item>      - use a weapon or wear a armor
+  strip <item>      - strip an item you are using
+  drop <item>       - drop a object
+  put <item> <obj>  - put a object into other container
 -------------------------------------------------------------"#;
 
     str.to_string()
@@ -259,6 +262,22 @@ pub fn equip_player_from_room(target_item: &str) -> String {
 
 pub fn equip_from_room(actor: &str, target_item: &str) -> String {
     format!("{} equip a {}\n", actor, target_item)
+}
+
+pub fn drop_item_no_target() -> String {
+    "what do you want to drop?\n".to_string()
+}
+
+pub fn drop_item_not_found(label: &str) -> String {
+    format!("you can not find a {} to drop\n", label)
+}
+
+pub fn drop_item(item_label: &str) -> String {
+    format!("you drop a {}\n", item_label)
+}
+
+pub fn drop_item_others(actor: &str, item_label: &str) -> String {
+    format!("{} drop a {}\n", actor, item_label)
 }
 
 pub fn admin_invalid_command() -> String {

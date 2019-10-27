@@ -240,6 +240,12 @@ impl ItemRepository {
         }
     }
 
+    pub fn search_inventory(&self, location: ItemLocation, item_label: &str) -> Option<&Item> {
+        let inventory = self.get_inventory_list(location);
+        let item: Option<&Item> = inventory.iter().find(|item| item.label.eq_ignore_ascii_case(item_label)).map(|i| *i);
+        item
+    }
+
     pub fn add(&mut self, item: Item, location: ItemLocation) {
         let item_id = item.id;
 
@@ -339,6 +345,10 @@ impl ItemRepository {
         debug!("itemrepostitory - {:?} equip {:?}", location, item_id);
 
         Ok(())
+    }
+
+    pub fn strip(&mut self, item_id: ItemId) -> Result<(),()> {
+        Err(())
     }
 
     fn get_inventory_mut(&mut self, location: ItemLocation) -> &mut Inventory {
