@@ -6,4 +6,4 @@ edition = "2018"
 
 [dependencies]
 logs = { version = "*", path = "../logs" }
-core = { version = "*", path = "../core" }
+commons = { version = "*", path = "../commons" }

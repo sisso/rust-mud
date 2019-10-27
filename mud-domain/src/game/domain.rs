@@ -1,8 +1,7 @@
 use super::mob::*;
 use super::player::*;
 use super::room::*;
-
-use crate::utils::*;
+use commons::{Second, Tick};
 
 #[derive(Clone,Copy,Debug)]
 pub struct GameTime {

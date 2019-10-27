@@ -1,12 +1,12 @@
+use std::fs::ReadDir;
+use std::path::Path;
 
 use hocon::{*, HoconLoader as HLoader};
-
-use std::path::Path;
-use std::fs::ReadDir;
 use serde_json::{Number, Value};
 
-use crate::game::loader::{Loader, Result, LoaderError};
-use crate::utils::save::Load;
+use commons::save::Load;
+
+use crate::game::loader::{Loader, LoaderError, Result};
 
 pub struct HoconLoader {
 

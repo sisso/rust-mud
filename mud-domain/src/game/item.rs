@@ -3,8 +3,8 @@ use std::collections::HashMap;
 
 use crate::game::Ctx;
 use crate::game::mob::Attributes;
-use crate::utils::*;
-use crate::utils::save::Save;
+use commons::*;
+
 
 use super::comm;
 use super::container::Container;
@@ -12,6 +12,7 @@ use super::domain::*;
 use super::domain::NextId;
 use super::mob::MobId;
 use super::room::RoomId;
+use logs::*;
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub struct ItemId(pub u32);
@@ -383,37 +384,37 @@ impl ItemRepository {
         item_id
     }
 
-    pub fn save(&self, save: &mut dyn Save) {
-        use serde_json::json;
-
-        for (id, obj) in self.index.iter() {
-            let obj_json = json!({
-                "kind": obj.kind.0,
-                "label": obj.label,
-                "decay": obj.decay.map(|i| i.0),
-                "amount": obj.amount,
-                "definition_id": obj.item_def_id.map(|i| i.0)
-            });
-
-            save.add(id.0, "item", obj_json);
-        }
-
-        for (id, (location, inventory)) in self.inventory.iter().enumerate() {
-            let location_json = match location {
-                ItemLocation::Limbo => json!({"kind": "limbo"}),
-                ItemLocation::Mob { mob_id } => json!({"kind": "mob", "mob_id": mob_id.0 }),
-                ItemLocation::Room { room_id } => json!({"kind": "room", "room_id": room_id.0 }),
-                ItemLocation::Item { item_id } => json!({"kind": "item", "item_id": item_id.0 }),
-            };
-
-            let obj_json = json!({
-                "location": location_json,
-                "items": inventory.list.iter().map(|i| i.0).collect::<Vec<u32>>()
-            });
-
-            save.add(id as u32, "inventory", obj_json);
-        }
-    }
+//    pub fn save(&self, save: &mut dyn Save) {
+//        use serde_json::json;
+//
+//        for (id, obj) in self.index.iter() {
+//            let obj_json = json!({
+//                "kind": obj.kind.0,
+//                "label": obj.label,
+//                "decay": obj.decay.map(|i| i.0),
+//                "amount": obj.amount,
+//                "definition_id": obj.item_def_id.map(|i| i.0)
+//            });
+//
+//            save.add(id.0, "item", obj_json);
+//        }
+//
+//        for (id, (location, inventory)) in self.inventory.iter().enumerate() {
+//            let location_json = match location {
+//                ItemLocation::Limbo => json!({"kind": "limbo"}),
+//                ItemLocation::Mob { mob_id } => json!({"kind": "mob", "mob_id": mob_id.0 }),
+//                ItemLocation::Room { room_id } => json!({"kind": "room", "room_id": room_id.0 }),
+//                ItemLocation::Item { item_id } => json!({"kind": "item", "item_id": item_id.0 }),
+//            };
+//
+//            let obj_json = json!({
+//                "location": location_json,
+//                "items": inventory.list.iter().map(|i| i.0).collect::<Vec<u32>>()
+//            });
+//
+//            save.add(id as u32, "inventory", obj_json);
+//        }
+//    }
 }
 
 pub fn run_tick(ctx: &mut Ctx) {

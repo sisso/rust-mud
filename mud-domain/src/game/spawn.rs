@@ -8,11 +8,12 @@ use super::Outputs;
 use super::domain::*;
 use super::mob::*;
 use super::room::RoomId;
+use logs::*;
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct SpawnId(pub u32);
 
-use crate::utils::*;
+use commons::*;
 use crate::game::Ctx;
 
 pub struct SpawnDelay {

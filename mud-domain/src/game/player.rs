@@ -6,17 +6,9 @@ use super::domain::*;
 use super::mob::*;
 use super::mob::MobId;
 
-use crate::utils::*;
-use crate::utils::save::Save;
+use commons::*;
 
-#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
-pub struct PlayerId(pub u32);
-
-impl std::fmt::Display for PlayerId {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "PlayerId({})", self.0)
-    }
-}
+use logs::*;
 
 #[derive(Clone, Debug)]
 pub struct Player {
@@ -81,7 +73,7 @@ impl PlayerRepository {
     pub fn player_connect(&mut self, login: String, avatar_id: MobId) -> &Player {
         let id = PlayerId(self.next_id.next());
 
-        info!("game - adding player {}/{}", id, login);
+        info!("game - adding player {:?}/{}", id, login);
 
         let player = Player {
             id,
@@ -94,7 +86,7 @@ impl PlayerRepository {
     }
 
     pub fn player_disconnect(&mut self, id: PlayerId) {
-        info!("game - removing player {}", id);
+        info!("game - removing player {:?}", id);
         self.index.remove(&id);
     }
 
@@ -117,17 +109,17 @@ impl PlayerRepository {
             .iter()
             .find(|(pid, _)| **pid == id)
             .map(|(_, p)| p)
-            .expect(format!("player with id {} not found", id).as_str())
+            .expect(format!("player with id {:?} not found", id).as_str())
     }
 
-    pub fn save(&self, save: &mut dyn Save) {
-        use serde_json::json;
-
-        for (player_id, player) in self.index.iter() {
-            save.add(player_id.0, "player", json!({
-                "mob_id": player.avatar_id.0,
-                "login": player.login
-            }));
-        }
-    }
+//    pub fn save(&self, save: &mut dyn Save) {
+//        use serde_json::json;
+//
+//        for (player_id, player) in self.index.iter() {
+//            save.add(player_id.0, "player", json!({
+//                "mob_id": player.avatar_id.0,
+//                "login": player.login
+//            }));
+//        }
+//    }
 }

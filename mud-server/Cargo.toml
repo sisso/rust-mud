@@ -11,4 +11,5 @@ rand ="*"
 termion = "*"
 commons = { version = "*", path = "../commons" }
 mud-domain = { version = "*", path = "../mud-domain" }
-server = { version = "*", path = "../server" }
+socket-server = { version = "*", path = "../socket-server" }
+logs = { version = "*", path = "../logs" }

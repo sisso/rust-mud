@@ -4,8 +4,7 @@ use super::mob::*;
 use super::container::*;
 use super::domain::*;
 use super::Outputs;
-
-use crate::utils::*;
+use commons::Second;
 
 const DECAY_TIME: Second = Second(20.0);
 

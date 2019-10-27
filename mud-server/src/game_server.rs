@@ -2,36 +2,18 @@ use mud_domain::game::{Game};
 use mud_domain::game::container::Container;
 use mud_domain::game::domain::GameTime;
 use mud_domain::game::loader;
-use mud_domain::utils::save::*;
-use server::*;
-use mud_domain::utils::{ConnectionId, TimeTrigger, Second, Tick, ConnectionOutput};
-
-fn to_server(connection_id: ConnectionId) -> ServerConnectionId {
-    ServerConnectionId(connection_id.0)
-}
-
-fn from_server(connection_id: ServerConnectionId) -> ConnectionId {
-    ConnectionId(connection_id.0)
-}
-
-fn outputs_to_server(outputs: Vec<ConnectionOutput>) -> Vec<ServerConnectionOutput> {
-    outputs.into_iter().map(|output| {
-        ServerConnectionOutput {
-            dest_connections_id: output.dest_connections_id.into_iter().map(to_server).collect(),
-            output: output.output
-        }
-    }).collect()
-}
+use socket_server::*;
+use commons::{TimeTrigger, Second, Tick};
 
 pub struct ServerRunner {
-    server: Box<dyn server::Server>,
+    server: Box<dyn Server>,
     game_time: GameTime,
     game: Game,
     save: Option<(String, TimeTrigger)>,
 }
 
 impl ServerRunner {
-    pub fn new(server: Box<dyn server::Server>, save: Option<(String, Second)>) -> Self {
+    pub fn new(server: Box<dyn Server>, save: Option<(String, Second)>) -> Self {
         let mut container: Container = Container::new();
         loader::load(&mut container);
 
@@ -57,35 +39,36 @@ impl ServerRunner {
         let result = self.server.run();
 
         for connection_id in result.connects {
-            self.game.add_connection(from_server(connection_id));
+            self.game.add_connection(connection_id);
         }
 
         for connection_id in result.disconnects {
-            self.game.disconnect(from_server(connection_id));
+            self.game.disconnect(connection_id);
         }
 
-        for (connection_id, input) in result.pending_inputs {
-            self.game.handle_input(&self.game_time, from_server(connection_id), input.as_ref());
+        for input in result.inputs {
+            self.game.handle_input(&self.game_time, input.connection_id, input.msg.as_ref());
         }
 
         self.game.tick(&self.game_time);
 
-        let outputs = self.game.get_outputs();
-        self.server.append_output(outputs_to_server(outputs));
-
-        if let Some((save_file, trigger)) = self.save.as_mut() {
-            if trigger.check(self.game_time.total) {
-                let save_file = format!("{}_{}.jsonp", save_file, self.game_time.tick.0);
-                let mut save = SaveToFile::new(save_file.as_ref());
-                self.game.save(&mut save);
-                save.close()
-            }
+        for (connection_id, msg) in self.game.get_outputs() {
+            self.server.output(connection_id, msg);
         }
+
+//        if let Some((save_file, trigger)) = self.save.as_mut() {
+//            if trigger.check(self.game_time.total) {
+//                let save_file = format!("{}_{}.jsonp", save_file, self.game_time.tick.0);
+//                let mut save = SaveToFile::new(save_file.as_ref());
+//                self.game.save(&mut save);
+//                save.close()
+//            }
+//        }
     }
 }
 
 pub fn run() {
-    let server = server::server_socket::SocketServer::new();
+    let server = server_socket::SocketServer::new();
     let mut game = ServerRunner::new(Box::new(server), Some(("/tmp/current".to_string(), Second(1.0))));
 
     loop {

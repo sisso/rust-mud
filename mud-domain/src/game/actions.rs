@@ -4,6 +4,7 @@ use super::domain::*;
 use super::container::Container;
 use super::mob::*;
 use super::player::*;
+use commons::PlayerId;
 
 pub fn look(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) {
     let ctx = container.get_player_context(player_id);

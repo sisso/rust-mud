@@ -2,7 +2,8 @@ extern crate rand;
 extern crate termion;
 extern crate commons;
 extern crate mud_domain;
-extern crate server;
+extern crate socket_server;
+use logs::*;
 
 use commons::*;
 

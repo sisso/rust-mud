@@ -1,6 +1,6 @@
 use super::container::Container;
 use super::player;
-use super::player::{PlayerId};
+use commons::PlayerId;
 
 pub struct LoginResult {
     pub player_id: Option<PlayerId>,

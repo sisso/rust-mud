@@ -6,8 +6,8 @@ use crate::game::mob::*;
 use crate::game::domain::*;
 use crate::game::room::*;
 use crate::game::spawn::*;
-use crate::utils::*;
-use crate::utils::save::Load;
+use commons::*;
+use commons::save::Load;
 
 
 const MOB_PLAYER: MobPrefabId = MobPrefabId(0);
@@ -32,7 +32,7 @@ fn load_items_prefabs(container: &mut Container) {
             .with_weapon(Weapon {
                 damage_min: 2,
                 damage_max: 4,
-                reload: Second::one()
+                reload: Second(1.0)
             })
             .build()
     );

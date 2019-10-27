@@ -1,4 +1,4 @@
-use crate::{Server, ServerOutput, ServerChanges, ConnectionId, ServerInput};
+use super::*;
 use logs::*;
 
 use std::io;
@@ -7,6 +7,7 @@ use std::thread;
 use std::time::Duration;
 use std::borrow::{BorrowMut, Borrow};
 use std::sync::atomic::{AtomicBool, Ordering};
+use commons::ConnectionId;
 
 struct AsyncStdIn {
     close: Arc<AtomicBool>,

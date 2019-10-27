@@ -5,9 +5,8 @@ use super::spawn::*;
 use super::domain::*;
 use super::item::*;
 
-use crate::utils::*;
-use crate::utils::save::Save;
 use crate::game::body::create_body;
+use commons::PlayerId;
 
 pub struct Container {
     pub players: PlayerRepository,
@@ -81,9 +80,9 @@ impl Container {
         self.mobs.get(mob_id)
     }
 
-    pub fn save(&self, save: &mut dyn Save) {
-        self.players.save(save);
-        self.mobs.save(save);
-        self.items.save(save);
-    }
+//    pub fn save(&self, save: &mut dyn Save) {
+//        self.players.save(save);
+//        self.mobs.save(save);
+//        self.items.save(save);
+//    }
 }

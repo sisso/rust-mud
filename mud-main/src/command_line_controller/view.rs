@@ -1,6 +1,5 @@
-use socket_server::ConnectionId;
 use mud_engine::Engine;
-use core::utils::PlayerId;
+use commons::{PlayerId, ConnectionId};
 
 use super::comm;
 use crate::command_line_controller::ControllerAction;

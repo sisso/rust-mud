@@ -9,9 +9,7 @@ use mob::*;
 use mob::MobPrefabId;
 use player::*;
 use room::*;
-
-use crate::utils::*;
-use crate::utils::save::Save;
+use logs::*;
 
 pub mod actions;
 pub mod body;
@@ -120,7 +118,7 @@ pub struct Game {
     container: Container,
     connections: HashMap<ConnectionId, ConnectionState>,
     connection_id_by_player_id: HashMap<PlayerId, ConnectionId>,
-    server_outputs: Vec<ConnectionOutput>,
+    server_outputs: Vec<(ConnectionId, String)>,
     outputs: OutputsImpl,
     connections_with_input: HashSet<ConnectionId>,
 }
@@ -146,17 +144,14 @@ impl Game {
 
         let msg = view_login::handle_welcome();
 
-        self.server_outputs.push(ConnectionOutput {
-            dest_connections_id: vec![connection_id],
-            output: msg,
-        });
+        self.server_outputs.push((connection_id, msg));
     }
 
     pub fn disconnect(&mut self, connection_id: ConnectionId) {
         let state = self.get_state(connection_id);
 
         if let Some(player_id) = state.player_id {
-            info!("gamecontroller - {:?} removing player {}", connection_id, player_id);
+            info!("gamecontroller - {:?} removing player {:?}", connection_id, player_id);
             self.container.players.player_disconnect(player_id);
         } else {
             info!("gamecontroller - {:?} removing non logged player", connection_id);
@@ -177,13 +172,10 @@ impl Game {
             debug!("gamecontroller - {:?} handling login '{}'", connection_id, input);
             let result = view_login::handle(&mut self.container, input);
 
-            self.server_outputs.push(ConnectionOutput {
-                dest_connections_id: vec![connection_id],
-                output: result.msg,
-            });
+            self.server_outputs.push((connection_id, result.msg));
 
             if let Some(player_id) = result.player_id {
-                debug!("gamecontroller - {:?} login complete for {}", connection_id, player_id);
+                debug!("gamecontroller - {:?} login complete for {:?}", connection_id, player_id);
 
                 self.set_state(ConnectionState {
                     connection_id,
@@ -205,7 +197,7 @@ impl Game {
         item::run_tick(&mut ctx);
     }
 
-    pub fn get_outputs(&mut self) -> Vec<ConnectionOutput> {
+    pub fn get_outputs(&mut self) -> Vec<(ConnectionId, String)> {
         self.convert_to_connections_output();
         self.normalize_connection_outputs();
 
@@ -216,9 +208,9 @@ impl Game {
         std::mem::replace(&mut self.server_outputs, vec![])
     }
 
-    pub fn save(&self, save: &mut dyn Save) {
-        self.container.save(save);
-    }
+//    pub fn save(&self, save: &mut dyn Save) {
+//        self.container.save(save);
+//    }
 
     /// For each player that will receive output, append new line with cursor.
     ///
@@ -227,33 +219,29 @@ impl Game {
         let mut append_cursor_ids: Vec<ConnectionId> = vec![];
         let mut new_lines_ids: Vec<ConnectionId> = vec![];
 
-        for output in self.server_outputs.iter() {
-            for connection in &output.dest_connections_id {
-                let player_id = self.player_id_from_connection_id(connection);
+        for (connection_id, _) in self.server_outputs.iter() {
+            let player_id = self.player_id_from_connection_id(connection_id);
 
-                match player_id {
-                    Some(_) if !append_cursor_ids.contains(connection) => {
-                        append_cursor_ids.push(connection.clone());
+            match player_id {
+                Some(_) if !append_cursor_ids.contains(connection_id) => {
+                    append_cursor_ids.push(connection_id.clone());
 
-                        // if player do not have newline because sent a input, append new line in start
-                        if !self.connections_with_input.contains(connection) && !new_lines_ids.contains(&connection) {
-                            new_lines_ids.push(connection.clone());
-                        }
+                    // if player do not have newline because sent a input, append new line in start
+                    if !self.connections_with_input.contains(connection_id) && !new_lines_ids.contains(&connection_id) {
+                        new_lines_ids.push(connection_id.clone());
                     }
-                    _ => {}
                 }
+                _ => {}
             }
         }
 
-        self.server_outputs.insert(0, ConnectionOutput {
-            dest_connections_id: new_lines_ids,
-            output: "\n".to_string(),
-        });
+        for connection_id in new_lines_ids {
+            self.server_outputs.insert(0, (connection_id, "\n".to_string()));
+        }
 
-        self.server_outputs.push(ConnectionOutput {
-            dest_connections_id: append_cursor_ids,
-            output: "\n$ ".to_string(),
-        });
+        for connection_id in append_cursor_ids {
+            self.server_outputs.push((connection_id, "\n".to_string()));
+        }
     }
 
     /// Convert game output into connection output.
@@ -267,15 +255,6 @@ impl Game {
 
         for game_output in outputs {
             match game_output {
-                Output::Private { player_id, msg } => {
-                    let connection_id = self.connection_id_from_player_id(player_id);
-
-                    self.server_outputs.push(ConnectionOutput {
-                        dest_connections_id: vec![connection_id.clone()],
-                        output: msg,
-                    })
-                }
-
                 Output::Room { player_id, room_id, msg } => {
                     debug!("game_controller - {:?}/{:?}: {}", player_id, room_id, msg);
 
@@ -296,14 +275,17 @@ impl Game {
                                 .collect();
 
                         debug!("game_controller - players at room {:?}, selected connections: {:?}", players, connections_id);
-
-                        self.server_outputs.push(ConnectionOutput {
-                            dest_connections_id: connections_id,
-                            output: msg,
-                        });
+                        for connection_id in connections_id {
+                            self.server_outputs.push((connection_id, msg.clone()));
+                        }
                     } else {
                         debug!("game_controller - no players at room");
                     }
+                }
+
+                Output::Private { player_id, msg } => {
+                    let connection_id = self.connection_id_from_player_id(player_id);
+                    self.server_outputs.push((connection_id, msg));
                 }
             }
         }
@@ -312,7 +294,7 @@ impl Game {
     fn connection_id_from_player_id(&self, player_id: PlayerId) -> ConnectionId {
         *self.connection_id_by_player_id
             .get(&player_id)
-            .expect(format!("could not found connection for {}", player_id).as_str())
+            .expect(format!("could not found connection for {:?}", player_id).as_str())
     }
 
     fn get_state(&self, connection_id: ConnectionId) -> &ConnectionState {

@@ -1,11 +1,10 @@
-use crate::utils::*;
-
 use super::item::*;
 use super::domain::*;
 use super::container::Container;
 use super::mob::*;
 
 use termion;
+use commons::Second;
 
 pub fn help() -> String {
     let str = r#"-------------------------------------------------------------
@@ -91,7 +90,7 @@ pub fn spawn_mob(mob: &Mob) -> String {
 }
 
 pub fn uptime(time: Second) -> String {
-    format!("now it is {} seconds after start\n", time.0)
+    format!("now it is {}s after start\n", time.as_f32())
 }
 
 pub fn kill_target_not_found(target: &str) -> String {
@@ -317,6 +316,7 @@ pub fn stand_up_others(label: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use commons::Second;
 
     fn item_0_coins() -> Item {
         let mut item = Item::new(
@@ -340,7 +340,7 @@ mod tests {
         item.weapon = Some(Weapon {
             damage_min: 1,
             damage_max: 2,
-            reload: Second::one()
+            reload: Second(1.0)
         });
 
         item

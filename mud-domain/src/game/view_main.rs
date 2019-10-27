@@ -1,6 +1,5 @@
 use super::Outputs;
 use super::domain::*;
-use super::player::PlayerId;
 
 use super::actions;
 use super::actions_items;
@@ -8,6 +7,7 @@ use super::comm;
 use super::item::ItemLocation;
 use super::container::Container;
 use crate::game::actions_admin;
+use commons::PlayerId;
 
 pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) {
     match input {

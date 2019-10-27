@@ -1,17 +1,14 @@
 [workspace]
 members = [
-#  "mud-domain",
+  "mud-domain",
   "logs",
-  "server",
-#  "mud-server",
+  "mud-server",
 #  "mud-console",
-#  "commons",
-  "core",
+  "commons",
   "core-engine",
   "mud-engine",
   "socket-server",
   "http-server",
-  "mud-socket-controller",
   "core-controller",
   "mud-main",
 ]

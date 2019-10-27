@@ -1,14 +1,14 @@
-use socket_server::{Server, ConnectionId, ServerOutput, ServerChanges};
-use core::utils::{PlayerId, vec_take};
-use mud_engine::{Engine, Output};
-use std::collections::HashMap;
-use std::borrow::BorrowMut;
-use crate::command_line_controller::view::{ViewData, LoginView, MenuView, View, ViewController, ViewKind, ViewAction, CharacterCreationView, ViewContext};
-
-// TODO: how to normalize outputs to add $hp $
-
 mod view;
 mod comm;
+
+use std::collections::HashMap;
+use std::borrow::BorrowMut;
+
+use socket_server::{Server, ServerOutput, ServerChanges};
+use commons::{PlayerId, vec_take, ConnectionId};
+use mud_engine::{Engine, Output};
+
+use view::*;
 
 ///
 /// When calling View, it split some of its fields into ControllerViewManager to allow
@@ -63,6 +63,8 @@ impl CommandLineController {
 
     // TODO: normalize new lines?
     // TODO: show prompt?
+    // TODO: Be able to pre-append new lines before any output (where player has send no message)
+    //       but is receiving a output
     fn flush(&mut self, actions: Vec<ControllerAction>) {
 
         for action in actions {

@@ -5,6 +5,7 @@ use logs::*;
 
 use super::*;
 use std::collections::HashMap;
+use commons::ConnectionId;
 
 pub struct SocketServer {
     next_connection_id: u32,

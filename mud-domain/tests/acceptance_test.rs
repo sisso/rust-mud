@@ -4,8 +4,6 @@ extern crate mud_domain;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use mud_domain::utils::Second;
-
 // FIXME: uncommment
 //struct TestGame {
 //    outputs: Rc<RefCell<Vec<String>>>,
