@@ -75,6 +75,8 @@ impl Output {
 pub trait Outputs {
     fn room_all(&mut self, room_id: RoomId, msg: String);
     fn room(&mut self, player_id: PlayerId, room_id: RoomId, msg: String);
+    fn room_opt(&mut self, player_id: Option<PlayerId>, room_id: RoomId, msg: String);
+    fn private_opt(&mut self, player_id: Option<PlayerId>, msg: String);
     fn private(&mut self, player_id: PlayerId, msg: String);
 }
 
@@ -101,6 +103,19 @@ impl Outputs for OutputsImpl {
 
     fn room(&mut self, player_id: PlayerId, room_id: RoomId, msg: String) {
         self.list.push(Output::room(player_id, room_id, msg));
+    }
+
+    fn room_opt(&mut self, player_id: Option<PlayerId>, room_id: RoomId, msg: String) {
+        match player_id {
+            Some(player_id) => self.room(player_id, room_id, msg),
+            None => self.room_all(room_id, msg),
+        }
+    }
+    fn private_opt(&mut self, player_id: Option<PlayerId>, msg: String) {
+        match player_id {
+            Some(player_id) => self.private(player_id, msg),
+            None => {},
+        }
     }
 
     fn private(&mut self, player_id: PlayerId, msg: String) {
