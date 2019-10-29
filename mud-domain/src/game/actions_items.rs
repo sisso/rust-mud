@@ -120,15 +120,14 @@ fn do_equip(container: &mut Container, outputs: &mut dyn Outputs, player_id: Opt
 }
 
 pub fn drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<String>) {
-    match do_drop(container, player_id, args) {
-        DropResult::Success { item_id } => {
-            let ctx = container.get_player_context(player_id);
-            let item = container.items.get(item_id);
-            outputs.private(player_id, comm::drop_item(item.label.as_str()));
-            outputs.room(player_id, ctx.room.id, comm::drop_item_others(ctx.avatar.label.as_str(), item.label.as_str()));
+    let player = container.players.get_player_by_id(player_id);
+    let avatar_id = player.avatar_id;
+    match parser_item(container, ItemLocation::Mob { mob_id: avatar_id }, args) {
+        Ok(item_id) => {
+            let _ = do_drop(container, outputs, Some(player_id), avatar_id, item_id);
         },
-        DropResult::FailItemNotProvided => outputs.private(player_id, comm::drop_item_no_target()),
-        DropResult::ItemNotFound { label } => outputs.private(player_id, comm::drop_item_not_found(label.as_str())),
+        Err(ParseItemError::ItemNotProvided) => outputs.private(player_id, comm::drop_item_no_target()),
+        Err(ParseItemError::ItemNotFound { label }) => outputs.private(player_id, comm::drop_item_not_found(label.as_str())),
     }
 }
 
@@ -136,36 +135,18 @@ pub fn strip(container: &mut Container, outputs: &mut dyn Outputs, player_id: Pl
 
 }
 
-enum DropResult {
-    Success { item_id: ItemId },
-    ItemNotFound { label: String },
-    FailItemNotProvided,
-}
+fn do_drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId) -> Result<(),()> {
+    let mob = container.mobs.get(mob_id);
 
-fn do_drop(container: &mut Container, player_id: PlayerId, args: Vec<String>) -> DropResult {
-    let item_label = match args.get(1) {
-        Some(string) => string,
-        None => return DropResult::FailItemNotProvided,
-    };
+    // unequip if is in use
+    let _ = container.items.strip(item_id);
+    container.items.move_item(item_id, ItemLocation::Room { room_id: mob.room_id });
 
-    let ctx = container.get_player_context(player_id);
-    let item = container.items.search_inventory(ItemLocation::Mob { mob_id: ctx.avatar.id }, item_label.as_str());
+    let item = container.items.get(item_id);
 
-    match item {
-        Some(item) => {
-            let item_id = item.id;
-            let mob_id = ctx.avatar.id;
-            let room_id = ctx.room.id;
-
-            // unequip if is in use
-            let _ = container.items.strip(item_id);
-
-            container.items.move_item(item_id, ItemLocation::Room { room_id });
-
-            DropResult::Success { item_id }
-        },
-        None => DropResult::ItemNotFound { label: item_label.to_string() },
-    }
+    outputs.private_opt(player_id, comm::drop_item(item.label.as_str()));
+    outputs.room_opt(player_id, mob.room_id, comm::drop_item_others(mob.label.as_str(), item.label.as_str()));
+    Ok(())
 }
 
 
