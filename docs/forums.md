@@ -67,3 +67,14 @@ ItemSystem
 
 MoveSystem
 - n, s, e, w
+
+# Others
+
+## Normalize texts
+
+How do we normalize outputs when we can have request entries like login:
+- we just remove it, all outputs should finish in new lines, entries will always be after the prompt, or even
+  line after the prompt itself
+  
+How define what will be the prompt?
+- maybe a specific ActionController 

@@ -89,7 +89,7 @@ impl Server for LocalServer {
     }
 
     fn output(&mut self, connection_id: ConnectionId, msg: String) {
-        println!("{}", msg);
+        print!("{}", msg);
     }
 
     fn disconnect(&mut self, connection_id: ConnectionId) {

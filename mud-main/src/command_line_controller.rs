@@ -1,11 +1,11 @@
 mod view;
 mod comm;
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::borrow::BorrowMut;
 
 use socket_server::{Server, ServerOutput, ServerChanges};
-use commons::{PlayerId, vec_take, ConnectionId};
+use commons::{PlayerId, ConnectionId};
 use mud_engine::{Engine, ConnectionEvent};
 
 use view::*;
@@ -18,6 +18,7 @@ pub struct CommandLineController {
     server: Box<dyn Server>,
     connections: HashMap<ConnectionId, ViewContext>,
     connection_per_player_id: HashMap<PlayerId, ConnectionId>,
+    connections_with_input: HashSet<ConnectionId>,
 }
 
 impl CommandLineController {
@@ -26,6 +27,7 @@ impl CommandLineController {
             server,
             connections: Default::default(),
             connection_per_player_id: Default::default(),
+            connections_with_input: Default::default(),
         }
     }
 
@@ -47,7 +49,12 @@ impl CommandLineController {
             }
         }
 
+        // clean up before update with new values
+        self.connections_with_input.clear();
+
         for input in result.inputs {
+            self.connections_with_input.insert(input.connection_id);
+
             let view = self.connections.get_mut(&input.connection_id).unwrap();
             view.handle(&mut view_controller, input.msg);
         }
@@ -55,6 +62,7 @@ impl CommandLineController {
         self.flush(view_controller.take());
     }
 
+    // TODO: how to know which connections have inputs since they were generated before?
     pub fn handle_events(&mut self, engine: &mut Engine, events: &Vec<ConnectionEvent>) {
         let mut view_controller = CommandLineViewController::new(engine);
 //        handle_outputs(engine, &mut self.outputs, events);
@@ -65,12 +73,15 @@ impl CommandLineController {
     // TODO: show prompt?
     // TODO: Be able to pre-append new lines before any output (where player has send no message)
     //       but is receiving a output
+    // TODO: how disable text normalization for request entries?
+    // TOOD: how mix event and request entries?
     fn flush(&mut self, actions: Vec<ControllerAction>) {
+        let mut outputs: Vec<(ConnectionId, String)> = Vec::new();
 
         for action in actions {
             match action {
                 ControllerAction::Output { connection_id, msg } => {
-                    self.server.output(connection_id, msg);
+                    outputs.push((connection_id, msg));
                 },
                 ControllerAction::Login { connection_id, player_id } => {
                     self.connection_per_player_id.insert(player_id, connection_id);
@@ -83,8 +94,12 @@ impl CommandLineController {
                     self.connections.remove(&connection_id);
                     self.server.disconnect(connection_id);
                 },
-
             }
+        }
+
+        let outputs = normalize_outputs(&self.connections_with_input, outputs);
+        for (connection_id, msg) in outputs {
+            self.server.output(connection_id, msg);
         }
     }
 }
@@ -140,4 +155,43 @@ impl<'a> ViewController for CommandLineViewController<'a> {
             connection_id,
         });
     }
+}
+
+fn normalize_outputs(has_inputs: &HashSet<ConnectionId>, mut outputs: Vec<(ConnectionId, String)>) -> Vec<(ConnectionId, String)> {
+    let mut result = Vec::new();
+    let mut connections_with_output = HashSet::new();
+
+    // prepend messages
+    for (connection_id, _) in outputs.iter() {
+        connections_with_output.insert(*connection_id);
+
+        if !has_inputs.contains(&connection_id) {
+            result.push((*connection_id, "".to_string()));
+        }
+    }
+
+    // add other messages
+    result.append(&mut outputs);
+
+    // add new lines and prompts
+    for connection_id in connections_with_output {
+        result.push((connection_id, "$ ".to_string()));
+    }
+
+    result
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+//    #[test]
+//    fn test_normalize_output_should_add_prompt_in_end() {
+//        unimplemented!()
+//    }
+//
+//    #[test]
+//    fn test_normalize_output_should_pre_append_new_line_if_connection_dont_send_input() {
+//        unimplemented!()
+//    }
 }

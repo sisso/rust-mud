@@ -3,15 +3,16 @@ pub fn welcome() -> String {
 
 To create a new characer, type new in login.
 
-login: "#.to_string()
+login:
+"#.to_string()
 }
 
 pub fn login_request_login() -> String {
-    format!("login: ")
+    format!("login:\n")
 }
 
 pub fn login_request_password() -> String {
-    format!("password: ")
+    format!("password:\n")
 }
 
 pub fn login_fail(login: &str) -> String {
@@ -33,10 +34,6 @@ pub fn menu_invalid(input: &str) -> String {
     format!("Invalid option '{}'.\n", input)
 }
 
-pub fn prompt() -> String {
-    format!("$ ")
-}
-
 pub fn unknown_input(input: &str) -> String {
-    format!("unknown input '{}'", input)
+    format!("unknown input '{}'\n", input)
 }
