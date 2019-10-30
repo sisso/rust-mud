@@ -1,8 +1,17 @@
+mod character_creation_view;
+mod game_view;
+mod login_view;
+mod menu_view;
+
 use mud_engine::Engine;
 use commons::{PlayerId, ConnectionId};
 
 use super::comm;
 use crate::command_line_controller::ControllerAction;
+use crate::command_line_controller::view::login_view::LoginView;
+use crate::command_line_controller::view::menu_view::MenuView;
+use crate::command_line_controller::view::character_creation_view::CharacterCreationView;
+use crate::command_line_controller::view::game_view::GameView;
 
 pub enum ViewKind {
     Login,
@@ -43,6 +52,7 @@ pub struct ViewContext {
     pub view_login: LoginView,
     pub view_menu: MenuView,
     pub view_character_creation: CharacterCreationView,
+    pub view_game: GameView,
 }
 
 impl ViewContext {
@@ -52,6 +62,7 @@ impl ViewContext {
             view_login: LoginView::new(),
             view_menu: MenuView::new(),
             view_character_creation: CharacterCreationView::new(),
+            view_game: GameView::new(),
         }
     }
 
@@ -60,6 +71,7 @@ impl ViewContext {
             ViewKind::Login => self.view_login.init(view_manager, &mut self.data),
             ViewKind::Menu => self.view_menu.init(view_manager, &mut self.data),
             ViewKind::CharacterCreation => self.view_character_creation.init(view_manager, &mut self.data),
+            ViewKind::Game => self.view_game.init(view_manager, &mut self.data),
             _ => panic!(),
         }
     }
@@ -71,6 +83,7 @@ impl ViewContext {
             ViewKind::Login => self.view_login.handle(view_manager, input, &mut self.data),
             ViewKind::Menu => self.view_menu.handle(view_manager, input, &mut self.data),
             ViewKind::CharacterCreation => self.view_character_creation.handle(view_manager, input, &mut self.data),
+            ViewKind::Game => self.view_game.handle(view_manager, input, &mut self.data),
             _ => panic!(),
         };
 
@@ -101,108 +114,5 @@ pub trait View {
     fn handle(&mut self, view_manager: &mut dyn ViewController, input: &str, data: &mut ViewData) -> ViewAction;
 }
 
-pub struct LoginView {
-    login: Option<String>
-}
 
-impl LoginView {
-    pub fn new() -> Self {
-        LoginView { login: None }
-    }
-}
 
-impl View for LoginView {
-    fn init(&mut self, view_manager: &mut dyn ViewController, data: &mut ViewData) {
-        view_manager.output(data.connection_id, comm::welcome());
-    }
-
-    fn handle(&mut self, view_manager: &mut dyn ViewController, input: &str, data: &mut ViewData) -> ViewAction {
-        match self.login.take() {
-            Some(login) => {
-                match view_manager.execute_login(data.connection_id, login.as_str(), input) {
-                    Ok(player_id) => {
-                        data.player_id = Some(player_id);
-                        data.current = ViewKind::Menu;
-                        ViewAction::ChangeView
-                    },
-                    Err(_) => {
-                        view_manager.output(data.connection_id, comm::login_fail(login.as_str()));
-                        view_manager.output(data.connection_id, comm::login_request_login());
-                        ViewAction::None
-                    }
-                }
-            },
-            None if input.eq("new") => {
-                data.current = ViewKind::CharacterCreation;
-                ViewAction::ChangeView
-            },
-            None => {
-                if input.len() < 3 {
-                    view_manager.output(data.connection_id, comm::login_invalid(input));
-                    view_manager.output(data.connection_id, comm::login_request_login());
-                } else {
-                    self.login = Some(input.to_string());
-                    view_manager.output(data.connection_id, comm::login_request_password());
-                }
-
-                ViewAction::None
-            }
-        }
-    }
-}
-
-pub struct MenuView {
-
-}
-
-impl MenuView {
-    pub fn new() -> Self {
-        MenuView {}
-    }
-}
-
-impl View for MenuView {
-    fn init(&mut self, view_manager: &mut dyn ViewController, data: &mut ViewData) {
-        view_manager.output(data.connection_id, comm::menu_welcome());
-    }
-
-    fn handle(&mut self, view_manager: &mut dyn ViewController, input: &str, data: &mut ViewData) -> ViewAction {
-        match input {
-            "1" => {
-                data.current = ViewKind::Game;
-                ViewAction::ChangeView
-            },
-            "2" => {
-                view_manager.disconnect(data.connection_id);
-                ViewAction::None
-            },
-            other => {
-                view_manager.output(data.connection_id, comm::menu_invalid(input));
-                ViewAction::None
-            },
-        }
-    }
-}
-
-pub struct CharacterCreationView {
-
-}
-
-impl CharacterCreationView {
-    pub fn new() -> Self {
-        CharacterCreationView {}
-    }
-}
-
-impl View for CharacterCreationView {
-    fn init(&mut self, view_manager: &mut dyn ViewController, data: &mut ViewData) {
-    }
-
-    fn handle(&mut self, view_manager: &mut dyn ViewController, input: &str, data: &mut ViewData) -> ViewAction {
-        // TODO: query game classes
-        // TODO: query game races
-        // TODO: create character for player
-
-        ViewAction::None
-    }
-}

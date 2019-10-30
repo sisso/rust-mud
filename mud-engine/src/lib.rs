@@ -29,7 +29,8 @@ impl Engine {
     }
 
     pub fn load(&mut self, data_dir: &str) {
-
+        // TODO: implement
+        mud_domain::game::loader::load(&mut self.container);
     }
 
     pub fn tick(&mut self, delta_time: DeltaTime) {

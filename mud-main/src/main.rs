@@ -6,7 +6,7 @@ mod http_controller;
 
 fn main() {
     runner::run(Params {
-        data_dir: "./data/mud-fantasy".to_string(),
+        data_dir: "./data/fantasy".to_string(),
         local: true,
         socket: false,
         http: false

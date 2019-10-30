@@ -32,3 +32,11 @@ pub fn menu_welcome() -> String {
 pub fn menu_invalid(input: &str) -> String {
     format!("Invalid option '{}'.\n", input)
 }
+
+pub fn prompt() -> String {
+    format!("$ ")
+}
+
+pub fn unknown_input(input: &str) -> String {
+    format!("unknown input '{}'", input)
+}
