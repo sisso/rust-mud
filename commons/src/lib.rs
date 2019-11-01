@@ -34,6 +34,8 @@ impl DeltaTime{
     pub fn as_second(&self) -> Second {
         Second(self.0)
     }
+
+    pub fn as_f32(&self) -> f32 { self.0 }
 }
 
 #[derive(Clone,Copy,Debug)]

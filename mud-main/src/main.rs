@@ -8,7 +8,7 @@ fn main() {
     runner::run(Params {
         data_dir: "./data/fantasy".to_string(),
         local: true,
-        socket: false,
+        socket: true,
         http: false
     });
 }

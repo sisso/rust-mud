@@ -8,4 +8,5 @@ members = [
   "socket-server",
   "http-server",
   "mud-main",
+  "mud-space",
 ]

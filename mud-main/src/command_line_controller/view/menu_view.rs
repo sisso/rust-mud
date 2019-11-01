@@ -32,4 +32,8 @@ impl View for MenuView {
             },
         }
     }
+
+    fn handle_events(&mut self, view_manager: &mut dyn ViewController, data: &mut ViewData, events: &Vec<Event>) -> ViewAction {
+        ViewAction::None
+    }
 }

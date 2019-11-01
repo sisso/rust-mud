@@ -28,11 +28,13 @@ pub mod actions_items;
 pub mod actions_admin;
 pub mod loader;
 
+#[derive(Debug)]
 pub struct ConnectionState {
     pub connection_id: ConnectionId,
     pub player_id: Option<PlayerId>,
 }
 
+#[derive(Debug)]
 pub enum Output {
     Private {
         player_id: PlayerId,
@@ -80,6 +82,7 @@ pub trait Outputs {
     fn private(&mut self, player_id: PlayerId, msg: String);
 }
 
+#[derive(Debug)]
 pub struct OutputsImpl {
     list: Vec<Output>
 }

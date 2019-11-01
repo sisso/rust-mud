@@ -3,9 +3,9 @@ mod game_view;
 mod login_view;
 mod menu_view;
 
-use mud_engine::Engine;
+use mud_engine::{Engine, Action, Event, ConnectionEvent};
 use commons::{PlayerId, ConnectionId};
-
+use logs::*;
 use super::comm;
 use crate::command_line_controller::ControllerAction;
 use crate::command_line_controller::view::login_view::LoginView;
@@ -92,6 +92,22 @@ impl ViewContext {
             ViewAction::None => {},
         }
     }
+
+    pub fn handle_events(&mut self, view_manager: &mut dyn ViewController, events: &Vec<Event>) {
+        let action = match self.data.current {
+            ViewKind::Login => self.view_login.handle_events(view_manager, &mut self.data, events),
+            ViewKind::Menu => self.view_menu.handle_events(view_manager, &mut self.data, events),
+            ViewKind::CharacterCreation => self.view_character_creation.handle_events(view_manager, &mut self.data, events),
+            ViewKind::Game => self.view_game.handle_events(view_manager, &mut self.data, events),
+            _ => panic!(),
+        };
+
+        match action {
+            ViewAction::ChangeView => self.init(view_manager),
+            ViewAction::None => {},
+        }
+    }
+
 }
 
 ///
@@ -103,6 +119,7 @@ pub trait ViewController {
     fn output(&mut self, connection_id: ConnectionId, msg: String);
     fn execute_login(&mut self, connection_id: ConnectionId, login: &str, pass: &str) -> Result<PlayerId, ()>;
     fn disconnect(&mut self, connection_id: ConnectionId);
+    fn emit(&mut self, player_id: PlayerId, action: Action);
 }
 
 ///
@@ -112,6 +129,8 @@ pub trait View {
     fn init(&mut self, view_manager: &mut dyn ViewController, data: &mut ViewData);
 
     fn handle(&mut self, view_manager: &mut dyn ViewController, input: &str, data: &mut ViewData) -> ViewAction;
+
+    fn handle_events(&mut self, view_manager: &mut dyn ViewController, data: &mut ViewData, events: &Vec<Event>) -> ViewAction;
 }
 
 

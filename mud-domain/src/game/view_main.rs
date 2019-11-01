@@ -8,6 +8,7 @@ use super::item::ItemLocation;
 use super::container::Container;
 use crate::game::actions_admin;
 use commons::PlayerId;
+use logs::*;
 
 pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) {
     match input {

@@ -2,7 +2,7 @@ extern crate mud_domain;
 extern crate logs;
 
 use commons::{DeltaTime, PlayerId, ConnectionId, TotalTime, Tick, Second};
-use mud_domain::game::{Game, Ctx, spawn, mob, item, OutputsImpl, view_main, Output, find_players_per_room};
+use mud_domain::game::{Game, Ctx, spawn, mob, item, OutputsImpl, view_main, Output, find_players_per_room, loader};
 use mud_domain::game::container::Container;
 use mud_domain::game::player::add_player;
 use mud_domain::game::domain::GameTime;
@@ -17,20 +17,21 @@ pub struct Engine {
 
 impl Engine {
     pub fn new() -> Self {
+        let container = Container::new();
+
         Engine {
             time: GameTime {
-                tick: Tick::new(),
+                tick: Tick(0),
                 total: Second(0.0),
-                delta: Second(0.0),
+                delta: Second(0.0)
             },
-            container: Container::new(),
+            container,
             outputs: OutputsImpl::new(),
         }
     }
 
     pub fn load(&mut self, data_dir: &str) {
-        // TODO: implement
-        mud_domain::game::loader::load(&mut self.container);
+        loader::load(&mut self.container);
     }
 
     pub fn tick(&mut self, delta_time: DeltaTime) {
@@ -57,6 +58,7 @@ impl Engine {
         let mut result: HashMap<PlayerId, Vec<Event>> = HashMap::new();
         let mut players_per_room = find_players_per_room(&self.container);
 
+        // for each output convert into personal events to players
         for output in self.outputs.take() {
             match output {
                 Output::Private { player_id, msg } => {
@@ -91,8 +93,7 @@ impl Engine {
 
     pub fn add_action(&mut self, player_id: PlayerId, action: Action) {
         match action {
-            Action::Other { input } => {
-                debug!("{:?} handling input '{}'", player_id, input);
+            Action::Generic { input } => {
                 view_main::handle(&self.time, &mut self.container, &mut self.outputs, player_id, input.as_str());
             },
             _ => panic!()
@@ -100,6 +101,7 @@ impl Engine {
     }
 }
 
+#[derive(Debug,Clone)]
 pub enum Action {
     Move,
     Get,
@@ -113,14 +115,16 @@ pub enum Action {
     Say,
     Uptime,
     Score,
-    Other { input: String },
+    Generic { input: String },
 }
 
+#[derive(Debug,Clone)]
 pub struct ConnectionEvent {
-    player_id: PlayerId,
-    events: Vec<Event>,
+    pub player_id: PlayerId,
+    pub events: Vec<Event>,
 }
 
+#[derive(Debug,Clone)]
 pub enum Event {
     LookRoom,
     LookObject,

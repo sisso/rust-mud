@@ -9,6 +9,7 @@ use mud_engine::Engine;
 
 use crate::command_line_controller::CommandLineController;
 use crate::http_controller::HttpController;
+use logs::*;
 
 #[derive(Debug)]
 pub struct Params {
@@ -38,7 +39,7 @@ pub fn run(params: Params) {
         Some(HttpController::new(http_server))
     } else { None };
 
-    let delta_time = DeltaTime(0.1);
+    let delta_time = DeltaTime(0.5);
 
     loop {
         if let Some(controller) = &mut local_controller {
@@ -63,5 +64,8 @@ pub fn run(params: Params) {
         if let Some(controller) = &mut http_controller {
             controller.handle_events(&mut engine, &events);
         }
+
+        let wait_millis = (delta_time.as_f32() * 1000.0) as u64;
+        std::thread::sleep(::std::time::Duration::from_millis(wait_millis));
     }
 }
