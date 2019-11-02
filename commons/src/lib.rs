@@ -11,6 +11,60 @@ impl ConnectionId {
     }
 }
 
+pub const MIN_DISTANCE: f32 = 0.01;
+pub const MIN_DISTANCE_SQR: f32 = MIN_DISTANCE * MIN_DISTANCE;
+
+#[derive(Clone,Copy,PartialEq,Debug)]
+pub struct V2 {
+    pub x: f32,
+    pub y: f32,
+}
+
+impl V2 {
+    pub fn new(x: f32, y: f32) -> Self {
+        V2 { x, y }
+    }
+
+    pub fn add(&self, other: &V2) -> V2 {
+        V2 {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        }
+    }
+
+    pub fn sub(&self, other: &V2) -> V2 {
+        V2 {
+            x: self.x - other.x,
+            y: self.y - other.y,
+        }
+    }
+
+    pub fn normalized(&self) -> V2 {
+        self.mult(1.0 / self.length_sqr().sqrt())
+    }
+
+    pub fn length(&self) -> f32 {
+        self.length_sqr().sqrt()
+    }
+
+    pub fn length_sqr(&self) -> f32 {
+        (self.x * self.x) + (self.y * self.y)
+    }
+
+    pub fn mult(&self, scale: f32) -> V2 {
+        V2 {
+            x: self.x * scale,
+            y: self.y * scale,
+        }
+    }
+
+    pub fn div(&self, scale: f32) -> V2 {
+        self.mult(1.0 / scale)
+    }
+}
+
+pub type Position = V2;
+
 #[derive(Clone,Copy,Debug)]
 pub struct Tick(pub u32);
 
@@ -44,6 +98,26 @@ pub struct TotalTime(pub f64);
 impl TotalTime{
     pub fn as_second(&self) -> Second {
         Second(self.0 as f32)
+    }
+
+    pub fn as_f64(&self) -> f64 {
+        self.0 as f64
+    }
+
+    pub fn is_after(&self, time: TotalTime) -> bool {
+        self.0 >= time.0
+    }
+
+    pub fn is_before(&self, time: TotalTime) -> bool {
+        self.0 <= time.0
+    }
+
+    pub fn add(&self, delta: DeltaTime) -> TotalTime {
+        TotalTime(self.0 + delta.0 as f64)
+    }
+
+    pub fn sub(&self, other: TotalTime) -> DeltaTime {
+        DeltaTime((self.0 - other.0) as f32)
     }
 }
 

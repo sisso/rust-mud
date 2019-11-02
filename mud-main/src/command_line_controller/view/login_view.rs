@@ -1,5 +1,11 @@
 use super::*;
 
+pub trait LoginController {
+    fn output(&mut self, msg: String);
+    fn login(&mut self, login: &str, pass: &str) -> bool;
+    fn set_view_create_character();
+}
+
 pub struct LoginView {
     login: Option<String>
 }

@@ -80,36 +80,7 @@ pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
     }
 }
 
-pub fn equip(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<String>) {
-    let player = container.players.get_player_by_id(player_id);
-    let avatar_id = player.avatar_id;
-    match parser_item(container, ItemLocation::Mob { mob_id: avatar_id }, args) {
-        Ok(item_id) => {
-            let _ = do_equip(container, outputs, Some(player_id),avatar_id, item_id);
-        },
-        Err(ParseItemError::ItemNotProvided) => outputs.private(player_id, comm::equip_what()),
-        Err(ParseItemError::ItemNotFound { label }) => outputs.private(player_id, comm::equip_item_not_found(label.as_str())),
-    }
-}
-
-enum ParseItemError {
-    ItemNotProvided,
-    ItemNotFound { label: String },
-}
-
-fn parser_item(container: &mut Container, item_location: ItemLocation, args: Vec<String>) -> Result<ItemId, ParseItemError> {
-    let item_label = match args.get(1) {
-        Some(str) => str,
-        None => return Err(ParseItemError::ItemNotProvided),
-    };
-
-    match container.items.search_inventory(item_location, item_label) {
-        Some(item) => Ok(item.id),
-        None => Err(ParseItemError::ItemNotFound { label: item_label.to_string() }),
-    }
-}
-
-fn do_equip(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId) -> Result<(), ()> {
+pub fn do_equip(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId) -> Result<(), ()> {
     let inventory = container.items.get_inventory_list(ItemLocation::Mob { mob_id });
     container.items.equip(ItemLocation::Mob { mob_id }, item_id)?;
     let mob = container.mobs.get(mob_id);
@@ -119,23 +90,7 @@ fn do_equip(container: &mut Container, outputs: &mut dyn Outputs, player_id: Opt
     Ok(())
 }
 
-pub fn drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<String>) {
-    let player = container.players.get_player_by_id(player_id);
-    let avatar_id = player.avatar_id;
-    match parser_item(container, ItemLocation::Mob { mob_id: avatar_id }, args) {
-        Ok(item_id) => {
-            let _ = do_drop(container, outputs, Some(player_id), avatar_id, item_id);
-        },
-        Err(ParseItemError::ItemNotProvided) => outputs.private(player_id, comm::drop_item_no_target()),
-        Err(ParseItemError::ItemNotFound { label }) => outputs.private(player_id, comm::drop_item_not_found(label.as_str())),
-    }
-}
-
-pub fn strip(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<String>) {
-
-}
-
-fn do_drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId) -> Result<(),()> {
+pub fn do_drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId) -> Result<(),()> {
     let mob = container.mobs.get(mob_id);
 
     // unequip if is in use

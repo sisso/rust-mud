@@ -449,3 +449,23 @@ pub fn run_tick(ctx: &mut Ctx) {
             }
         });
 }
+
+
+#[derive(Debug)]
+pub enum ParseItemError {
+    ItemNotProvided,
+    ItemNotFound { label: String },
+}
+
+pub fn parser_item(container: &mut Container, item_location: ItemLocation, args: Vec<String>) -> Result<ItemId, ParseItemError> {
+    let item_label = match args.get(1) {
+        Some(str) => str,
+        None => return Err(ParseItemError::ItemNotProvided),
+    };
+
+    match container.items.search_inventory(item_location, item_label) {
+        Some(item) => Ok(item.id),
+        None => Err(ParseItemError::ItemNotFound { label: item_label.to_string() }),
+    }
+}
+

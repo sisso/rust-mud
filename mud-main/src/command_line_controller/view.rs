@@ -1,7 +1,7 @@
-mod character_creation_view;
-mod game_view;
-mod login_view;
-mod menu_view;
+pub mod character_creation_view;
+pub mod game_view;
+pub mod login_view;
+pub mod menu_view;
 
 use mud_engine::{Engine, Action, Event, ConnectionEvent};
 use commons::{PlayerId, ConnectionId};
@@ -108,6 +108,15 @@ impl ViewContext {
         }
     }
 
+//    fn get_current_view<'a>(&'a mut self) -> &'a mut dyn View {
+//        match self.data.current {
+//            ViewKind::Login => &mut self.view_login,
+//            ViewKind::Menu => &mut self.view_menu,
+//            ViewKind::CharacterCreation => &mut self.view_character_creation,
+//            ViewKind::Game => &mut self.view_game,
+//            _ => panic!(),
+//        }
+//    }
 }
 
 ///
@@ -120,6 +129,10 @@ pub trait ViewController {
     fn execute_login(&mut self, connection_id: ConnectionId, login: &str, pass: &str) -> Result<PlayerId, ()>;
     fn disconnect(&mut self, connection_id: ConnectionId);
     fn emit(&mut self, player_id: PlayerId, action: Action);
+}
+
+pub trait ConnectionOutput {
+    fn output(&mut self, msg: String);
 }
 
 ///

@@ -6,7 +6,7 @@ use super::actions_items;
 use super::comm;
 use super::item::ItemLocation;
 use super::container::Container;
-use crate::game::actions_admin;
+use crate::game::{actions_admin, input_handle_items};
 use commons::PlayerId;
 use logs::*;
 
@@ -57,15 +57,15 @@ pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outp
         },
 
         _ if has_command(input, &["drop"]) => {
-            actions_items::drop(container, outputs, player_id, parse_arguments(input))
+            input_handle_items::drop(container, outputs, player_id, parse_arguments(input))
         },
 
         _ if has_command(input, &["strip"]) => {
-            actions_items::strip(container, outputs, player_id, parse_arguments(input))
+            input_handle_items::strip(container, outputs, player_id, parse_arguments(input))
         },
 
         _ if has_command(input, &["equip"]) => {
-            actions_items::equip(container, outputs, player_id, parse_arguments(input))
+            input_handle_items::equip(container, outputs, player_id, parse_arguments(input))
         },
 
         _ if has_command(input, &["examine "]) => {

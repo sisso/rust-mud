@@ -148,6 +148,20 @@ impl<'a> CommandLineViewController<'a> {
     }
 }
 
+impl<'a> view::login_view::LoginController for CommandLineViewController<'a> {
+    fn output(&mut self, msg: String) {
+        unimplemented!()
+    }
+
+    fn login(&mut self, login: &str, pass: &str) -> bool {
+        unimplemented!()
+    }
+
+    fn set_view_create_character() {
+        unimplemented!()
+    }
+}
+
 impl<'a> ViewController for CommandLineViewController<'a> {
     fn output(&mut self, connection_id: ConnectionId, msg: String) {
         self.controller_actions.push(ControllerAction::Output {

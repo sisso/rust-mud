@@ -27,6 +27,7 @@ pub mod item;
 pub mod actions_items;
 pub mod actions_admin;
 pub mod loader;
+pub mod input_handle_items;
 
 #[derive(Debug)]
 pub struct ConnectionState {
