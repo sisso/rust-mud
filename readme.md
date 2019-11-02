@@ -1,36 +1,9 @@
 # Todo
 
+- Between Server <> Controller/View <> Domain
+
 ## Features
 
-- weapon
-- equip
-- armor
-- buy 
-- sell
-- experience
-- level up
-- potions
-- multiples commands like: s e n f or sssee
-- hire companions
-- advanced parse commands like "examine drunk body" || examine body || examine body.2 || examine all body?
-- load predefined world from file
-- persistence save and load
-  - pre-requiste to define a proper load and save format
-
-## long improvements
-
-- comm need to be defined by configuration files
-- there is no server buffering to send and receive messages, if user can not read, is possible that we lose output or stuck
-
-## Refactoring
-
-- replace seconds by DeltaTime
-- acceptance test do not need to use server
-- normalize inventory in more generic way
-- better layering between view commands, game logic, container, etc.
-  - simple channel of Commands in (including ticket) and outputs out. All parsing and serialization of messages need to 
-    be done by controller layer
-- entity based, no Mob or Item, just Entity
 
 # Design
 

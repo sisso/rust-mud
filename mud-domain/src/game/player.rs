@@ -35,9 +35,9 @@ pub fn add_player(container: &mut Container, login: &str) -> PlayerId {
             pv: Pv {
                 current: 10,
                 max: 10,
-                heal_rate: Second(1.0),
+                heal_rate: DeltaTime(1.0),
             },
-            attack_calm_down: Second(1.0)
+            attack_calm_down: DeltaTime(1.0)
         }
     );
     mob.is_avatar = true;

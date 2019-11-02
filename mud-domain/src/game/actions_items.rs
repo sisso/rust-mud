@@ -1,6 +1,5 @@
 use super::container::Container;
 use super::item::*;
-use super::room::*;
 use super::mob::*;
 use crate::game::comm;
 use crate::game::Outputs;

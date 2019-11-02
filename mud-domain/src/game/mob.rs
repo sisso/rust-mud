@@ -55,7 +55,7 @@ pub struct Damage {
 pub struct Pv {
     pub current: i32,
     pub max: u32,
-    pub heal_rate: Second,
+    pub heal_rate: DeltaTime,
 }
 
 impl Pv {
@@ -70,23 +70,23 @@ pub struct Attributes {
     pub defense: u32,
     pub damage: Damage,
     pub pv: Pv,
-    pub attack_calm_down: Second,
+    pub attack_calm_down: DeltaTime,
 }
 
 #[derive(Clone, Debug)]
 struct MobState {
     // after this total time can attack
-    attack_calm_down: Second,
+    attack_calm_down: TotalTime,
     // after this total time can heal
-    heal_calm_down: Second,
+    heal_calm_down: TotalTime,
     action: MobAction
 }
 
 impl MobState {
     fn new() -> Self {
         MobState {
-            attack_calm_down: Second(0.0),
-            heal_calm_down: Second(0.0),
+            attack_calm_down: TotalTime(0.0),
+            heal_calm_down: TotalTime(0.0),
             action: MobAction::None
         }
     }
@@ -124,12 +124,12 @@ impl Mob {
         }
     }
 
-    pub fn add_attack_calm_time(&mut self, total_time: Second) {
+    pub fn add_attack_calm_time(&mut self, total_time: TotalTime) {
         let next = TimeTrigger::next(self.attributes.attack_calm_down, total_time);
         self.state.attack_calm_down = next;
     }
 
-    pub fn is_read_to_attack(&self, total_time: Second) -> bool {
+    pub fn is_read_to_attack(&self, total_time: TotalTime) -> bool {
         let trigger = TimeTrigger::should_trigger(self.state.attack_calm_down, total_time);
         trigger
     }
@@ -142,7 +142,7 @@ impl Mob {
         self.state.action == MobAction::Resting
     }
 
-    pub fn set_action(&mut self, action: MobAction, total: Second) {
+    pub fn set_action(&mut self, action: MobAction, total: TotalTime) {
         self.state.action = action;
 
         match self.state.action {
@@ -153,7 +153,7 @@ impl Mob {
         }
     }
 
-    pub fn update_resting(&mut self, total: Second) -> bool {
+    pub fn update_resting(&mut self, total: TotalTime) -> bool {
         if !self.attributes.pv.is_damaged() {
             return false;
         }
@@ -342,14 +342,14 @@ pub fn run_tick(ctx: &mut Ctx) {
         match mob.command {
             MobCommand::None => {},
             MobCommand::Kill { target } => {
-                combat::tick_attack(ctx.time, ctx.container, ctx.outputs, mob_id, target);
+                combat::tick_attack(ctx.container, ctx.outputs, mob_id, target);
             }
         }
 
         let mob = ctx.container.mobs.get(mob_id);
         if mob.is_resting() {
             let mut mob = mob.clone();
-            if mob.update_resting(ctx.time.total) {
+            if mob.update_resting(ctx.container.time.total) {
                 if mob.is_avatar {
                     let player = ctx.container.players.find_player_from_avatar_mob_id(mob.id).unwrap();
                     if mob.attributes.pv.is_damaged() {
@@ -365,20 +365,20 @@ pub fn run_tick(ctx: &mut Ctx) {
 }
 
 // TODO: move game rules with output outside of mobs module
-pub fn kill_mob(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) {
-    create_body(time, container, outputs, mob_id);
+pub fn kill_mob(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) {
+    create_body(container, outputs, mob_id);
 
     // remove mob
     let mob = container.mobs.get(mob_id);
     if mob.is_avatar {
-        respawn_avatar(time, container, outputs, mob_id);
+        respawn_avatar(container, outputs, mob_id);
     } else {
         container.mobs.remove(&mob_id);
     }
 }
 
 // TODO: move game rules with output outside of mobs module
-pub fn respawn_avatar(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) {
+pub fn respawn_avatar(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) {
     let mut mob = container.mobs.get(mob_id).clone();
     assert!(mob.is_avatar);
 

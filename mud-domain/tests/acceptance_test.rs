@@ -1,8 +1,7 @@
 extern crate mud_domain;
 
-
-use std::cell::RefCell;
-use std::rc::Rc;
+//use std::cell::RefCell;
+//use std::rc::Rc;
 
 // FIXME: uncommment
 //struct TestGame {
@@ -11,7 +10,7 @@ use std::rc::Rc;
 //    game: ServerRunner,
 //}
 //
-//const DELTA: Second = Second(1.0);
+//const DELTA: DeltaTime = DeltaTime(1.0);
 //const SAFE: u32 = 10;
 //const SAVE: &str = "/tmp/test";
 //

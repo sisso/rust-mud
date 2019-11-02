@@ -128,7 +128,6 @@ impl Outputs for OutputsImpl {
 }
 
 pub struct Ctx<'a> {
-    pub time: &'a GameTime,
     pub container: &'a mut Container,
     pub outputs: &'a mut dyn Outputs,
 }
@@ -142,6 +141,7 @@ pub struct Game {
     connections_with_input: HashSet<ConnectionId>,
 }
 
+// TODO: dilacerate this classe into mud-server
 impl Game {
     pub fn new(container: Container) -> Self {
         Game {
@@ -152,6 +152,10 @@ impl Game {
             outputs: OutputsImpl::new(),
             connections_with_input: Default::default(),
         }
+    }
+
+    pub fn add_time(&mut self, delta_time: DeltaTime) {
+        self.container.time.add(delta_time);
     }
 
     pub fn add_connection(&mut self, connection_id: ConnectionId) {
@@ -179,14 +183,14 @@ impl Game {
         self.connections.remove(&connection_id);
     }
 
-    pub fn handle_input(&mut self, time: &GameTime, connection_id: ConnectionId, input: &str) {
+    pub fn handle_input(&mut self, connection_id: ConnectionId, input: &str) {
         self.connections_with_input.insert(connection_id);
 
         let state = self.get_state(connection_id);
 
         if let Some(player_id) = state.player_id {
             debug!("gamecontroller - {:?} handling input '{}'", connection_id, input);
-            view_main::handle(time, &mut self.container, &mut self.outputs, player_id, input);
+            view_main::handle(&mut self.container, &mut self.outputs, player_id, input);
         } else {
             debug!("gamecontroller - {:?} handling login '{}'", connection_id, input);
             let result = view_login::handle(&mut self.container, input);
@@ -204,9 +208,9 @@ impl Game {
         }
     }
 
-    pub fn tick(&mut self, time: &GameTime) {
+    /// Time need to be updated before by add_time
+    pub fn tick(&mut self) {
         let mut ctx = Ctx {
-            time,
             container: &mut self.container,
             outputs: &mut self.outputs,
         };

@@ -9,6 +9,7 @@ use crate::game::body::create_body;
 use commons::PlayerId;
 
 pub struct Container {
+    pub time: GameTime,
     pub players: PlayerRepository,
     pub mobs: MobRepository,
     pub items: ItemRepository,
@@ -19,6 +20,7 @@ pub struct Container {
 impl Container {
     pub fn new() -> Self {
         Container {
+            time: GameTime::new(),
             players: PlayerRepository::new(),
             mobs: MobRepository::new(),
             items: ItemRepository::new(),

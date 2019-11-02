@@ -74,7 +74,7 @@ pub fn attack(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
     outputs.room(player_id, room_id, room_msg);
 }
 
-pub fn rest(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) {
+pub fn rest(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) {
     let player = container.players.get_player_by_id(player_id);
     let mob = container.mobs.get(player.avatar_id);
     let mob_id = mob.id;
@@ -88,11 +88,11 @@ pub fn rest(time: &GameTime, container: &mut Container, outputs: &mut dyn Output
     outputs.room(player_id, mob.room_id,comm::rest_start_others(mob.label.as_str()));
 
     let mut mob = mob.clone();
-    mob.set_action(MobAction::Resting, time.total);
+    mob.set_action(MobAction::Resting, container.time.total);
     container.mobs.update(mob);
 }
 
-pub fn stand(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) {
+pub fn stand(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) {
     let player = container.players.get_player_by_id(player_id);
     let mob = container.mobs.get(player.avatar_id);
 
@@ -105,6 +105,6 @@ pub fn stand(time: &GameTime, container: &mut Container, outputs: &mut dyn Outpu
     outputs.room(player_id, mob.room_id,comm::stand_up_others(mob.label.as_str()));
 
     let mut mob = mob.clone();
-    mob.set_action(MobAction::Resting, time.total);
+    mob.set_action(MobAction::Resting, container.time.total);
     container.mobs.update(mob);
 }

@@ -1,7 +1,7 @@
 extern crate mud_domain;
 extern crate logs;
 
-use commons::{DeltaTime, PlayerId, ConnectionId, TotalTime, Tick, Second};
+use commons::{DeltaTime, PlayerId, ConnectionId, TotalTime, Tick};
 use mud_domain::game::{Game, Ctx, spawn, mob, item, OutputsImpl, view_main, Output, find_players_per_room, loader};
 use mud_domain::game::container::Container;
 use mud_domain::game::player::add_player;
@@ -10,7 +10,6 @@ use std::collections::HashMap;
 use logs::*;
 
 pub struct Engine {
-    time: GameTime,
     container: Container,
     outputs: OutputsImpl,
 }
@@ -20,11 +19,6 @@ impl Engine {
         let container = Container::new();
 
         Engine {
-            time: GameTime {
-                tick: Tick(0),
-                total: Second(0.0),
-                delta: Second(0.0)
-            },
             container,
             outputs: OutputsImpl::new(),
         }
@@ -35,12 +29,9 @@ impl Engine {
     }
 
     pub fn tick(&mut self, delta_time: DeltaTime) {
-        self.time.tick = self.time.tick.next();
-        self.time.total = Second(self.time.total.0 + delta_time.0);
-        self.time.delta = delta_time.as_second();
+        self.container.time.add(delta_time);
 
         let mut ctx = Ctx {
-            time: &self.time,
             container: &mut self.container,
             outputs: &mut self.outputs,
         };
@@ -94,7 +85,7 @@ impl Engine {
     pub fn add_action(&mut self, player_id: PlayerId, action: Action) {
         match action {
             Action::Generic { input } => {
-                view_main::handle(&self.time, &mut self.container, &mut self.outputs, player_id, input.as_str());
+                view_main::handle(&mut self.container, &mut self.outputs, player_id, input.as_str());
             },
             _ => panic!()
         }

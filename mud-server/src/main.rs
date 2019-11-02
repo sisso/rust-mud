@@ -3,10 +3,8 @@ extern crate termion;
 extern crate commons;
 extern crate mud_domain;
 extern crate socket_server;
+
 use logs::*;
-
-use commons::*;
-
 pub mod game_server;
 
 fn main() {

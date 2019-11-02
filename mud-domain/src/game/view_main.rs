@@ -8,9 +8,8 @@ use super::item::ItemLocation;
 use super::container::Container;
 use crate::game::{actions_admin, input_handle_items};
 use commons::PlayerId;
-use logs::*;
 
-pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) {
+pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) {
     match input {
         "h" | "help" => {
             outputs.private(player_id, comm::help());
@@ -33,15 +32,15 @@ pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outp
         },
 
         "uptime" => {
-            outputs.private(player_id, comm::uptime(time.total));
+            outputs.private(player_id, comm::uptime(container.time.total));
         },
 
         "rest" => {
-            actions::rest(time, container, outputs, player_id);
+            actions::rest(container, outputs, player_id);
         },
 
         "stand" => {
-            actions::stand(time, container, outputs, player_id);
+            actions::stand(container, outputs, player_id);
         },
 
         "stats" => {
@@ -110,7 +109,7 @@ pub fn handle(time: &GameTime, container: &mut Container, outputs: &mut dyn Outp
                     outputs.room(player_id, pctx.room.id, comm::admin_suicide_others(pctx.avatar.label.as_ref()));
 
                     let mob_id = pctx.avatar.id;
-                    actions_admin::kill(time, container, outputs, mob_id);
+                    actions_admin::kill(container, outputs, mob_id);
                 },
                 other => {
                     outputs.private(player_id, comm::admin_invalid_command());

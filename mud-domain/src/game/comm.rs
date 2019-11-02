@@ -4,7 +4,7 @@ use super::container::Container;
 use super::mob::*;
 
 use termion;
-use commons::Second;
+use commons::{DeltaTime, TotalTime};
 
 pub fn help() -> String {
     let str = r#"-------------------------------------------------------------
@@ -92,8 +92,8 @@ pub fn spawn_mob(mob: &Mob) -> String {
     format!("a {} appears here from no where\n", mob.label)
 }
 
-pub fn uptime(time: Second) -> String {
-    format!("now it is {}s after start\n", time.as_f32())
+pub fn uptime(time: TotalTime) -> String {
+    format!("now it is {}s after start\n", time.as_f64())
 }
 
 pub fn kill_target_not_found(target: &str) -> String {
@@ -335,7 +335,7 @@ pub fn stand_up_others(label: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use commons::Second;
+    use commons::DeltaTime;
 
     fn item_0_coins() -> Item {
         let mut item = Item::new(
@@ -359,7 +359,7 @@ mod tests {
         item.weapon = Some(Weapon {
             damage_min: 1,
             damage_max: 2,
-            reload: Second(1.0)
+            reload: DeltaTime(1.0)
         });
 
         item

@@ -1,15 +1,29 @@
 use super::mob::*;
 use super::player::*;
 use super::room::*;
-use commons::{Second, Tick};
+use commons::{DeltaTime, Tick, TotalTime};
 
 #[derive(Clone,Copy,Debug)]
 pub struct GameTime {
     pub tick: Tick,
-    // TODO: use total_time
-    pub total: Second,
-    // TODO: use delta_time
-    pub delta: Second,
+    pub total: TotalTime,
+    pub delta: DeltaTime,
+}
+
+impl GameTime {
+    pub fn new() -> Self {
+        GameTime {
+            tick: Tick(0),
+            total: TotalTime(0.0),
+            delta: DeltaTime(0.0)
+        }
+    }
+
+    pub fn add(&mut self, delta: DeltaTime) {
+        self.tick = self.tick.next();
+        self.total = self.total + delta;
+        self.delta = delta;
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]

@@ -1,14 +1,8 @@
 use commons::*;
 use std::collections::HashMap;
-
 use crate::game::Ctx;
-use crate::game::mob::Attributes;
-use commons::*;
-
-
 use super::comm;
 use super::container::Container;
-use super::domain::*;
 use super::domain::NextId;
 use super::mob::MobId;
 use super::room::RoomId;
@@ -37,7 +31,7 @@ pub struct Item {
     pub id: ItemId,
     pub kind: ItemKind,
     pub label: String,
-    pub decay: Option<Second>,
+    pub decay: Option<TotalTime>,
     pub amount: u32,
     pub item_def_id: Option<ItemPrefabId>,
     pub weapon: Option<Weapon>,
@@ -119,7 +113,7 @@ impl ItemPrefabBuilder {
 pub struct Weapon {
     pub damage_min: u32,
     pub damage_max: u32,
-    pub reload: Second,
+    pub reload: DeltaTime,
 }
 
 #[derive(Debug, Clone)]
@@ -439,7 +433,7 @@ pub fn run_tick(ctx: &mut Ctx) {
                 let location = ctx.container.items.get_location(item.id);
 
                 match location {
-                    ItemLocation::Room { room_id } if decay.le(ctx.time.total) => {
+                    ItemLocation::Room { room_id } if decay.is_before(ctx.container.time.total) => {
                         let msg = comm::item_body_disappears(item);
                         ctx.outputs.room_all(*room_id, msg);
                         ctx.container.items.remove(item_id);
