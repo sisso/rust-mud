@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
 use super::domain::Dir;
+use crate::game::obj::ObjId;
 
-#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
-pub struct RoomId(pub u32);
+pub type RoomId = ObjId;
 
 #[derive(Clone, Debug)]
 pub struct Room {

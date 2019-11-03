@@ -10,25 +10,40 @@ use commons::*;
 use commons::save::Load;
 use crate::game::obj::ObjId;
 
-const MOB_PLAYER: MobPrefabId = ObjId(0);
-const MOB_DRUNK: MobPrefabId = ObjId(1);
+const ID_ROOM_INIT: RoomId = ObjId(0);
+const ID_ROOM_BAR: RoomId = ObjId(1);
+const ID_ROOM_FLOREST: RoomId = ObjId(2);
+const ID_PREFAB_MOB_PLAYER: MobPrefabId = ObjId(3);
+const ID_PREFAB_MOB_DRUNK: MobPrefabId = ObjId(4);
+const ID_ITEM_DEF_COINS_2: ItemPrefabId = ObjId(5);
+const ID_ITEM_DEF_SWORD: ItemPrefabId = ObjId(6);
+const ID_ITEM_DEF_ARMOR: ItemPrefabId = ObjId(7);
 
-const ITEM_DEF_COINS_2: ItemPrefabId = ObjId(0);
-const ITEM_DEF_SWORD: ItemPrefabId = ObjId(1);
-const ITEM_DEF_ARMOR: ItemPrefabId = ObjId(2);
-
-const ROOM_ID_FLOREST: RoomId = RoomId(2);
+pub fn load_ids(container: &mut Container) {
+    for id in vec![
+        ID_ROOM_INIT,
+        ID_ROOM_BAR,
+        ID_ROOM_FLOREST,
+        ID_PREFAB_MOB_PLAYER,
+        ID_PREFAB_MOB_DRUNK,
+        ID_ITEM_DEF_COINS_2,
+        ID_ITEM_DEF_SWORD,
+        ID_ITEM_DEF_ARMOR,
+    ] {
+        container.objects.insert_static(id);
+    }
+}
 
 fn load_items_prefabs(container: &mut Container) {
     container.items.add_prefab(
-        ItemPrefab::build(ITEM_DEF_COINS_2, "coins".to_string())
+        ItemPrefab::build(ID_ITEM_DEF_COINS_2, "coins".to_string())
             .with_kind(ITEM_KIND_GOLD)
             .with_amount(2)
             .build()
     );
 
     container.items.add_prefab(
-        ItemPrefab::build(ITEM_DEF_SWORD, "sword".to_string())
+        ItemPrefab::build(ID_ITEM_DEF_SWORD, "sword".to_string())
             .with_weapon(Weapon {
                 damage_min: 2,
                 damage_max: 4,
@@ -38,7 +53,7 @@ fn load_items_prefabs(container: &mut Container) {
     );
 
     container.items.add_prefab(
-        ItemPrefab::build(ITEM_DEF_ARMOR, "armor".to_string())
+        ItemPrefab::build(ID_ITEM_DEF_ARMOR, "armor".to_string())
             .with_armor(Armor {
                 rd: 2,
                 dp: 1
@@ -48,11 +63,8 @@ fn load_items_prefabs(container: &mut Container) {
 }
 
 fn load_mobs_prefabs(container: &mut Container) {
-    container.objects.insert_static(MOB_PLAYER);
-    container.objects.insert_static(MOB_DRUNK);
-
     container.mobs.add_prefab(MobPrefab {
-        id: MOB_PLAYER,
+        id: ID_PREFAB_MOB_PLAYER,
         label: "Avatar".to_string(),
         attributes: Attributes {
             attack: 12,
@@ -65,7 +77,7 @@ fn load_mobs_prefabs(container: &mut Container) {
     });
 
     container.mobs.add_prefab(MobPrefab {
-        id: MOB_DRUNK,
+        id: ID_PREFAB_MOB_DRUNK,
         label: "Drunk".to_string(),
         attributes: Attributes {
             attack: 8,
@@ -75,33 +87,31 @@ fn load_mobs_prefabs(container: &mut Container) {
             attack_calm_down: DeltaTime(1.0),
         },
         inventory: vec![
-            ITEM_DEF_COINS_2
+            ID_ITEM_DEF_COINS_2
         ],
     });
 }
 
 fn load_rooms(container: &mut Container) {
-    let room_id_bar = RoomId(1);
-
     let room1 = Room {
-        id: INITIAL_ROOM_ID,
+        id: ID_ROOM_INIT,
         label: "Main Room".to_string(),
         desc: "Main room where people born".to_string(),
-        exits: vec![(Dir::S, room_id_bar)],
+        exits: vec![(Dir::S, ID_ROOM_BAR)],
     };
 
     let room2 = Room {
-        id: room_id_bar,
+        id: ID_ROOM_BAR,
         label: "Bar".to_string(),
         desc: "Where we relief our duties".to_string(),
-        exits: vec![(Dir::N, INITIAL_ROOM_ID), (Dir::S, ROOM_ID_FLOREST)],
+        exits: vec![(Dir::N, ID_ROOM_INIT), (Dir::S, ID_ROOM_FLOREST)],
     };
 
     let room3 = Room {
-        id: ROOM_ID_FLOREST,
+        id: ID_ROOM_FLOREST,
         label: "Florest".to_string(),
         desc: "A deep, ugly and dark florest.".to_string(),
-        exits: vec![(Dir::N, room_id_bar)],
+        exits: vec![(Dir::N, ID_ROOM_BAR)],
     };
 
     container.rooms.add(room1);
@@ -110,28 +120,29 @@ fn load_rooms(container: &mut Container) {
 }
 
 fn load_spawns(container: &mut Container) {
-    let obj_id = container.objects.insert();
+    let spawn_id = container.objects.insert();
 
     container.spawns.add(Spawn {
-        id: obj_id,
-        room_id: RoomId(1),
+        id: spawn_id,
+        room_id: ID_ROOM_BAR,
         max: 1,
         delay: SpawnDelay {
             min: DeltaTime(5.0),
             max: DeltaTime(20.0),
         },
-        prefab_id: MOB_DRUNK,
+        prefab_id: ID_PREFAB_MOB_DRUNK,
         next: Some(TotalTime(1.0)),
         mobs_id: vec![],
     });
 }
 
 pub fn load_rooms_objects(container: &mut Container) {
-    container.items.instantiate_item(&mut container.objects, ITEM_DEF_ARMOR, ItemLocation::Room { room_id: ROOM_ID_FLOREST });
-    container.items.instantiate_item(&mut container.objects, ITEM_DEF_SWORD, ItemLocation::Room { room_id: ROOM_ID_FLOREST });
+    container.items.instantiate_item(&mut container.objects, ID_ITEM_DEF_ARMOR, ItemLocation::Room { room_id: ID_ROOM_FLOREST });
+    container.items.instantiate_item(&mut container.objects, ID_ITEM_DEF_SWORD, ItemLocation::Room { room_id: ID_ROOM_FLOREST });
 }
 
 pub fn load(container: &mut Container) {
+    load_ids(container);
     load_items_prefabs(container);
     load_mobs_prefabs(container);
     load_rooms(container);

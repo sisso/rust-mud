@@ -16,7 +16,8 @@ use crate::game::obj::{ObjId, Objects};
 
 // TODO: Move this to a injected configuration
 // TODO: This is more Player related that mob
-pub const INITIAL_ROOM_ID: RoomId = RoomId(0);
+// TODO: now it get ugly with hardcoded ID
+pub const ID_ROOM_INIT: RoomId = ObjId(0);
 
 pub type MobId = ObjId;
 pub type MobPrefabId = ObjId;
@@ -377,7 +378,7 @@ pub fn respawn_avatar(container: &mut Container, outputs: &mut dyn Outputs, mob_
     assert!(mob.is_avatar);
 
     mob.attributes.pv.current = 1;
-    mob.room_id = INITIAL_ROOM_ID;
+    mob.room_id = ID_ROOM_INIT;
 
     let player = container.players.find_player_from_avatar_mob_id(mob.id);
     let player = player.unwrap();
