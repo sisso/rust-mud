@@ -399,7 +399,7 @@ pub fn instantiate_from_prefab<'a>(objs: &mut Objects, mobs:  &'a mut MobReposit
     // add items
     let inventory = prefab.inventory.clone();
     for item_prefab_id in inventory {
-        items.instantiate_item(objs, item_prefab_id, ItemLocation::Mob { mob_id });
+        items.instantiate_item(objs, item_prefab_id, mob_id);
     }
 
     // instantiate

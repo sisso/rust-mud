@@ -4,7 +4,6 @@ use super::domain::*;
 use super::actions;
 use super::actions_items;
 use super::comm;
-use super::item::ItemLocation;
 use super::container::Container;
 use crate::game::{actions_admin, input_handle_items};
 use commons::PlayerId;
@@ -43,11 +42,10 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
             actions::stand(container, outputs, player_id);
         },
 
-        "stats" => {
+        "stats" | "inv" | "score" => {
             let ctx = container.get_player_context(player_id);
-            let location = ItemLocation::Mob { mob_id: ctx.avatar.id };
-            let item_inventory = container.items.get_inventory_list(location);
-            let equiped = container.items.get_equiped(location);
+            let item_inventory = container.items.get_inventory_list(ctx.avatar.id);
+            let equiped = container.items.get_equiped(ctx.avatar.id );
             outputs.private(player_id, comm::stats(&ctx.avatar, &item_inventory, &equiped));
         },
 
@@ -130,7 +128,7 @@ fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_i
 
     match mobs.first() {
         Some(mob) => {
-            let item_location = ItemLocation::Mob { mob_id: mob.id };
+            let item_location = mob.id;
             let mob_inventory = container.items.get_inventory_list(item_location);
             let equiped = container.items.get_equiped(item_location);
             outputs.private(player_id, comm::examine_target(mob, &mob_inventory, &equiped));
@@ -139,10 +137,10 @@ fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_i
         _ => {},
     }
 
-    let items = container.items.search(&ctx.avatar.room_id, &target);
+    let items = container.items.search_inventory(ctx.avatar.room_id, &target);
     match items.first() {
         Some(item) => {
-            let item_inventory = container.items.get_inventory_list(ItemLocation::Item { item_id: item.id });
+            let item_inventory = container.items.get_inventory_list(item.id);
             outputs.private(player_id, comm::examine_target_item(item, &item_inventory));
             return;
         },

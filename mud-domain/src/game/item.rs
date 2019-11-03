@@ -20,14 +20,6 @@ pub const ITEM_KIND_UNDEFINED: ItemKind = ItemKind(0);
 pub const ITEM_KIND_GOLD: ItemKind = ItemKind(1);
 pub const ITEM_KIND_BODY: ItemKind = ItemKind(2);
 
-#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
-pub enum ItemLocation {
-    Limbo,
-    Mob { mob_id: MobId },
-    Room { room_id: RoomId },
-    Item { item_id: ItemId },
-}
-
 #[derive(Debug, Clone)]
 pub struct Item {
     pub id: ItemId,
@@ -123,15 +115,15 @@ pub struct Armor {
 
 #[derive(Debug, Clone)]
 pub struct Inventory {
-    location: ItemLocation,
+    location: ObjId,
     list: Vec<ItemId>,
     equip: Vec<ItemId>,
 }
 
 impl Inventory {
-    pub fn new(location: ItemLocation) -> Self {
+    pub fn new(obj_id: ObjId) -> Self {
         Inventory {
-            location: location,
+            location: obj_id,
             list: vec![],
             equip: vec![]
         }
@@ -148,9 +140,9 @@ impl Inventory {
 
 pub struct ItemRepository {
     index: HashMap<ItemId, Item>,
-    inventory: HashMap<ItemLocation, Inventory>,
+    inventory: HashMap<ObjId, Inventory>,
     prefab_index: HashMap<ItemPrefabId, ItemPrefab>,
-    item_location: HashMap<ItemId, ItemLocation>,
+    item_location: HashMap<ItemId, ObjId>,
 }
 
 impl ItemRepository {
@@ -167,14 +159,14 @@ impl ItemRepository {
         self.index.get(&item_id).unwrap()
     }
 
-    pub fn set_location(&mut self, item_id: ItemId, location: ItemLocation) {
+    pub fn set_location(&mut self, item_id: ItemId, location: ObjId) {
         let inventory = self.get_inventory_mut(location);
         inventory.add(item_id);
 
         self.item_location.insert(item_id, location);
     }
 
-    pub fn move_all(&mut self, from: ItemLocation, to: ItemLocation) {
+    pub fn move_all(&mut self, from: ObjId, to: ObjId) {
         debug!("itemrepostitory - move_all {:?} to {:?}", from, to);
         let from_inventory = self.inventory.remove(&from);
         if from_inventory.is_none() {
@@ -194,23 +186,24 @@ impl ItemRepository {
         }
     }
 
-    pub fn move_item(&mut self, item_id: ItemId, location: ItemLocation) {
-        self.remove_location(item_id);
-        self.add_location(&item_id, location);
+    pub fn move_item(&mut self, from_item_id: ItemId, to_item_id: ObjId) {
+        self.remove_location(from_item_id);
+        self.add_location(&from_item_id, to_item_id);
     }
 
+    // TODO: remove
     pub fn move_items_from_mob_to_item(&mut self, mob_id: MobId, item_id: ItemId) {
-        self.move_all(ItemLocation::Mob { mob_id: mob_id }, ItemLocation::Item { item_id: item_id });
+        self.move_all(mob_id, item_id);
     }
 
-    pub fn get_equiped(&self, location: ItemLocation) -> Vec<ItemId> {
+    pub fn get_equiped(&self, location: ObjId) -> Vec<ItemId> {
         match self.inventory.get(&location) {
             Some(inventory) => inventory.equip.clone(),
             None => vec![],
         }
     }
 
-    pub fn get_inventory_list(&self, location: ItemLocation) -> Vec<&Item> {
+    pub fn get_inventory_list(&self, location: ObjId) -> Vec<&Item> {
         match self.inventory.get(&location) {
             Some(inventory) => {
                 inventory
@@ -225,13 +218,31 @@ impl ItemRepository {
         }
     }
 
-    pub fn search_inventory(&self, location: ItemLocation, item_label: &str) -> Option<&Item> {
+    pub fn find_inventory(&self, location: ObjId, item_label: &str) -> Option<&Item> {
         let inventory = self.get_inventory_list(location);
         let item: Option<&Item> = inventory.iter().find(|item| item.label.eq_ignore_ascii_case(item_label)).map(|i| *i);
         item
     }
 
-    pub fn add(&mut self, item: Item, location: ItemLocation) {
+    pub fn search_inventory(&self, obj_id: ObjId, name: &str) -> Vec<&Item> {
+        match self.inventory.get(&obj_id) {
+            Some(inventory) => {
+                inventory.list.iter().filter_map(|item_id| {
+                    let item = self.get(*item_id);
+                    if item.label.eq_ignore_ascii_case(name) {
+                        Some(item)
+                    } else {
+                        None
+                    }
+                }).collect()
+            }
+            _ => {
+                vec![]
+            }
+        }
+    }
+
+    pub fn add(&mut self, item: Item, location: ObjId) {
         let item_id = item.id;
 
         if self.index.contains_key(&item_id) {
@@ -275,33 +286,15 @@ impl ItemRepository {
         self.prefab_index.get(item_prefab_id).unwrap()
     }
 
-    pub fn search(&self, room_id: &RoomId, name: &String) -> Vec<&Item> {
-        match self.inventory.get(&ItemLocation::Room { room_id: *room_id }) {
-            Some(inventory) => {
-                inventory.list.iter().filter_map(|item_id| {
-                    let item = self.get(*item_id);
-                    if item.label.eq_ignore_ascii_case(name) {
-                        Some(item)
-                    } else {
-                        None
-                    }
-                }).collect()
-            }
-            _ => {
-                vec![]
-            }
-        }
+    pub fn get_location(&self, item_id: ItemId) -> ObjId {
+        *self.item_location.get(&item_id).unwrap()
     }
 
-    pub fn get_location(&self, item_id: ItemId) -> &ItemLocation {
-        self.item_location.get(&item_id).unwrap()
-    }
-
-    pub fn get_inventory(&self, location: ItemLocation) -> Option<&Inventory> {
+    pub fn get_inventory(&self, location: ObjId) -> Option<&Inventory> {
         self.inventory.get(&location)
     }
 
-    pub fn equip(&mut self, location: ItemLocation, item_id: ItemId) -> Result<(),()> {
+    pub fn equip(&mut self, location: ObjId, item_id: ItemId) -> Result<(),()> {
         let item = self.index.get(&item_id).unwrap();
         let is_weapon = item.weapon.is_some();
         let is_armor = item.armor.is_some();
@@ -336,7 +329,7 @@ impl ItemRepository {
         Err(())
     }
 
-    fn get_inventory_mut(&mut self, location: ItemLocation) -> &mut Inventory {
+    fn get_inventory_mut(&mut self, location: ObjId) -> &mut Inventory {
         self.inventory.entry(location).or_insert(Inventory::new(location.clone()))
     }
 
@@ -350,7 +343,7 @@ impl ItemRepository {
         debug!("itemrepostitory - remove_location {:?}", item_id);
     }
 
-    fn add_location(&mut self, item_id: &ItemId, location: ItemLocation) {
+    fn add_location(&mut self, item_id: &ItemId, location: ObjId) {
         let inventory = self.get_inventory_mut(location);
         inventory.add(*item_id);
 
@@ -359,7 +352,7 @@ impl ItemRepository {
         debug!("itemrepostitory - add_location {:?} {:?}", item_id, location);
     }
 
-    pub fn instantiate_item(&mut self, objects: &mut Objects, item_prefab_id: ItemPrefabId, location: ItemLocation) -> ItemId {
+    pub fn instantiate_item(&mut self, objects: &mut Objects, item_prefab_id: ItemPrefabId, location: ObjId) -> ItemId {
         let item_id = objects.insert();
         let prefab = self.get_prefab(&item_prefab_id);
 
@@ -396,10 +389,10 @@ impl ItemRepository {
 //
 //        for (id, (location, inventory)) in self.inventory.iter().enumerate() {
 //            let location_json = match location {
-//                ItemLocation::Limbo => json!({"kind": "limbo"}),
-//                ItemLocation::Mob { mob_id } => json!({"kind": "mob", "mob_id": mob_id.0 }),
-//                ItemLocation::Room { room_id } => json!({"kind": "room", "room_id": room_id.0 }),
-//                ItemLocation::Item { item_id } => json!({"kind": "item", "item_id": item_id.0 }),
+//                ObjId::Limbo => json!({"kind": "limbo"}),
+//                ObjId::Mob { mob_id } => json!({"kind": "mob", "mob_id": mob_id.0 }),
+//                ObjId::Room { room_id } => json!({"kind": "room", "room_id": room_id.0 }),
+//                ObjId::Item { item_id } => json!({"kind": "item", "item_id": item_id.0 }),
 //            };
 //
 //            let obj_json = json!({
@@ -421,15 +414,13 @@ pub fn run_tick(ctx: &mut Ctx) {
             let item = ctx.container.items.get(item_id);
 
             if let Some(decay) = item.decay {
-                let location = ctx.container.items.get_location(item.id);
+                // TODO: Only decay items on ground?
+                let location_id = ctx.container.items.get_location(item.id);
 
-                match location {
-                    ItemLocation::Room { room_id } if decay.is_before(ctx.container.time.total) => {
-                        let msg = comm::item_body_disappears(item);
-                        ctx.outputs.room_all(*room_id, msg);
-                        ctx.container.items.remove(item_id);
-                    }
-                    _ => {}
+                if ctx.container.rooms.is_room(location_id) && decay.is_before(ctx.container.time.total)  {
+                    let msg = comm::item_body_disappears(item);
+                    ctx.outputs.room_all(location_id, msg);
+                    ctx.container.items.remove(item_id);
                 }
             }
         });
@@ -442,13 +433,13 @@ pub enum ParseItemError {
     ItemNotFound { label: String },
 }
 
-pub fn parser_item(container: &mut Container, item_location: ItemLocation, args: Vec<String>) -> Result<ItemId, ParseItemError> {
+pub fn parser_item(container: &mut Container, item_location: ObjId, args: Vec<String>) -> Result<ItemId, ParseItemError> {
     let item_label = match args.get(1) {
         Some(str) => str,
         None => return Err(ParseItemError::ItemNotProvided),
     };
 
-    match container.items.search_inventory(item_location, item_label) {
+    match container.items.find_inventory(item_location, item_label) {
         Some(item) => Ok(item.id),
         None => Err(ParseItemError::ItemNotFound { label: item_label.to_string() }),
     }

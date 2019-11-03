@@ -1,6 +1,6 @@
 # TODO
 
-- noramlize ID
+- inventory should be attached to a entity!
 - fix spawn
 - command inv
 - fix extra lines in output when look

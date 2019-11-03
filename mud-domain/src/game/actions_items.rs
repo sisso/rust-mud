@@ -13,11 +13,8 @@ pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
 
     match (target_inventory, target_item) {
         (Some(target_label), None) => {
-            let target_inventory = container.items.get_inventory_list(ItemLocation::Room { room_id: ctx.room.id });
-            // TODO: move to a util search with more powerful capabilities
-            let target_item = target_inventory.iter().find(|item| {
-                item.label.eq_ignore_ascii_case(target_label)
-            });
+            let target_inventory = container.items.get_inventory_list(ctx.room.id);
+            let target_item = container.items.find_inventory(ctx.room.id, target_label);
 
             match target_item {
                 Some(item)=> {
@@ -26,7 +23,7 @@ pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
 
                     let item_id = item.id;
                     let mob_id = ctx.avatar.id;
-                    container.items.move_item(item_id, ItemLocation::Mob { mob_id });
+                    container.items.move_item(item_id, mob_id);
                 },
 
                 None => {
@@ -36,7 +33,7 @@ pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
         },
         (Some(target_inventory_label), Some(target_item_label)) => {
             // pick up from container
-            let target_inventory_item = container.items.search(&ctx.avatar.room_id, target_inventory_label);
+            let target_inventory_item = container.items.search_inventory(ctx.avatar.room_id, target_inventory_label);
             let target_inventory_item = target_inventory_item.get(0);
 
             if target_inventory_item.is_none() {
@@ -46,7 +43,7 @@ pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
 
             let target_inventory_item = target_inventory_item.unwrap();
             let item_id = target_inventory_item.id;
-            let inventory = container.items.get_inventory_list(ItemLocation::Item { item_id });
+            let inventory = container.items.get_inventory_list(item_id);
 
             if target_item.is_none() {
                 outputs.private(player_id, comm::pick_what(&inventory));
@@ -64,7 +61,7 @@ pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
 
                     let mob_id = ctx.avatar.id;
                     let item_id = item.id;
-                    container.items.move_item(item_id, ItemLocation::Mob { mob_id });
+                    container.items.move_item(item_id, mob_id);
                 },
 
                 None => {
@@ -80,8 +77,8 @@ pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
 }
 
 pub fn do_equip(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId) -> Result<(), ()> {
-    let inventory = container.items.get_inventory_list(ItemLocation::Mob { mob_id });
-    container.items.equip(ItemLocation::Mob { mob_id }, item_id)?;
+    let inventory = container.items.get_inventory_list(mob_id);
+    container.items.equip(mob_id, item_id)?;
     let mob = container.mobs.get(mob_id);
     let item = container.items.get(item_id);
     outputs.private_opt(player_id, comm::equip_player_from_room(item.label.as_str()));
@@ -94,7 +91,7 @@ pub fn do_drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: 
 
     // unequip if is in use
     let _ = container.items.strip(item_id);
-    container.items.move_item(item_id, ItemLocation::Room { room_id: mob.room_id });
+    container.items.move_item(item_id, mob.room_id);
 
     let item = container.items.get(item_id);
 

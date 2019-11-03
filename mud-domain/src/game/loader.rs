@@ -137,8 +137,8 @@ fn load_spawns(container: &mut Container) {
 }
 
 pub fn load_rooms_objects(container: &mut Container) {
-    container.items.instantiate_item(&mut container.objects, ID_ITEM_DEF_ARMOR, ItemLocation::Room { room_id: ID_ROOM_FLOREST });
-    container.items.instantiate_item(&mut container.objects, ID_ITEM_DEF_SWORD, ItemLocation::Room { room_id: ID_ROOM_FLOREST });
+    container.items.instantiate_item(&mut container.objects, ID_ITEM_DEF_ARMOR, ID_ROOM_FLOREST);
+    container.items.instantiate_item(&mut container.objects, ID_ITEM_DEF_SWORD, ID_ROOM_FLOREST);
 }
 
 pub fn load(container: &mut Container) {

@@ -51,7 +51,7 @@ pub fn look_description(container: &Container, ctx: &PlayerCtx) -> String {
             labels.join("\n")
         };
 
-    let items: Vec<String> = container.items.get_inventory_list(ItemLocation::Room { room_id: ctx.avatar.room_id })
+    let items: Vec<String> = container.items.get_inventory_list(ctx.avatar.room_id)
         .iter()
         .map(|item| format!("- {} in the floor", item.label))
         .collect();

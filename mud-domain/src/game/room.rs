@@ -43,4 +43,8 @@ impl RoomRepository {
     pub fn get(&self, id: &RoomId) -> &Room {
         self.index.get(id).unwrap()
     }
+
+    pub fn is_room(&self, id: RoomId) -> bool {
+        self.index.contains_key(&id)
+    }
 }

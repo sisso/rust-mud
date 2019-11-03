@@ -24,7 +24,7 @@ pub fn create_body(container: &mut Container, outputs: &mut dyn Outputs, mob_id:
 
     let msg = comm::item_body_appears_in_room(&item);
 
-    container.items.add(item, ItemLocation::Room {room_id});
+    container.items.add(item, room_id);
     container.items.move_items_from_mob_to_item(mob_id, item_id);
 
     outputs.room_all(room_id, msg);
