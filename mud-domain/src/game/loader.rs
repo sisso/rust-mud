@@ -13,9 +13,9 @@ use crate::game::obj::ObjId;
 const MOB_PLAYER: MobPrefabId = ObjId(0);
 const MOB_DRUNK: MobPrefabId = ObjId(1);
 
-const ITEM_DEF_COINS_2: ItemPrefabId = ItemPrefabId(0);
-const ITEM_DEF_SWORD: ItemPrefabId = ItemPrefabId(1);
-const ITEM_DEF_ARMOR: ItemPrefabId = ItemPrefabId(2);
+const ITEM_DEF_COINS_2: ItemPrefabId = ObjId(0);
+const ITEM_DEF_SWORD: ItemPrefabId = ObjId(1);
+const ITEM_DEF_ARMOR: ItemPrefabId = ObjId(2);
 
 const ROOM_ID_FLOREST: RoomId = RoomId(2);
 
@@ -127,8 +127,8 @@ fn load_spawns(container: &mut Container) {
 }
 
 pub fn load_rooms_objects(container: &mut Container) {
-    container.items.instantiate_item(ITEM_DEF_ARMOR, ItemLocation::Room { room_id: ROOM_ID_FLOREST });
-    container.items.instantiate_item(ITEM_DEF_SWORD, ItemLocation::Room { room_id: ROOM_ID_FLOREST });
+    container.items.instantiate_item(&mut container.objects, ITEM_DEF_ARMOR, ItemLocation::Room { room_id: ROOM_ID_FLOREST });
+    container.items.instantiate_item(&mut container.objects, ITEM_DEF_SWORD, ItemLocation::Room { room_id: ROOM_ID_FLOREST });
 }
 
 pub fn load(container: &mut Container) {

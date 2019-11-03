@@ -7,10 +7,12 @@ use super::domain::NextId;
 use super::mob::MobId;
 use super::room::RoomId;
 use logs::*;
+use crate::game::obj::{ObjId, Objects};
 
-#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
-pub struct ItemId(pub u32);
+pub type ItemId = ObjId;
+pub type ItemPrefabId = ObjId;
 
+// TODO: re-think
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub struct ItemKind(pub u32);
 
@@ -56,9 +58,6 @@ impl Item {
         self.weapon.is_some() || self.armor.is_some()
     }
 }
-
-#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
-pub struct ItemPrefabId(pub u32);
 
 #[derive(Debug, Clone)]
 pub struct ItemPrefab {
@@ -148,8 +147,6 @@ impl Inventory {
 }
 
 pub struct ItemRepository {
-    next_item_id: NextId,
-    next_item_def_id: NextId,
     index: HashMap<ItemId, Item>,
     inventory: HashMap<ItemLocation, Inventory>,
     prefab_index: HashMap<ItemPrefabId, ItemPrefab>,
@@ -159,17 +156,11 @@ pub struct ItemRepository {
 impl ItemRepository {
     pub fn new() -> Self {
         ItemRepository {
-            next_item_id: NextId::new(),
-            next_item_def_id: NextId::new(),
             index: HashMap::new(),
             inventory: HashMap::new(),
             prefab_index: HashMap::new(),
             item_location: HashMap::new(),
         }
-    }
-
-    pub fn next_item_id(&mut self) -> ItemId {
-        ItemId(self.next_item_id.next())
     }
 
     pub fn get(&self, item_id: ItemId) -> &Item {
@@ -368,8 +359,8 @@ impl ItemRepository {
         debug!("itemrepostitory - add_location {:?} {:?}", item_id, location);
     }
 
-    pub fn instantiate_item(&mut self, item_prefab_id: ItemPrefabId, location: ItemLocation) -> ItemId {
-        let item_id = self.next_item_id();
+    pub fn instantiate_item(&mut self, objects: &mut Objects, item_prefab_id: ItemPrefabId, location: ItemLocation) -> ItemId {
+        let item_id = objects.insert();
         let prefab = self.get_prefab(&item_prefab_id);
 
         let mut item = Item::new(

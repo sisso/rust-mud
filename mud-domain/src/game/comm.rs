@@ -336,10 +336,11 @@ pub fn stand_up_others(label: &str) -> String {
 mod tests {
     use super::*;
     use commons::DeltaTime;
+    use crate::game::obj::ObjId;
 
     fn item_0_coins() -> Item {
         let mut item = Item::new(
-            ItemId(0),
+            ObjId(0),
             ITEM_KIND_GOLD,
             "coins".to_string()
         );
@@ -351,7 +352,7 @@ mod tests {
 
     fn item_1_weapon() -> Item {
         let mut item = Item::new(
-            ItemId(1),
+            ObjId(1),
             ITEM_KIND_UNDEFINED,
             "weapon".to_string()
         );
