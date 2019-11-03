@@ -207,7 +207,7 @@ impl MobRepository {
     }
 
     pub fn add(&mut self, mob: Mob) -> &Mob {
-        if self.exists(&mob.id) {
+        if self.exists(mob.id) {
             panic!("mob already exists")
         }
         let id = mob.id;
@@ -239,8 +239,8 @@ impl MobRepository {
         self.index.get(id)
     }
 
-    pub fn exists(&self, id: &MobId) -> bool {
-        self.index.contains_key(id)
+    pub fn exists(&self, id: MobId) -> bool {
+        self.index.contains_key(&id)
     }
 
     pub fn search(&self, room_id: Option<RoomId>, name: Option<&str>) -> Vec<&Mob> {
@@ -333,7 +333,7 @@ impl MobRepository {
 // TODO: move game rules with output outside of mobs module
 pub fn run_tick(ctx: &mut Ctx) {
     for mob_id in ctx.container.mobs.list() {
-        if !ctx.container.mobs.exists(&mob_id) {
+        if !ctx.container.mobs.exists(mob_id) {
             continue;
         }
 
@@ -393,3 +393,23 @@ pub fn respawn_avatar(container: &mut Container, outputs: &mut dyn Outputs, mob_
 
     container.mobs.update(mob);
 }
+
+// TODO: move outside of container
+pub fn instantiate_from_prefab<'a>(mobs:  &'a mut MobRepository, items: &mut ItemRepository, mob_prefab_id: MobPrefabId, room_id: RoomId) -> &'a Mob {
+    let prefab = mobs.get_mob_prefab(&mob_prefab_id).clone();
+
+    // create mob
+    let mob_id = mobs.new_id();
+
+    // add items
+    let inventory = prefab.inventory;
+    for item_prefab_id in inventory {
+        items.instantiate_item(item_prefab_id, ItemLocation::Mob { mob_id });
+    }
+
+    // instantiate
+    let mob = Mob::new(mob_id, room_id, prefab.label, prefab.attributes);
+    mobs.add(mob);
+    mobs.get(mob_id)
+}
+

@@ -13,3 +13,4 @@ commons = { version = "*", path = "../commons" }
 mud-domain = { version = "*", path = "../mud-domain" }
 socket-server = { version = "*", path = "../socket-server" }
 logs = { version = "*", path = "../logs" }
+mud-engine = { version = "*", path = "../mud-engine" }

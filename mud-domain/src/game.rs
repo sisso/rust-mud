@@ -11,6 +11,7 @@ use player::*;
 use room::*;
 use logs::*;
 
+pub mod obj;
 pub mod actions;
 pub mod body;
 pub mod comm;
@@ -28,6 +29,7 @@ pub mod actions_items;
 pub mod actions_admin;
 pub mod loader;
 pub mod input_handle_items;
+pub mod template;
 
 #[derive(Debug)]
 pub struct ConnectionState {

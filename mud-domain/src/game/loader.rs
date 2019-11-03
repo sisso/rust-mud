@@ -107,8 +107,10 @@ fn load_rooms(container: &mut Container) {
 }
 
 fn load_spawns(container: &mut Container) {
-    container.add_spawn(Spawn {
-        id: SpawnId(0),
+    let obj_id = container.objects.insert();
+
+    container.spawns.add(Spawn {
+        id: obj_id,
         room_id: RoomId(1),
         max: 1,
         delay: SpawnDelay {

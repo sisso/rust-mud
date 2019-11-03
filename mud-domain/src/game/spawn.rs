@@ -5,14 +5,16 @@ use rand::Rng;
 use super::comm;
 use super::container::Container;
 use super::Outputs;
+use super::mob;
 use super::mob::*;
 use super::room::RoomId;
 use logs::*;
 
-#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
-pub struct SpawnId(pub u32);
+type SpawnId = ObjId;
 
 use crate::game::Ctx;
+use crate::game::obj::ObjId;
+use std::collections::HashMap;
 
 pub struct SpawnDelay {
     pub min: DeltaTime,
@@ -34,40 +36,78 @@ pub struct Spawn {
     pub mobs_id: Vec<MobId>,
 }
 
-pub fn run(ctx: &mut Ctx) {
-    for spawn_id in ctx.container.list_spawn() {
-        let total_time = ctx.container.time.total;
-        clean_up_dead_mobs(ctx.container, &spawn_id);
+pub struct Spawns {
+    spawns: HashMap<SpawnId, Spawn>,
+}
 
-        let spawn = ctx.container.get_spawn_by_id_mut(&spawn_id);
-        let can_spawn_mobs = spawn.mobs_id.len() < spawn.max as usize;
+impl Spawns {
+    pub fn new() -> Self {
+        Spawns {
+            spawns: HashMap::new(),
+        }
+    }
+
+    pub fn add(&mut self, spawn: Spawn) -> Option<Spawn> {
+        assert!(!self.spawns.contains_key(&spawn.id));
+        self.spawns.insert(spawn.id, spawn)
+    }
+
+    pub fn remove(&mut self, id: ObjId) -> Option<Spawn> {
+        self.spawns.remove(&id)
+    }
+
+    pub fn get(&self, id: ObjId) -> Option<&Spawn> {
+        self.spawns.get(&id)
+    }
+
+//    pub fn list(&self) -> Vec<&Spawn> {
+//        unimplemented!()
+//    }
+
+    pub fn list_entries_mut<'a>(&'a mut self) -> impl Iterator<Item = (&ObjId, &mut Spawn)> + 'a {
+        self.spawns.iter_mut()
+    }
+
+    pub fn list_mut<'a>(&'a mut self) -> impl Iterator<Item = &mut Spawn> + 'a {
+        self.spawns.values_mut()
+    }
+
+    fn get_mut(&mut self, id: ObjId) -> Option<&mut Spawn> {
+        self.spawns.get_mut(&id)
+    }
+}
+
+pub fn run(ctx: &mut Ctx) {
+    let total_time = ctx.container.time.total;
+
+    for spawn in ctx.container.spawns.list_mut() {
+        clean_up_dead_mobs(&mut ctx.container.mobs, spawn);
 
         match spawn.next {
-            Some(next) if next.is_before(total_time) && can_spawn_mobs => {
-                // spawn mob
-                let room_id = spawn.room_id;
-                let mob_prefab_id = spawn.prefab_id;
-                let mob = ctx.container.instantiate(mob_prefab_id, room_id);
-                let mob_id = mob.id;
+            Some(next) if next.is_after(total_time) => {
+                let can_spawn_mobs = spawn.mobs_id.len() < spawn.max as usize;
 
-                debug!("{:?}({:?}) at {:?}", mob.label, mob.id, room_id);
+                if can_spawn_mobs {
+                    // spawn mob
+                    let room_id = spawn.room_id;
+                    let mob_prefab_id = spawn.prefab_id;
+                    let mob = mob::instantiate_from_prefab(&mut ctx.container.mobs, &mut ctx.container.items, mob_prefab_id, room_id);
+                    let mob_id = mob.id;
 
-                let spawn_msg = comm::spawn_mob(&mob);
+                    debug!("{:?}({:?}) at {:?}", mob.label, mob.id, room_id);
 
-                // update spawn
-                let spawn = ctx.container.get_spawn_by_id_mut(&spawn_id);
-                spawn.mobs_id.push(mob_id);
-                schedule_next_spawn(total_time, spawn);
+                    let spawn_msg = comm::spawn_mob(&mob);
 
-                // add outputs
-                ctx.outputs.room_all(room_id, spawn_msg);
+                    // update spawn
+                    spawn.mobs_id.push(mob_id);
+                    schedule_next_spawn(total_time, spawn);
 
+                    // add outputs
+                    ctx.outputs.room_all(room_id, spawn_msg);
+                }
             },
-            Some(_) => {
-            },
-            None => {
-                schedule_next_spawn(total_time, spawn);
-            },
+            Some(_) => {},
+            None => schedule_next_spawn(total_time, spawn),
         };
     }
 }
@@ -80,17 +120,9 @@ fn schedule_next_spawn(now: TotalTime, spawn: &mut Spawn) {
     debug!("scheduling spawn {:?} to {:?}", spawn.id, next);
 }
 
-fn clean_up_dead_mobs(container: &mut Container, spawn_id: &SpawnId) {
-    let mut remove_list = vec![];
-    let spawn = container.get_spawn_by_id(spawn_id);
-    for (i, mob_id) in spawn.mobs_id.iter().enumerate() {
-        if !container.mobs.exists(&mob_id) {
-            remove_list.push(i);
-        }
-    }
-
-    let spawn = container.get_spawn_by_id_mut(spawn_id);
-    for i in remove_list.iter().rev() {
-        spawn.mobs_id.remove(*i);
-    }
+// TODO: should be a trigger
+fn clean_up_dead_mobs(mobs: &mut MobRepository, spawn: &mut Spawn) {
+    spawn.mobs_id.retain(|mob_id| {
+       mobs.exists(*mob_id)
+    });
 }

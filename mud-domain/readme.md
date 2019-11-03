@@ -1,11 +1,12 @@
 # TODO
 
-- move GameTime into container
+- noramlize ID
+- fix spawn
+- command inv
+- fix extra lines in output when look
 - move controller part from game into mud-server
 - how we can introduce a new view that will stop to receive events? Like stunned?
 - equipament affect stats 
-- noramlize ID
-  - spawn
 - move portal to own index (to allow shipt to dock and connect)
 - improve combat 
   - dodge
