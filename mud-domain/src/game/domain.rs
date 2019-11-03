@@ -78,4 +78,8 @@ impl NextId {
         self.next += 1;
         v
     }
+
+    pub fn set_max(&mut self, id: u32) {
+        self.next = self.next.max(id + 1);
+    }
 }

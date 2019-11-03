@@ -19,9 +19,7 @@ use crate::game::obj::{ObjId, Objects};
 pub const INITIAL_ROOM_ID: RoomId = RoomId(0);
 
 pub type MobId = ObjId;
-
-#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
-pub struct MobPrefabId(pub u32);
+pub type MobPrefabId = ObjId;
 
 /// What mob should be doing
 #[derive(Clone, Debug, Copy)]
@@ -277,11 +275,12 @@ impl MobRepository {
     }
 
     pub fn add_prefab(&mut self, mob_prefab: MobPrefab) {
+        assert!(!self.mob_prefabs.contains_key(&mob_prefab.id));
         self.mob_prefabs.insert(mob_prefab.id, mob_prefab);
     }
 
-    pub fn get_mob_prefab(&mut self, id: &MobPrefabId) -> &MobPrefab {
-        self.mob_prefabs.get(id)
+    pub fn get_mob_prefab(&mut self, id: MobPrefabId) -> &MobPrefab {
+        self.mob_prefabs.get(&id)
             .expect(format!("could not found mob prefab id {:?}", id).as_str())
     }
 
@@ -389,15 +388,15 @@ pub fn respawn_avatar(container: &mut Container, outputs: &mut dyn Outputs, mob_
     container.mobs.update(mob);
 }
 
-// TODO: move outside of container
 pub fn instantiate_from_prefab<'a>(objs: &mut Objects, mobs:  &'a mut MobRepository, items: &mut ItemRepository, mob_prefab_id: MobPrefabId, room_id: RoomId) -> &'a Mob {
-    let prefab = mobs.get_mob_prefab(&mob_prefab_id).clone();
+    // TODO: mob prefab need to be outside of prefab or manage it inside
+    let prefab = mobs.get_mob_prefab(mob_prefab_id).clone();
 
     // create mob
     let mob_id = objs.insert();
 
     // add items
-    let inventory = prefab.inventory;
+    let inventory = prefab.inventory.clone();
     for item_prefab_id in inventory {
         items.instantiate_item(item_prefab_id, ItemLocation::Mob { mob_id });
     }

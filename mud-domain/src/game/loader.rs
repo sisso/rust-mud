@@ -8,10 +8,10 @@ use crate::game::room::*;
 use crate::game::spawn::*;
 use commons::*;
 use commons::save::Load;
+use crate::game::obj::ObjId;
 
-
-const MOB_PLAYER: MobPrefabId = MobPrefabId(0);
-const MOB_DRUNK: MobPrefabId = MobPrefabId(1);
+const MOB_PLAYER: MobPrefabId = ObjId(0);
+const MOB_DRUNK: MobPrefabId = ObjId(1);
 
 const ITEM_DEF_COINS_2: ItemPrefabId = ItemPrefabId(0);
 const ITEM_DEF_SWORD: ItemPrefabId = ItemPrefabId(1);
@@ -48,6 +48,9 @@ fn load_items_prefabs(container: &mut Container) {
 }
 
 fn load_mobs_prefabs(container: &mut Container) {
+    container.objects.insert_static(MOB_PLAYER);
+    container.objects.insert_static(MOB_DRUNK);
+
     container.mobs.add_prefab(MobPrefab {
         id: MOB_PLAYER,
         label: "Avatar".to_string(),
