@@ -1,5 +1,6 @@
 # TODO
 
+- player login and logut
 - How to remove entity? from all components?
 - fix spawn
 - command inv

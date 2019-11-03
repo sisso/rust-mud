@@ -4,7 +4,7 @@ extern crate logs;
 use commons::{DeltaTime, PlayerId, ConnectionId, TotalTime, Tick};
 use mud_domain::game::{Game, Ctx, spawn, mob, item, OutputsImpl, view_main, Output, find_players_per_room, loader};
 use mud_domain::game::container::Container;
-use mud_domain::game::player::add_player;
+use mud_domain::game::player;
 use mud_domain::game::domain::GameTime;
 use std::collections::HashMap;
 use logs::*;
@@ -42,7 +42,7 @@ impl Engine {
     }
 
     pub fn disconnect(&mut self, player_id: PlayerId) {
-        self.container.players.player_disconnect(player_id);
+        unimplemented!()
     }
 
     pub fn take_events(&mut self) -> Vec<ConnectionEvent> {
@@ -78,8 +78,10 @@ impl Engine {
     }
 
     pub fn login(&mut self, login: &str, pass: &str) -> Result<PlayerId, ()> {
-        let player_id = add_player(&mut self.container, login);
-        Ok(player_id)
+//        let player_id = add_player(&mut self.container, login);
+//        Ok(player_id)
+        // TODO: copy from game
+        unimplemented!()
     }
 
     // TODO: move to process events

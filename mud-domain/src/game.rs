@@ -10,6 +10,7 @@ use mob::MobPrefabId;
 use player::*;
 use room::*;
 use logs::*;
+use crate::game::view_login::LoginResult;
 
 pub mod obj;
 pub mod actions;
@@ -30,6 +31,7 @@ pub mod actions_admin;
 pub mod loader;
 pub mod input_handle_items;
 pub mod template;
+pub mod avatars;
 
 #[derive(Debug)]
 pub struct ConnectionState {
@@ -161,7 +163,7 @@ impl Game {
     }
 
     pub fn add_connection(&mut self, connection_id: ConnectionId) {
-        info!("gamecontroller - {:?} receive new player", connection_id);
+        info!("{:?} receive connection", connection_id);
         self.connections.insert(connection_id.clone(), ConnectionState {
             connection_id,
             player_id: None,
@@ -176,10 +178,10 @@ impl Game {
         let state = self.get_state(connection_id);
 
         if let Some(player_id) = state.player_id {
-            info!("gamecontroller - {:?} removing player {:?}", connection_id, player_id);
-            self.container.players.player_disconnect(player_id);
+            info!("{:?} disconnecting player {:?}", connection_id, player_id);
+            avatars::on_player_disconnect(&mut self.container, &mut self.outputs, player_id);
         } else {
-            info!("gamecontroller - {:?} removing non logged player", connection_id);
+            info!("{:?} disconnecting", connection_id);
         }
 
         self.connections.remove(&connection_id);
@@ -191,21 +193,23 @@ impl Game {
         let state = self.get_state(connection_id);
 
         if let Some(player_id) = state.player_id {
-            debug!("gamecontroller - {:?} handling input '{}'", connection_id, input);
+            debug!("{:?} handling input '{}'", connection_id, input);
             view_main::handle(&mut self.container, &mut self.outputs, player_id, input);
         } else {
-            debug!("gamecontroller - {:?} handling login '{}'", connection_id, input);
-            let result = view_login::handle(&mut self.container, input);
-
-            self.server_outputs.push((connection_id, result.msg));
-
-            if let Some(player_id) = result.player_id {
-                debug!("gamecontroller - {:?} login complete for {:?}", connection_id, player_id);
-
-                self.set_state(ConnectionState {
-                    connection_id,
-                    player_id: Some(player_id),
-                })
+            debug!("{:?} handling login '{}'", connection_id, input);
+            match view_login::handle(&mut self.container, input) {
+                LoginResult::Msg { msg } => {
+                    self.server_outputs.push((connection_id, msg));
+                },
+                LoginResult::Login { login } => {
+                    self.server_outputs.push((connection_id, view_login::on_login_success(login.as_str())));
+                    let player_id = avatars::on_player_login(&mut self.container, &mut self.outputs, login.as_str());
+                    debug!("{:?} login complete for {:?}", connection_id, player_id);
+                    self.set_state(ConnectionState {
+                        connection_id,
+                        player_id: Some(player_id),
+                    })
+                }
             }
         }
     }
@@ -296,7 +300,7 @@ impl Game {
                                         _ => true
                                     }
                                 })
-                                .map(|i_player_id| self.connection_id_from_player_id(*i_player_id).clone())
+                                .flat_map(|i_player_id| self.connection_id_from_player_id(*i_player_id))
                                 .collect();
 
                         debug!("game_controller - players at room {:?}, selected connections: {:?}", players, connections_id);
@@ -309,17 +313,18 @@ impl Game {
                 }
 
                 Output::Private { player_id, msg } => {
-                    let connection_id = self.connection_id_from_player_id(player_id);
-                    self.server_outputs.push((connection_id, msg));
+                    if let Some(connection_id) = self.connection_id_from_player_id(player_id) {
+                        self.server_outputs.push((connection_id, msg));
+                    }
                 }
             }
         }
     }
 
-    fn connection_id_from_player_id(&self, player_id: PlayerId) -> ConnectionId {
-        *self.connection_id_by_player_id
+    fn connection_id_from_player_id(&self, player_id: PlayerId) -> Option<ConnectionId> {
+        self.connection_id_by_player_id
             .get(&player_id)
-            .expect(format!("could not found connection for {:?}", player_id).as_str())
+            .cloned()
     }
 
     fn get_state(&self, connection_id: ConnectionId) -> &ConnectionState {
@@ -336,8 +341,8 @@ impl Game {
     }
 
     fn player_id_from_connection_id(&self, connection_id: &ConnectionId) -> Option<PlayerId> {
-        let state = self.connections.get(connection_id).expect(format!("could not found state for connection {:?}", connection_id).as_str());
-        state.player_id
+        self.connections.get(connection_id)
+            .and_then(|i| i.player_id)
     }
 }
 

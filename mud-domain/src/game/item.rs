@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use crate::game::Ctx;
 use super::comm;
 use super::container::Container;
-use super::domain::NextId;
 use super::mob::MobId;
 use logs::*;
 use crate::game::obj::Objects;

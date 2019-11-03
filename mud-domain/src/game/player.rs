@@ -17,7 +17,7 @@ pub struct Player {
     pub avatar_id: MobId
 }
 
-pub fn add_player(container: &mut Container, login: &str) -> PlayerId {
+pub fn create_player(container: &mut Container, login: &str) -> PlayerId {
     let player_id= container.objects.insert();
     let mob_id = container.objects.insert();
 
@@ -45,7 +45,7 @@ pub fn add_player(container: &mut Container, login: &str) -> PlayerId {
     container.mobs.add(mob);
 
     // add player to game
-    let player = container.players.add(player_id, login.to_string(), mob_id);
+    let player = container.players.create(player_id, login.to_string(), mob_id);
     player.id
 }
 
@@ -68,8 +68,18 @@ impl PlayerRepository {
             .collect()
     }
 
-    pub fn add(&mut self, player_id: PlayerId, login: String, avatar_id: MobId) -> &Player {
-        info!("game - adding player {:?}/{}", player_id, login);
+    pub fn login(&self, login: &str) -> Option<PlayerId> {
+        self.index.iter().find_map(|(id, player)| {
+            if player.login.eq(login) {
+                Some(*id)
+            } else {
+                None
+            }
+        })
+    }
+
+    pub fn create(&mut self, player_id: PlayerId, login: String, avatar_id: MobId) -> &Player {
+        info!("creating player {:?}/{}", player_id, login);
 
         let player = Player {
             id: player_id,
@@ -81,12 +91,7 @@ impl PlayerRepository {
         self.index.get(&player_id).unwrap()
     }
 
-    pub fn player_disconnect(&mut self, id: PlayerId) {
-        info!("game - removing player {:?}", id);
-        self.index.remove(&id);
-    }
-
-    pub fn find_player_from_avatar_mob_id(&self, mob_id: MobId) -> Option<&Player> {
+   pub fn find_player_from_avatar_mob_id(&self, mob_id: MobId) -> Option<&Player> {
         self.index
             .iter()
             .find(|(_, p)| p.avatar_id == mob_id)

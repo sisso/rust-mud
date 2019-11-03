@@ -1,27 +1,23 @@
 use super::container::Container;
 use super::player;
-use commons::PlayerId;
 
-pub struct LoginResult {
-    pub player_id: Option<PlayerId>,
-    pub msg: String,
+pub enum LoginResult {
+    Msg { msg: String },
+    Login { login: String },
 }
 
 pub fn handle(game: &mut Container, input: &str) -> LoginResult {
     if input.len() > 3 {
-        let login = input;
-        let player_id = player::add_player(game, login);
-        let msg = format!("login success, welcome {}\n\n", login);
-        LoginResult {
-            player_id: Some(player_id),
-            msg,
-        }
-    } else {
-        LoginResult {
-            player_id: None,
+        LoginResult::Login { login: input.to_string() }
+   } else {
+        LoginResult::Msg {
             msg: format!("invalid login {}\n\nlogin: ", input),
         }
     }
+}
+
+pub fn on_login_success(login: &str) -> String {
+    format!("login success, welcome back {}\n\n", login)
 }
 
 pub fn handle_welcome() -> String {
