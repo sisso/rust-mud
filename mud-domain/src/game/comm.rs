@@ -335,8 +335,7 @@ pub fn stand_up_others(label: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use commons::DeltaTime;
-    use crate::game::obj::ObjId;
+    use commons::{DeltaTime, ObjId};
 
     fn item_0_coins() -> Item {
         let mut item = Item::new(

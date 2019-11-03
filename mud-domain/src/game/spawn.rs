@@ -8,21 +8,16 @@ use super::mob::*;
 use super::room::RoomId;
 use logs::*;
 
-type SpawnId = ObjId;
 
 use crate::game::Ctx;
-use crate::game::obj::ObjId;
 use std::collections::HashMap;
+
+type SpawnId = ObjId;
 
 pub struct SpawnDelay {
     pub min: DeltaTime,
     pub max: DeltaTime
 }
-
-//pub struct SpawnPrefab {
-//    pub probability_0_100: u32,
-//    pub prefab_id: MobPrefabId
-//}
 
 pub struct Spawn {
     pub id: SpawnId,

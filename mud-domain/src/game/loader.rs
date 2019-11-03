@@ -8,7 +8,6 @@ use crate::game::room::*;
 use crate::game::spawn::*;
 use commons::*;
 use commons::save::Load;
-use crate::game::obj::ObjId;
 
 const ID_ROOM_INIT: RoomId = ObjId(0);
 const ID_ROOM_BAR: RoomId = ObjId(1);

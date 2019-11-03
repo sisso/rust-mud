@@ -1,15 +1,7 @@
 use std::collections::HashMap;
 use crate::game::domain::NextId;
 use crate::game::loader::load_rooms_objects;
-
-#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
-pub struct ObjId(pub u32);
-
-impl ObjId {
-    pub fn as_u32(&self) -> u32 {
-        self.0
-    }
-}
+use commons::ObjId;
 
 #[derive(Clone,Debug)]
 pub struct Obj {

@@ -1,6 +1,6 @@
 # TODO
 
-- inventory should be attached to a entity!
+- How to remove entity? from all components?
 - fix spawn
 - command inv
 - fix extra lines in output when look

@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use crate::game::obj::ObjId;
+use commons::ObjId;
 
 #[derive(Clone,Debug)]
 pub struct Template {

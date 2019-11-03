@@ -79,7 +79,15 @@ impl Tick {
 }
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
-pub struct PlayerId(pub u32);
+pub struct ObjId(pub u32);
+
+impl ObjId {
+    pub fn as_u32(&self) -> u32 {
+        self.0
+    }
+}
+
+pub type PlayerId = ObjId;
 
 #[derive(Clone,Copy,Debug)]
 pub struct DeltaTime(pub f32);

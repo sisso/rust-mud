@@ -44,29 +44,6 @@ impl Container {
         }
     }
 
-//    pub fn add_spawn(&mut self, spawn: Spawn) {
-//        self.spawns.push(spawn);
-//    }
-
-//    pub fn list_spawn(&self) -> Vec<SpawnId> {
-//        self.spawns.iter().map(|i| i.id.clone()).collect()
-//    }
-//
-//    pub fn get_spawn_by_id_mut(&mut self, spawn_id: &SpawnId) -> &mut Spawn {
-//        self.spawns
-//            .iter_mut()
-//            .find(|i| i.id == *spawn_id)
-//            .expect("could not find")
-//    }
-//
-//    pub fn get_spawn_by_id(&self, spawn_id: &SpawnId) -> &Spawn {
-//        self.spawns
-//            .iter()
-//            .find(|i| i.id == *spawn_id)
-//            .expect("could not find")
-//    }
-
-
 //    pub fn save(&self, save: &mut dyn Save) {
 //        self.players.save(save);
 //        self.mobs.save(save);

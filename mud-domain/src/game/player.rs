@@ -18,7 +18,7 @@ pub struct Player {
 }
 
 pub fn add_player(container: &mut Container, login: &str) -> PlayerId {
-    // add player avatar
+    let player_id= container.objects.insert();
     let mob_id = container.objects.insert();
 
     let mut mob = Mob::new(
@@ -45,19 +45,17 @@ pub fn add_player(container: &mut Container, login: &str) -> PlayerId {
     container.mobs.add(mob);
 
     // add player to game
-    let player = container.players.player_connect(login.to_string(), mob_id);
+    let player = container.players.add(player_id, login.to_string(), mob_id);
     player.id
 }
 
 pub struct PlayerRepository {
-    next_id: NextId,
     index: HashMap<PlayerId, Player>
 }
 
 impl PlayerRepository {
     pub fn new() -> PlayerRepository {
         PlayerRepository {
-            next_id: NextId::new(),
             index: HashMap::new(),
         }
     }
@@ -70,19 +68,17 @@ impl PlayerRepository {
             .collect()
     }
 
-    pub fn player_connect(&mut self, login: String, avatar_id: MobId) -> &Player {
-        let id = PlayerId(self.next_id.next());
-
-        info!("game - adding player {:?}/{}", id, login);
+    pub fn add(&mut self, player_id: PlayerId, login: String, avatar_id: MobId) -> &Player {
+        info!("game - adding player {:?}/{}", player_id, login);
 
         let player = Player {
-            id,
+            id: player_id,
             login: login,
             avatar_id,
         };
 
-        self.index.insert(id, player);
-        self.index.get(&id).unwrap()
+        self.index.insert(player_id, player);
+        self.index.get(&player_id).unwrap()
     }
 
     pub fn player_disconnect(&mut self, id: PlayerId) {

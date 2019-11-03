@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use super::domain::Dir;
-use crate::game::obj::ObjId;
+use commons::ObjId;
 
 pub type RoomId = ObjId;
 

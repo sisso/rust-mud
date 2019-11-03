@@ -5,9 +5,8 @@ use super::comm;
 use super::container::Container;
 use super::domain::NextId;
 use super::mob::MobId;
-use super::room::RoomId;
 use logs::*;
-use crate::game::obj::{ObjId, Objects};
+use crate::game::obj::Objects;
 
 pub type ItemId = ObjId;
 pub type ItemPrefabId = ObjId;

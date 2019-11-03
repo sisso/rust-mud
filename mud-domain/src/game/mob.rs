@@ -12,7 +12,7 @@ use super::domain::*;
 use super::item::*;
 use super::Outputs;
 use super::room::RoomId;
-use crate::game::obj::{ObjId, Objects};
+use crate::game::obj::{Objects};
 
 // TODO: Move this to a injected configuration
 // TODO: This is more Player related that mob
