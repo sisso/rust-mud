@@ -1,9 +1,7 @@
 use commons::*;
 use rand::Rng;
 
-
 use super::comm;
-use super::container::Container;
 use super::Outputs;
 use super::mob;
 use super::mob::*;
@@ -91,7 +89,13 @@ pub fn run(ctx: &mut Ctx) {
                     // spawn mob
                     let room_id = spawn.room_id;
                     let mob_prefab_id = spawn.prefab_id;
-                    let mob = mob::instantiate_from_prefab(&mut ctx.container.mobs, &mut ctx.container.items, mob_prefab_id, room_id);
+                    let mob = mob::instantiate_from_prefab(
+                        &mut ctx.container.objects,
+                        &mut ctx.container.mobs,
+                        &mut ctx.container.items,
+                        mob_prefab_id,
+                        room_id
+                    );
                     let mob_id = mob.id;
 
                     debug!("{:?}({:?}) at {:?}", mob.label, mob.id, room_id);

@@ -12,11 +12,13 @@ use super::domain::*;
 use super::item::*;
 use super::Outputs;
 use super::room::RoomId;
+use crate::game::obj::{ObjId, Objects};
 
+// TODO: Move this to a injected configuration
+// TODO: This is more Player related that mob
 pub const INITIAL_ROOM_ID: RoomId = RoomId(0);
 
-#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
-pub struct MobId(pub u32);
+pub type MobId = ObjId;
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct MobPrefabId(pub u32);
@@ -178,7 +180,6 @@ pub struct MobPrefab {
 }
 
 pub struct MobRepository {
-    next_id: NextId,
     index: HashMap<MobId, Mob>,
     mob_prefabs: HashMap<MobPrefabId, MobPrefab>,
 }
@@ -186,7 +187,6 @@ pub struct MobRepository {
 impl MobRepository {
     pub fn new() -> Self {
         MobRepository {
-            next_id: NextId::new(),
             index: HashMap::new(),
             mob_prefabs: HashMap::new(),
         }
@@ -199,11 +199,6 @@ impl MobRepository {
             .into_iter()
             .map(| (id, _)| id.clone())
             .collect()
-    }
-
-    pub fn new_id(&mut self) -> MobId {
-        let id = self.next_id.next();
-        MobId(id)
     }
 
     pub fn add(&mut self, mob: Mob) -> &Mob {
@@ -395,11 +390,11 @@ pub fn respawn_avatar(container: &mut Container, outputs: &mut dyn Outputs, mob_
 }
 
 // TODO: move outside of container
-pub fn instantiate_from_prefab<'a>(mobs:  &'a mut MobRepository, items: &mut ItemRepository, mob_prefab_id: MobPrefabId, room_id: RoomId) -> &'a Mob {
+pub fn instantiate_from_prefab<'a>(objs: &mut Objects, mobs:  &'a mut MobRepository, items: &mut ItemRepository, mob_prefab_id: MobPrefabId, room_id: RoomId) -> &'a Mob {
     let prefab = mobs.get_mob_prefab(&mob_prefab_id).clone();
 
     // create mob
-    let mob_id = mobs.new_id();
+    let mob_id = objs.insert();
 
     // add items
     let inventory = prefab.inventory;

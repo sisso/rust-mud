@@ -19,7 +19,7 @@ pub struct Player {
 
 pub fn add_player(container: &mut Container, login: &str) -> PlayerId {
     // add player avatar
-    let mob_id = container.mobs.new_id();
+    let mob_id = container.objects.insert();
 
     let mut mob = Mob::new(
         mob_id,

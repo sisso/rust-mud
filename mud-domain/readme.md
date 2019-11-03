@@ -78,3 +78,26 @@ Input -> View -> Handler -> Action
 Handler - parse player input,
 Action - execute the actions and publish events       
 
+# Forum
+
+## UUID vs Constants ID
+
+Some entities like rooms and prefabs have strong require to be constants. We want to easy reference
+from config files.
+
+Normally mud are fully persistent word where, there is no default configuration and save. 
+
+An alternatives:
+
+1 enum { static_id, dynamic_id }
+- very rusty
+- can cause problem with by index collection and ecs
+
+2 reserved range
+- add like 1M prefix for any dynamic value
+- if choose to low, we run out of ids
+- if to high, a lot of overhead in index like structures
+
+3. Reindex (WINNER)
+- after load of default assets, all dynamic entities are loaded with a reindex 
+  - this require 2 passes, one to generate all new indexes, one to complete references
