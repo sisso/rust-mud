@@ -102,3 +102,16 @@ An alternatives:
 3. Reindex (WINNER)
 - after load of default assets, all dynamic entities are loaded with a reindex 
   - this require 2 passes, one to generate all new indexes, one to complete references
+
+
+## Optional room id
+
+Most of commands always require a room_id. But make sense to have a room id.
+
+ECS system solve it by just join between collections and ignoring the cased.
+
+For simulate I need to manually flat every time we need it.
+
+To facilitate we can just throw exceptions.
+- no player command should happens if have no location
+- so player context is expected to have a avatar, avatar should be in a place.

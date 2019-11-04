@@ -72,7 +72,7 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
         _ if has_command(input, &["k ", "kill "]) => {
             let target = parse_command(input, &["k ", "kill "]);
             let ctx = container.get_player_context(player_id);
-            let mobs = container.mobs.search(Some(ctx.avatar.room_id), Some(target.as_str()));
+            let mobs = container.mobs.search(Some(ctx.room.id), Some(target.as_str()));
             let candidate = mobs.first().map(|i| i.id);
 
             match candidate {
@@ -124,7 +124,7 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
 fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) {
     let target = parse_command(input, &["examine "]);
     let ctx = container.get_player_context(player_id);
-    let mobs = container.mobs.search(Some(ctx.avatar.room_id), Some(&target.as_str()));
+    let mobs = container.mobs.search(Some(ctx.room.id), Some(&target.as_str()));
 
     match mobs.first() {
         Some(mob) => {
@@ -137,7 +137,7 @@ fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_i
         _ => {},
     }
 
-    let items = container.items.search_inventory(ctx.avatar.room_id, &target);
+    let items = container.items.search_inventory(ctx.room.id, &target);
     match items.first() {
         Some(item) => {
             let item_inventory = container.items.get_inventory_list(item.id);

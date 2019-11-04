@@ -104,7 +104,7 @@ pub struct AttackResult {
 #[derive(Clone, Debug)]
 pub struct Mob {
     pub id: MobId,
-    pub room_id: RoomId,
+    pub room_id: Option<RoomId>,
     pub label: String,
     pub is_avatar: bool,
     pub command: MobCommand,
@@ -113,7 +113,7 @@ pub struct Mob {
 }
 
 impl Mob {
-    pub fn new(id: MobId, room_id: RoomId, label: String, attributes: Attributes) -> Self {
+    pub fn new(id: MobId, room_id: Option<RoomId>, label: String, attributes: Attributes) -> Self {
         Mob {
             id,
             room_id,
@@ -167,6 +167,10 @@ impl Mob {
             },
             None => false,
         }
+    }
+
+    pub fn room_id(&self) -> RoomId {
+       self.room_id.unwrap()
     }
 }
 
@@ -242,7 +246,7 @@ impl MobRepository {
             .iter()
             .filter(|(_, mob)| {
                 if let Some(room_id) = room_id {
-                    if mob.room_id != room_id {
+                    if mob.room_id() != room_id {
                         return false;
                     }
                 }
@@ -378,13 +382,13 @@ pub fn respawn_avatar(container: &mut Container, outputs: &mut dyn Outputs, mob_
     assert!(mob.is_avatar);
 
     mob.attributes.pv.current = 1;
-    mob.room_id = ID_ROOM_INIT;
+    mob.room_id = Some(ID_ROOM_INIT);
 
     let player = container.players.find_player_from_avatar_mob_id(mob.id);
     let player = player.unwrap();
 
     outputs.private(player.id, comm::mob_you_resurrected());
-    outputs.room(player.id, mob.room_id, comm::mob_resurrected(mob.label.as_ref()));
+    outputs.room(player.id, mob.room_id(), comm::mob_resurrected(mob.label.as_ref()));
 
     container.mobs.update(mob);
 }
@@ -403,7 +407,7 @@ pub fn instantiate_from_prefab<'a>(objs: &mut Objects, mobs:  &'a mut MobReposit
     }
 
     // instantiate
-    let mob = Mob::new(mob_id, room_id, prefab.label, prefab.attributes);
+    let mob = Mob::new(mob_id, Some(room_id), prefab.label, prefab.attributes);
     mobs.add(mob);
     mobs.get(mob_id)
 }

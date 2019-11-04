@@ -33,7 +33,7 @@ pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
         },
         (Some(target_inventory_label), Some(target_item_label)) => {
             // pick up from container
-            let target_inventory_item = container.items.search_inventory(ctx.avatar.room_id, target_inventory_label);
+            let target_inventory_item = container.items.search_inventory(ctx.room.id, target_inventory_label);
             let target_inventory_item = target_inventory_item.get(0);
 
             if target_inventory_item.is_none() {
@@ -82,7 +82,7 @@ pub fn do_equip(container: &mut Container, outputs: &mut dyn Outputs, player_id:
     let mob = container.mobs.get(mob_id);
     let item = container.items.get(item_id);
     outputs.private_opt(player_id, comm::equip_player_from_room(item.label.as_str()));
-    outputs.room_opt(player_id, mob.room_id,comm::equip_from_room(mob.label.as_str(), item.label.as_str()));
+    outputs.room_opt(player_id, mob.room_id(),comm::equip_from_room(mob.label.as_str(), item.label.as_str()));
     Ok(())
 }
 
@@ -91,12 +91,12 @@ pub fn do_drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: 
 
     // unequip if is in use
     let _ = container.items.strip(item_id);
-    container.items.move_item(item_id, mob.room_id);
+    container.items.move_item(item_id, mob.room_id());
 
     let item = container.items.get(item_id);
 
     outputs.private_opt(player_id, comm::drop_item(item.label.as_str()));
-    outputs.room_opt(player_id, mob.room_id, comm::drop_item_others(mob.label.as_str(), item.label.as_str()));
+    outputs.room_opt(player_id, mob.room_id(), comm::drop_item_others(mob.label.as_str(), item.label.as_str()));
     Ok(())
 }
 

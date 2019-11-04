@@ -36,7 +36,7 @@ pub fn look_description(container: &Container, ctx: &PlayerCtx) -> String {
         .collect();
 
     let exits = exits.join(", ");
-    let mobs = container.mobs.search(Some(ctx.avatar.room_id), None);
+    let mobs = container.mobs.search(Some(ctx.room.id), None);
     let mobs =
         if mobs.is_empty() {
             "".to_string()
@@ -51,7 +51,7 @@ pub fn look_description(container: &Container, ctx: &PlayerCtx) -> String {
             labels.join("\n")
         };
 
-    let items: Vec<String> = container.items.get_inventory_list(ctx.avatar.room_id)
+    let items: Vec<String> = container.items.get_inventory_list(ctx.room.id)
         .iter()
         .map(|item| format!("- {} in the floor", item.label))
         .collect();

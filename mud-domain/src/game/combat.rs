@@ -59,9 +59,9 @@ fn execute_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: 
     if let Some(player_id) = player_id {
         let player_attack_msg = comm::kill_player_execute_attack(&defender, &attack_result);
         outputs.private(player_id, player_attack_msg);
-        outputs.room(player_id, attacker.room_id, room_attack_msg);
+        outputs.room(player_id, attacker.room_id.unwrap(), room_attack_msg);
     } else {
-        outputs.room_all(attacker.room_id, room_attack_msg);
+        outputs.room_all(attacker.room_id.unwrap(), room_attack_msg);
     }
 
     if attack_result.success {
@@ -92,9 +92,9 @@ fn execute_attack_killed(container: &mut Container, outputs: &mut dyn Outputs, a
     if let Some(player_id) = attacker_player_id {
         let player_attack_msg = comm::killed_by_player(&defender);
         outputs.private(player_id, player_attack_msg);
-        outputs.room(player_id, attacker.room_id, room_attack_msg);
+        outputs.room(player_id, attacker.room_id(), room_attack_msg);
     } else {
-        outputs.room_all(attacker.room_id, room_attack_msg);
+        outputs.room_all(attacker.room_id(), room_attack_msg);
     }
 
     mob::kill_mob(container, outputs, target_id);
@@ -143,7 +143,7 @@ fn check_return_attack(container: &mut Container, outputs: &mut dyn Outputs, mob
         Some(mob) if mob.command.is_idle() => {
             let aggressor_mob = container.mobs.get(aggressor_mob_id);
             let msg = comm::kill_return_attack(&mob.label, &aggressor_mob.label);
-            outputs.room_all(mob.room_id, msg);
+            outputs.room_all(mob.room_id(), msg);
 
             container.mobs.set_mob_attack_target(mob_id, aggressor_mob_id);
         },

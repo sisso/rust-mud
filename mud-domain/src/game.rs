@@ -350,10 +350,12 @@ pub fn find_players_per_room(container: &Container) -> HashMap<RoomId, Vec<Playe
     let room_player: Vec<(RoomId, PlayerId)> =
         container.players.list_players()
             .into_iter()
-            .map(|player_id| {
+            .flat_map(|player_id| {
                 let player = container.players.get_player_by_id(player_id);
                 let avatar = container.mobs.get(player.avatar_id);
-                (avatar.room_id, player_id)
+                avatar.room_id.map(|room_id| {
+                    (room_id,player_id)
+                })
             })
             .collect();
 

@@ -21,7 +21,7 @@ pub fn say(container: &mut Container, outputs: &mut dyn Outputs, player_id: Play
     let room_msg = comm::say_someone_said(&ctx.avatar.label, &msg);
 
     outputs.private(player_id.clone(), player_msg);
-    outputs.room(player_id.clone(), ctx.avatar.room_id, room_msg);
+    outputs.room(player_id.clone(), ctx.room.id, room_msg);
 }
 
 pub fn mv(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, dir: Dir) {
@@ -32,11 +32,11 @@ pub fn mv(container: &mut Container, outputs: &mut dyn Outputs, player_id: Playe
 
     match exit_room_id {
         Some(exit_room_id) => {
-            let previous_room_id = ctx.avatar.room_id;
+            let previous_room_id = ctx.room.id;
 
             // change entity in place
             let mut mob = ctx.avatar.clone();
-            mob.room_id = exit_room_id;
+            mob.room_id = Some(exit_room_id);
             container.mobs.update(mob);
 
             // get new player ctx
@@ -75,36 +75,35 @@ pub fn attack(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
 }
 
 pub fn rest(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) {
-    let player = container.players.get_player_by_id(player_id);
-    let mob = container.mobs.get(player.avatar_id);
-    let mob_id = mob.id;
+    let ctx = container.get_player_context(player_id);
+    let room_id = ctx.room.id;
+    let mob_id = ctx.avatar.id;
 
-    if mob.is_combat() {
+    if ctx.avatar.is_combat() {
         outputs.private(player_id, comm::rest_fail_in_combat());
         return;
     }
 
     outputs.private(player_id, comm::rest_start());
-    outputs.room(player_id, mob.room_id,comm::rest_start_others(mob.label.as_str()));
+    outputs.room(player_id, room_id,comm::rest_start_others(ctx.avatar.label.as_str()));
 
-    let mut mob = mob.clone();
+    let mut mob = ctx.avatar.clone();
     mob.set_action(MobAction::Resting, container.time.total);
     container.mobs.update(mob);
 }
 
 pub fn stand(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) {
-    let player = container.players.get_player_by_id(player_id);
-    let mob = container.mobs.get(player.avatar_id);
+    let ctx = container.get_player_context(player_id);
 
-    if mob.is_resting() {
+    if ctx.avatar.is_resting() {
         outputs.private(player_id, comm::stand_fail_not_resting());
         return;
     }
 
     outputs.private(player_id, comm::stand_up());
-    outputs.room(player_id, mob.room_id,comm::stand_up_others(mob.label.as_str()));
+    outputs.room(player_id, ctx.room.id,comm::stand_up_others(ctx.avatar.label.as_str()));
 
-    let mut mob = mob.clone();
+    let mut mob = ctx.avatar.clone();
     mob.set_action(MobAction::Resting, container.time.total);
     container.mobs.update(mob);
 }
