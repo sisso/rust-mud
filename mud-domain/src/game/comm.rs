@@ -5,6 +5,7 @@ use super::mob::*;
 
 use termion;
 use commons::{DeltaTime, TotalTime};
+use crate::game::room::RoomId;
 
 pub fn help() -> String {
     let str = r#"-------------------------------------------------------------
@@ -30,20 +31,32 @@ pub fn help() -> String {
     str.to_string()
 }
 
-pub fn look_description(container: &Container, ctx: &PlayerCtx) -> String {
-    let exits: Vec<String> = ctx.room.exits.iter()
+pub fn look_description(container: &Container, mob_id: MobId) -> Result<String, ()> {
+    let room_id = container.locations.get(mob_id)?;
+    let room = container.rooms.get(room_id)?;
+
+    let exits: Vec<String> = room.exits.iter()
         .map(|(dir, _)| dir.to_string())
         .collect();
 
     let exits = exits.join(", ");
-    let mobs = container.mobs.search(Some(ctx.room.id), None);
+
+    // TODO: add items
+    let mobs = container.locations.list_at(room_id)
+        .filter_map(|obj_id| {
+            match container.mobs.get(obj_id) {
+                Ok(mob) => { Some(mob) },
+                Err(()) => { None },
+            }
+        }).collect::<Vec<&Mob>>();
+
     let mobs =
         if mobs.is_empty() {
             "".to_string()
         } else {
             let labels: Vec<String> =
                 mobs.iter()
-                    .filter(|i| i.id != ctx.avatar.id)
+                    .filter(|i| i.id != mob_id)
                     .map(|i| {
                         format!("- {} is here", i.label)
                     }).collect();
@@ -51,13 +64,14 @@ pub fn look_description(container: &Container, ctx: &PlayerCtx) -> String {
             labels.join("\n")
         };
 
-    let items: Vec<String> = container.items.get_inventory_list(ctx.room.id)
+    // TODO: migrate to location
+    let items: Vec<String> = container.items.get_inventory_list(room_id)
         .iter()
         .map(|item| format!("- {} in the floor", item.label))
         .collect();
     let items = items.join("\n");
 
-    format!("{}\n\n{}\n\n[{}]\n\n{}\n{}\n\n", ctx.room.label, ctx.room.desc, exits, mobs, items).to_string()
+    Ok(format!("{}\n{}\n[{}]\n{}\n{}\n", room.label, room.desc, exits, mobs, items).to_string())
 }
 
 pub fn unknown_input(input: &str) -> String {

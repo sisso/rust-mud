@@ -5,7 +5,7 @@ use super::actions;
 use super::actions_items;
 use super::comm;
 use super::container::Container;
-use crate::game::{actions_admin, input_handle_items};
+use crate::game::{actions_admin, input_handle_items, mob};
 use commons::PlayerId;
 
 pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) {
@@ -27,7 +27,7 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
                 _ => panic!("invalid input {}", input),
             };
 
-            actions::mv(container, outputs, player_id, dir)
+            actions::mv(container, outputs, player_id, dir);
         },
 
         "uptime" => {
@@ -44,9 +44,9 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
 
         "stats" | "inv" | "score" => {
             let ctx = container.get_player_context(player_id);
-            let item_inventory = container.items.get_inventory_list(ctx.avatar.id);
-            let equiped = container.items.get_equiped(ctx.avatar.id );
-            outputs.private(player_id, comm::stats(&ctx.avatar, &item_inventory, &equiped));
+            let item_inventory = container.items.get_inventory_list(ctx.mob.id);
+            let equiped = container.items.get_equiped(ctx.mob.id );
+            outputs.private(player_id, comm::stats(&ctx.mob, &item_inventory, &equiped));
         },
 
         _ if has_command(input, &["pick"]) || has_command(&input, &["get"]) => {
@@ -72,7 +72,7 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
         _ if has_command(input, &["k ", "kill "]) => {
             let target = parse_command(input, &["k ", "kill "]);
             let ctx = container.get_player_context(player_id);
-            let mobs = container.mobs.search(Some(ctx.room.id), Some(target.as_str()));
+            let mobs = mob::search_mobs_at(&container.mobs, &container.locations, ctx.room.id, target.as_str());
             let candidate = mobs.first().map(|i| i.id);
 
             match candidate {
@@ -104,9 +104,9 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
                 "suicide" => {
                     let pctx = container.get_player_context(player_id);
                     outputs.private(player_id, comm::admin_suicide());
-                    outputs.room(player_id, pctx.room.id, comm::admin_suicide_others(pctx.avatar.label.as_ref()));
+                    outputs.room(player_id, pctx.room.id, comm::admin_suicide_others(pctx.mob.label.as_ref()));
 
-                    let mob_id = pctx.avatar.id;
+                    let mob_id = pctx.mob.id;
                     actions_admin::kill(container, outputs, mob_id);
                 },
                 other => {
@@ -124,7 +124,7 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
 fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) {
     let target = parse_command(input, &["examine "]);
     let ctx = container.get_player_context(player_id);
-    let mobs = container.mobs.search(Some(ctx.room.id), Some(&target.as_str()));
+    let mobs = mob::search_mobs_at(&container.mobs, &container.locations, ctx.room.id, target.as_str());
 
     match mobs.first() {
         Some(mob) => {

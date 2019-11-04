@@ -8,15 +8,17 @@ use super::Outputs;
 use super::mob::*;
 use crate::game::mob;
 
-pub fn tick_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, target_mob_id: MobId) {
-    let attacker = container.mobs.get(mob_id);
-    let defender = container.mobs.find(&target_mob_id);
+pub fn tick_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, target_mob_id: MobId) -> Result<(), ()> {
+    let attacker = container.mobs.get(mob_id)?;
+    let defender = container.mobs.get(target_mob_id);
 
-    if let Some(defender) = defender {
-        // TODO: how send references?
-        if attacker.room_id != defender.room_id {
+    if let Ok(defender) = defender {
+        let attacker_room_id = container.locations.get(attacker.id)?;
+        let defender_room_id = container.locations.get(defender.id)?;
+
+        if attacker_room_id != defender_room_id {
             cancel_attack(container, outputs, mob_id, Some(&target_mob_id));
-            return;
+            return Err(());
         }
 
         if attacker.is_read_to_attack(container.time.total) {
@@ -27,6 +29,8 @@ pub fn tick_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id:
     } else {
         cancel_attack(container, outputs, mob_id, None);
     }
+
+    Ok(())
 }
 
 fn cancel_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, _target: Option<&MobId>) {
@@ -47,11 +51,14 @@ fn cancel_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: M
     container.mobs.cancel_attack(mob_id);
 }
 
-fn execute_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, target: MobId) {
+// TODO: fix multiples get from get two mutable
+fn execute_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, target: MobId) -> Result<(),()> {
     let player_id = container.players.find_player_id_from_avatar_mob_id(mob_id);
 
-    let attacker = container.mobs.get(mob_id);
-    let defender = container.mobs.get(target);
+    let attacker = container.mobs.get(mob_id)?;
+    let attacker_room_id = container.locations.get(mob_id)?;
+
+    let defender = container.mobs.get(target)?;
 
     let attack_result = roll_attack(&attacker.attributes.attack, &attacker.attributes.damage, &defender.attributes.defense);
     let room_attack_msg = comm::kill_mob_execute_attack(attacker, defender, &attack_result);
@@ -59,45 +66,49 @@ fn execute_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: 
     if let Some(player_id) = player_id {
         let player_attack_msg = comm::kill_player_execute_attack(&defender, &attack_result);
         outputs.private(player_id, player_attack_msg);
-        outputs.room(player_id, attacker.room_id.unwrap(), room_attack_msg);
+        outputs.room(player_id, attacker_room_id, room_attack_msg);
     } else {
-        outputs.room_all(attacker.room_id.unwrap(), room_attack_msg);
+        outputs.room_all(attacker_room_id, room_attack_msg);
     }
 
     if attack_result.success {
         // TODO: remove get/update/get
         // deduct pv
-        let mut defender = container.mobs.get(target).clone();
+        let mut defender = container.mobs.get(target)?.clone();
         defender.attributes.pv.current -= attack_result.damage as i32;
         container.mobs.update(defender);
 
-        let defender = container.mobs.get(target);
+        let defender = container.mobs.get(target)?;
         if defender.attributes.pv.current < 0 {
             execute_attack_killed(container, outputs, mob_id, target);
         }
     }
 
-    let mut attacker = container.mobs.get(mob_id).clone();
+    let mut attacker = container.mobs.get(mob_id)?.clone();
     attacker.add_attack_calm_time(container.time.total);
     container.mobs.update(attacker);
+
+    Ok(())
 }
 
-fn execute_attack_killed(container: &mut Container, outputs: &mut dyn Outputs, attacker_id: MobId, target_id: MobId) {
+fn execute_attack_killed(container: &mut Container, outputs: &mut dyn Outputs, attacker_id: MobId, target_id: MobId) -> Result<(),()> {
     let attacker_player_id = container.players.find_player_id_from_avatar_mob_id(attacker_id);
-    let attacker = container.mobs.get(attacker_id);
-    let defender = container.mobs.get(target_id);
+    let attacker = container.mobs.get(attacker_id)?;
+    let attacker_room_id = container.locations.get(attacker_id)?;
+    let defender = container.mobs.get(target_id)?;
 
     let room_attack_msg = comm::killed(&defender);
 
     if let Some(player_id) = attacker_player_id {
         let player_attack_msg = comm::killed_by_player(&defender);
         outputs.private(player_id, player_attack_msg);
-        outputs.room(player_id, attacker.room_id(), room_attack_msg);
+        outputs.room(player_id, attacker_room_id, room_attack_msg);
     } else {
-        outputs.room_all(attacker.room_id(), room_attack_msg);
+        outputs.room_all(attacker_room_id, room_attack_msg);
     }
 
     mob::kill_mob(container, outputs, target_id);
+    Ok(())
 }
 
 
@@ -138,15 +149,18 @@ fn roll_damage(damage: &Damage) -> u32 {
 }
 
 
-fn check_return_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, aggressor_mob_id: MobId) {
-    match container.mobs.find(&mob_id) {
-        Some(mob) if mob.command.is_idle() => {
-            let aggressor_mob = container.mobs.get(aggressor_mob_id);
+fn check_return_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, aggressor_mob_id: MobId) -> Result<(),()> {
+    match container.mobs.get(mob_id) {
+        Ok(mob) if mob.command.is_idle() => {
+            let aggressor_mob = container.mobs.get(aggressor_mob_id)?;
+            let room_id = container.locations.get(aggressor_mob_id)?;
             let msg = comm::kill_return_attack(&mob.label, &aggressor_mob.label);
-            outputs.room_all(mob.room_id(), msg);
+            outputs.room_all(room_id, msg);
 
             container.mobs.set_mob_attack_target(mob_id, aggressor_mob_id);
         },
         _ => {}
     }
+
+    Ok(())
 }

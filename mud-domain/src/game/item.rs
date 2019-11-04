@@ -2,7 +2,6 @@ use commons::*;
 use std::collections::HashMap;
 use crate::game::Ctx;
 use super::comm;
-use super::container::Container;
 use super::mob::MobId;
 use logs::*;
 use crate::game::obj::Objects;
@@ -431,13 +430,13 @@ pub enum ParseItemError {
     ItemNotFound { label: String },
 }
 
-pub fn parser_item(container: &mut Container, item_location: ObjId, args: Vec<String>) -> Result<ItemId, ParseItemError> {
+pub fn parser_item(items: &ItemRepository, item_location: ObjId, args: Vec<String>) -> Result<ItemId, ParseItemError> {
     let item_label = match args.get(1) {
         Some(str) => str,
         None => return Err(ParseItemError::ItemNotProvided),
     };
 
-    match container.items.find_inventory(item_location, item_label) {
+    match items.find_inventory(item_location, item_label) {
         Some(item) => Ok(item.id),
         None => Err(ParseItemError::ItemNotFound { label: item_label.to_string() }),
     }

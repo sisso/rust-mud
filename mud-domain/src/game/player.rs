@@ -14,7 +14,7 @@ use logs::*;
 pub struct Player {
     pub id: PlayerId,
     pub login: String,
-    pub avatar_id: MobId
+    pub mob_id: MobId
 }
 
 pub fn create_player(container: &mut Container, login: &str) -> PlayerId {
@@ -23,7 +23,6 @@ pub fn create_player(container: &mut Container, login: &str) -> PlayerId {
 
     let mut mob = Mob::new(
         mob_id,
-        Some(super::mob::ID_ROOM_INIT),
         login.to_string(),
         Attributes {
             attack: 12,
@@ -40,9 +39,11 @@ pub fn create_player(container: &mut Container, login: &str) -> PlayerId {
             attack_calm_down: DeltaTime(1.0)
         }
     );
-    mob.is_avatar = true;
 
+    mob.is_avatar = true;
     container.mobs.add(mob);
+
+    container.locations.set(mob_id, ID_ROOM_INIT);
 
     // add player to game
     let player = container.players.create(player_id, login.to_string(), mob_id);
@@ -84,7 +85,7 @@ impl PlayerRepository {
         let player = Player {
             id: player_id,
             login: login,
-            avatar_id,
+            mob_id: avatar_id,
         };
 
         self.index.insert(player_id, player);
@@ -94,14 +95,14 @@ impl PlayerRepository {
    pub fn find_player_from_avatar_mob_id(&self, mob_id: MobId) -> Option<&Player> {
         self.index
             .iter()
-            .find(|(_, p)| p.avatar_id == mob_id)
+            .find(|(_, p)| p.mob_id == mob_id)
             .map(|(_, player)| player)
     }
 
     pub fn find_player_id_from_avatar_mob_id(&self, mob_id: MobId) -> Option<PlayerId> {
         self.index
             .iter()
-            .find(|(_, p)| p.avatar_id == mob_id)
+            .find(|(_, p)| p.mob_id == mob_id)
             .map(|(id, _)| id.clone())
     }
 

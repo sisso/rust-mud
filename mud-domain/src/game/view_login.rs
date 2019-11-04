@@ -1,5 +1,4 @@
 use super::container::Container;
-use super::player;
 
 pub enum LoginResult {
     Msg { msg: String },

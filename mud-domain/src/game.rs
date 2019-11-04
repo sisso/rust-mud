@@ -30,6 +30,7 @@ pub mod actions_items;
 pub mod actions_admin;
 pub mod loader;
 pub mod input_handle_items;
+pub mod location;
 pub mod template;
 pub mod avatars;
 
@@ -352,8 +353,7 @@ pub fn find_players_per_room(container: &Container) -> HashMap<RoomId, Vec<Playe
             .into_iter()
             .flat_map(|player_id| {
                 let player = container.players.get_player_by_id(player_id);
-                let avatar = container.mobs.get(player.avatar_id);
-                avatar.room_id.map(|room_id| {
+                container.locations.get(player.mob_id).map(|room_id| {
                     (room_id,player_id)
                 })
             })

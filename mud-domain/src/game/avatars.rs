@@ -1,10 +1,10 @@
 use commons::PlayerId;
 use crate::game::container::Container;
-use crate::game::{Outputs, player, mob};
+use crate::game::{Outputs, player};
 
 pub fn on_player_disconnect(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) {
     let player = container.players.get_player_by_id(player_id);
-    let mob_id = player.avatar_id;
+    let mob_id = player.mob_id;
     // TODO: move mob to limbo?
 }
 

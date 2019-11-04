@@ -13,6 +13,7 @@ use super::item::*;
 use super::Outputs;
 use super::room::RoomId;
 use crate::game::obj::{Objects};
+use crate::game::location::Locations;
 
 // TODO: Move this to a injected configuration
 // TODO: This is more Player related that mob
@@ -104,7 +105,6 @@ pub struct AttackResult {
 #[derive(Clone, Debug)]
 pub struct Mob {
     pub id: MobId,
-    pub room_id: Option<RoomId>,
     pub label: String,
     pub is_avatar: bool,
     pub command: MobCommand,
@@ -113,10 +113,9 @@ pub struct Mob {
 }
 
 impl Mob {
-    pub fn new(id: MobId, room_id: Option<RoomId>, label: String, attributes: Attributes) -> Self {
+    pub fn new(id: MobId, label: String, attributes: Attributes) -> Self {
         Mob {
             id,
-            room_id,
             label,
             is_avatar: false,
             command: MobCommand::None,
@@ -168,10 +167,6 @@ impl Mob {
             None => false,
         }
     }
-
-    pub fn room_id(&self) -> RoomId {
-       self.room_id.unwrap()
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -213,6 +208,7 @@ impl MobRepository {
         self.index.get(&id).unwrap()
     }
 
+    // TODO: replace by enum with update entries
     pub fn update(&mut self, mob: Mob) -> &Mob {
         let id = mob.id;
 
@@ -229,38 +225,12 @@ impl MobRepository {
         self.index.remove(&id);
     }
 
-    pub fn get(&self, id: MobId) -> &Mob {
-        self.index.get(&id).unwrap()
-    }
-
-    pub fn find(&self, id: &MobId) -> Option<&Mob> {
-        self.index.get(id)
+    pub fn get(&self, id: MobId) -> Result<&Mob,()> {
+        self.index.get(&id).ok_or(())
     }
 
     pub fn exists(&self, id: MobId) -> bool {
         self.index.contains_key(&id)
-    }
-
-    pub fn search(&self, room_id: Option<RoomId>, name: Option<&str>) -> Vec<&Mob> {
-        self.index
-            .iter()
-            .filter(|(_, mob)| {
-                if let Some(room_id) = room_id {
-                    if mob.room_id() != room_id {
-                        return false;
-                    }
-                }
-
-                if let Some(name) = name {
-                    if !mob.label.eq_ignore_ascii_case(&name) {
-                        return false;
-                    }
-                }
-
-                true
-            })
-            .map(|(_, mob)| mob)
-            .collect()
     }
 
     pub fn set_mob_attack_target(&mut self, mob_id: MobId, target: MobId) {
@@ -330,13 +300,13 @@ impl MobRepository {
 }
 
 // TODO: move game rules with output outside of mobs module
-pub fn run_tick(ctx: &mut Ctx) {
+pub fn run_tick(ctx: &mut Ctx) -> Result<(),()> {
     for mob_id in ctx.container.mobs.list() {
         if !ctx.container.mobs.exists(mob_id) {
             continue;
         }
 
-        let mob = ctx.container.mobs.get(mob_id);
+        let mob = ctx.container.mobs.get(mob_id)?;
 
         match mob.command {
             MobCommand::None => {},
@@ -345,7 +315,7 @@ pub fn run_tick(ctx: &mut Ctx) {
             }
         }
 
-        let mob = ctx.container.mobs.get(mob_id);
+        let mob = ctx.container.mobs.get(mob_id)?;
         if mob.is_resting() {
             let mut mob = mob.clone();
             if mob.update_resting(ctx.container.time.total) {
@@ -361,39 +331,46 @@ pub fn run_tick(ctx: &mut Ctx) {
             ctx.container.mobs.update(mob);
         }
     }
+
+    Ok(())
 }
 
 // TODO: move game rules with output outside of mobs module
-pub fn kill_mob(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) {
+pub fn kill_mob(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<(),()> {
     create_body(container, outputs, mob_id);
 
     // remove mob
-    let mob = container.mobs.get(mob_id);
+    let mob = container.mobs.get(mob_id)?;
     if mob.is_avatar {
         respawn_avatar(container, outputs, mob_id);
     } else {
         container.mobs.remove(&mob_id);
     }
+
+    Ok(())
 }
 
 // TODO: move game rules with output outside of mobs module
-pub fn respawn_avatar(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) {
-    let mut mob = container.mobs.get(mob_id).clone();
+pub fn respawn_avatar(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<(),()> {
+    let mut mob = container.mobs.get(mob_id)?.clone();
     assert!(mob.is_avatar);
 
+    let room_id = ID_ROOM_INIT;
+
     mob.attributes.pv.current = 1;
-    mob.room_id = Some(ID_ROOM_INIT);
 
     let player = container.players.find_player_from_avatar_mob_id(mob.id);
     let player = player.unwrap();
 
     outputs.private(player.id, comm::mob_you_resurrected());
-    outputs.room(player.id, mob.room_id(), comm::mob_resurrected(mob.label.as_ref()));
+    outputs.room(player.id, room_id, comm::mob_resurrected(mob.label.as_ref()));
 
     container.mobs.update(mob);
+    container.locations.set(mob_id, room_id);
+    Ok(())
 }
 
-pub fn instantiate_from_prefab<'a>(objs: &mut Objects, mobs:  &'a mut MobRepository, items: &mut ItemRepository, mob_prefab_id: MobPrefabId, room_id: RoomId) -> &'a Mob {
+pub fn instantiate_from_prefab<'a>(objs: &mut Objects, mobs:  &'a mut MobRepository, items: &mut ItemRepository, locations: &mut Locations, mob_prefab_id: MobPrefabId, room_id: RoomId) -> Result<&'a Mob,()> {
     // TODO: mob prefab need to be outside of prefab or manage it inside
     let prefab = mobs.get_mob_prefab(mob_prefab_id).clone();
 
@@ -407,8 +384,21 @@ pub fn instantiate_from_prefab<'a>(objs: &mut Objects, mobs:  &'a mut MobReposit
     }
 
     // instantiate
-    let mob = Mob::new(mob_id, Some(room_id), prefab.label, prefab.attributes);
-    mobs.add(mob);
-    mobs.get(mob_id)
+    let mob = Mob::new(mob_id, prefab.label, prefab.attributes);
+    let mob = mobs.add(mob);
+
+    // put into place
+    locations.set(mob_id, room_id);
+
+    Ok(mob)
+}
+
+pub fn search_mobs_at<'a>(mobs: &'a MobRepository, locations: &Locations, room_id: RoomId, name: &str) -> Vec<&'a Mob> {
+    locations.list_at(room_id).filter_map(|mob_id| {
+        match mobs.get(mob_id) {
+            Ok(mob) if mob.label.eq_ignore_ascii_case(name) => Some(mob),
+            _ => None,
+        }
+    }).collect()
 }
 

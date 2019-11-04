@@ -59,7 +59,7 @@ impl std::fmt::Display for Dir {
 
 pub struct PlayerCtx<'a> {
     pub player: &'a Player,
-    pub avatar: &'a Mob,
+    pub mob: &'a Mob,
     pub room: &'a Room,
 }
 

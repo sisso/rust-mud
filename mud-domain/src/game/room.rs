@@ -40,8 +40,8 @@ impl RoomRepository {
         self.index.insert(room.id, room);
     }
 
-    pub fn get(&self, id: &RoomId) -> &Room {
-        self.index.get(id).unwrap()
+    pub fn get(&self, id: RoomId) -> Result<&Room, ()> {
+        self.index.get(&id).ok_or(())
     }
 
     pub fn is_room(&self, id: RoomId) -> bool {

@@ -1,6 +1,10 @@
 # TODO
 
-- player login and logut
+- when mob is killed, complete remove from all collections
+- move mob to location
+- move items to location
+- move portal to locations?
+- player login and logoutt
 - How to remove entity? from all components?
 - fix spawn
 - command inv
@@ -8,7 +12,7 @@
 - move controller part from game into mud-server
 - how we can introduce a new view that will stop to receive events? Like stunned?
 - equipament affect stats 
-- move portal to own index (to allow shipt to dock and connect)
+- move portal to own index (to allow ship to dock and connect)
 - improve combat 
   - dodge
   - aggressive

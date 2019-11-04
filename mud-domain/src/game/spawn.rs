@@ -88,9 +88,19 @@ pub fn run(ctx: &mut Ctx) {
                         &mut ctx.container.objects,
                         &mut ctx.container.mobs,
                         &mut ctx.container.items,
+                        &mut ctx.container.locations,
                         mob_prefab_id,
                         room_id
                     );
+
+                    let mob = match mob {
+                        Ok(mob) => mob,
+                        Err(()) => {
+                            warn!("spawn failed for {:?} at {:?}", mob_prefab_id, room_id);
+                            continue
+                        },
+                    };
+
                     let mob_id = mob.id;
 
                     debug!("{:?}({:?}) at {:?}", mob.label, mob.id, room_id);

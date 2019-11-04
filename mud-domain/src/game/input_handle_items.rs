@@ -6,8 +6,8 @@ use crate::game::actions_items::{do_equip, do_drop};
 
 pub fn equip(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<String>) {
     let player = container.players.get_player_by_id(player_id);
-    let avatar_id = player.avatar_id;
-    match parser_item(container, avatar_id, args) {
+    let avatar_id = player.mob_id;
+    match parser_item(&container.items, avatar_id, args) {
         Ok(item_id) => {
             let _ = do_equip(container, outputs, Some(player_id),avatar_id, item_id);
         },
@@ -18,8 +18,8 @@ pub fn equip(container: &mut Container, outputs: &mut dyn Outputs, player_id: Pl
 
 pub fn drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<String>) {
     let player = container.players.get_player_by_id(player_id);
-    let avatar_id = player.avatar_id;
-    match parser_item(container, avatar_id, args) {
+    let avatar_id = player.mob_id;
+    match parser_item(&container.items, avatar_id, args) {
         Ok(item_id) => {
             let _ = do_drop(container, outputs, Some(player_id), avatar_id, item_id);
         },

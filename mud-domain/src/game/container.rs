@@ -8,6 +8,7 @@ use super::item::*;
 use crate::game::body::create_body;
 use commons::PlayerId;
 use crate::game::obj::Objects;
+use crate::game::location::Locations;
 
 pub struct Container {
     pub time: GameTime,
@@ -17,6 +18,7 @@ pub struct Container {
     pub items: ItemRepository,
     pub rooms: RoomRepository,
     pub spawns: Spawns,
+    pub locations: Locations,
 }
 
 impl Container {
@@ -29,18 +31,21 @@ impl Container {
             items: ItemRepository::new(),
             rooms: RoomRepository::new(),
             spawns: Spawns::new(),
+            locations: Locations::new(),
         }
     }
 
+    // TODO: add Result or complete remove this method
     /// If mob have no room, a exception will be throw
     pub fn get_player_context(&self, player_id: PlayerId) -> PlayerCtx {
         let player = self.players.get_player_by_id(player_id);
-        let mob = self.mobs.get(player.avatar_id);
-        let room = self.rooms.get(&mob.room_id.unwrap());
+        let mob = self.mobs.get(player.mob_id).unwrap();
+        let room_id = self.locations.get(mob.id).unwrap();
+        let room = self.rooms.get(room_id).unwrap();
 
         PlayerCtx {
             player,
-            avatar: mob,
+            mob,
             room
         }
     }
