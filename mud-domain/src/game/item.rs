@@ -112,9 +112,8 @@ pub struct Armor {
 
 #[derive(Debug, Clone)]
 pub struct Inventory {
-    location: ObjId,
-    list: Vec<ItemId>,
-    equip: Vec<ItemId>,
+    pub location: ObjId,
+    pub list: Vec<ItemId>,
 }
 
 impl Inventory {
@@ -122,7 +121,6 @@ impl Inventory {
         Inventory {
             location: obj_id,
             list: vec![],
-            equip: vec![]
         }
     }
 
@@ -193,14 +191,7 @@ impl ItemRepository {
         self.move_all(mob_id, item_id);
     }
 
-    pub fn get_equiped(&self, location: ObjId) -> Vec<ItemId> {
-        match self.inventory.get(&location) {
-            Some(inventory) => inventory.equip.clone(),
-            None => vec![],
-        }
-    }
-
-    pub fn get_inventory_list(&self, location: ObjId) -> Vec<&Item> {
+   pub fn get_inventory_list(&self, location: ObjId) -> Vec<&Item> {
         match self.inventory.get(&location) {
             Some(inventory) => {
                 inventory
@@ -291,40 +282,40 @@ impl ItemRepository {
         self.inventory.get(&location)
     }
 
-    pub fn equip(&mut self, location: ObjId, item_id: ItemId) -> Result<(),()> {
-        let item = self.index.get(&item_id).unwrap();
-        let is_weapon = item.weapon.is_some();
-        let is_armor = item.armor.is_some();
-
-        if !is_weapon && !is_armor {
-            debug!("itemrepostitory - {:?} try to equip invalid item {:?}", location, item_id);
-            return Err(());
-        }
-
-        let mut inventory = self.get_inventory_mut(location).clone();
-
-        // remove equipments of same type
-        inventory.equip.retain(|item_id| {
-            let item = self.index.get(&item_id).unwrap();
-            let remove = is_weapon && item.weapon.is_some() || is_armor && item.armor.is_some();
-            if remove {
-                debug!("itemrepostitory - {:?} unequip {:?}", location, item_id);
-            }
-            !remove
-        });
-
-        // add new item
-        inventory.equip.push(item_id);
-        self.inventory.insert(location, inventory);
-
-        debug!("itemrepostitory - {:?} equip {:?}", location, item_id);
-
-        Ok(())
-    }
-
-    pub fn strip(&mut self, item_id: ItemId) -> Result<(),()> {
-        Err(())
-    }
+//    pub fn equip(&mut self, location: ObjId, item_id: ItemId) -> Result<(),()> {
+//        let item = self.index.get(&item_id).unwrap();
+//        let is_weapon = item.weapon.is_some();
+//        let is_armor = item.armor.is_some();
+//
+//        if !is_weapon && !is_armor {
+//            debug!("itemrepostitory - {:?} try to equip invalid item {:?}", location, item_id);
+//            return Err(());
+//        }
+//
+//        let mut inventory = self.get_inventory_mut(location).clone();
+//
+//        // remove equipments of same type
+//        inventory.equip.retain(|item_id| {
+//            let item = self.index.get(&item_id).unwrap();
+//            let remove = is_weapon && item.weapon.is_some() || is_armor && item.armor.is_some();
+//            if remove {
+//                debug!("itemrepostitory - {:?} unequip {:?}", location, item_id);
+//            }
+//            !remove
+//        });
+//
+//        // add new item
+//        inventory.equip.push(item_id);
+//        self.inventory.insert(location, inventory);
+//
+//        debug!("itemrepostitory - {:?} equip {:?}", location, item_id);
+//
+//        Ok(())
+//    }
+//
+//    pub fn strip(&mut self, item_id: ItemId) -> Result<(),()> {
+//        Err(())
+//    }
 
     fn get_inventory_mut(&mut self, location: ObjId) -> &mut Inventory {
         self.inventory.entry(location).or_insert(Inventory::new(location.clone()))

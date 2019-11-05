@@ -6,6 +6,7 @@ use super::mob::*;
 use termion;
 use commons::{DeltaTime, TotalTime};
 use crate::game::room::RoomId;
+use std::collections::HashSet;
 
 pub fn help() -> String {
     let str = r#"-------------------------------------------------------------
@@ -170,7 +171,7 @@ pub fn item_body_disappears(item: &Item) -> String {
     format!("a {} disappear.\n", item.label)
 }
 
-pub fn stats(mob: &Mob, inventory: &Vec<&Item>, equiped: &Vec<ItemId>) -> String {
+pub fn stats(mob: &Mob, inventory: &Vec<&Item>, equiped: &HashSet<ItemId>) -> String {
     let inventory_str = show_inventory(inventory, equiped);
 
     format!("Stats: \n\
@@ -193,21 +194,20 @@ pub fn examine_target_not_found(target: &String) -> String {
     format!("no [{}] can be found!\n", target)
 }
 
-pub fn examine_target(mob: &Mob, inventory: &Vec<&Item>, equiped: &Vec<ItemId>) -> String {
+pub fn examine_target(mob: &Mob, inventory: &Vec<&Item>, equiped: &HashSet<ItemId>) -> String {
     format!("you examine {}!\n{}", mob.label, stats(&mob, inventory, equiped))
 }
 
 pub fn examine_target_item(item: &Item, inventory: &Vec<&Item>) -> String {
-    format!("you examine {}!\n{}", item.label, show_inventory(inventory, &vec![]))
+    format!("you examine {}!\n{}", item.label, show_inventory(inventory, &HashSet::new()))
 }
 
-pub fn show_inventory(inventory: &Vec<&Item>, equiped: &Vec<ItemId>) -> String {
+pub fn show_inventory(inventory: &Vec<&Item>, equiped: &HashSet<ItemId>) -> String {
     let mut buffer: Vec<String> = vec![
         "Inventory:".to_string(),
     ];
     for item in inventory {
-        let is_equiped = equiped.iter().find(|item_id| **item_id == item.id).is_some();
-        if is_equiped {
+        if equiped.contains(&item.id) {
             buffer.push(format!("- {}*", print_item(item)));
         } else {
             buffer.push(format!("- {}", print_item(item)));
@@ -388,7 +388,7 @@ mod tests {
         let coins = item_0_coins();
         let weapon = item_1_weapon();
         let items = vec![&coins, &weapon];
-        let equip = vec![weapon.id];
+        let equip : HashSet<ItemId> = vec![weapon.id].into_iter().collect();
         let string = show_inventory(&items, &equip);
         assert_eq!("Inventory:\n\
                     - coins (2)\n\

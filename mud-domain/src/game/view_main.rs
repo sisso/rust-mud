@@ -7,6 +7,7 @@ use super::comm;
 use super::container::Container;
 use crate::game::{actions_admin, input_handle_items, mob};
 use commons::PlayerId;
+use std::collections::HashSet;
 
 pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) {
     match input {
@@ -45,7 +46,7 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
         "stats" | "inv" | "score" => {
             let ctx = container.get_player_context(player_id);
             let item_inventory = container.items.get_inventory_list(ctx.mob.id);
-            let equiped = container.items.get_equiped(ctx.mob.id );
+            let equiped = container.equips.get(ctx.mob.id).unwrap_or(HashSet::new());
             outputs.private(player_id, comm::stats(&ctx.mob, &item_inventory, &equiped));
         },
 
@@ -130,7 +131,7 @@ fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_i
         Some(mob) => {
             let item_location = mob.id;
             let mob_inventory = container.items.get_inventory_list(item_location);
-            let equiped = container.items.get_equiped(item_location);
+            let equiped = container.equips.get(item_location).unwrap_or(HashSet::new());
             outputs.private(player_id, comm::examine_target(mob, &mob_inventory, &equiped));
             return;
         },

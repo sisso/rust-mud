@@ -1,7 +1,6 @@
 # TODO
 
 - when mob is killed, complete remove from all collections
-- move mob to location
 - move items to location
 - move portal to locations?
 - player login and logoutt

@@ -18,15 +18,16 @@ impl Templates {
         }
     }
 
-    pub fn update(&mut self, template: Template) -> Option<Template> {
-        self.index.insert(template.id, template)
+    pub fn add(&mut self, template: Template) {
+        assert!(!self.index.contains_key(&template.id));
+        self.index.insert(template.id, template);
     }
 
     pub fn remove(&mut self, id: ObjId) -> Option<Template> {
         self.index.remove(&id)
     }
 
-    pub fn get(&self, id: ObjId) -> Option<&Template> {
-        self.index.get(&id)
+    pub fn get(&self, id: ObjId) -> Result<&Template,()> {
+        self.index.get(&id).ok_or(())
     }
 }

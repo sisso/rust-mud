@@ -76,12 +76,33 @@ pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
     }
 }
 
+/// As a humanoid entity in mud, try to equip a item
 pub fn do_equip(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId) -> Result<(), ()> {
-    let inventory = container.items.get_inventory_list(mob_id);
-    container.items.equip(mob_id, item_id)?;
+    let item = container.items.get(item_id);
+
+    // check if mob own the item
+    let has_item = container.items.get_inventory(mob_id)
+        .map(|inv| inv.list.contains(&item_id))
+        .unwrap_or(false);
+
+    if !has_item {
+        outputs.private_opt(player_id, comm::equip_item_invalid(item.label.as_str()));
+        return Err(());
+    }
+
+    // check if can be equipped
+    let can_be_equipped = item.weapon.is_some() || item.armor.is_some();
+
+    if !can_be_equipped {
+        outputs.private_opt(player_id, comm::equip_item_invalid(item.label.as_str()));
+        return Err(());
+    }
+
+    // TODO: remove old equip in sample place?
+    container.equips.add(mob_id, item_id);
+
     let mob = container.mobs.get(mob_id)?;
     let room_id = container.locations.get(mob_id)?;
-    let item = container.items.get(item_id);
     outputs.private_opt(player_id, comm::equip_player_from_room(item.label.as_str()));
     outputs.room_opt(player_id, room_id,comm::equip_from_room(mob.label.as_str(), item.label.as_str()));
     Ok(())
@@ -91,8 +112,8 @@ pub fn do_drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: 
     let mob = container.mobs.get(mob_id)?;
     let room_id = container.locations.get(mob_id)?;
 
-    // unequip if is in use
-    let _ = container.items.strip(item_id);
+    // strip if is in use
+    let _ = container.equips.strip(mob_id, item_id);
     container.items.move_item(item_id, room_id);
 
     let item = container.items.get(item_id);

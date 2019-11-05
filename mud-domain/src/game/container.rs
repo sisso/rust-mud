@@ -9,6 +9,7 @@ use crate::game::body::create_body;
 use commons::PlayerId;
 use crate::game::obj::Objects;
 use crate::game::location::Locations;
+use crate::game::equip::{Equip, Equips};
 
 pub struct Container {
     pub time: GameTime,
@@ -19,6 +20,7 @@ pub struct Container {
     pub rooms: RoomRepository,
     pub spawns: Spawns,
     pub locations: Locations,
+    pub equips: Equips,
 }
 
 impl Container {
@@ -32,6 +34,7 @@ impl Container {
             rooms: RoomRepository::new(),
             spawns: Spawns::new(),
             locations: Locations::new(),
+            equips: Equips::new(),
         }
     }
 

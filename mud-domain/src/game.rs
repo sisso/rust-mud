@@ -33,6 +33,7 @@ pub mod input_handle_items;
 pub mod location;
 pub mod template;
 pub mod avatars;
+pub mod equip;
 
 #[derive(Debug)]
 pub struct ConnectionState {
