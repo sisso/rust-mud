@@ -6,10 +6,10 @@ use super::domain::*;
 use super::item::*;
 
 use crate::game::body::create_body;
-use commons::PlayerId;
+use commons::{PlayerId, ObjId};
 use crate::game::obj::Objects;
 use crate::game::location::Locations;
-use crate::game::equip::{Equip, Equips};
+use crate::game::equip::{Equips};
 
 pub struct Container {
     pub time: GameTime,
@@ -36,6 +36,10 @@ impl Container {
             locations: Locations::new(),
             equips: Equips::new(),
         }
+    }
+
+    pub fn remove(&mut self, obj_id: ObjId) {
+        unimplemented!()
     }
 
     // TODO: add Result or complete remove this method

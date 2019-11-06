@@ -34,6 +34,7 @@ pub mod location;
 pub mod template;
 pub mod avatars;
 pub mod equip;
+pub mod inventory;
 
 #[derive(Debug)]
 pub struct ConnectionState {

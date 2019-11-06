@@ -2,7 +2,6 @@ use commons::*;
 use std::collections::HashMap;
 
 use super::container::Container;
-use super::domain::*;
 use super::mob::*;
 use super::mob::MobId;
 

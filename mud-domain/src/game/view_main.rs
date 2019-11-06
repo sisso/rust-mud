@@ -5,7 +5,7 @@ use super::actions;
 use super::actions_items;
 use super::comm;
 use super::container::Container;
-use crate::game::{actions_admin, input_handle_items, mob};
+use crate::game::{actions_admin, input_handle_items, mob, inventory};
 use commons::PlayerId;
 use std::collections::HashSet;
 
@@ -45,7 +45,7 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
 
         "stats" | "inv" | "score" => {
             let ctx = container.get_player_context(player_id);
-            let item_inventory = container.items.get_inventory_list(ctx.mob.id);
+            let item_inventory = inventory::get_inventory_list(&container.locations, &container.items, ctx.mob.id);
             let equiped = container.equips.get(ctx.mob.id).unwrap_or(HashSet::new());
             outputs.private(player_id, comm::stats(&ctx.mob, &item_inventory, &equiped));
         },
@@ -130,7 +130,7 @@ fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_i
     match mobs.first() {
         Some(mob) => {
             let item_location = mob.id;
-            let mob_inventory = container.items.get_inventory_list(item_location);
+            let mob_inventory = inventory::get_inventory_list(&container.locations, &container.items, mob.id);
             let equiped = container.equips.get(item_location).unwrap_or(HashSet::new());
             outputs.private(player_id, comm::examine_target(mob, &mob_inventory, &equiped));
             return;
@@ -138,10 +138,10 @@ fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_i
         _ => {},
     }
 
-    let items = container.items.search_inventory(ctx.room.id, &target);
+    let items = inventory::search(&container.locations, &container.items, ctx.room.id, target.as_str());
     match items.first() {
         Some(item) => {
-            let item_inventory = container.items.get_inventory_list(item.id);
+            let item_inventory = inventory::get_inventory_list(&container.locations, &container.items, item.id);
             outputs.private(player_id, comm::examine_target_item(item, &item_inventory));
             return;
         },

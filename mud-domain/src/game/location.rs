@@ -4,6 +4,7 @@ use logs::*;
 
 #[derive(Clone,Debug)]
 pub struct Locations {
+    // TODO: add inverse index
     index: HashMap<ObjId, ObjId>,
 }
 

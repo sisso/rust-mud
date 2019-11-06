@@ -1,10 +1,9 @@
 use commons::*;
 use std::collections::HashMap;
-use crate::game::Ctx;
+use crate::game::{Ctx, inventory};
 use super::comm;
-use super::mob::MobId;
-use logs::*;
 use crate::game::obj::Objects;
+use crate::game::location::Locations;
 
 pub type ItemId = ObjId;
 pub type ItemPrefabId = ObjId;
@@ -116,137 +115,107 @@ pub struct Inventory {
     pub list: Vec<ItemId>,
 }
 
-impl Inventory {
-    pub fn new(obj_id: ObjId) -> Self {
-        Inventory {
-            location: obj_id,
-            list: vec![],
-        }
-    }
-
-    pub fn add(&mut self, item_id: ItemId) {
-        self.list.push(item_id);
-    }
-
-    pub fn remove(&mut self, item_id: &ItemId) {
-        self.list.retain(|id| id != item_id);
-    }
-}
-
 pub struct ItemRepository {
     index: HashMap<ItemId, Item>,
-    inventory: HashMap<ObjId, Inventory>,
     prefab_index: HashMap<ItemPrefabId, ItemPrefab>,
-    item_location: HashMap<ItemId, ObjId>,
 }
 
 impl ItemRepository {
     pub fn new() -> Self {
         ItemRepository {
             index: HashMap::new(),
-            inventory: HashMap::new(),
             prefab_index: HashMap::new(),
-            item_location: HashMap::new(),
         }
     }
 
-    pub fn get(&self, item_id: ItemId) -> &Item {
-        self.index.get(&item_id).unwrap()
+    pub fn get(&self, item_id: ItemId) -> Result<&Item,()> {
+        self.index.get(&item_id).ok_or(())
     }
 
-    pub fn set_location(&mut self, item_id: ItemId, location: ObjId) {
-        let inventory = self.get_inventory_mut(location);
-        inventory.add(item_id);
-
-        self.item_location.insert(item_id, location);
-    }
-
-    pub fn move_all(&mut self, from: ObjId, to: ObjId) {
-        debug!("itemrepostitory - move_all {:?} to {:?}", from, to);
-        let from_inventory = self.inventory.remove(&from);
-        if from_inventory.is_none() {
-            return;
-        }
-
-        let from_inventory = from_inventory.unwrap();
-        for item_id in from_inventory.list.iter() {
-            debug!("itemrepostitory - set {:?} to {:?}", item_id, to);
-            self.item_location.insert(*item_id, to);
-        }
-
-        let to_inventory = self.get_inventory_mut(to);
-        for item_id in from_inventory.list {
-            debug!("itemrepostitory - add {:?} to {:?}", item_id, to_inventory);
-            to_inventory.add(item_id);
-        }
-    }
-
-    pub fn move_item(&mut self, from_item_id: ItemId, to_item_id: ObjId) {
-        self.remove_location(from_item_id);
-        self.add_location(&from_item_id, to_item_id);
-    }
-
-    // TODO: remove
-    pub fn move_items_from_mob_to_item(&mut self, mob_id: MobId, item_id: ItemId) {
-        self.move_all(mob_id, item_id);
-    }
-
-   pub fn get_inventory_list(&self, location: ObjId) -> Vec<&Item> {
-        match self.inventory.get(&location) {
-            Some(inventory) => {
-                inventory
-                    .list
-                    .iter()
-                    .map(|item_id| {
-                        self.get(*item_id)
-                    })
-                    .collect()
-            }
-            None => vec![],
-        }
-    }
-
-    pub fn find_inventory(&self, location: ObjId, item_label: &str) -> Option<&Item> {
-        let inventory = self.get_inventory_list(location);
-        let item: Option<&Item> = inventory.iter().find(|item| item.label.eq_ignore_ascii_case(item_label)).map(|i| *i);
-        item
-    }
-
-    pub fn search_inventory(&self, obj_id: ObjId, name: &str) -> Vec<&Item> {
-        match self.inventory.get(&obj_id) {
-            Some(inventory) => {
-                inventory.list.iter().filter_map(|item_id| {
-                    let item = self.get(*item_id);
-                    if item.label.eq_ignore_ascii_case(name) {
-                        Some(item)
-                    } else {
-                        None
-                    }
-                }).collect()
-            }
-            _ => {
-                vec![]
-            }
-        }
-    }
-
-    pub fn add(&mut self, item: Item, location: ObjId) {
-        let item_id = item.id;
-
-        if self.index.contains_key(&item_id) {
+//    pub fn set_location(&mut self, item_id: ItemId, location: ObjId) {
+//        let inventory = self.get_inventory_mut(location);
+//        inventory.add(item_id);
+//
+//        self.item_location.insert(item_id, location);
+//    }
+//
+//    pub fn move_all(&mut self, from: ObjId, to: ObjId) {
+//        debug!("itemrepostitory - move_all {:?} to {:?}", from, to);
+//        let from_inventory = self.inventory.remove(&from);
+//        if from_inventory.is_none() {
+//            return;
+//        }
+//
+//        let from_inventory = from_inventory.unwrap();
+//        for item_id in from_inventory.list.iter() {
+//            debug!("itemrepostitory - set {:?} to {:?}", item_id, to);
+//            self.item_location.insert(*item_id, to);
+//        }
+//
+//        let to_inventory = self.get_inventory_mut(to);
+//        for item_id in from_inventory.list {
+//            debug!("itemrepostitory - add {:?} to {:?}", item_id, to_inventory);
+//            to_inventory.add(item_id);
+//        }
+//    }
+//
+//    pub fn move_item(&mut self, from_item_id: ItemId, to_item_id: ObjId) {
+//        self.remove_location(from_item_id);
+//        self.add_location(&from_item_id, to_item_id);
+//    }
+//
+//    // TODO: remove
+//    pub fn move_items_from_mob_to_item(&mut self, mob_id: MobId, item_id: ItemId) {
+//        self.move_all(mob_id, item_id);
+//    }
+//
+//   pub fn get_inventory_list(&self, location: ObjId) -> Vec<&Item> {
+//        match self.inventory.get(&location) {
+//            Some(inventory) => {
+//                inventory
+//                    .list
+//                    .iter()
+//                    .map(|item_id| {
+//                        self.get(*item_id)
+//                    })
+//                    .collect()
+//            }
+//            None => vec![],
+//        }
+//    }
+//
+//    pub fn find_inventory(&self, location: ObjId, item_label: &str) -> Option<&Item> {
+//        let inventory = self.get_inventory_list(location);
+//        let item: Option<&Item> = inventory.iter().find(|item| item.label.eq_ignore_ascii_case(item_label)).map(|i| *i);
+//        item
+//    }
+//
+//    pub fn search_inventory(&self, obj_id: ObjId, name: &str) -> Vec<&Item> {
+//        match self.inventory.get(&obj_id) {
+//            Some(inventory) => {
+//                inventory.list.iter().filter_map(|item_id| {
+//                    let item = self.get(*item_id);
+//                    if item.label.eq_ignore_ascii_case(name) {
+//                        Some(item)
+//                    } else {
+//                        None
+//                    }
+//                }).collect()
+//            }
+//            _ => {
+//                vec![]
+//            }
+//        }
+//    }
+//
+    pub fn add(&mut self, item: Item) {
+        if self.index.contains_key(&item.id) {
             panic!()
         }
 
         // update index
-        self.index.insert(item_id, item);
-
-        // update inventory
-        let inventory = self.get_inventory_mut(location);
-        inventory.add(item_id);
-
-        // update location
-        self.item_location.insert(item_id, location);
-    }
+        self.index.insert(item.id, item);
+   }
 
     pub fn add_prefab(&mut self, item_def: ItemPrefab) {
         if self.prefab_index.contains_key(&item_def.id) {
@@ -256,14 +225,7 @@ impl ItemRepository {
     }
 
     pub fn remove(&mut self, item_id: ItemId) {
-        let item = self.index.remove(&item_id).unwrap();
-        let location = self.item_location.remove(&item_id);
-        if let Some(location) = location {
-            let inventory = self.get_inventory_mut(location);
-            inventory.remove(&item_id);
-        }
-
-        // TODO: remove recursive all items in inventory
+        self.index.remove(&item_id);
     }
 
     pub fn list(&self) -> Vec<ItemId> {
@@ -274,73 +236,38 @@ impl ItemRepository {
         self.prefab_index.get(item_prefab_id).unwrap()
     }
 
-    pub fn get_location(&self, item_id: ItemId) -> ObjId {
-        *self.item_location.get(&item_id).unwrap()
-    }
-
-    pub fn get_inventory(&self, location: ObjId) -> Option<&Inventory> {
-        self.inventory.get(&location)
-    }
-
-//    pub fn equip(&mut self, location: ObjId, item_id: ItemId) -> Result<(),()> {
-//        let item = self.index.get(&item_id).unwrap();
-//        let is_weapon = item.weapon.is_some();
-//        let is_armor = item.armor.is_some();
-//
-//        if !is_weapon && !is_armor {
-//            debug!("itemrepostitory - {:?} try to equip invalid item {:?}", location, item_id);
-//            return Err(());
-//        }
-//
-//        let mut inventory = self.get_inventory_mut(location).clone();
-//
-//        // remove equipments of same type
-//        inventory.equip.retain(|item_id| {
-//            let item = self.index.get(&item_id).unwrap();
-//            let remove = is_weapon && item.weapon.is_some() || is_armor && item.armor.is_some();
-//            if remove {
-//                debug!("itemrepostitory - {:?} unequip {:?}", location, item_id);
-//            }
-//            !remove
-//        });
-//
-//        // add new item
-//        inventory.equip.push(item_id);
-//        self.inventory.insert(location, inventory);
-//
-//        debug!("itemrepostitory - {:?} equip {:?}", location, item_id);
-//
-//        Ok(())
-//    }
-//
-//    pub fn strip(&mut self, item_id: ItemId) -> Result<(),()> {
-//        Err(())
+//    pub fn get_location(&self, item_id: ItemId) -> ObjId {
+//        *self.item_location.get(&item_id).unwrap()
 //    }
 
-    fn get_inventory_mut(&mut self, location: ObjId) -> &mut Inventory {
-        self.inventory.entry(location).or_insert(Inventory::new(location.clone()))
-    }
+//    pub fn get_inventory(&self, location: ObjId) -> Option<&Inventory> {
+//        self.inventory.get(&location)
+//    }
 
-    fn remove_location(&mut self, item_id: ItemId) {
-        let location = self.get_location(item_id).clone();
-        let inventory = self.get_inventory_mut(location);
-        inventory.remove(&item_id);
+//    fn get_inventory_mut(&mut self, location: ObjId) -> &mut Inventory {
+//        self.inventory.entry(location).or_insert(Inventory::new(location.clone()))
+//    }
+//
+//    fn remove_location(&mut self, item_id: ItemId) {
+//        let location = self.get_location(item_id).clone();
+//        let inventory = self.get_inventory_mut(location);
+//        inventory.remove(&item_id);
+//
+//        self.item_location.remove(&item_id);
+//
+//        debug!("itemrepostitory - remove_location {:?}", item_id);
+//    }
+//
+//    fn add_location(&mut self, item_id: &ItemId, location: ObjId) {
+//        let inventory = self.get_inventory_mut(location);
+//        inventory.add(*item_id);
+//
+//        self.item_location.insert(*item_id, location);
+//
+//        debug!("itemrepostitory - add_location {:?} {:?}", item_id, location);
+//    }
 
-        self.item_location.remove(&item_id);
-
-        debug!("itemrepostitory - remove_location {:?}", item_id);
-    }
-
-    fn add_location(&mut self, item_id: &ItemId, location: ObjId) {
-        let inventory = self.get_inventory_mut(location);
-        inventory.add(*item_id);
-
-        self.item_location.insert(*item_id, location);
-
-        debug!("itemrepostitory - add_location {:?} {:?}", item_id, location);
-    }
-
-    pub fn instantiate_item(&mut self, objects: &mut Objects, item_prefab_id: ItemPrefabId, location: ObjId) -> ItemId {
+    pub fn instantiate_item(&mut self, objects: &mut Objects, item_prefab_id: ItemPrefabId) -> ItemId {
         let item_id = objects.insert();
         let prefab = self.get_prefab(&item_prefab_id);
 
@@ -355,7 +282,7 @@ impl ItemRepository {
         item.weapon = prefab.weapon.clone();
         item.armor = prefab.armor.clone();
 
-        self.add(item, location);
+        self.add(item);
 
         item_id
     }
@@ -398,22 +325,27 @@ pub fn run_tick(ctx: &mut Ctx) {
         .items
         .list()
         .into_iter()
-        .for_each(|item_id| {
-            let item = ctx.container.items.get(item_id);
-
-            if let Some(decay) = item.decay {
-                // TODO: Only decay items on ground?
-                let location_id = ctx.container.items.get_location(item.id);
-
-                if ctx.container.rooms.is_room(location_id) && decay.is_before(ctx.container.time.total)  {
-                    let msg = comm::item_body_disappears(item);
-                    ctx.outputs.room_all(location_id, msg);
-                    ctx.container.items.remove(item_id);
-                }
-            }
+        .for_each(|i| {
+            let _ = run_for(ctx, i);
         });
 }
 
+fn run_for(ctx: &mut Ctx, item_id: ItemId) -> Result<(),()> {
+    let item = ctx.container.items.get(item_id)?;
+
+    if let Some(decay) = item.decay {
+        // TODO: Only decay items on ground?
+        let location_id = ctx.container.locations.get(item.id)?;
+        if ctx.container.rooms.is_room(location_id) && decay.is_before(ctx.container.time.total)  {
+            let msg = comm::item_body_disappears(item);
+            ctx.outputs.room_all(location_id, msg);
+            ctx.container.remove(item_id);
+            ctx.container.items.remove(item_id);
+        }
+    }
+
+    Ok(())
+}
 
 #[derive(Debug)]
 pub enum ParseItemError {
@@ -421,13 +353,15 @@ pub enum ParseItemError {
     ItemNotFound { label: String },
 }
 
-pub fn parser_item(items: &ItemRepository, item_location: ObjId, args: Vec<String>) -> Result<ItemId, ParseItemError> {
+// TODO: probably it do not belong here. But still useful, it will need 3.item at some point and can be this
+pub fn parser_item(items: &ItemRepository, locations: &Locations, item_location: ObjId, args: Vec<String>) -> Result<ItemId, ParseItemError> {
     let item_label = match args.get(1) {
         Some(str) => str,
         None => return Err(ParseItemError::ItemNotProvided),
     };
 
-    match items.find_inventory(item_location, item_label) {
+    let founds = inventory::search(&locations, &items, item_location, item_label.as_str());
+    match founds.get(0) {
         Some(item) => Ok(item.id),
         None => Err(ParseItemError::ItemNotFound { label: item_label.to_string() }),
     }

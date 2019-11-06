@@ -135,9 +135,14 @@ fn load_spawns(container: &mut Container) {
     });
 }
 
+fn create_item_at(container: &mut Container, item_prefab_id: ItemPrefabId, location_id: ObjId) {
+    let item_id = container.items.instantiate_item(&mut container.objects, item_prefab_id);
+    container.locations.set(item_id, location_id);
+}
+
 pub fn load_rooms_objects(container: &mut Container) {
-    container.items.instantiate_item(&mut container.objects, ID_ITEM_DEF_ARMOR, ID_ROOM_FLOREST);
-    container.items.instantiate_item(&mut container.objects, ID_ITEM_DEF_SWORD, ID_ROOM_FLOREST);
+    create_item_at(container, ID_ITEM_DEF_ARMOR, ID_ROOM_FLOREST);
+    create_item_at(container, ID_ITEM_DEF_SWORD, ID_ROOM_FLOREST);
 }
 
 pub fn load(container: &mut Container) {

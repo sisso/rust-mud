@@ -8,7 +8,6 @@ use commons::*;
 use super::combat;
 use super::comm;
 use super::container::Container;
-use super::domain::*;
 use super::item::*;
 use super::Outputs;
 use super::room::RoomId;
@@ -380,7 +379,8 @@ pub fn instantiate_from_prefab<'a>(objs: &mut Objects, mobs:  &'a mut MobReposit
     // add items
     let inventory = prefab.inventory.clone();
     for item_prefab_id in inventory {
-        items.instantiate_item(objs, item_prefab_id, mob_id);
+        let item_id = items.instantiate_item(objs, item_prefab_id);
+        locations.set(item_id, mob_id);
     }
 
     // instantiate

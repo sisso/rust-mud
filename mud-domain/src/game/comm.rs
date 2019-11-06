@@ -7,6 +7,7 @@ use termion;
 use commons::{DeltaTime, TotalTime};
 use crate::game::room::RoomId;
 use std::collections::HashSet;
+use crate::game::inventory;
 
 pub fn help() -> String {
     let str = r#"-------------------------------------------------------------
@@ -41,15 +42,19 @@ pub fn look_description(container: &Container, mob_id: MobId) -> Result<String, 
         .collect();
 
     let exits = exits.join(", ");
+    let mut mobs = vec![];
+    let mut items = vec![];
 
-    // TODO: add items
-    let mobs = container.locations.list_at(room_id)
-        .filter_map(|obj_id| {
-            match container.mobs.get(obj_id) {
-                Ok(mob) => { Some(mob) },
-                Err(()) => { None },
-            }
-        }).collect::<Vec<&Mob>>();
+    for obj_id in container.locations.list_at(room_id) {
+        let item = container.items.get(obj_id);
+        let mob = container.mobs.get(obj_id);
+
+        match (mob, item) {
+            (Ok(mob), _) => mobs.push(mob),
+            (_, Ok(item)) => items.push(item),
+            _ => {},
+        }
+    }
 
     let mobs =
         if mobs.is_empty() {
@@ -66,8 +71,8 @@ pub fn look_description(container: &Container, mob_id: MobId) -> Result<String, 
         };
 
     // TODO: migrate to location
-    let items: Vec<String> = container.items.get_inventory_list(room_id)
-        .iter()
+    let items: Vec<String> = items
+        .into_iter()
         .map(|item| format!("- {} in the floor", item.label))
         .collect();
     let items = items.join("\n");
