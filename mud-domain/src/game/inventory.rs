@@ -5,7 +5,7 @@ use crate::game::item::{Item, ItemRepository};
 pub fn move_all(locations: &mut Locations, from: ObjId, to: ObjId) {
    let list: Vec<_> = locations.list_at(from).collect();
    for i in list {
-      locations.set(to, i);
+      locations.set(i, to);
    }
 }
 

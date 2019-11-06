@@ -4,11 +4,12 @@ use crate::game::{Ctx, inventory};
 use super::comm;
 use crate::game::obj::Objects;
 use crate::game::location::Locations;
+use logs::*;
 
 pub type ItemId = ObjId;
 pub type ItemPrefabId = ObjId;
 
-// TODO: re-think
+// TODO: re-think, it shoudl be constants? configurations? enum? omg omg
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub struct ItemKind(pub u32);
 
@@ -337,6 +338,8 @@ fn run_for(ctx: &mut Ctx, item_id: ItemId) -> Result<(),()> {
         // TODO: Only decay items on ground?
         let location_id = ctx.container.locations.get(item.id)?;
         if ctx.container.rooms.is_room(location_id) && decay.is_before(ctx.container.time.total)  {
+            info!("{:?} removed by decay", item.id);
+
             let msg = comm::item_body_disappears(item);
             ctx.outputs.room_all(location_id, msg);
             ctx.container.remove(item_id);

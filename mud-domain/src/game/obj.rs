@@ -37,4 +37,9 @@ impl Objects {
             id
         });
     }
+
+    /// Make sure you remove from everything else first
+    pub fn remove(&mut self, obj_id: ObjId) {
+        self.remove(obj_id);
+    }
 }

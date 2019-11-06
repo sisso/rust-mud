@@ -38,7 +38,13 @@ impl Container {
     }
 
     pub fn remove(&mut self, obj_id: ObjId) {
-        unimplemented!()
+        self.mobs.remove(obj_id);
+        self.items.remove(obj_id);
+        self.locations.remove(obj_id);
+        // self.rooms.remove(obj_id);
+        // self.spanws.remove(obj_id);
+        self.equips.remove(obj_id);
+        self.objects.remove(obj_id);
     }
 
     // TODO: add Result or complete remove this method

@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::game::body::create_body;
 use crate::game::Ctx;
 use commons::*;
-
+use logs::*;
 
 use super::combat;
 use super::comm;
@@ -220,7 +220,7 @@ impl MobRepository {
         self.index.get(&id).unwrap()
     }
 
-    pub fn remove(&mut self, id: &MobId) {
+    pub fn remove(&mut self, id: MobId) {
         self.index.remove(&id);
     }
 
@@ -335,21 +335,25 @@ pub fn run_tick(ctx: &mut Ctx) -> Result<(),()> {
 }
 
 // TODO: move game rules with output outside of mobs module
+// TODO: become a trigger?
 pub fn kill_mob(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<(),()> {
-    create_body(container, outputs, mob_id);
+    info!("{:?} was killed", mob_id);
+
+    let _ = create_body(container, outputs, mob_id);
 
     // remove mob
     let mob = container.mobs.get(mob_id)?;
     if mob.is_avatar {
         respawn_avatar(container, outputs, mob_id);
     } else {
-        container.mobs.remove(&mob_id);
+        container.remove(mob_id);
     }
 
     Ok(())
 }
 
 // TODO: move game rules with output outside of mobs module
+// TODO: become a trigger?
 pub fn respawn_avatar(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<(),()> {
     let mut mob = container.mobs.get(mob_id)?.clone();
     assert!(mob.is_avatar);

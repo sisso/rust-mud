@@ -52,5 +52,13 @@ impl Equips {
             .map(|equip| equip.equipments.clone())
             .ok_or(())
     }
+
+    pub fn remove(&mut self, id: ObjId) -> Result<(),()> {
+        self.index.iter_mut().for_each(|(_, equip)| {
+           equip.equipments.remove(&id);
+        });
+
+        Ok(())
+    }
 }
 
