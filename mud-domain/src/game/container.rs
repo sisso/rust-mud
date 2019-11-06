@@ -5,7 +5,6 @@ use super::spawn::*;
 use super::domain::*;
 use super::item::*;
 
-use crate::game::body::create_body;
 use commons::{PlayerId, ObjId};
 use crate::game::obj::Objects;
 use crate::game::location::Locations;

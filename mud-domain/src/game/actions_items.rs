@@ -35,8 +35,7 @@ pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
         (Some(target_inventory_label), Some(target_item_label)) => {
             // pick up from container
             let target_inventory_item =
-                inventory::search(&container.locations, &container.items, mob_id, target_inventory_label.as_str())
-                    .get(0);
+                inventory::search_one(&container.locations, &container.items, mob_id, target_inventory_label.as_str());
 
             if target_inventory_item.is_none() {
                 outputs.private(player_id, comm::pick_where_not_found(target_inventory_label));
@@ -46,8 +45,7 @@ pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
             // check if contain other items
             let container_id = target_inventory_item.unwrap().id;
             let target_item =
-                inventory::search(&container.locations, &container.items, container_id, target_inventory_label.as_str())
-                    .get(0);
+                inventory::search_one(&container.locations, &container.items, container_id, target_inventory_label.as_str());
 
             match target_item {
                 Some(item) => {
@@ -125,5 +123,4 @@ pub fn do_drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: 
 
 #[test]
 pub fn test1() {
-    assert!(false);
 }

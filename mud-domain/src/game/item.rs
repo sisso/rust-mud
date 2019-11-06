@@ -361,7 +361,7 @@ pub fn parser_item(items: &ItemRepository, locations: &Locations, item_location:
     };
 
     let founds = inventory::search(&locations, &items, item_location, item_label.as_str());
-    match founds.get(0) {
+    match founds.first() {
         Some(item) => Ok(item.id),
         None => Err(ParseItemError::ItemNotFound { label: item_label.to_string() }),
     }

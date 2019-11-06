@@ -1,3 +1,5 @@
+#[allow(warn)]
+
 use http_server::HttpServer;
 use mud_engine::{Engine, ConnectionEvent};
 

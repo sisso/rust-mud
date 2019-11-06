@@ -5,9 +5,7 @@ use super::mob::*;
 
 use termion;
 use commons::{DeltaTime, TotalTime};
-use crate::game::room::RoomId;
 use std::collections::HashSet;
-use crate::game::inventory;
 
 pub fn help() -> String {
     let str = r#"-------------------------------------------------------------
