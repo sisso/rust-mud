@@ -17,6 +17,7 @@ const ID_PREFAB_MOB_DRUNK: MobPrefabId = ObjId(4);
 const ID_ITEM_DEF_COINS_2: ItemPrefabId = ObjId(5);
 const ID_ITEM_DEF_SWORD: ItemPrefabId = ObjId(6);
 const ID_ITEM_DEF_ARMOR: ItemPrefabId = ObjId(7);
+const ID_ITEM_DEF_CHEST: ItemPrefabId = ObjId(8);
 
 pub fn load_ids(container: &mut Container) {
     for id in vec![
@@ -57,6 +58,11 @@ fn load_items_prefabs(container: &mut Container) {
                 rd: 2,
                 dp: 1
             })
+            .build()
+    );
+
+    container.items.add_prefab(
+        ItemPrefab::build(ID_ITEM_DEF_CHEST, "chest".to_string())
             .build()
     );
 }
@@ -135,14 +141,16 @@ fn load_spawns(container: &mut Container) {
     });
 }
 
-fn create_item_at(container: &mut Container, item_prefab_id: ItemPrefabId, location_id: ObjId) {
+fn create_item_at(container: &mut Container, item_prefab_id: ItemPrefabId, location_id: ObjId) -> ItemId {
     let item_id = container.items.instantiate_item(&mut container.objects, item_prefab_id);
     container.locations.set(item_id, location_id);
+    item_id
 }
 
 pub fn load_rooms_objects(container: &mut Container) {
-    create_item_at(container, ID_ITEM_DEF_ARMOR, ID_ROOM_FLOREST);
-    create_item_at(container, ID_ITEM_DEF_SWORD, ID_ROOM_FLOREST);
+    let chest_id = create_item_at(container, ID_ITEM_DEF_CHEST, ID_ROOM_FLOREST);
+    create_item_at(container, ID_ITEM_DEF_ARMOR, chest_id);
+    create_item_at(container, ID_ITEM_DEF_SWORD,chest_id);
 }
 
 pub fn load(container: &mut Container) {
