@@ -281,6 +281,22 @@ pub fn equip_from_room(actor: &str, target_item: &str) -> String {
     format!("{} equip a {}\n", actor, target_item)
 }
 
+pub fn strip_what() -> String {
+    "what? what do you want to remove?\n".to_string()
+}
+
+pub fn strip_item_not_found(label: &str) -> String {
+    format!("you can not find a {} to strip\n", label)
+}
+
+pub fn strip_player_from_room(target_item: &str) -> String {
+    format!("you stop to use {}\n", target_item)
+}
+
+pub fn strip_from_room(actor: &str, target_item: &str) -> String {
+    format!("{} stop to use {}\n", actor, target_item)
+}
+
 pub fn drop_item_no_target() -> String {
     "what do you want to drop?\n".to_string()
 }

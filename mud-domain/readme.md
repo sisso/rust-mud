@@ -5,8 +5,6 @@
 - item flag can_be_pick
 - better pick up command. get <container> <item> cause too much confusion. 
 - move portal to locations?
-- fix spawn
-- command inv
 - fix extra lines in output when look
 - move controller part from game into mud-server
 - how we can introduce a new view that will stop to receive events? Like stunned?

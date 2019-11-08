@@ -104,6 +104,19 @@ pub fn do_equip(container: &mut Container, outputs: &mut dyn Outputs, player_id:
     Ok(())
 }
 
+pub fn do_strip(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId) -> Result<(),()> {
+    let mob = container.mobs.get(mob_id)?;
+    let room_id = container.locations.get(mob_id)?;
+    let item = container.items.get(item_id)?;
+
+    // strip if is in use
+    let _ = container.equips.strip(mob_id, item_id);
+
+    outputs.private_opt(player_id, comm::strip_player_from_room(item.label.as_str()));
+    outputs.room_opt(player_id, room_id, comm::strip_from_room(mob.label.as_str(), item.label.as_str()));
+    Ok(())
+}
+
 pub fn do_drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId) -> Result<(),()> {
     let mob = container.mobs.get(mob_id)?;
     let room_id = container.locations.get(mob_id)?;
