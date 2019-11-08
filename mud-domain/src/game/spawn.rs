@@ -1,24 +1,24 @@
 use commons::*;
 use rand::Rng;
-
 use super::comm;
 use super::Outputs;
 use super::mob;
 use super::mob::*;
 use super::room::RoomId;
 use logs::*;
-
-
-use crate::game::Ctx;
 use std::collections::HashMap;
+use crate::game::container::Ctx;
+use std::intrinsics::transmute;
 
 type SpawnId = ObjId;
 
+#[derive(Debug)]
 pub struct SpawnDelay {
     pub min: DeltaTime,
     pub max: DeltaTime
 }
 
+#[derive(Debug)]
 pub struct Spawn {
     pub id: SpawnId,
     pub room_id: RoomId,
@@ -29,6 +29,7 @@ pub struct Spawn {
     pub mobs_id: Vec<MobId>,
 }
 
+#[derive(Debug)]
 pub struct Spawns {
     spawns: HashMap<SpawnId, Spawn>,
 }
@@ -75,47 +76,51 @@ pub fn run(ctx: &mut Ctx) {
 
     for spawn in ctx.container.spawns.list_mut() {
         clean_up_dead_mobs(&mut ctx.container.mobs, spawn);
+        let can_spawn_mobs = || { spawn.mobs_id.len() < spawn.max as usize };
 
         match spawn.next {
-            Some(next) if next.is_after(total_time) => {
-                let can_spawn_mobs = spawn.mobs_id.len() < spawn.max as usize;
-
-                if can_spawn_mobs {
-                    // spawn mob
-                    let room_id = spawn.room_id;
-                    let mob_prefab_id = spawn.prefab_id;
-                    let mob = mob::instantiate_from_prefab(
-                        &mut ctx.container.objects,
-                        &mut ctx.container.mobs,
-                        &mut ctx.container.items,
-                        &mut ctx.container.locations,
-                        mob_prefab_id,
-                        room_id
-                    );
-
-                    let mob = match mob {
-                        Ok(mob) => mob,
-                        Err(()) => {
-                            warn!("spawn failed for {:?} at {:?}", mob_prefab_id, room_id);
-                            continue
-                        },
-                    };
-
-                    let mob_id = mob.id;
-
-                    debug!("{:?}({:?}) at {:?}", mob.label, mob.id, room_id);
-
-                    let spawn_msg = comm::spawn_mob(&mob);
-
-                    // update spawn
-                    spawn.mobs_id.push(mob_id);
-                    schedule_next_spawn(total_time, spawn);
-
-                    // add outputs
-                    ctx.outputs.room_all(room_id, spawn_msg);
-                }
+            Some(next) if next.is_before(total_time) && !can_spawn_mobs() => {
+               // when full, just schedule next spawn
+               schedule_next_spawn(total_time, spawn);
             },
-            Some(_) => {},
+
+            Some(next) if next.is_before(total_time) => {
+                // spawn mob
+                let room_id = spawn.room_id;
+                let mob_prefab_id = spawn.prefab_id;
+                let mob = mob::instantiate_from_prefab(
+                    &mut ctx.container.objects,
+                    &mut ctx.container.mobs,
+                    &mut ctx.container.items,
+                    &mut ctx.container.locations,
+                    mob_prefab_id,
+                    room_id
+                );
+
+                let mob = match mob {
+                    Ok(mob) => mob,
+                    Err(()) => {
+                        warn!("spawn failed for {:?} at {:?}", mob_prefab_id, room_id);
+                        continue
+                    },
+                };
+
+                let mob_id = mob.id;
+
+                debug!("{:?} spawn mob {:?} at {:?}", spawn.id, mob.id, room_id);
+
+                let spawn_msg = comm::spawn_mob(&mob);
+
+                // update spawn
+                spawn.mobs_id.push(mob_id);
+                schedule_next_spawn(total_time, spawn);
+
+                // add outputs
+                ctx.outputs.room_all(room_id, spawn_msg);
+            },
+
+            Some(next) => { },
+
             None => schedule_next_spawn(total_time, spawn),
         };
     }
@@ -126,7 +131,7 @@ fn schedule_next_spawn(now: TotalTime, spawn: &mut Spawn) {
     let next = DeltaTime(rng.gen_range(spawn.delay.min.as_f32(), spawn.delay.max.as_f32()));
     spawn.next = Some(now + next);
 
-    debug!("scheduling spawn {:?} to {:?}", spawn.id, next);
+    debug!("{:?} scheduling spawn at {:?}", spawn.id, spawn.next);
 }
 
 // TODO: should be a trigger
@@ -135,3 +140,25 @@ fn clean_up_dead_mobs(mobs: &mut MobRepository, spawn: &mut Spawn) {
        mobs.exists(*mob_id)
     });
 }
+
+//#[cfg(test)]
+//mod test {
+//    use super::*;
+//    use crate::game::container::Container;
+//    use crate::game::{loader, OutputsImpl};
+//
+//    #[test]
+//    fn test_spawn_should_work() {
+//        let mut container = Container::new();
+//        loader::load(&mut container);
+//
+//        let mut outputs = OutputsImpl::new();
+//
+//        let ctx = Ctx {
+//            container: &mut container,
+//            outputs: &mut outputs,
+//        };
+//
+//        ctx.container
+//    }
+//}

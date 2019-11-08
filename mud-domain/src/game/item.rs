@@ -1,10 +1,11 @@
 use commons::*;
 use std::collections::HashMap;
-use crate::game::{Ctx, inventory};
 use super::comm;
 use crate::game::obj::Objects;
 use crate::game::location::Locations;
 use logs::*;
+use crate::game::inventory;
+use crate::game::container::Ctx;
 
 pub type ItemId = ObjId;
 pub type ItemPrefabId = ObjId;
@@ -133,86 +134,12 @@ impl ItemRepository {
         self.index.get(&item_id).ok_or(())
     }
 
-//    pub fn set_location(&mut self, item_id: ItemId, location: ObjId) {
-//        let inventory = self.get_inventory_mut(location);
-//        inventory.add(item_id);
-//
-//        self.item_location.insert(item_id, location);
-//    }
-//
-//    pub fn move_all(&mut self, from: ObjId, to: ObjId) {
-//        debug!("itemrepostitory - move_all {:?} to {:?}", from, to);
-//        let from_inventory = self.inventory.remove(&from);
-//        if from_inventory.is_none() {
-//            return;
-//        }
-//
-//        let from_inventory = from_inventory.unwrap();
-//        for item_id in from_inventory.list.iter() {
-//            debug!("itemrepostitory - set {:?} to {:?}", item_id, to);
-//            self.item_location.insert(*item_id, to);
-//        }
-//
-//        let to_inventory = self.get_inventory_mut(to);
-//        for item_id in from_inventory.list {
-//            debug!("itemrepostitory - add {:?} to {:?}", item_id, to_inventory);
-//            to_inventory.add(item_id);
-//        }
-//    }
-//
-//    pub fn move_item(&mut self, from_item_id: ItemId, to_item_id: ObjId) {
-//        self.remove_location(from_item_id);
-//        self.add_location(&from_item_id, to_item_id);
-//    }
-//
-//    // TODO: remove
-//    pub fn move_items_from_mob_to_item(&mut self, mob_id: MobId, item_id: ItemId) {
-//        self.move_all(mob_id, item_id);
-//    }
-//
-//   pub fn get_inventory_list(&self, location: ObjId) -> Vec<&Item> {
-//        match self.inventory.get(&location) {
-//            Some(inventory) => {
-//                inventory
-//                    .list
-//                    .iter()
-//                    .map(|item_id| {
-//                        self.get(*item_id)
-//                    })
-//                    .collect()
-//            }
-//            None => vec![],
-//        }
-//    }
-//
-//    pub fn find_inventory(&self, location: ObjId, item_label: &str) -> Option<&Item> {
-//        let inventory = self.get_inventory_list(location);
-//        let item: Option<&Item> = inventory.iter().find(|item| item.label.eq_ignore_ascii_case(item_label)).map(|i| *i);
-//        item
-//    }
-//
-//    pub fn search_inventory(&self, obj_id: ObjId, name: &str) -> Vec<&Item> {
-//        match self.inventory.get(&obj_id) {
-//            Some(inventory) => {
-//                inventory.list.iter().filter_map(|item_id| {
-//                    let item = self.get(*item_id);
-//                    if item.label.eq_ignore_ascii_case(name) {
-//                        Some(item)
-//                    } else {
-//                        None
-//                    }
-//                }).collect()
-//            }
-//            _ => {
-//                vec![]
-//            }
-//        }
-//    }
-//
     pub fn add(&mut self, item: Item) {
         if self.index.contains_key(&item.id) {
             panic!()
         }
+
+        debug!("{:?} add item {:?}", item.id, item);
 
         // update index
         self.index.insert(item.id, item);
@@ -226,7 +153,9 @@ impl ItemRepository {
     }
 
     pub fn remove(&mut self, item_id: ItemId) {
-        self.index.remove(&item_id);
+        if self.index.remove(&item_id).is_some() {
+            debug!("{:?} item removed ", item_id);
+        }
     }
 
     pub fn list(&self) -> Vec<ItemId> {
@@ -236,37 +165,6 @@ impl ItemRepository {
     pub fn get_prefab(&self, item_prefab_id: &ItemPrefabId) -> &ItemPrefab {
         self.prefab_index.get(item_prefab_id).unwrap()
     }
-
-//    pub fn get_location(&self, item_id: ItemId) -> ObjId {
-//        *self.item_location.get(&item_id).unwrap()
-//    }
-
-//    pub fn get_inventory(&self, location: ObjId) -> Option<&Inventory> {
-//        self.inventory.get(&location)
-//    }
-
-//    fn get_inventory_mut(&mut self, location: ObjId) -> &mut Inventory {
-//        self.inventory.entry(location).or_insert(Inventory::new(location.clone()))
-//    }
-//
-//    fn remove_location(&mut self, item_id: ItemId) {
-//        let location = self.get_location(item_id).clone();
-//        let inventory = self.get_inventory_mut(location);
-//        inventory.remove(&item_id);
-//
-//        self.item_location.remove(&item_id);
-//
-//        debug!("itemrepostitory - remove_location {:?}", item_id);
-//    }
-//
-//    fn add_location(&mut self, item_id: &ItemId, location: ObjId) {
-//        let inventory = self.get_inventory_mut(location);
-//        inventory.add(*item_id);
-//
-//        self.item_location.insert(*item_id, location);
-//
-//        debug!("itemrepostitory - add_location {:?} {:?}", item_id, location);
-//    }
 
     pub fn instantiate_item(&mut self, objects: &mut Objects, item_prefab_id: ItemPrefabId) -> ItemId {
         let item_id = objects.insert();

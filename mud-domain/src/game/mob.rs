@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use crate::game::body::create_body;
-use crate::game::Ctx;
 use commons::*;
 use logs::*;
 
@@ -13,6 +12,7 @@ use super::Outputs;
 use super::room::RoomId;
 use crate::game::obj::{Objects};
 use crate::game::location::Locations;
+use crate::game::container::Ctx;
 
 // TODO: Move this to a injected configuration
 // TODO: This is more Player related that mob
@@ -202,6 +202,9 @@ impl MobRepository {
         if self.exists(mob.id) {
             panic!("mob already exists")
         }
+
+        debug!("{:?} add mob {:?}", mob.id, mob);
+
         let id = mob.id;
         self.index.insert(id, mob);
         self.index.get(&id).unwrap()
@@ -211,17 +214,21 @@ impl MobRepository {
     pub fn update(&mut self, mob: Mob) -> &Mob {
         let id = mob.id;
 
+
         let old_mob = self.index.remove(&id);
         if old_mob.is_none() {
             panic!("mob do not exists")
         }
 
+        debug!("{:?} update mob {:?}", mob.id, mob);
         self.index.insert(id, mob);
         self.index.get(&id).unwrap()
     }
 
     pub fn remove(&mut self, id: MobId) {
-        self.index.remove(&id);
+        if self.index.remove(&id).is_some() {
+            debug!("{:?} mob removed ", id);
+        }
     }
 
     pub fn get(&self, id: MobId) -> Result<&Mob,()> {

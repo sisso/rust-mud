@@ -95,7 +95,7 @@ impl SocketServer {
         if let Ok((stream, addr)) = listener.accept() {
             let id = self.next_connection_id();
 
-            info!("server - new connection ({}) {:?}, total connections {}", addr, id, self.connections.len());
+            info!("new connection ({}) {:?}, total connections {}", addr, id, self.connections.len());
             stream.set_nonblocking(true)
                 .expect(format!("failed to set non_blocking stream for {:?}", id).as_str());
 
@@ -112,7 +112,7 @@ impl SocketServer {
                 Ok(msg) => pending_inputs.push(ServerInput { connection_id: *connection_id, msg }),
                 Err(ref err) if err.kind() == std::io::ErrorKind::WouldBlock => (),
                 Err(e) => {
-                    warn!("server - {:?} failed: {}", connection_id, e);
+                    warn!("{:?} failed: {}", connection_id, e);
                     disconnects.push(*connection_id)
                 }
             }
@@ -120,7 +120,7 @@ impl SocketServer {
 
         // handle outputs
         for output in pending_outputs {
-            debug!("server - {:?} sending '{}'", output.connection_id, SocketServer::clean_output_to_log(&output.msg));
+            trace!("{:?} sending '{}'", output.connection_id, SocketServer::clean_output_to_log(&output.msg));
 
             match self.connections.get_mut(&output.connection_id) {
                 Some(connection) => {
@@ -138,7 +138,7 @@ impl SocketServer {
         for connection in &disconnects {
             self.connections.remove(connection);
 
-            info!("server - {:?} removed, total connections {}", connection, self.connections.len());
+            info!("{:?} removed, total connections {}", connection, self.connections.len());
         }
 
         ServerChanges {

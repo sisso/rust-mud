@@ -58,7 +58,7 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
             input_handle_items::drop(container, outputs, player_id, parse_arguments(input))
         },
 
-        _ if has_command(input, &["strip"]) => {
+        _ if has_command(input, &["remove"]) => {
             input_handle_items::strip(container, outputs, player_id, parse_arguments(input))
         },
 

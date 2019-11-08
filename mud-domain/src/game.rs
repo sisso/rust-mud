@@ -11,6 +11,7 @@ use player::*;
 use room::*;
 use logs::*;
 use crate::game::view_login::LoginResult;
+use crate::game::container::Ctx;
 
 pub mod obj;
 pub mod actions;
@@ -134,11 +135,6 @@ impl Outputs for OutputsImpl {
     }
 }
 
-pub struct Ctx<'a> {
-    pub container: &'a mut Container,
-    pub outputs: &'a mut dyn Outputs,
-}
-
 pub struct Game {
     container: Container,
     connections: HashMap<ConnectionId, ConnectionState>,
@@ -217,16 +213,8 @@ impl Game {
         }
     }
 
-    /// Time need to be updated before by add_time
-    pub fn tick(&mut self) {
-        let mut ctx = Ctx {
-            container: &mut self.container,
-            outputs: &mut self.outputs,
-        };
-
-        spawn::run(&mut ctx);
-        mob::run_tick(&mut ctx);
-        item::run_tick(&mut ctx);
+    pub fn tick(&mut self, delta_time: DeltaTime) {
+        self.container.tick(&mut self.outputs, delta_time);
     }
 
     pub fn get_outputs(&mut self) -> Vec<(ConnectionId, String)> {

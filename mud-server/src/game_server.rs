@@ -3,7 +3,7 @@ use mud_domain::game::container::Container;
 use mud_domain::game::domain::GameTime;
 use mud_domain::game::loader;
 use socket_server::*;
-use commons::{TimeTrigger, Tick, TotalTime, DeltaTime};
+use commons::{TimeTrigger, TotalTime, DeltaTime};
 
 pub struct ServerRunner {
     server: Box<dyn Server>,
@@ -26,8 +26,6 @@ impl ServerRunner {
     }
 
     pub fn run(&mut self, delta_time: DeltaTime) {
-        self.game.add_time(delta_time);
-
         let result = self.server.run();
 
         for connection_id in result.connects {
@@ -42,7 +40,7 @@ impl ServerRunner {
             self.game.handle_input(input.connection_id, input.msg.as_ref());
         }
 
-        self.game.tick();
+        self.game.tick(delta_time);
 
         for (connection_id, msg) in self.game.get_outputs() {
             self.server.output(connection_id, msg);

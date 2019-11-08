@@ -4,11 +4,17 @@ use super::room::*;
 use super::spawn::*;
 use super::domain::*;
 use super::item::*;
-
-use commons::{PlayerId, ObjId};
+use commons::{PlayerId, ObjId, DeltaTime};
 use crate::game::obj::Objects;
 use crate::game::location::Locations;
 use crate::game::equip::{Equips};
+use crate::game::{Outputs, spawn, mob, item};
+use logs::*;
+
+pub struct Ctx<'a> {
+    pub container: &'a mut Container,
+    pub outputs: &'a mut dyn Outputs,
+}
 
 pub struct Container {
     pub time: GameTime,
@@ -60,6 +66,23 @@ impl Container {
             mob,
             room
         }
+    }
+
+    pub fn tick(&mut self, outputs: &mut dyn Outputs, delta_time: DeltaTime) {
+        self.time.add(delta_time);
+
+        if self.time.tick.as_u32() % 100 == 0 {
+            debug!("tick {:?}", self.time);
+        }
+
+        let mut ctx = Ctx {
+            container: self,
+            outputs,
+        };
+
+        spawn::run(&mut ctx);
+        mob::run_tick(&mut ctx);
+        item::run_tick(&mut ctx);
     }
 
 //    pub fn save(&self, save: &mut dyn Save) {

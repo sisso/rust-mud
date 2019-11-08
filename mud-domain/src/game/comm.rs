@@ -23,7 +23,7 @@ pub fn help() -> String {
   get <obj>         - pick up a <obj> from floor
   get <from> <obj>  - pick up a <obj> from <from>
   equip <item>      - use a weapon or wear a armor
-  strip <item>      - strip an item you are using
+  remove <item>     - strip an item you are using
   drop <item>       - drop a object
   put <item> <obj>  - put a object into other container
 -------------------------------------------------------------"#;

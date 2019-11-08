@@ -76,6 +76,10 @@ impl Tick {
     pub fn next(&self) -> Tick {
         Tick(self.0 + 1)
     }
+
+    pub fn as_u32(&self) -> u32 {
+        self.0
+    }
 }
 
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]

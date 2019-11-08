@@ -2,8 +2,8 @@ extern crate mud_domain;
 extern crate logs;
 
 use commons::{DeltaTime, PlayerId, ConnectionId, TotalTime, Tick};
-use mud_domain::game::{Game, Ctx, spawn, mob, item, OutputsImpl, view_main, Output, find_players_per_room, loader};
-use mud_domain::game::container::Container;
+use mud_domain::game::{Game, spawn, mob, item, OutputsImpl, view_main, Output, find_players_per_room, loader};
+use mud_domain::game::container::{Container, Ctx};
 use mud_domain::game::player;
 use mud_domain::game::domain::GameTime;
 use std::collections::HashMap;
@@ -29,7 +29,7 @@ impl Engine {
     }
 
     pub fn tick(&mut self, delta_time: DeltaTime) {
-        self.container.time.add(delta_time);
+        self.container.tick(&mut self.outputs, delta_time);
 
         let mut ctx = Ctx {
             container: &mut self.container,

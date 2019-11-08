@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use commons::ObjId;
 use crate::game::mob::MobId;
 use crate::game::item::ItemId;
+use logs::*;
 
 #[derive(Clone,Debug)]
 pub struct Equip {
@@ -30,11 +31,13 @@ impl Equips {
     }
 
     pub fn add(&mut self, mob_id: MobId, item_id: ItemId) {
+        debug!("{:?} equip {:?}", mob_id, item_id);
         let equip = self.index.entry(mob_id).or_insert(Equip::new(mob_id));
         equip.equipments.insert(item_id);
     }
 
     pub fn strip(&mut self, mob_id: MobId, item_id: ItemId) -> Result<(),()> {
+        debug!("{:?} strip {:?}", mob_id, item_id);
         match self.index.get_mut(&mob_id) {
             Some(equip) => {
                 let removed = equip.equipments.remove(&item_id);
@@ -54,8 +57,10 @@ impl Equips {
     }
 
     pub fn remove(&mut self, id: ObjId) -> Result<(),()> {
-        self.index.iter_mut().for_each(|(_, equip)| {
-           equip.equipments.remove(&id);
+        self.index.iter_mut().for_each(|(owner_id, equip)| {
+           if equip.equipments.remove(&id) {
+               debug!("{:?} remove equip", id);
+           }
         });
 
         Ok(())

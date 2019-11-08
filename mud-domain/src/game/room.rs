@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-
+use logs::*;
 use super::domain::Dir;
 use commons::ObjId;
 
@@ -37,6 +37,7 @@ impl RoomRepository {
         if self.index.contains_key(&room.id) {
             panic!("room already exists");
         }
+        debug!("{:?} add room {:?}", room.id, room);
         self.index.insert(room.id, room);
     }
 
