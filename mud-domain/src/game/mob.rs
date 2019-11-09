@@ -8,11 +8,12 @@ use super::combat;
 use super::comm;
 use super::container::Container;
 use super::item::*;
-use super::Outputs;
-use super::room::RoomId;
-use crate::game::obj::{Objects};
-use crate::game::location::Locations;
+use crate::game::room::RoomId;
 use crate::game::container::Ctx;
+use crate::game::Outputs;
+use crate::game::location;
+use crate::game::labels::Labels;
+use crate::game::location::Locations;
 
 // TODO: Move this to a injected configuration
 // TODO: This is more Player related that mob
@@ -120,7 +121,6 @@ pub struct AttackResult {
 #[derive(Clone, Debug)]
 pub struct Mob {
     pub id: MobId,
-    pub label: String,
     pub is_avatar: bool,
     pub command: MobCommand,
     pub attributes: Attributes,
@@ -128,10 +128,9 @@ pub struct Mob {
 }
 
 impl Mob {
-    pub fn new(id: MobId, label: String) -> Self {
+    pub fn new(id: MobId) -> Self {
         Mob {
             id,
-            label,
             is_avatar: false,
             command: MobCommand::None,
             attributes: Attributes::new(),
@@ -267,8 +266,8 @@ impl MobRepository {
         mob.state.action = MobAction::None;
     }
 
-    pub fn is_avatar(&self, id: &MobId) -> bool {
-        self.index.get(id).unwrap().is_avatar
+    pub fn is_avatar(&self, id: MobId) -> bool {
+        self.index.get(&id).unwrap().is_avatar
     }
 
     pub fn add_prefab(&mut self, mob_prefab: MobPrefab) {
@@ -388,45 +387,20 @@ pub fn respawn_avatar(container: &mut Container, outputs: &mut dyn Outputs, mob_
     let player = container.players.find_player_from_avatar_mob_id(mob.id);
     let player = player.unwrap();
 
+    let mob_label = container.labels.get_label(mob_id).unwrap();
+
     outputs.private(player.id, comm::mob_you_resurrected());
-    outputs.room(player.id, room_id, comm::mob_resurrected(mob.label.as_ref()));
+    outputs.room(player.id, room_id, comm::mob_resurrected(mob_label));
 
     container.mobs.update(mob);
     container.locations.set(mob_id, room_id);
     Ok(())
 }
 
-pub fn instantiate_from_prefab<'a>(objs: &mut Objects, mobs:  &'a mut MobRepository, items: &mut ItemRepository, locations: &mut Locations, mob_prefab_id: MobPrefabId, room_id: RoomId) -> Result<&'a Mob,()> {
-    // TODO: mob prefab need to be outside of prefab or manage it inside
-    let prefab = mobs.get_mob_prefab(mob_prefab_id).clone();
-
-    // create mob
-    let mob_id = objs.insert();
-
-    // add items
-    let inventory = prefab.inventory.clone();
-    for item_prefab_id in inventory {
-        let item_id = items.instantiate_item(objs, item_prefab_id);
-        locations.set(item_id, mob_id);
-    }
-
-    // instantiate
-    let mut mob = Mob::new(mob_id, prefab.label);
-    mob.attributes = prefab.attributes;
-    let mob = mobs.add(mob);
-
-    // put into place
-    locations.set(mob_id, room_id);
-
-    Ok(mob)
-}
-
-pub fn search_mobs_at<'a>(mobs: &'a MobRepository, locations: &Locations, room_id: RoomId, name: &str) -> Vec<&'a Mob> {
-    locations.list_at(room_id).filter_map(|mob_id| {
-        match mobs.get(mob_id) {
-            Ok(mob) if mob.label.eq_ignore_ascii_case(name) => Some(mob),
-            _ => None,
-        }
-    }).collect()
+pub fn search_mobs_at(labels: &Labels, locations: &Locations, mobs: &MobRepository, room_id: RoomId, label: &str) -> Vec<MobId> {
+    location::search_at(labels, locations, room_id, label)
+        .into_iter()
+        .filter(|mob_id| mobs.exists(*mob_id))
+        .collect()
 }
 

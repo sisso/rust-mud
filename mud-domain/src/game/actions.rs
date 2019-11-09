@@ -3,7 +3,6 @@ use super::Outputs;
 use super::domain::*;
 use super::container::Container;
 use super::mob::*;
-use super::player::*;
 use commons::PlayerId;
 
 pub fn look(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) -> Result<(),()> {
@@ -17,18 +16,22 @@ pub fn look(container: &mut Container, outputs: &mut dyn Outputs, player_id: Pla
     Ok(())
 }
 
-pub fn say(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, msg: String) {
-    let ctx = container.get_player_context(player_id);
+pub fn say(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, msg: String) -> Result<(),()> {
+    let room_id = container.locations.get(mob_id)?;
+    let mob_label = container.labels.get(mob_id)?;
     let player_msg = comm::say_you_say(&msg);
-    let room_msg = comm::say_someone_said(&ctx.mob.label, &msg);
+    let room_msg = comm::say_someone_said(mob_label.label.as_str(), &msg);
 
-    outputs.private(player_id.clone(), player_msg);
-    outputs.room(player_id.clone(), ctx.room.id, room_msg);
+    outputs.private_opt(player_id, player_msg);
+    outputs.room_opt(player_id, room_id, room_msg);
+
+    Ok(())
 }
 
- pub fn mv(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, dir: Dir) -> Result<(),()> {
+pub fn mv(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, dir: Dir) -> Result<(),()> {
     let player = container.players.get_player_by_id(player_id);
-    let location_id = container.locations.get(player.mob_id)?;
+    let mob_id = player.mob_id;
+    let location_id = container.locations.get(mob_id)?;
     let room = container.rooms.get(location_id)?;
     let exit_room_id = room.get_exit(&dir);
 
@@ -36,12 +39,12 @@ pub fn say(container: &mut Container, outputs: &mut dyn Outputs, player_id: Play
         Some(exit_room_id) => {
             let previous_room_id = location_id;
             // change mob place
-            container.locations.set(player.mob_id,exit_room_id);
+            container.locations.set(mob_id,exit_room_id);
 
-            let mob = container.mobs.get(player.mob_id)?;
-            let mob_label = mob.label.as_str();
+            let label = container.labels.get(mob_id)?;
+            let mob_label = label.label.as_str();
 
-            let look = comm::look_description(&container, mob.id)?;
+            let look = comm::look_description(&container, mob_id)?;
             let player_msg = format!("{}\n\n{}", comm::move_you_move(&dir), look);
             let enter_room_msg = comm::move_come(mob_label, &dir.inv());
             let exit_room_msg = comm::move_goes(mob_label, &dir);
@@ -58,54 +61,64 @@ pub fn say(container: &mut Container, outputs: &mut dyn Outputs, player_id: Play
     }
 }
 
-pub fn attack(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, target: MobId) -> Result<(),()> {
-    let ctx = container.get_player_context(player_id);
-    let target_mob = container.mobs.get(target)?;
+pub fn attack(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, target_mob_id: MobId) -> Result<(),()> {
+    let player = container.players.get_player_by_id(player_id);
+    let mob_id = player.mob_id;
+    let room_id = container.locations.get(mob_id)?;
 
-    let player_msg = comm::attack_player_initiate(target_mob);
-    let room_msg = comm::attack_mob_initiate_attack(&ctx.mob, &target_mob);
+    let mob_label = container.labels.get_label(mob_id)?;
+    let target_label = container.labels.get_label(target_mob_id)?;
 
-    let avatar_id = ctx.mob.id;
-    let room_id = ctx.room.id;
-
-    container.mobs.set_mob_attack_target(avatar_id, target);
+    let player_msg = comm::attack_player_initiate(target_label);
+    let room_msg = comm::attack_mob_initiate_attack(mob_label, target_label);
 
     outputs.private(player_id, player_msg);
     outputs.room(player_id, room_id, room_msg);
 
+    container.mobs.set_mob_attack_target(mob_id, target_mob_id);
+
     Ok(())
 }
 
-pub fn rest(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) {
+pub fn rest(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) -> Result<(),()> {
     let ctx = container.get_player_context(player_id);
     let room_id = ctx.room.id;
     let mob_id = ctx.mob.id;
 
     if ctx.mob.is_combat() {
         outputs.private(player_id, comm::rest_fail_in_combat());
-        return;
+        return Err(());
     }
 
+    let mob_label = container.labels.get_label(mob_id)?;
+
     outputs.private(player_id, comm::rest_start());
-    outputs.room(player_id, room_id,comm::rest_start_others(ctx.mob.label.as_str()));
+    outputs.room(player_id, room_id,comm::rest_start_others(mob_label));
 
     let mut mob = ctx.mob.clone();
     mob.set_action(MobAction::Resting, container.time.total);
     container.mobs.update(mob);
+
+    Ok(())
 }
 
-pub fn stand(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) {
+pub fn stand(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) -> Result<(),()>{
     let ctx = container.get_player_context(player_id);
+    let mob_id = ctx.player.mob_id;
 
     if ctx.mob.is_resting() {
         outputs.private(player_id, comm::stand_fail_not_resting());
-        return;
+        return Err(());
     }
 
+    let mob_label = container.labels.get_label(mob_id)?;
+
     outputs.private(player_id, comm::stand_up());
-    outputs.room(player_id, ctx.room.id,comm::stand_up_others(ctx.mob.label.as_str()));
+    outputs.room(player_id, ctx.room.id,comm::stand_up_others(mob_label));
 
     let mut mob = ctx.mob.clone();
     mob.set_action(MobAction::Resting, container.time.total);
     container.mobs.update(mob);
+
+    Ok(())
 }

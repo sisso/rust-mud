@@ -1,17 +1,9 @@
 use commons::*;
 use std::collections::{HashMap, HashSet};
-
-use container::Container;
-use domain::*;
-use item::*;
-use item::ItemPrefabId;
-use mob::*;
-use mob::MobPrefabId;
-use player::*;
-use room::*;
 use logs::*;
+use container::Container;
 use crate::game::view_login::LoginResult;
-use crate::game::container::Ctx;
+use crate::game::room::RoomId;
 
 pub mod obj;
 pub mod actions;
@@ -38,6 +30,7 @@ pub mod equip;
 pub mod inventory;
 pub mod tags;
 pub mod builder;
+pub mod labels;
 
 #[derive(Debug)]
 pub struct ConnectionState {

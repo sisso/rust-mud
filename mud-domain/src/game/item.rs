@@ -1,7 +1,6 @@
 use commons::*;
 use std::collections::HashMap;
 use super::comm;
-use crate::game::obj::Objects;
 use logs::*;
 use crate::game::container::Ctx;
 
@@ -20,7 +19,6 @@ pub const ITEM_KIND_BODY: ItemKind = ItemKind(2);
 pub struct Item {
     pub id: ItemId,
     pub kind: ItemKind,
-    pub label: String,
     pub decay: Option<TotalTime>,
     pub amount: u32,
     pub item_def_id: Option<ItemPrefabId>,
@@ -31,11 +29,10 @@ pub struct Item {
 }
 
 impl Item {
-    pub fn new(id: ItemId, typ: ItemKind, label: String) -> Self {
+    pub fn new(id: ItemId, typ: ItemKind) -> Self {
         Item {
             id,
             kind: typ,
-            label,
             decay: None,
             amount: 1,
             item_def_id: None,
@@ -153,6 +150,10 @@ impl ItemRepository {
         }
     }
 
+    pub fn exists(&self, item_id: ItemId) -> bool {
+       self.index.contains_key(&item_id)
+    }
+
     pub fn get(&self, item_id: ItemId) -> Result<&Item,()> {
         self.index.get(&item_id).ok_or(())
     }
@@ -194,27 +195,6 @@ impl ItemRepository {
         self.prefab_index.get(item_prefab_id).unwrap()
     }
 
-    pub fn instantiate_item(&mut self, objects: &mut Objects, item_prefab_id: ItemPrefabId) -> ItemId {
-        let item_id = objects.insert();
-        let prefab = self.get_prefab(&item_prefab_id);
-
-        let mut item = Item::new(
-            item_id,
-            prefab.kind,
-            prefab.label.clone()
-        );
-
-        item.amount = prefab.amount;
-        item.item_def_id = Some(item_prefab_id);
-        item.weapon = prefab.weapon.clone();
-        item.armor = prefab.armor.clone();
-        item.is_inventory = prefab.is_inventory;
-        item.is_stuck = prefab.is_stuck;
-
-        self.add(item);
-
-        item_id
-    }
 
 //    pub fn save(&self, save: &mut dyn Save) {
 //        use serde_json::json;
@@ -268,7 +248,9 @@ fn run_for(ctx: &mut Ctx, item_id: ItemId) -> Result<(),()> {
         if ctx.container.rooms.is_room(location_id) && decay.is_before(ctx.container.time.total)  {
             info!("{:?} removed by decay", item.id);
 
-            let msg = comm::item_body_disappears(item);
+            let label = ctx.container.labels.get_label_f(item.id);
+
+            let msg = comm::item_body_disappears(label);
             ctx.outputs.room_all(location_id, msg);
             ctx.container.remove(item_id);
             ctx.container.items.remove(item_id);

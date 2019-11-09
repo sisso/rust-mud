@@ -5,8 +5,23 @@ use super::actions;
 use super::comm;
 use super::container::Container;
 use crate::game::{actions_admin, input_handle_items, mob, inventory};
-use commons::PlayerId;
+use commons::{PlayerId, ObjId};
 use std::collections::HashSet;
+use crate::game::comm::InventoryDesc;
+
+fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc> {
+    let equip = container.equips.get(obj_id).unwrap_or(HashSet::new());
+    inventory::get_inventory_list(&container.locations, &container.items, obj_id).into_iter().map(|item| {
+        let item_label = container.labels.get_label_f(item.id);
+
+        InventoryDesc {
+            id: item.id,
+            label: item_label,
+            amount: item.amount,
+            equipped: equip.contains(&item.id)
+        }
+    }).collect()
+}
 
 pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) {
     match input {
@@ -39,14 +54,13 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
         },
 
         "stand" => {
-            actions::stand(container, outputs, player_id);
+            let _ = actions::stand(container, outputs, player_id);
         },
 
         "stats" | "inv" | "score" => {
             let ctx = container.get_player_context(player_id);
-            let item_inventory = inventory::get_inventory_list(&container.locations, &container.items, ctx.mob.id);
             let equiped = container.equips.get(ctx.mob.id).unwrap_or(HashSet::new());
-            outputs.private(player_id, comm::stats(&ctx.mob, &item_inventory, &equiped));
+            outputs.private(player_id, comm::stats(&ctx.mob.attributes, &inventory_to_desc(container, ctx.player.mob_id)));
         },
 
         _ if has_command(input, &["pick"]) || has_command(&input, &["get"]) => {
@@ -72,12 +86,12 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
         _ if has_command(input, &["k ", "kill "]) => {
             let target = parse_command(input, &["k ", "kill "]);
             let ctx = container.get_player_context(player_id);
-            let mobs = mob::search_mobs_at(&container.mobs, &container.locations, ctx.room.id, target);
-            let candidate = mobs.first().map(|i| i.id);
+            let mobs = mob::search_mobs_at(&container.labels, &container.locations, &container.mobs, ctx.room.id, target);
+            let candidate = mobs.first();
 
             match candidate {
-                Some(mob_id) if !container.mobs.is_avatar(&mob_id) => {
-                    let _ = actions::attack(container, outputs, player_id, mob_id);
+                Some(mob_id) if !container.mobs.is_avatar(*mob_id) => {
+                    let _ = actions::attack(container, outputs, player_id, *mob_id);
                 },
                 Some(_) => {
                     outputs.private(player_id, comm::kill_can_not_kill_players(&target));
@@ -90,7 +104,8 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
 
         _ if input.starts_with("say ")  => {
             let msg = input["say ".len()..].to_string();
-            actions::say(container, outputs, player_id, msg);
+            let mob_id = container.players.get_player_by_id(player_id).mob_id;
+            actions::say(container, outputs, Some(player_id), mob_id, msg);
         },
 
         _ if input.starts_with("admin ")  => {
@@ -103,10 +118,10 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
             match arguments.get(1).unwrap().as_ref() {
                 "suicide" => {
                     let pctx = container.get_player_context(player_id);
-                    outputs.private(player_id, comm::admin_suicide());
-                    outputs.room(player_id, pctx.room.id, comm::admin_suicide_others(pctx.mob.label.as_ref()));
-
                     let mob_id = pctx.mob.id;
+                    let mob_label = container.labels.get_label_f(mob_id);
+                    outputs.private(player_id, comm::admin_suicide());
+                    outputs.room(player_id, pctx.room.id, comm::admin_suicide_others(mob_label));
                     actions_admin::kill(container, outputs, mob_id);
                 },
                 other => {
@@ -121,34 +136,33 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
     }
 }
 
-fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) {
-    let target = parse_command(input, &["examine "]);
+fn action_examine(container: &Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) {
+    let target_label = parse_command(input, &["examine "]);
     let ctx = container.get_player_context(player_id);
-    let mobs = mob::search_mobs_at(&container.mobs, &container.locations, ctx.room.id, target);
+    let mobs = mob::search_mobs_at(&container.labels, &container.locations, &container.mobs, ctx.room.id, target_label);
 
-    match mobs.first() {
-        Some(mob) => {
-            let item_location = mob.id;
-            let mob_inventory = inventory::get_inventory_list(&container.locations, &container.items, mob.id);
-            let equiped = container.equips.get(item_location).unwrap_or(HashSet::new());
-            outputs.private(player_id, comm::examine_target(mob, &mob_inventory, &equiped));
+    match mobs.first().cloned() {
+        Some(mob_id) => {
+            let mob_label = container.labels.get_label_f(mob_id);
+            let mob = container.mobs.get(mob_id).unwrap();
+            outputs.private(player_id, comm::examine_target(mob_label, &mob.attributes, &inventory_to_desc(container, mob_id)));
             return;
-        },
+        }
         _ => {},
     }
 
-    let items = inventory::search(&container.locations, &container.items, ctx.room.id, target);
-    match items.first() {
-        Some(item) => {
-            let item_inventory = inventory::get_inventory_list(&container.locations, &container.items, item.id);
-            outputs.private(player_id, comm::examine_target_item(item, &item_inventory));
+    let items = inventory::search(&container.labels, &container.locations, &container.items, ctx.room.id, target_label);
+    match items.first().cloned() {
+        Some(item_id) => {
+            let item_label = container.labels.get_label_f(item_id);
+            outputs.private(player_id, comm::examine_target_item(item_label, &inventory_to_desc(container, item_id)));
             return;
         },
         _ => {},
     }
 
     // else
-    outputs.private(player_id, comm::examine_target_not_found(target));
+    outputs.private(player_id, comm::examine_target_not_found(target_label));
 }
 
 fn has_command(input: &str, commands: &[&str]) -> bool {

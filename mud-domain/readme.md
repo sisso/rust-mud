@@ -1,5 +1,6 @@
 # TODO
 
+- remove room_id from spawn
 - remove item prefab and just put it into limbo
 - add put item at
 - move labels to object? Most of time we fetch item, mob, etc just to use the label? Maybe a label engine?

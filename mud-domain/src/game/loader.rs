@@ -8,6 +8,8 @@ use crate::game::room::*;
 use crate::game::spawn::*;
 use commons::*;
 use commons::save::Load;
+use crate::game::labels::Label;
+use crate::game::builder;
 
 const ID_ROOM_INIT: RoomId = ObjId(0);
 const ID_ROOM_BAR: RoomId = ObjId(1);
@@ -102,27 +104,23 @@ fn load_mobs_prefabs(container: &mut Container) {
 fn load_rooms(container: &mut Container) {
     let room1 = Room {
         id: ID_ROOM_INIT,
-        label: "Main Room".to_string(),
-        desc: "Main room where people born".to_string(),
         exits: vec![(Dir::S, ID_ROOM_BAR)],
     };
+    container.rooms.add(room1);
+    container.labels.add(Label::new_desc(ID_ROOM_INIT, "Main Room", "Where new characters born."));
 
     let room2 = Room {
         id: ID_ROOM_BAR,
-        label: "Bar".to_string(),
-        desc: "Where we relief our duties".to_string(),
         exits: vec![(Dir::N, ID_ROOM_INIT), (Dir::S, ID_ROOM_FLOREST)],
     };
+    container.rooms.add(room2);
+    container.labels.add(Label::new_desc(ID_ROOM_BAR, "Bar", "A dirty bar where people come to relax"));
 
     let room3 = Room {
         id: ID_ROOM_FLOREST,
-        label: "Florest".to_string(),
-        desc: "A deep, ugly and dark florest.".to_string(),
         exits: vec![(Dir::N, ID_ROOM_BAR)],
     };
-
-    container.rooms.add(room1);
-    container.rooms.add(room2);
+    container.labels.add(Label::new_desc(ID_ROOM_FLOREST, "Dark forest", "A dark forest where you think you can die"));
     container.rooms.add(room3);
 }
 
@@ -144,9 +142,7 @@ fn load_spawns(container: &mut Container) {
 }
 
 fn create_item_at(container: &mut Container, item_prefab_id: ItemPrefabId, location_id: ObjId) -> ItemId {
-    let item_id = container.items.instantiate_item(&mut container.objects, item_prefab_id);
-    container.locations.set(item_id, location_id);
-    item_id
+    builder::add_item_from_prefab(container, item_prefab_id, location_id)
 }
 
 pub fn load_rooms_objects(container: &mut Container) {

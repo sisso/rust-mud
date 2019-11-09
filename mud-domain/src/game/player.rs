@@ -6,6 +6,7 @@ use super::mob::*;
 use super::mob::MobId;
 
 use logs::*;
+use crate::game::labels::Label;
 
 #[derive(Clone, Debug)]
 pub struct Player {
@@ -20,7 +21,6 @@ pub fn create_player(container: &mut Container, login: &str) -> PlayerId {
 
     let mut mob = Mob::new(
         mob_id,
-        login.to_string(),
    );
     mob.is_avatar = true;
     mob.attributes = Attributes {
@@ -40,6 +40,12 @@ pub fn create_player(container: &mut Container, login: &str) -> PlayerId {
     container.mobs.add(mob);
 
     container.locations.set(mob_id, ID_ROOM_INIT);
+    container.labels.add(Label {
+        id: mob_id,
+        label: login.to_string(),
+        code: login.to_string(),
+        desc: login.to_string(),
+    });
 
     // add player to game
     let player = container.players.create(player_id, login.to_string(), mob_id);

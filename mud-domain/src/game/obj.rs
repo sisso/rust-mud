@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 use crate::game::domain::NextId;
-use crate::game::loader::load_rooms_objects;
 use commons::ObjId;
 use logs::*;
 

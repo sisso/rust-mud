@@ -8,8 +8,6 @@ pub type RoomId = ObjId;
 #[derive(Clone, Debug)]
 pub struct Room {
     pub id: RoomId,
-    pub label: String,
-    pub desc: String,
     pub exits: Vec<(Dir, RoomId)>,
 }
 

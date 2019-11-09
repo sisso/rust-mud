@@ -11,6 +11,7 @@ use crate::game::equip::{Equips};
 use crate::game::{Outputs, spawn, mob, item};
 use logs::*;
 use crate::game::tags::Tags;
+use crate::game::labels::Labels;
 
 pub struct Ctx<'a> {
     pub container: &'a mut Container,
@@ -28,6 +29,7 @@ pub struct Container {
     pub locations: Locations,
     pub equips: Equips,
     pub tags: Tags,
+    pub labels: Labels,
 }
 
 impl Container {
@@ -43,6 +45,7 @@ impl Container {
             locations: Locations::new(),
             equips: Equips::new(),
             tags: Tags::new(),
+            labels: Labels::new(),
         }
     }
 

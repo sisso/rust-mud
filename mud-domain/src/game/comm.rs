@@ -2,10 +2,14 @@ use super::item::*;
 use super::domain::*;
 use super::container::Container;
 use super::mob::*;
-
-use termion;
 use commons::{TotalTime};
-use std::collections::HashSet;
+
+pub struct InventoryDesc<'a> {
+    pub id: ItemId,
+    pub label: &'a str,
+    pub amount: u32,
+    pub equipped: bool,
+}
 
 pub fn help() -> String {
     let str = r#"-------------------------------------------------------------
@@ -62,7 +66,8 @@ pub fn look_description(container: &Container, mob_id: MobId) -> Result<String, 
                 mobs.iter()
                     .filter(|i| i.id != mob_id)
                     .map(|i| {
-                        format!("- {} is here", i.label)
+                        let label = container.labels.get_label(i.id).unwrap_or("???");
+                        format!("- {} is here", label)
                     }).collect();
 
             labels.join("\n")
@@ -71,23 +76,28 @@ pub fn look_description(container: &Container, mob_id: MobId) -> Result<String, 
     // TODO: migrate to location
     let items: Vec<String> = items
         .into_iter()
-        .map(|item| format!("- {} in the floor", item.label))
+        .map(|item| {
+            let label = container.labels.get_label(item.id).unwrap_or("???");
+            format!("- {} in the floor", label)
+        })
         .collect();
     let items = items.join("\n");
 
-    Ok(format!("{}\n{}\n[{}]\n{}\n{}\n", room.label, room.desc, exits, mobs, items).to_string())
+    let room_label = container.labels.get(room.id).unwrap();
+
+    Ok(format!("{}\n{}\n[{}]\n{}\n{}\n", room_label.label, room_label.desc, exits, mobs, items).to_string())
 }
 
 pub fn unknown_input(input: &str) -> String {
-    format!("unknown command '{}'\n", input)
+    format!("unknown command '{}'", input)
 }
 
 pub fn say_you_say(msg: &str) -> String {
-    format!("you say '{}'\n", msg)
+    format!("you say '{}'", msg)
 }
 
-pub fn say_someone_said(actor: &String, msg: &str) -> String {
-    format!("{} says '{}'\n", actor, msg)
+pub fn say_someone_said(actor: &str, msg: &str) -> String {
+    format!("{} says '{}'", actor, msg)
 }
 
 pub fn move_you_move(dir: &Dir) -> String {
@@ -95,87 +105,87 @@ pub fn move_you_move(dir: &Dir) -> String {
 }
 
 pub fn move_come(who: &str, dir: &Dir) -> String {
-    format!("{} comes from {}.\n", who, dir)
+    format!("{} comes from {}.", who, dir)
 }
 
 pub fn move_goes(who: &str, dir: &Dir) -> String {
-    format!("{} goes to {}.\n", who, dir)
+    format!("{} goes to {}.", who, dir)
 }
 
 pub fn move_not_possible(dir: &Dir) -> String {
-    format!("not possible to move to {}!\n", dir)
+    format!("not possible to move to {}!", dir)
 }
 
-pub fn spawn_mob(mob: &Mob) -> String {
-    format!("a {} appears here from no where\n", mob.label)
+pub fn spawn_mob(label: &str) -> String {
+    format!("a {} appears here from no where", label)
 }
 
 pub fn uptime(time: TotalTime) -> String {
-    format!("now it is {}s after start\n", time.as_f64())
+    format!("now it is {}s after start", time.as_f64())
 }
 
 pub fn kill_target_not_found(target: &str) -> String {
-    format!("target [{}] not found!\n", target)
+    format!("target [{}] not found!", target)
 }
 
 pub fn kill_can_not_kill_players(target: &str) -> String {
-    format!("target [{}] is friendly, you can not kill him!\n", target)
+    format!("target [{}] is friendly, you can not kill him!", target)
 }
 
-pub fn attack_player_initiate(target: &Mob) -> String {
-    format!("you attack {}!\n", target.label)
+pub fn attack_player_initiate(label: &str) -> String {
+    format!("you attack {}!", label)
 }
 
-pub fn attack_mob_initiate_attack(attacker: &Mob, target: &Mob) -> String {
-    format!("{} attacks {}!\n", attacker.label, target.label)
+pub fn attack_mob_initiate_attack(attacker: &str, target: &str) -> String {
+    format!("{} attacks {}!", attacker, target)
 }
 
-pub fn kill_player_cancel(target: &Mob) -> String {
-    format!("you relax, {} is not around\n", target.label)
+pub fn kill_player_cancel(target: &str) -> String {
+    format!("you relax, {} is not around", target)
 }
 
-pub fn kill_cancel(mob: &Mob, target: &Mob) -> String {
-    format!("{} relax, {} is not around\n", mob.label, target.label)
+pub fn kill_cancel(mob: &str, target: &str) -> String {
+    format!("{} relax, {} is not around", mob, target)
 }
 
-pub fn kill_player_execute_attack(target: &Mob, attack_result: &AttackResult) -> String {
+pub fn kill_player_execute_attack(target: &str, attack_result: &AttackResult) -> String {
     if attack_result.success {
-        format!("you attack {} and hit, causing {} damage!\n", target.label, attack_result.damage)
+        format!("you attack {} and hit, causing {} damage!", target, attack_result.damage)
     } else {
-        format!("you attack {} and miss!\n", target.label)
+        format!("you attack {} and miss!", target)
     }
 }
 
-pub fn kill_mob_execute_attack(mob: &Mob, target: &Mob, attack_result: &AttackResult) -> String {
+pub fn kill_mob_execute_attack(mob: &str, target: &str, attack_result: &AttackResult) -> String {
     if attack_result.success {
-        format!("{} execute a attack and hit {} causing {} damage!\n", mob.label, target.label, attack_result.damage)
+        format!("{} execute a attack and hit {} causing {} damage!", mob, target, attack_result.damage)
     } else {
-        format!("{} execute a attack {} and miss!\n", mob.label, target.label)
+        format!("{} execute a attack {} and miss!", mob, target)
     }
 }
 
-pub fn killed_by_player(mob: &Mob) -> String {
-    format!("you killed {}.\n", mob.label)
+pub fn killed_by_player(mob: &str) -> String {
+    format!("you killed {}.", mob)
 }
 
-pub fn killed(mob: &Mob) -> String {
-    format!("{} was killed\n", mob.label)
+pub fn killed(mob: &str) -> String {
+    format!("{} was killed", mob)
 }
 
-pub fn kill_return_attack(mob_label: &String, aggressor_mob_label: &String) -> String {
-    format!("{} give back combat against {}\n", mob_label, aggressor_mob_label)
+pub fn kill_return_attack(mob_label: &str, aggressor_mob_label: &str) -> String {
+    format!("{} give back combat against {}", mob_label, aggressor_mob_label)
 }
 
-pub fn item_body_appears_in_room(item: &Item) -> String {
-    format!("a {} appears here!\n", item.label)
+pub fn item_body_appears_in_room(item: &str) -> String {
+    format!("a {} appears here!", item)
 }
 
-pub fn item_body_disappears(item: &Item) -> String {
-    format!("a {} disappear.\n", item.label)
+pub fn item_body_disappears(item: &str) -> String {
+    format!("a {} disappear.", item)
 }
 
-pub fn stats(mob: &Mob, inventory: &Vec<&Item>, equiped: &HashSet<ItemId>) -> String {
-    let inventory_str = show_inventory(inventory, equiped);
+pub fn stats(attributes: &Attributes, inventory: &Vec<InventoryDesc>) -> String {
+    let inventory_str = show_inventory(inventory);
 
     format!("Stats: \n\
         attack:  {}\n\
@@ -183,12 +193,12 @@ pub fn stats(mob: &Mob, inventory: &Vec<&Item>, equiped: &HashSet<ItemId>) -> St
         damage:  {}-{}\n\
         pv:      {}-{}\n\
         {}\n",
-            mob.attributes.attack,
-            mob.attributes.defense,
-            mob.attributes.damage.min,
-            mob.attributes.damage.max,
-            mob.attributes.pv.current,
-            mob.attributes.pv.max,
+            attributes.attack,
+            attributes.defense,
+            attributes.damage.min,
+            attributes.damage.max,
+            attributes.pv.current,
+            attributes.pv.max,
             inventory_str
     )
 }
@@ -197,34 +207,34 @@ pub fn examine_target_not_found(target: &str) -> String {
     format!("no [{}] can be found!\n", target)
 }
 
-pub fn examine_target(mob: &Mob, inventory: &Vec<&Item>, equiped: &HashSet<ItemId>) -> String {
-    format!("you examine {}!\n{}", mob.label, stats(&mob, inventory, equiped))
+pub fn examine_target(mob_label: &str, attributes: &Attributes, inventory: &Vec<InventoryDesc>) -> String {
+    format!("you examine {}!\n{}", mob_label, stats(attributes, inventory))
 }
 
-pub fn examine_target_item(item: &Item, inventory: &Vec<&Item>) -> String {
-    format!("you examine {}!\n{}", item.label, show_inventory(inventory, &HashSet::new()))
+pub fn examine_target_item(item: &str, inventory: &Vec<InventoryDesc>) -> String {
+    format!("you examine {}!\n{}", item, show_inventory(inventory))
 }
 
-pub fn show_inventory(inventory: &Vec<&Item>, equiped: &HashSet<ItemId>) -> String {
+pub fn show_inventory(inventory: &Vec<InventoryDesc>) -> String {
     let mut buffer: Vec<String> = vec![
         "Inventory:".to_string(),
     ];
     for item in inventory {
-        if equiped.contains(&item.id) {
-            buffer.push(format!("- {}*", print_item(item)));
-        } else {
-            buffer.push(format!("- {}", print_item(item)));
-        }
+        buffer.push(format!("- {}", print_item(item.label, item.amount, item.equipped)));
     }
     buffer.join("\n")
 }
 
-fn print_item(item: &&Item) -> String {
-    if item.amount == 1 {
-        format!("{}", item.label)
-    } else {
-        format!("{} ({})", item.label, item.amount)
+fn print_item(item: &str, amount: u32, equipped: bool) -> String {
+    let mut equip_str = "";
+    let mut amount_str = "".to_string();
+    if equipped {
+        equip_str = "*";
     }
+    if amount > 1 {
+        amount_str = format!("({})", amount);
+    }
+    format!("{}{}{}", item, equip_str, amount_str)
 }
 
 pub fn pick_where() -> String {
@@ -377,50 +387,51 @@ pub fn stand_up_others(label: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use commons::{DeltaTime, ObjId};
+//    use commons::{DeltaTime, ObjId};
+//    use std::collections::HashSet;
 
-    fn item_0_coins() -> Item {
-        let mut item = Item::new(
-            ObjId(0),
-            ITEM_KIND_GOLD,
-            "coins".to_string()
-        );
-
-        item.amount = 2;
-
-        item
-    }
-
-    fn item_1_weapon() -> Item {
-        let mut item = Item::new(
-            ObjId(1),
-            ITEM_KIND_UNDEFINED,
-            "weapon".to_string()
-        );
-
-        item.weapon = Some(Weapon {
-            damage_min: 1,
-            damage_max: 2,
-            reload: DeltaTime(1.0)
-        });
-
-        item
-    }
-
-    fn strip_colors(input: String) -> String {
-        input
-    }
+//    fn item_0_coins() -> Item {
+//        let mut item = Item::new(
+//            ObjId(0),
+//            ITEM_KIND_GOLD,
+//            "coins".to_string()
+//        );
+//
+//        item.amount = 2;
+//
+//        item
+//    }
+//
+//    fn item_1_weapon() -> Item {
+//        let mut item = Item::new(
+//            ObjId(1),
+//            ITEM_KIND_UNDEFINED,
+//            "weapon".to_string()
+//        );
+//
+//        item.weapon = Some(Weapon {
+//            damage_min: 1,
+//            damage_max: 2,
+//            reload: DeltaTime(1.0)
+//        });
+//
+//        item
+//    }
+//
+//    fn strip_colors(input: String) -> String {
+//        input
+//    }
 
     #[test]
     fn show_inventory_test() {
-        let coins = item_0_coins();
-        let weapon = item_1_weapon();
-        let items = vec![&coins, &weapon];
-        let equip : HashSet<ItemId> = vec![weapon.id].into_iter().collect();
-        let string = show_inventory(&items, &equip);
-        assert_eq!("Inventory:\n\
-                    - coins (2)\n\
-                    - weapon*", string);
+//        let coins = item_0_coins();
+//        let weapon = item_1_weapon();
+//        let items = vec![&coins, &weapon];
+//        let equip : HashSet<ItemId> = vec![weapon.id].into_iter().collect();
+//        let string = show_inventory(&items, &equip);
+//        assert_eq!("Inventory:\n\
+//                    - coins (2)\n\
+//                    - weapon*", string);
     }
 
     #[test]

@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use commons::ObjId;
 use logs::*;
+use crate::game::labels::Labels;
+use crate::game::room::RoomId;
 
 #[derive(Clone,Debug)]
 pub struct Locations {
@@ -39,3 +41,13 @@ impl Locations {
         })
     }
 }
+
+pub fn search_at(labels: &Labels, locations: &Locations, room_id: RoomId, label: &str) -> Vec<ObjId> {
+    locations.list_at(room_id).filter_map(|obj_id| {
+        match labels.get(obj_id) {
+            Ok(l) if l.code.eq_ignore_ascii_case(label) => Some(obj_id),
+            _ => None,
+        }
+    }).collect()
+}
+
