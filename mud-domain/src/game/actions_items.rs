@@ -1,7 +1,7 @@
 use super::container::Container;
 use super::item::*;
 use super::mob::*;
-use crate::game::{comm, inventory};
+use crate::game::comm;
 use crate::game::Outputs;
 use commons::PlayerId;
 

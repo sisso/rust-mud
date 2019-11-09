@@ -2,7 +2,6 @@ use super::Outputs;
 use super::domain::*;
 
 use super::actions;
-use super::actions_items;
 use super::comm;
 use super::container::Container;
 use crate::game::{actions_admin, input_handle_items, mob, inventory};
@@ -73,7 +72,7 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
         _ if has_command(input, &["k ", "kill "]) => {
             let target = parse_command(input, &["k ", "kill "]);
             let ctx = container.get_player_context(player_id);
-            let mobs = mob::search_mobs_at(&container.mobs, &container.locations, ctx.room.id, target.as_str());
+            let mobs = mob::search_mobs_at(&container.mobs, &container.locations, ctx.room.id, target);
             let candidate = mobs.first().map(|i| i.id);
 
             match candidate {
@@ -125,7 +124,7 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
 fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) {
     let target = parse_command(input, &["examine "]);
     let ctx = container.get_player_context(player_id);
-    let mobs = mob::search_mobs_at(&container.mobs, &container.locations, ctx.room.id, target.as_str());
+    let mobs = mob::search_mobs_at(&container.mobs, &container.locations, ctx.room.id, target);
 
     match mobs.first() {
         Some(mob) => {
@@ -138,7 +137,7 @@ fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_i
         _ => {},
     }
 
-    let items = inventory::search(&container.locations, &container.items, ctx.room.id, target.as_str());
+    let items = inventory::search(&container.locations, &container.items, ctx.room.id, target);
     match items.first() {
         Some(item) => {
             let item_inventory = inventory::get_inventory_list(&container.locations, &container.items, item.id);
@@ -149,7 +148,7 @@ fn action_examine(container: &mut Container, outputs: &mut dyn Outputs, player_i
     }
 
     // else
-    outputs.private(player_id, comm::examine_target_not_found(&target));
+    outputs.private(player_id, comm::examine_target_not_found(target));
 }
 
 fn has_command(input: &str, commands: &[&str]) -> bool {
@@ -162,20 +161,19 @@ fn has_command(input: &str, commands: &[&str]) -> bool {
     return false;
 }
 
-fn parse_command(input: &str, commands: &[&str]) -> String {
+fn parse_command<'a>(input: &'a str, commands: &[&str]) -> &'a str {
     for c in commands {
         if input.starts_with(c) {
-            return input[c.len()..].to_string();
+            return &input[c.len()..];
         }
     }
 
     panic!("unable to parse!");
 }
 
-fn parse_arguments(input: &str) -> Vec<String> {
+fn parse_arguments(input: &str) -> Vec<&str> {
     input
         .split_ascii_whitespace()
         .into_iter()
-        .map(|i| i.to_string())
         .collect()
 }

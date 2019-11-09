@@ -4,28 +4,28 @@ use super::container::Container;
 use super::mob::*;
 
 use termion;
-use commons::{DeltaTime, TotalTime};
+use commons::{TotalTime};
 use std::collections::HashSet;
 
 pub fn help() -> String {
     let str = r#"-------------------------------------------------------------
   [Help]
 -------------------------------------------------------------
-  look              - look around
-  examine <target>  - examine target insides carefully
-  n,s,e,w           - move to different directions
-  say <msg>         - say something in the room
-  uptime            - server uptime
-  stats             - show your stats information and inventory
-  rest              - rest to recovery from wounds, see stand
-  stand             - sand up and stop to rest, see rest
-  kill <target>     - attack something and try to kill it
-  get <obj>         - pick up a <obj> from floor
-  get <from> <obj>  - pick up a <obj> from <from>
-  equip <item>      - use a weapon or wear a armor
-  remove <item>     - strip an item you are using
-  drop <item>       - drop a object
-  put <item> <obj>  - put a object into other container
+  look               - look around
+  examine <target>   - examine target insides carefully
+  n,s,e,w            - move to different directions
+  say <msg>          - say something in the room
+  uptime             - server uptime
+  stats              - show your stats information and inventory
+  rest               - rest to recovery from wounds, see stand
+  stand              - sand up and stop to rest, see rest
+  kill <target>      - attack something and try to kill it
+  get <obj>          - pick up a <obj> from floor
+  get <obj> in <obj> - pick up a <obj> from <from>
+  equip <item>       - use a weapon or wear a armor
+  remove <item>      - strip an item you are using
+  drop <item>        - drop a object
+  put <item> <obj>   - put a object into other container
 -------------------------------------------------------------"#;
 
     str.to_string()
@@ -35,8 +35,8 @@ pub fn look_description(container: &Container, mob_id: MobId) -> Result<String, 
     let room_id = container.locations.get(mob_id)?;
     let room = container.rooms.get(room_id)?;
 
-    let exits: Vec<String> = room.exits.iter()
-        .map(|(dir, _)| dir.to_string())
+    let exits: Vec<&str> = room.exits.iter()
+        .map(|(dir, _)| dir.as_str())
         .collect();
 
     let exits = exits.join(", ");
@@ -193,7 +193,7 @@ pub fn stats(mob: &Mob, inventory: &Vec<&Item>, equiped: &HashSet<ItemId>) -> St
     )
 }
 
-pub fn examine_target_not_found(target: &String) -> String {
+pub fn examine_target_not_found(target: &str) -> String {
     format!("no [{}] can be found!\n", target)
 }
 

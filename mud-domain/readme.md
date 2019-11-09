@@ -1,6 +1,5 @@
 # TODO
 
-- change args: Vec<String> to args: Vec<&str>
 - add put item at
 - move labels to object? Most of time we fetch item, mob, etc just to use the label? Maybe a label engine?
 - item flag can_hold_items

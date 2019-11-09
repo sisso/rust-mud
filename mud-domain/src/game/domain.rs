@@ -43,6 +43,15 @@ impl Dir {
             Dir::W => Dir::W,
         }
     }
+
+    pub fn as_str(&self) -> &'static str {
+       match self {
+           Dir::N => "n",
+           Dir::S => "s",
+           Dir::E => "e",
+           Dir::W => "w",
+       }
+    }
 }
 
 impl std::fmt::Display for Dir {

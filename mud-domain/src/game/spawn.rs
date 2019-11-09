@@ -8,7 +8,6 @@ use super::room::RoomId;
 use logs::*;
 use std::collections::HashMap;
 use crate::game::container::Ctx;
-use std::intrinsics::transmute;
 
 type SpawnId = ObjId;
 

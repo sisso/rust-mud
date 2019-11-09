@@ -2,9 +2,7 @@ use commons::*;
 use std::collections::HashMap;
 use super::comm;
 use crate::game::obj::Objects;
-use crate::game::location::Locations;
 use logs::*;
-use crate::game::inventory;
 use crate::game::container::Ctx;
 
 pub type ItemId = ObjId;
