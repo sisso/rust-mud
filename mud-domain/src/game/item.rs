@@ -26,6 +26,8 @@ pub struct Item {
     pub item_def_id: Option<ItemPrefabId>,
     pub weapon: Option<Weapon>,
     pub armor: Option<Armor>,
+    pub is_inventory: bool,
+    pub is_stuck: bool,
 }
 
 impl Item {
@@ -38,7 +40,9 @@ impl Item {
             amount: 1,
             item_def_id: None,
             weapon: None,
-            armor: None
+            armor: None,
+            is_inventory: false,
+            is_stuck: false
         }
     }
 
@@ -55,11 +59,22 @@ pub struct ItemPrefab {
     pub amount: u32,
     pub weapon: Option<Weapon>,
     pub armor: Option<Armor>,
+    pub is_inventory: bool,
+    pub is_stuck: bool,
 }
 
 impl ItemPrefab {
     pub fn build(id: ItemPrefabId, label: String) -> ItemPrefabBuilder {
-        let prefab = ItemPrefab { id, kind: ITEM_KIND_UNDEFINED, label, amount: 1, weapon: None, armor: None };
+        let prefab = ItemPrefab {
+            id,
+            kind: ITEM_KIND_UNDEFINED,
+            label,
+            amount: 1,
+            weapon: None,
+            armor: None,
+            is_inventory: false,
+            is_stuck: false,
+        };
 
         ItemPrefabBuilder { prefab }
     }
@@ -88,6 +103,16 @@ impl ItemPrefabBuilder {
 
     pub fn with_amount(mut self, amount: u32) -> Self {
         self.prefab.amount = amount;
+        self
+    }
+
+    pub fn with_inventory(mut self) -> Self {
+        self.prefab.is_inventory = true;
+        self
+    }
+
+    pub fn with_stuck(mut self) -> Self {
+        self.prefab.is_stuck= true;
         self
     }
 
@@ -154,10 +179,11 @@ impl ItemRepository {
         self.prefab_index.insert(item_def.id, item_def);
     }
 
-    pub fn remove(&mut self, item_id: ItemId) {
-        if self.index.remove(&item_id).is_some() {
+    pub fn remove(&mut self, item_id: ItemId) -> Option<Item>{
+        self.index.remove(&item_id).map(|item| {
             debug!("{:?} item removed ", item_id);
-        }
+            item
+        })
     }
 
     pub fn list(&self) -> Vec<ItemId> {
@@ -182,6 +208,8 @@ impl ItemRepository {
         item.item_def_id = Some(item_prefab_id);
         item.weapon = prefab.weapon.clone();
         item.armor = prefab.armor.clone();
+        item.is_inventory = prefab.is_inventory;
+        item.is_stuck = prefab.is_stuck;
 
         self.add(item);
 

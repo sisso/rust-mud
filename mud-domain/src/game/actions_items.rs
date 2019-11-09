@@ -4,15 +4,34 @@ use super::mob::*;
 use crate::game::comm;
 use crate::game::Outputs;
 use commons::PlayerId;
+use std::string::ParseError;
 
-pub fn do_pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId, inventory_id: Option<ItemId>) -> Result<(),()> {
-    let mob = container.mobs.get(mob_id)?;
-    let item = container.items.get(item_id)?;
-    let room_id = container.locations.get(mob_id)?;
+#[derive(Debug, Clone,PartialEq)]
+pub enum PickUpError {
+    Stuck,
+    NotInventory,
+    Other,
+}
+
+pub fn do_pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId, inventory_id: Option<ItemId>) -> Result<(),PickUpError> {
+    let mob = container.mobs.get(mob_id).map_err(|_| PickUpError::Other)?;
+    let item = container.items.get(item_id).map_err(|_| PickUpError::Other)?;
+    let room_id = container.locations.get(mob_id).map_err(|_| PickUpError::Other)?;
+
+    if item.is_stuck {
+        outputs.private_opt(player_id, comm::pick_fail_item_is_stuck(item.label.as_str()));
+        return Err(PickUpError::Stuck);
+    }
 
     match inventory_id {
         Some(inventory_id) => {
-            let inventory = container.items.get(inventory_id)?;
+            let inventory = container.items.get(inventory_id).map_err(|_| PickUpError::Other)?;
+
+            if !inventory.is_inventory {
+                outputs.private_opt(player_id, comm::pick_fail_storage_is_not_inventory(inventory.label.as_str()));
+                return Err(PickUpError::NotInventory);
+            }
+
             outputs.private_opt(player_id, comm::pick_player_from(inventory.label.as_str(), item.label.as_str()));
             outputs.room_opt(player_id, room_id, comm::pick_from(mob.label.as_str(), inventory.label.as_str(), item.label.as_str()));
         }
@@ -89,7 +108,25 @@ pub fn do_drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: 
     Ok(())
 }
 
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::game::test::setup;
+    use crate::game::OutputsBuffer;
 
-#[test]
-pub fn test1() {
+    #[test]
+    pub fn test_do_pickup_should_fail_if_inventory_is_not_inventory() {
+        let mut outputs = OutputsBuffer::new();
+        let mut scenery = setup();
+        let result = do_pickup(&mut scenery.container, &mut outputs, None, scenery.mob_id, scenery.container_id, None);
+        assert_eq!(result.err().unwrap(),  PickUpError::Stuck);
+    }
+
+    #[test]
+    pub fn test_do_pickup_should_fail_if_item_is_stuck() {
+        let mut outputs = OutputsBuffer::new();
+        let mut scenery = setup();
+        let result = do_pickup(&mut scenery.container, &mut outputs, None, scenery.mob_id, scenery.item1_id, Some(scenery.item2_id));
+        assert_eq!(result.err().unwrap(), PickUpError::NotInventory);
+    }
 }

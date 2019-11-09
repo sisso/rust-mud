@@ -3,9 +3,6 @@ use commons::ObjId;
 
 #[derive(Clone,Debug,Copy, Eq, PartialEq, Hash)]
 pub enum Tag {
-    CanBePickUp,
-    CanHoldItems,
-    CanHoldMobs,
 }
 
 #[derive(Clone,Debug)]

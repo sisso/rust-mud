@@ -2,7 +2,7 @@ use crate::game::container::Container;
 use crate::game::{Outputs, comm, inventory};
 use commons::{PlayerId, ObjId};
 use crate::game::item::{ItemRepository, ItemId};
-use crate::game::actions_items::{do_equip, do_drop, do_strip, do_pickup};
+use crate::game::actions_items::*;
 use crate::game::location::Locations;
 
 #[derive(Debug)]
@@ -24,10 +24,6 @@ pub fn parser_owned_item(items: &ItemRepository, locations: &Locations, item_loc
     }
 }
 
-/// formats
-///
-/// get object
-/// get object in|at|from container
 pub fn parse_not_owned_item(items: &ItemRepository,
                             locations: &Locations,
                             item_location: ObjId,
@@ -119,18 +115,9 @@ mod test {
     use crate::game::OutputsBuffer;
     use crate::game::room::RoomId;
 
-    struct TestScenery {
-        outputs: OutputsBuffer,
-        container: Container,
-        room_id: RoomId,
-        container_id: ItemId,
-        item1_id: ItemId,
-        item2_id: ItemId,
-    }
-
     #[test]
     fn test_parse_not_owned_item_not_found_in_room() {
-        let scenery= setup();
+        let mut scenery = crate::game::test::setup();
         let result = parse_not_owned_item(&scenery.container.items, &scenery.container.locations, scenery.room_id, vec!["get", "item3"]);
         match result {
             Err(ParseItemError::ItemNotFound { label }) => {
@@ -142,7 +129,7 @@ mod test {
 
     #[test]
     fn test_parse_not_owned_item_should_find_item_in_the_floor() {
-        let scenery= setup();
+        let mut scenery = crate::game::test::setup();
         let result = parse_not_owned_item(&scenery.container.items, &scenery.container.locations, scenery.room_id, vec!["get", "item1"]);
         match result {
             Ok((item_id, None)) => assert_eq!(item_id, scenery.item1_id),
@@ -152,7 +139,7 @@ mod test {
 
     #[test]
     fn test_parse_not_owned_item_not_found_in_container() {
-        let scenery= setup();
+        let mut scenery = crate::game::test::setup();
         let result = parse_not_owned_item(&scenery.container.items, &scenery.container.locations, scenery.room_id, vec!["get", "item1", "in", "container1"]);
         match result {
             Err(ParseItemError::ItemNotFound { label }) => {
@@ -164,7 +151,7 @@ mod test {
 
     #[test]
     fn test_parse_not_owned_item_should_find_item_in_the_container() {
-        let scenery= setup();
+        let mut scenery = crate::game::test::setup();
         let result = parse_not_owned_item(&scenery.container.items, &scenery.container.locations, scenery.room_id, vec!["get", "item2", "in", "container1"]);
         match result {
             Ok((item_id, Some(container_id))) => {
@@ -172,24 +159,6 @@ mod test {
                 assert_eq!(container_id, scenery.container_id);
             },
             _ => panic!()
-        }
-    }
-
-    fn setup() -> TestScenery {
-        let mut outputs = OutputsBuffer::new();
-        let mut container = Container::new();
-        let room_id = builder::add_room(&mut container, "test_room", "");
-        let container_id = builder::add_item(&mut container, "container1", room_id);
-        let item1_id = builder::add_item(&mut container, "item1", room_id);
-        let item2_id = builder::add_item(&mut container, "item2", container_id);
-
-        TestScenery {
-            outputs,
-            container,
-            room_id,
-            container_id,
-            item1_id,
-            item2_id
         }
     }
 }

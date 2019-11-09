@@ -63,6 +63,8 @@ fn load_items_prefabs(container: &mut Container) {
 
     container.items.add_prefab(
         ItemPrefab::build(ID_ITEM_DEF_CHEST, "chest".to_string())
+            .with_inventory()
+            .with_stuck()
             .build()
     );
 }

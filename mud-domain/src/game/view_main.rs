@@ -77,7 +77,7 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
 
             match candidate {
                 Some(mob_id) if !container.mobs.is_avatar(&mob_id) => {
-                    actions::attack(container, outputs, player_id, mob_id);
+                    let _ = actions::attack(container, outputs, player_id, mob_id);
                 },
                 Some(_) => {
                     outputs.private(player_id, comm::kill_can_not_kill_players(&target));

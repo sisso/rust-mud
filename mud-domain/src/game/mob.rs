@@ -74,6 +74,22 @@ pub struct Attributes {
     pub attack_calm_down: DeltaTime,
 }
 
+impl Attributes {
+    pub fn new() -> Self {
+        Attributes { 
+            attack: 10, 
+            defense: 10, 
+            damage: Damage { min: 1, max: 1 },
+            pv: Pv {
+                current: 10,
+                max: 10,
+                heal_rate: DeltaTime(60.0)
+            },
+            attack_calm_down: DeltaTime(1.0) 
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 struct MobState {
     // after this total time can attack
@@ -112,13 +128,13 @@ pub struct Mob {
 }
 
 impl Mob {
-    pub fn new(id: MobId, label: String, attributes: Attributes) -> Self {
+    pub fn new(id: MobId, label: String) -> Self {
         Mob {
             id,
             label,
             is_avatar: false,
             command: MobCommand::None,
-            attributes,
+            attributes: Attributes::new(),
             state: MobState::new(),
         }
     }
@@ -395,7 +411,8 @@ pub fn instantiate_from_prefab<'a>(objs: &mut Objects, mobs:  &'a mut MobReposit
     }
 
     // instantiate
-    let mob = Mob::new(mob_id, prefab.label, prefab.attributes);
+    let mut mob = Mob::new(mob_id, prefab.label);
+    mob.attributes = prefab.attributes;
     let mob = mobs.add(mob);
 
     // put into place

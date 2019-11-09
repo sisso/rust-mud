@@ -1,9 +1,8 @@
 # TODO
 
+- remove item prefab and just put it into limbo
 - add put item at
 - move labels to object? Most of time we fetch item, mob, etc just to use the label? Maybe a label engine?
-- item flag can_hold_items
-- item flag can_be_pick
 - better pick up command. get <container> <item> cause too much confusion. 
 - move portal to locations?
 - fix extra lines in output when look

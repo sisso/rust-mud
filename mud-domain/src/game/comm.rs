@@ -243,31 +243,39 @@ pub fn pick_what() -> String {
 //        buffer.push(format!("- {}", print_item(item)));
 //    }
 //    buffer.join("\n")
-    "get what?".to_string()
+    "get what?\n".to_string()
 }
 
 pub fn pick_player_from(target_inventory: &str, target_item: &str) -> String {
-    format!("you pick a {} from {}\n", target_item, target_inventory)
+    format!("you pick a {} from {}", target_item, target_inventory)
 }
 
 pub fn pick_from(actor: &str, target_inventory: &str, target_item: &str) -> String {
-    format!("{} pick a {} from {}\n", actor, target_item, target_inventory)
+    format!("{} pick a {} from {}", actor, target_item, target_inventory)
 }
 
 pub fn pick_player_from_room(target_item: &str) -> String {
-    format!("you pick a {} from the floor\n", target_item)
+    format!("you pick a {} from the floor", target_item)
 }
 
 pub fn pick_from_room(actor: &str, target_item: &str) -> String {
-    format!("{} pick a {} from the floor\n", actor, target_item)
+    format!("{} pick a {} from the floor", actor, target_item)
+}
+
+pub fn pick_fail_item_is_stuck(target_item: &str) -> String {
+    format!("you can not get a {}", target_item)
+}
+
+pub fn pick_fail_storage_is_not_inventory(target_item: &str) -> String {
+    format!("you can not get it, {} is not a storage", target_item)
 }
 
 pub fn equip_what() -> String {
-    "what? what do you want to equip?\n".to_string()
+    "what? what do you want to equip?".to_string()
 }
 
 pub fn equip_item_not_found(label: &str) -> String {
-    format!("you can not find a {} to equip\n", label)
+    format!("you can not find a {} to equip", label)
 }
 
 pub fn equip_item_invalid(label: &str) -> String {

@@ -21,23 +21,22 @@ pub fn create_player(container: &mut Container, login: &str) -> PlayerId {
     let mut mob = Mob::new(
         mob_id,
         login.to_string(),
-        Attributes {
-            attack: 12,
-            defense: 12,
-            damage: Damage {
-                min: 1,
-                max: 4,
-            },
-            pv: Pv {
-                current: 10,
-                max: 10,
-                heal_rate: DeltaTime(1.0),
-            },
-            attack_calm_down: DeltaTime(1.0)
-        }
-    );
-
+   );
     mob.is_avatar = true;
+    mob.attributes = Attributes {
+        attack: 12,
+        defense: 12,
+        damage: Damage {
+            min: 1,
+            max: 4,
+        },
+        pv: Pv {
+            current: 10,
+            max: 10,
+            heal_rate: DeltaTime(1.0),
+        },
+        attack_calm_down: DeltaTime(1.0)
+    };
     container.mobs.add(mob);
 
     container.locations.set(mob_id, ID_ROOM_INIT);
