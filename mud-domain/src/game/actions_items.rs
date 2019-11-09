@@ -5,72 +5,24 @@ use crate::game::{comm, inventory};
 use crate::game::Outputs;
 use commons::PlayerId;
 
-pub fn do_pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId, container_id: Option<ItemId>) -> Result<(),()> {
+pub fn do_pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId, inventory_id: Option<ItemId>) -> Result<(),()> {
     let mob = container.mobs.get(mob_id)?;
     let item = container.items.get(item_id)?;
     let room_id = container.locations.get(mob_id)?;
 
+    match inventory_id {
+        Some(inventory_id) => {
+            let inventory = container.items.get(inventory_id)?;
+            outputs.private_opt(player_id, comm::pick_player_from(inventory.label.as_str(), item.label.as_str()));
+            outputs.room_opt(player_id, room_id, comm::pick_from(mob.label.as_str(), inventory.label.as_str(), item.label.as_str()));
+        }
+        None => {
+            outputs.private_opt(player_id, comm::pick_player_from_room(item.label.as_str()));
+            outputs.room_opt(player_id, room_id, comm::pick_from_room(mob.label.as_str(), item.label.as_str()));
+        }
+    }
+
     container.locations.set(item_id, mob_id);
-    outputs.private_opt(player_id, comm::pick_player_from_room(item.label.as_str()));
-    outputs.room_opt(player_id, room_id, comm::pick_from_room(mob.label.as_str(), item.label.as_str()));
-//
-//    let target_inventory = args.get(1);
-//    let target_item = args.get(2);
-//
-//    match (target_inventory, target_item) {
-//        (Some(target_label), None) => {
-//            let target_item = inventory::search_one(&container.locations, &container.items, room_id, target_label);
-//            match target_item {
-//                Some(item)=> {
-//                    outputs.private(player_id, comm::pick_player_from_room(item.label.as_str()));
-//                    outputs.room(player_id, room_id, comm::pick_from_room(ctx.mob.label.as_str(), item.label.as_str()));
-//
-//                    let item_id = item.id;
-//                    let mob_id = ctx.mob.id;
-//                    container.locations.set(item_id, mob_id);
-//                },
-//
-//                None => {
-//                    let target_inventory = inventory::get_inventory_list(&container.locations, &container.items, room_id);
-//                    outputs.private(player_id, comm::pick_what(&target_inventory));
-//                }
-//            }
-//        },
-//        (Some(target_inventory_label), Some(target_item_label)) => {
-//            // pick up from container
-//            let target_inventory_item =
-//                inventory::search_one(&container.locations, &container.items, room_id, target_inventory_label.as_str());
-//
-//            if target_inventory_item.is_none() {
-//                outputs.private(player_id, comm::pick_where_not_found(target_inventory_label));
-//                return;
-//            }
-//
-//            // check if contain other items
-//            let container_id = target_inventory_item.unwrap().id;
-//            let target_item =
-//                inventory::search_one(&container.locations, &container.items, container_id, target_item_label.as_str());
-//
-//            match target_item {
-//                Some(item) => {
-//                    outputs.private(player_id, comm::pick_player_from(target_inventory_label, target_item_label));
-//                    outputs.room(player_id, room_id, comm::pick_from(ctx.mob.label.as_str(), target_inventory_label, target_item_label));
-//
-//                    let item_id = item.id;
-//                    container.locations.set(item_id, mob_id);
-//                },
-//
-//                None => {
-//                    let inventory = inventory::get_inventory_list(&container.locations, &container.items, container_id);
-//                    outputs.private(player_id, comm::pick_what(&inventory));
-//                }
-//            }
-//        }
-//
-//        (_, _) => {
-//            outputs.private(player_id, comm::pick_where());
-//        },
-//    }
 
     Ok(())
 }

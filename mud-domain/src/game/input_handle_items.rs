@@ -59,17 +59,20 @@ pub fn parse_not_owned_item(items: &ItemRepository,
     }
 }
 
-pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<String>) {
+pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<String>) -> Result<(),()> {
     let player = container.players.get_player_by_id(player_id);
-    let avatar_id = player.mob_id;
+    let mob_id = player.mob_id;
+    let room_id = container.locations.get(mob_id)?;
 
-    match parse_not_owned_item(&container.items, &container.locations, avatar_id, args) {
+    match parse_not_owned_item(&container.items, &container.locations, room_id, args) {
         Ok((item_id, maybe_container)) => {
-            let _ = do_pickup(container, outputs, Some(player_id),avatar_id, item_id, maybe_container);
+            let _ = do_pickup(container, outputs, Some(player_id), mob_id, item_id, maybe_container);
         },
         Err(ParseItemError::ItemNotProvided) => outputs.private(player_id, comm::pick_what()),
         Err(ParseItemError::ItemNotFound { label }) => outputs.private(player_id, comm::pick_where_not_found(label.as_str())),
     }
+
+    Ok(())
 }
 
 pub fn equip(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<String>) {
