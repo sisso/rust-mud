@@ -2,7 +2,7 @@ extern crate mud_domain;
 extern crate logs;
 
 use commons::{DeltaTime, PlayerId, ConnectionId, TotalTime, Tick};
-use mud_domain::game::{Game, spawn, mob, item, OutputsImpl, view_main, Output, find_players_per_room, loader};
+use mud_domain::game::{Game, spawn, mob, item, OutputsBuffer, view_main, Output, find_players_per_room, loader};
 use mud_domain::game::container::{Container, Ctx};
 use mud_domain::game::player;
 use mud_domain::game::domain::GameTime;
@@ -11,7 +11,7 @@ use logs::*;
 
 pub struct Engine {
     container: Container,
-    outputs: OutputsImpl,
+    outputs: OutputsBuffer,
 }
 
 impl Engine {
@@ -20,7 +20,7 @@ impl Engine {
 
         Engine {
             container,
-            outputs: OutputsImpl::new(),
+            outputs: OutputsBuffer::new(),
         }
     }
 

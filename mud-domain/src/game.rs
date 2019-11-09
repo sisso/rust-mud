@@ -36,6 +36,8 @@ pub mod template;
 pub mod avatars;
 pub mod equip;
 pub mod inventory;
+pub mod tags;
+pub mod builder;
 
 #[derive(Debug)]
 pub struct ConnectionState {
@@ -92,13 +94,13 @@ pub trait Outputs {
 }
 
 #[derive(Debug)]
-pub struct OutputsImpl {
+pub struct OutputsBuffer {
     list: Vec<Output>
 }
 
-impl OutputsImpl {
+impl OutputsBuffer {
     pub fn new() -> Self {
-        OutputsImpl {
+        OutputsBuffer {
             list: vec![]
         }
     }
@@ -108,7 +110,7 @@ impl OutputsImpl {
     }
 }
 
-impl Outputs for OutputsImpl {
+impl Outputs for OutputsBuffer {
     fn room_all(&mut self, room_id: RoomId, msg: String) {
         self.list.push(Output::room_all(room_id, msg));
     }
@@ -140,7 +142,7 @@ pub struct Game {
     connections: HashMap<ConnectionId, ConnectionState>,
     connection_id_by_player_id: HashMap<PlayerId, ConnectionId>,
     server_outputs: Vec<(ConnectionId, String)>,
-    outputs: OutputsImpl,
+    outputs: OutputsBuffer,
     connections_with_input: HashSet<ConnectionId>,
 }
 
@@ -152,7 +154,7 @@ impl Game {
             connections: HashMap::new(),
             connection_id_by_player_id: HashMap::new(),
             server_outputs: vec![],
-            outputs: OutputsImpl::new(),
+            outputs: OutputsBuffer::new(),
             connections_with_input: Default::default(),
         }
     }

@@ -51,7 +51,7 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
         },
 
         _ if has_command(input, &["pick"]) || has_command(&input, &["get"]) => {
-            actions_items::pickup(container, outputs, player_id, parse_arguments(input))
+            input_handle_items::pickup(container, outputs, player_id, parse_arguments(input))
         },
 
         _ if has_command(input, &["drop"]) => {

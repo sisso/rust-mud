@@ -139,6 +139,10 @@ impl ItemRepository {
             panic!()
         }
 
+        if item.amount <= 0 {
+            panic!()
+        }
+
         debug!("{:?} add item {:?}", item.id, item);
 
         // update index
@@ -248,23 +252,4 @@ fn run_for(ctx: &mut Ctx, item_id: ItemId) -> Result<(),()> {
     Ok(())
 }
 
-#[derive(Debug)]
-pub enum ParseItemError {
-    ItemNotProvided,
-    ItemNotFound { label: String },
-}
-
-// TODO: probably it do not belong here. But still useful, it will need 3.item at some point and can be this
-pub fn parser_item(items: &ItemRepository, locations: &Locations, item_location: ObjId, args: Vec<String>) -> Result<ItemId, ParseItemError> {
-    let item_label = match args.get(1) {
-        Some(str) => str,
-        None => return Err(ParseItemError::ItemNotProvided),
-    };
-
-    let founds = inventory::search(&locations, &items, item_location, item_label.as_str());
-    match founds.first() {
-        Some(item) => Ok(item.id),
-        None => Err(ParseItemError::ItemNotFound { label: item_label.to_string() }),
-    }
-}
 

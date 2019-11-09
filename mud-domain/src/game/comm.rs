@@ -231,18 +231,19 @@ pub fn pick_where() -> String {
     "where? pick where?\n".to_string()
 }
 
-pub fn pick_where_not_found(target: &String) -> String {
+pub fn pick_where_not_found(target: &str) -> String {
     format!("there is no {} here, what are you talking about?\n", target)
 }
 
-pub fn pick_what(items: &Vec<&Item>) -> String {
-    let mut buffer: Vec<String> = vec![
-        "what do you want to pick?".to_string(),
-    ];
-    for item in items {
-        buffer.push(format!("- {}", print_item(item)));
-    }
-    buffer.join("\n")
+pub fn pick_what() -> String {
+//    let mut buffer: Vec<String> = vec![
+//        "what do you want to pick?".to_string(),
+//    ];
+//    for item in items {
+//        buffer.push(format!("- {}", print_item(item)));
+//    }
+//    buffer.join("\n")
+    "get what?".to_string()
 }
 
 pub fn pick_player_from(target_inventory: &str, target_item: &str) -> String {

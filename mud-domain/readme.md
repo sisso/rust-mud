@@ -1,5 +1,6 @@
 # TODO
 
+- change args: Vec<String> to args: Vec<&str>
 - move labels to object? Most of time we fetch item, mob, etc just to use the label? Maybe a label engine?
 - item flag can_hold_items
 - item flag can_be_pick
@@ -116,3 +117,32 @@ For simulate I need to manually flat every time we need it.
 To facilitate we can just throw exceptions.
 - no player command should happens if have no location
 - so player context is expected to have a avatar, avatar should be in a place.
+
+## Tag
+
+4. HashSet? vector? Or struct?
+
+3. Tags should be static or dynamic? We want to add logic, too dynamic means that we need to pass global containers
+   to indicate what tags have what beahviours. No sense to keep this dynamic, if a module dont want  ,just don use it.
+   
+So it should be a enum, a custom value can be used for externam moduiles
+
+
+1. Tags can be impelmented a specific service where we create tags
+
+Tag CanBePickUp
+Tag CanHoldItems
+
+And we can set items tags
+
+.set(chets, Tag.CanBePickUp);
+
+2. Or tags can be just generic ObjId and we use location to define objects tags
+
+let can_dock = objects.create();
+
+locations.set(chest_id, can_dock);
+
+- This solution will not work because same object can not belong to multiples locations
+
+
