@@ -12,6 +12,7 @@ use crate::game::{Outputs, spawn, mob, item};
 use logs::*;
 use crate::game::tags::Tags;
 use crate::game::labels::Labels;
+use crate::game::config::Config;
 
 pub struct Ctx<'a> {
     pub container: &'a mut Container,
@@ -19,6 +20,7 @@ pub struct Ctx<'a> {
 }
 
 pub struct Container {
+    pub config: Config,
     pub time: GameTime,
     pub objects: Objects,
     pub players: PlayerRepository,
@@ -35,6 +37,7 @@ pub struct Container {
 impl Container {
     pub fn new() -> Self {
         Container {
+            config: Config::new(),
             time: GameTime::new(),
             objects: Objects::new(),
             players: PlayerRepository::new(),

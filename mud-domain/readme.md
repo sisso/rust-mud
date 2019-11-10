@@ -1,6 +1,5 @@
 # TODO
 
-- remove room_id from spawn
 - remove item prefab and just put it into limbo
 - add put item at
 - move labels to object? Most of time we fetch item, mob, etc just to use the label? Maybe a label engine?
@@ -11,6 +10,7 @@
 - how we can introduce a new view that will stop to receive events? Like stunned?
 - equipament affect stats 
 - move portal to own index (to allow ship to dock and connect)
+- remove room_id from spawn (we could want ot have spawn per multiples rooms, zones? regions?)
 - improve combat 
   - dodge
   - aggressive
@@ -146,3 +146,19 @@ locations.set(chest_id, can_dock);
 - This solution will not work because same object can not belong to multiples locations
 
 
+## prefabs
+
+Since most of entities pieces get spread between components, the prefabs can be used as a container to hold all
+the information together. 
+
+Item Prefab { "armor", rd:2, 3gk}
+
+better that
+
+Item Prefab [ {label: armor}, {item.armor.rd: 2, ],etc
+
+Or maybe not?
+
+Maybe items prefab can be just builders, used for both test, initial. 
+
+How to clone a full entity?

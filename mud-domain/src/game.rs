@@ -31,6 +31,7 @@ pub mod inventory;
 pub mod tags;
 pub mod builder;
 pub mod labels;
+pub mod config;
 
 #[derive(Debug)]
 pub struct ConnectionState {

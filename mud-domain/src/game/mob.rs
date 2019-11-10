@@ -14,11 +14,7 @@ use crate::game::Outputs;
 use crate::game::location;
 use crate::game::labels::Labels;
 use crate::game::location::Locations;
-
-// TODO: Move this to a injected configuration
-// TODO: This is more Player related that mob
-// TODO: now it get ugly with hardcoded ID
-pub const ID_ROOM_INIT: RoomId = ObjId(0);
+use crate::game::avatars;
 
 pub type MobId = ObjId;
 pub type MobPrefabId = ObjId;
@@ -366,34 +362,11 @@ pub fn kill_mob(container: &mut Container, outputs: &mut dyn Outputs, mob_id: Mo
     // remove mob
     let mob = container.mobs.get(mob_id)?;
     if mob.is_avatar {
-        respawn_avatar(container, outputs, mob_id);
+        avatars::respawn_avatar(container, outputs, mob_id);
     } else {
         container.remove(mob_id);
     }
 
-    Ok(())
-}
-
-// TODO: move game rules with output outside of mobs module
-// TODO: become a trigger?
-pub fn respawn_avatar(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<(),()> {
-    let mut mob = container.mobs.get(mob_id)?.clone();
-    assert!(mob.is_avatar);
-
-    let room_id = ID_ROOM_INIT;
-
-    mob.attributes.pv.current = 1;
-
-    let player = container.players.find_player_from_avatar_mob_id(mob.id);
-    let player = player.unwrap();
-
-    let mob_label = container.labels.get_label(mob_id).unwrap();
-
-    outputs.private(player.id, comm::mob_you_resurrected());
-    outputs.room(player.id, room_id, comm::mob_resurrected(mob_label));
-
-    container.mobs.update(mob);
-    container.locations.set(mob_id, room_id);
     Ok(())
 }
 
