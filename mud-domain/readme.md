@@ -209,3 +209,111 @@ We can use serialization model to defined prefabs and entites.
 - manual mapping
 - same format can be used to create stuff and save
 - less dependencies between fromats
+
+
+{
+    headers: {
+    }
+    
+    objects: {
+        1023: {
+        }
+    }
+
+    objects: [
+        { 
+            id: $id,
+            labels {
+            }
+            {rooms
+            
+        }
+    ]
+}
+
+## Ship and Crafts
+
+- are a collection rooms, or a zone
+- the out is a portal that connect both zones, from ship entrance to the landing pad
+- ships can be in sector
+- ship have position
+- ship can be in planet
+- some room in planet has the landpad
+
+
+{ id: 10, spacecraft }
+
+{ room: 1, zone: 10, label: airlock, exits: [(u, 2)] }
+{ room: 2, zone: 10, label: airlock, exits: [(d, 1)], tag: [airlock] }
+
+{ zone: 11, label: planet }
+{ room: 3, zone: 11, label: landing pod, exits[], tag: [landpad] }
+
+on land
+
+zone 10, find airlock
+zone 11, find landpad
+
+create out form airlock to enter in landpad
+
+{ room: 3, zone: 11, label: landing pod, exits[enter->2], tag: [landpad] }
+
+airlocks always connect as out,
+
+multiples entrances our exits.
+
+A room with enter connection, can connect into a room with out connect
+A room with enter connection can connect into multioples rooms with out connect
+
+enter a
+out
+
+{
+    id: 10,
+    label: {
+        label: "ship 1",
+        code: ["label", "ship"],
+    },
+    spacecraft: {
+        speed: 1
+        cargo: 1000
+    },
+    zone {
+    }
+}
+
+{ 
+    id: 1,
+    label: {
+        label: "Airlock"
+    },
+    room: {
+        zone_id: 10
+        exits: [
+            "u", 2
+            "out", 3
+        ]
+    }
+}
+
+{ id: 11, label: { "landingpath" }, zone: {} }
+
+{
+    id: 3
+    label: {
+        label: "Landing pad"
+    },
+    room: {
+        zone_id: 11,
+        exits: [
+            "enter", 2
+            "enter", 23
+        ]
+    }
+}
+
+{
+    id: 23
+    spacecraft: {
+    }
+}
