@@ -13,7 +13,8 @@ pub struct ServerRunner {
 impl ServerRunner {
     pub fn new(server: Box<dyn Server>, save: Option<(String, DeltaTime)>) -> Self {
         let mut container: Container = Container::new();
-        loader::load(&mut container);
+//        loader::load(&mut container);
+        loader::scenery_space::load(&mut container);
 
         ServerRunner {
             server,

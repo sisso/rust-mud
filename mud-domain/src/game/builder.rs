@@ -13,7 +13,7 @@ pub fn add_room(container: &mut Container, label: &str, desc: &str) -> RoomId {
         exits: vec![]
     });
 
-    container.labels.add(Label {
+    container.labels.set(Label {
         id: room_id,
         label: label.to_string(),
         code: label.to_string(),
@@ -37,7 +37,7 @@ pub fn add_item(container: &mut Container, label: &str, location_id: ObjId) -> I
         is_stuck: false
     });
 
-    container.labels.add(Label {
+    container.labels.set(Label {
         id: item_id,
         label: label.to_string(),
         code: label.to_string(),
@@ -53,7 +53,7 @@ pub fn add_mob(container: &mut Container, label: &str, location_id: RoomId) -> M
     let id = container.objects.create();
     container.mobs.add(Mob::new(id));
 
-    container.labels.add(Label {
+    container.labels.set(Label {
         id,
         label: label.to_string(),
         code: label.to_string(),
@@ -81,7 +81,7 @@ pub fn add_item_from_prefab(container: &mut Container, item_prefab_id: ItemPrefa
     item.is_inventory = prefab.is_inventory;
     item.is_stuck = prefab.is_stuck;
 
-    container.labels.add(Label {
+    container.labels.set(Label {
         id: item_id,
         label: prefab.label.clone(),
         code: prefab.label.clone(),
@@ -110,7 +110,7 @@ pub fn add_mob_from_prefab(container: &mut Container, mob_prefab_id: MobPrefabId
     container.mobs.add(mob);
 
     container.locations.set(mob_id, room_id);
-    container.labels.add(Label::new(mob_id, prefab.label.as_str()));
+    container.labels.set(Label::new(mob_id, prefab.label.as_str()));
 
     Ok(mob_id)
 }

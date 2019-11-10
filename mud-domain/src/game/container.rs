@@ -13,6 +13,7 @@ use logs::*;
 use crate::game::tags::Tags;
 use crate::game::labels::Labels;
 use crate::game::config::Config;
+use crate::game::crafts::Crafts;
 
 pub struct Ctx<'a> {
     pub container: &'a mut Container,
@@ -32,6 +33,7 @@ pub struct Container {
     pub equips: Equips,
     pub tags: Tags,
     pub labels: Labels,
+    pub crafts: Crafts,
 }
 
 impl Container {
@@ -49,6 +51,7 @@ impl Container {
             equips: Equips::new(),
             tags: Tags::new(),
             labels: Labels::new(),
+            crafts: Crafts::new(),
         }
     }
 
@@ -60,6 +63,7 @@ impl Container {
         // self.spanws.remove(obj_id);
         self.equips.remove(obj_id);
         self.objects.remove(obj_id);
+        self.labels.remove(obj_id);
     }
 
     // TODO: add Result or complete remove this method

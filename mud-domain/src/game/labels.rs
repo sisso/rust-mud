@@ -43,7 +43,7 @@ impl Labels {
         }
     }
 
-    pub fn add(&mut self, labels: Label) {
+    pub fn set(&mut self, labels: Label) {
         assert!(!self.index.contains_key(&labels.id));
         self.index.insert(labels.id, labels);
     }

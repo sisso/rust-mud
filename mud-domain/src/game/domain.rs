@@ -26,12 +26,12 @@ impl GameTime {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Copy)]
 pub enum Dir {
     N,
     S,
     W,
-    E
+    E,
 }
 
 impl Dir {

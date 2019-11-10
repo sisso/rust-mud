@@ -69,7 +69,7 @@ pub fn create_player(container: &mut Container, login: &str) -> PlayerId {
     container.mobs.add(mob);
 
     container.locations.set(mob_id, room_id);
-    container.labels.add(Label {
+    container.labels.set(Label {
         id: mob_id,
         label: login.to_string(),
         code: login.to_string(),

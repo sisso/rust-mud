@@ -317,3 +317,15 @@ out
     spacecraft: {
     }
 }
+
+## Sectors and planets
+
+Sector 1
+- Planet 1 
+  - Main room
+  - Bar 
+  - florest
+
+- Planet 2
+  -rocks
+

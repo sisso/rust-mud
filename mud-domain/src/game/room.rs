@@ -43,6 +43,10 @@ impl RoomRepository {
         self.index.get(&id).ok_or(())
     }
 
+    pub fn get_mut(&mut self, id: RoomId) -> Result<&mut Room, ()> {
+        self.index.get_mut(&id).ok_or(())
+    }
+
     pub fn is_room(&self, id: RoomId) -> bool {
         self.index.contains_key(&id)
     }

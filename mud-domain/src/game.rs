@@ -33,6 +33,7 @@ pub mod builder;
 pub mod labels;
 pub mod config;
 pub mod storages;
+pub mod crafts;
 
 #[derive(Debug)]
 pub struct ConnectionState {

@@ -27,7 +27,7 @@ pub fn create_body(container: &mut Container, outputs: &mut dyn Outputs, mob_id:
 
     let body_label = format!("the body of {}", mob_label);
 
-    container.labels.add(Label {
+    container.labels.set(Label {
         id: body_id,
         label: body_label.clone(),
         code: "body".to_string(),
