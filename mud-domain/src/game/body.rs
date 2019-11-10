@@ -11,7 +11,7 @@ use crate::game::labels::Label;
 const DECAY_TIME: DeltaTime = DeltaTime(20.0);
 
 pub fn create_body(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) {
-    let body_id = container.objects.insert();
+    let body_id = container.objects.create();
     let room_id = container.locations.get(mob_id).unwrap();
     let mob_label = container.labels.get_label(mob_id).unwrap();
 

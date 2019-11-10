@@ -2,9 +2,6 @@
 
 - remove item prefab and just put it into limbo
 - add put item at
-- move labels to object? Most of time we fetch item, mob, etc just to use the label? Maybe a label engine?
-- better pick up command. get <container> <item> cause too much confusion. 
-- move portal to locations?
 - fix extra lines in output when look
 - move controller part from game into mud-server
 - how we can introduce a new view that will stop to receive events? Like stunned?
@@ -85,6 +82,16 @@ Action - execute the actions and publish events
 
 ## UUID vs Constants ID
 
+We can use generation, uuid or reserved spaces. Anyway we can store everything in a single u32, since we never sill use
+so much. Anyways we can easly go to u64. 
+
+As conclusion, any solution will require HashMap or special storages to hold Bidimensional vectors, or sparse vectors.
+
+Easy to just use namespaces.
+
+### Old
+
+
 Some entities like rooms and prefabs have strong require to be constants. We want to easy reference
 from config files.
 
@@ -101,9 +108,36 @@ An alternatives:
 - if choose to low, we run out of ids
 - if to high, a lot of overhead in index like structures
 
-3. Reindex (WINNER)
+3. Reindex FAILED
 - after load of default assets, all dynamic entities are loaded with a reindex 
   - this require 2 passes, one to generate all new indexes, one to complete references
+- BUT NOT: we dont want to to know what values in the JSON are external references and what are just numeric
+
+- but references in the end need to be ObjId, the instantiation of ObjId need to have reference to a globla mappaing 
+  object, still, very painfull.
+
+
+4. UUID
+
+- solve all problems
+- what differ from reserved range? 100000 reserved, dynamic
+enum Id {
+    Reserved { id },
+    Uuid { str: String },
+    Auto { id },
+}
+
+impl Id {
+    pub fn as_u32 -> u32 {
+        match self {
+            REserved => self.0 + 100000
+        }
+    }
+}
+
+Id (id: generation)
+- Bidimenstional storage
+- 
 
 
 ## Optional room id
@@ -162,3 +196,16 @@ Or maybe not?
 Maybe items prefab can be just builders, used for both test, initial. 
 
 How to clone a full entity?
+
+We can use serialization model to defined prefabs and entites.
+
+## Serialization format 
+
+1. Use what we current define as components
+- easy
+- dependencies between serialization and internal model
+
+2. Use specific format
+- manual mapping
+- same format can be used to create stuff and save
+- less dependencies between fromats

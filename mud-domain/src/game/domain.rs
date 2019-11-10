@@ -82,6 +82,12 @@ impl NextId {
         }
     }
 
+    pub fn new_from(value: u32) -> Self {
+        NextId {
+            next: value
+        }
+    }
+
     pub fn next(&mut self) -> u32 {
         let v = self.next;
         self.next += 1;

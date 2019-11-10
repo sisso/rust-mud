@@ -3,6 +3,8 @@ use crate::game::domain::NextId;
 use commons::ObjId;
 use logs::*;
 
+pub const NAMESPACE_RESERVED: u32 = 100000;
+
 #[derive(Clone,Debug)]
 pub struct Obj {
     id: ObjId,
@@ -16,24 +18,23 @@ pub struct Objects {
 impl Objects {
     pub fn new() -> Self {
         Objects {
-            next_id: NextId::new(),
+            next_id: NextId::new_from(NAMESPACE_RESERVED),
             objects: HashMap::new(),
         }
     }
 
-    pub fn insert(&mut self) -> ObjId {
+    pub fn create(&mut self) -> ObjId {
         let id = ObjId(self.next_id.next());
-        debug!("{:?} obj added", id);
+        debug!("{:?} created", id);
         self.objects.insert(id, Obj {
             id
         });
         id
     }
 
-    /// Insert an already existent ID. Dangerous operations
-    pub fn insert_static(&mut self, id: ObjId) {
+    pub fn insert(&mut self, id: ObjId) {
         assert!(!self.objects.contains_key(&id));
-        debug!("{:?} obj added static", id);
+        debug!("{:?} obj insert", id);
         self.next_id.set_max(id.as_u32());
         self.objects.insert(id, Obj {
             id

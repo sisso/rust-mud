@@ -109,6 +109,17 @@ Hocon
 In the case we have a long running persistent. How can I add new areas? obs and objects?
 - the way will be use the data files that will always be loaded before the persistent files.
 
+How to deal with id conflict?
+
+{id: 1, component: location, parent: 2 }
+{id: 2, component: room, exits: [(N,3)]
+{id: 3, component: room, exits: [(S,2)]
+
+Magic mapping is not good becase we dont want to track in save files which ids are just numeric, and which ones
+are references.
+
+
+
 ## DoAction and messages
 
 Testing with do_pickup can improve a lot. But how to deal with comm messages? Most of time all Error enuns will need

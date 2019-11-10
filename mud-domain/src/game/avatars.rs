@@ -45,8 +45,8 @@ pub fn respawn_avatar(container: &mut Container, outputs: &mut dyn Outputs, mob_
 
 pub fn create_player(container: &mut Container, login: &str) -> PlayerId {
     let room_id = container.config.initial_room;
-    let player_id= container.objects.insert();
-    let mob_id = container.objects.insert();
+    let player_id= container.objects.create();
+    let mob_id = container.objects.create();
 
     let mut mob = Mob::new(
         mob_id,

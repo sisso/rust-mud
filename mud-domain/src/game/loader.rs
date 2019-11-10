@@ -32,7 +32,7 @@ pub fn load_ids(container: &mut Container) {
         ID_ITEM_DEF_SWORD,
         ID_ITEM_DEF_ARMOR,
     ] {
-        container.objects.insert_static(id);
+        container.objects.insert(id);
     }
 }
 
@@ -125,7 +125,7 @@ fn load_rooms(container: &mut Container) {
 }
 
 fn load_spawns(container: &mut Container) {
-    let spawn_id = container.objects.insert();
+    let spawn_id = container.objects.create();
 
     container.spawns.add(Spawn {
         id: spawn_id,
