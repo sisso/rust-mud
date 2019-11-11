@@ -43,8 +43,12 @@ impl RoomRepository {
         self.index.get(&id).ok_or(())
     }
 
-    pub fn get_mut(&mut self, id: RoomId) -> Result<&mut Room, ()> {
-        self.index.get_mut(&id).ok_or(())
+    pub fn add_portal(&mut self, room1_id: RoomId, room2_id: RoomId, dir: Dir) {
+        let room1 = self.index.get_mut(&room1_id).unwrap();
+        room1.exits.push((dir, room2_id));
+
+        let room2 = self.index.get_mut(&room2_id).unwrap();
+        room2.exits.push((dir.inv(), room1_id));
     }
 
     pub fn is_room(&self, id: RoomId) -> bool {

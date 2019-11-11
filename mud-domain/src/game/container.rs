@@ -14,6 +14,9 @@ use crate::game::tags::Tags;
 use crate::game::labels::Labels;
 use crate::game::config::Config;
 use crate::game::crafts::Crafts;
+use crate::game::sectors::Sectors;
+use crate::game::planets::Planets;
+use crate::game::pos::PosRepo;
 
 pub struct Ctx<'a> {
     pub container: &'a mut Container,
@@ -34,6 +37,9 @@ pub struct Container {
     pub tags: Tags,
     pub labels: Labels,
     pub crafts: Crafts,
+    pub sectors: Sectors,
+    pub planets: Planets,
+    pub pos: PosRepo,
 }
 
 impl Container {
@@ -52,6 +58,9 @@ impl Container {
             tags: Tags::new(),
             labels: Labels::new(),
             crafts: Crafts::new(),
+            sectors: Sectors::new(),
+            planets: Planets::new(),
+            pos: PosRepo::new(),
         }
     }
 

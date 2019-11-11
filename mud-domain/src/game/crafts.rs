@@ -9,7 +9,7 @@ pub struct Craft {
 impl Craft {
     pub fn new(id: ObjId) -> Self {
         Craft {
-            id: id
+            id
         }
     }
 }

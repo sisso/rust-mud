@@ -10,7 +10,14 @@ use super::jsons::JsonValueExtra;
 
 /*
 
-Format
+TODO: update code to the new format
+
+New format
+
+{ header: $key, [$property: $value]* }
+{ id: $id, [$property: $value]* }
+
+OLD Format
 
 {
   headers: {

@@ -5,6 +5,10 @@ use commons::ObjId;
 use crate::game::mob::{Mob, MobId, MobPrefabId};
 use crate::game::labels::Label;
 
+/*
+Builder methods to instantiate game components from code. Main use for testing.
+*/
+
 pub fn add_room(container: &mut Container, label: &str, desc: &str) -> RoomId {
     let room_id = container.objects.create();
 

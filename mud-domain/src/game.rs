@@ -34,6 +34,9 @@ pub mod labels;
 pub mod config;
 pub mod storages;
 pub mod crafts;
+pub mod planets;
+pub mod sectors;
+pub mod pos;
 
 #[derive(Debug)]
 pub struct ConnectionState {
