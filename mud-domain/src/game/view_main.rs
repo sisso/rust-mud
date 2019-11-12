@@ -111,7 +111,7 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
         _ if input.starts_with("say ")  => {
             let msg = input["say ".len()..].to_string();
             let mob_id = container.players.get(player_id).mob_id;
-            actions::say(container, outputs, Some(player_id), mob_id, msg);
+            let _ = actions::say(container, outputs, Some(player_id), mob_id, msg);
         },
 
         _ if input.starts_with("admin ")  => {

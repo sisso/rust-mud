@@ -1,5 +1,57 @@
 extern crate mud_domain;
 
+use mud_domain::game::{Game, loader};
+use mud_domain::game::container::Container;
+use commons::{PlayerId, ConnectionId};
+use mud_domain::game::mob::MobId;
+use mud_domain::game::room::RoomId;
+
+pub struct TestScenery {
+    pub game: Game,
+    pub connection_id: ConnectionId,
+}
+
+impl TestScenery {
+    pub fn new() -> Self {
+        let mut container = Container::new();
+        loader::scenery_space::load(&mut container);
+        TestScenery {
+            game: Game::new(container),
+            connection_id: ConnectionId(0),
+        }
+    }
+
+    pub fn login(&mut self) {
+        self.game.add_connection(self.connection_id);
+        self.game.handle_input(self.connection_id, "player");
+    }
+
+    pub fn send_input(&mut self, s: &str) {
+        self.game.handle_input(self.connection_id, s);
+    }
+
+    pub fn take_outputs(&mut self) -> Vec<String> {
+        self.game.get_outputs().into_iter().filter_map(|(id, msg)| {
+            if id == self.connection_id {
+                Some(msg)
+            } else {
+                None
+            }
+        }).collect()
+    }
+}
+
+#[test]
+fn test_one() -> Result<(),()> {
+    let mut scenery = TestScenery::new();
+    scenery.login();
+    scenery.send_input("sm");
+    let outputs = scenery.take_outputs();
+    assert_eq!("", outputs.join("\n"));
+    Ok(())
+}
+
+
 //use std::cell::RefCell;
 //use std::rc::Rc;
 

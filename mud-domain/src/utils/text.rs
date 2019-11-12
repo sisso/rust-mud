@@ -46,14 +46,14 @@ pub fn plot_points(cfg: &PlotCfg, points: &Vec<PlotPoint>) -> Vec<Vec<String>> {
         buffer.push(b)
     }
 
-    println!("Ranges X: {}/{} Y: {}/{}\nScale {}x{}", min_x, max_x, min_y, max_y, scale_x, scale_y);
+//    println!("Ranges X: {}/{} Y: {}/{}\nScale {}x{}", min_x, max_x, min_y, max_y, scale_x, scale_y);
 
     // draw objects
     for p in points.iter() {
         let mut x = ((p.x - min_x) / scale_x).round() as usize;
         let mut y = ((p.y - min_y) / scale_y).round() as usize;
 
-        println!("{} {} = {} {}", p.x, p.y, x, y);
+//        println!("{} {} = {} {}", p.x, p.y, x, y);
 
         if x >= cfg.width as usize{
             x = cfg.width as usize - 1;
