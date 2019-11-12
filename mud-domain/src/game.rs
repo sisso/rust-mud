@@ -37,6 +37,7 @@ pub mod crafts;
 pub mod planets;
 pub mod sectors;
 pub mod pos;
+pub mod input_handle_space;
 
 #[derive(Debug)]
 pub struct ConnectionState {
@@ -343,7 +344,7 @@ pub fn find_players_per_room(container: &Container) -> HashMap<RoomId, Vec<Playe
         container.players.list_players()
             .into_iter()
             .flat_map(|player_id| {
-                let player = container.players.get_player_by_id(player_id);
+                let player = container.players.get(player_id);
                 container.locations.get(player.mob_id).map(|room_id| {
                     (room_id,player_id)
                 })

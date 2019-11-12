@@ -51,7 +51,7 @@ impl RoomRepository {
         room2.exits.push((dir.inv(), room1_id));
     }
 
-    pub fn is_room(&self, id: RoomId) -> bool {
+    pub fn exists(&self, id: RoomId) -> bool {
         self.index.contains_key(&id)
     }
 }

@@ -337,11 +337,11 @@ pub fn run_tick(ctx: &mut Ctx) -> Result<(),()> {
             let mut mob = mob.clone();
             if mob.update_resting(ctx.container.time.total) {
                 if mob.is_avatar {
-                    let player = ctx.container.players.find_player_from_avatar_mob_id(mob.id).unwrap();
+                    let player_id = ctx.container.players.find_from_mob(mob.id).unwrap();
                     if mob.attributes.pv.is_damaged() {
-                        ctx.outputs.private(player.id, comm::rest_healing(mob.attributes.pv.current));
+                        ctx.outputs.private(player_id, comm::rest_healing(mob.attributes.pv.current));
                     } else {
-                        ctx.outputs.private(player.id, comm::rest_healed());
+                        ctx.outputs.private(player_id, comm::rest_healed());
                     }
                 }
             }

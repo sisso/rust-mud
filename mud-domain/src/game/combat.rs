@@ -51,7 +51,7 @@ fn cancel_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: M
 
 // TODO: fix multiples get from get two mutable
 fn execute_attack(container: &mut Container, outputs: &mut dyn Outputs, attacker_id: MobId, target_id: MobId) -> Result<(),()> {
-    let player_id = container.players.find_player_id_from_avatar_mob_id(attacker_id);
+    let player_id = container.players.find_from_mob(attacker_id);
 
     let attacker = container.mobs.get(attacker_id)?;
     let attacker_room_id = container.locations.get(attacker_id)?;
@@ -63,7 +63,7 @@ fn execute_attack(container: &mut Container, outputs: &mut dyn Outputs, attacker
     let attack_result = roll_attack(&attacker.attributes.attack, &attacker.attributes.damage, &defender.attributes.defense);
     let room_attack_msg = comm::kill_mob_execute_attack(attacker_label, defender_label, &attack_result);
 
-    if let Some(player_id) = player_id {
+    if let Ok(player_id) = player_id {
         let player_attack_msg = comm::kill_player_execute_attack(defender_label, &attack_result);
         outputs.private(player_id, player_attack_msg);
         outputs.room(player_id, attacker_room_id, room_attack_msg);
@@ -92,7 +92,7 @@ fn execute_attack(container: &mut Container, outputs: &mut dyn Outputs, attacker
 }
 
 fn execute_attack_killed(container: &mut Container, outputs: &mut dyn Outputs, attacker_id: MobId, target_id: MobId) -> Result<(),()> {
-    let attacker_player_id = container.players.find_player_id_from_avatar_mob_id(attacker_id);
+    let attacker_player_id = container.players.find_from_mob(attacker_id);
     let attacker = container.mobs.get(attacker_id)?;
     let attacker_label = container.labels.get_label_f(attacker_id);
     let attacker_room_id = container.locations.get(attacker_id)?;
@@ -101,7 +101,7 @@ fn execute_attack_killed(container: &mut Container, outputs: &mut dyn Outputs, a
 
     let room_attack_msg = comm::killed(defender_label);
 
-    if let Some(player_id) = attacker_player_id {
+    if let Ok(player_id) = attacker_player_id {
         let player_attack_msg = comm::killed_by_player(defender_label);
         outputs.private(player_id, player_attack_msg);
         outputs.room(player_id, attacker_room_id, room_attack_msg);

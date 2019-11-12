@@ -245,7 +245,7 @@ fn run_for(ctx: &mut Ctx, item_id: ItemId) -> Result<(),()> {
     if let Some(decay) = item.decay {
         // TODO: Only decay items on ground?
         let location_id = ctx.container.locations.get(item.id)?;
-        if ctx.container.rooms.is_room(location_id) && decay.is_before(ctx.container.time.total)  {
+        if ctx.container.rooms.exists(location_id) && decay.is_before(ctx.container.time.total)  {
             info!("{:?} removed by decay", item.id);
 
             let label = ctx.container.labels.get_label_f(item.id);

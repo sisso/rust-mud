@@ -1,5 +1,7 @@
 # TODO
 
+- desesperated need simple way to execute acceptance test
+- parametrize game initialization
 - remove item prefab and just put it into limbo
 - add put item at
 - fix extra lines in output when look

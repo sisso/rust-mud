@@ -59,26 +59,26 @@ impl PlayerRepository {
         self.index.get(&player_id).unwrap()
     }
 
-   pub fn find_player_from_avatar_mob_id(&self, mob_id: MobId) -> Option<&Player> {
-        self.index
-            .iter()
-            .find(|(_, p)| p.mob_id == mob_id)
-            .map(|(_, player)| player)
+   pub fn find_from_mob(&self, mob_id: MobId) -> Result<PlayerId, ()> {
+        match self.index.iter().find(|(_, p)| p.mob_id == mob_id) {
+            Some((id, _)) => Ok(*id),
+            None => Err(())
+        }
     }
 
-    pub fn find_player_id_from_avatar_mob_id(&self, mob_id: MobId) -> Option<PlayerId> {
-        self.index
-            .iter()
-            .find(|(_, p)| p.mob_id == mob_id)
-            .map(|(id, _)| id.clone())
-    }
-
-    pub fn get_player_by_id(&self, id: PlayerId) -> &Player {
+   pub fn get(&self, id: PlayerId) -> &Player {
         self.index
             .iter()
             .find(|(pid, _)| **pid == id)
             .map(|(_, p)| p)
             .expect(format!("player with id {:?} not found", id).as_str())
+    }
+
+    pub fn get_mob(&self, player_id: PlayerId) -> Result<MobId,()> {
+        match self.index.get(&player_id) {
+            Some(player) => Ok(player.mob_id),
+            None => Err(())
+        }
     }
 
 //    pub fn save(&self, save: &mut dyn Save) {

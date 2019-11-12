@@ -2,7 +2,8 @@ use super::item::*;
 use super::domain::*;
 use super::container::Container;
 use super::mob::*;
-use commons::{TotalTime};
+use commons::{TotalTime, V2};
+use crate::utils::text::{PlotPoint, PlotCfg, plot_points, mkstring};
 
 pub struct InventoryDesc<'a> {
     pub id: ItemId,
@@ -384,6 +385,49 @@ pub fn stand_up_others(label: &str) -> String {
     format!("{} stand up", label)
 }
 
+pub fn space_not_in_craft() -> String {
+    "you are not in a craft".to_string()
+}
+
+pub fn space_needs_to_be_in_space() -> String {
+    "you need to be in space to do it".to_string()
+}
+
+pub enum ShowStarmapDescKind {
+    Planet,
+    Craft
+}
+
+pub struct ShowStarmapDesc {
+    pub kind: ShowStarmapDescKind,
+    pub pos: V2,
+    pub me: bool,
+}
+
+pub fn space_show_starmap(desc: &Vec<ShowStarmapDesc>) -> String {
+    let cfg = PlotCfg {
+        width: 10,
+        height: 10,
+        min_scale: 1.0,
+    };
+
+    let points = desc.iter().map(|desc| {
+        let ch = match desc.kind {
+            ShowStarmapDescKind::Craft if desc.me => '@'.to_string(),
+            ShowStarmapDescKind::Craft => '%'.to_string(),
+            ShowStarmapDescKind::Planet => 'O'.to_string(),
+        };
+
+        PlotPoint {
+            x: desc.pos.x,
+            y: desc.pos.y,
+            c: ch
+        }
+    }).collect();
+
+    mkstring(plot_points(&cfg, &points))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -439,4 +483,33 @@ mod tests {
         let result = help();
         assert!(result.len() > 0);
     }
+
+//    #[test]
+//    fn test_space_show_starmap() {
+//        let objects = vec![
+//            ShowStarmapDesc {
+//                kind: ShowStarmapDescKind::Planet,
+//                pos: V2::new(-2.0, 1.0),
+//                me: false,
+//            },
+//            ShowStarmapDesc {
+//                kind: ShowStarmapDescKind::Planet,
+//                pos: V2::new(1.0, 0.0),
+//                me: false,
+//            },
+//            ShowStarmapDesc {
+//                kind: ShowStarmapDescKind::Craft,
+//                pos: V2::new(1.0, 0.0),
+//                me: true,
+//            },
+//            ShowStarmapDesc {
+//                kind: ShowStarmapDescKind::Craft,
+//                pos: V2::new(0.0, 0.0),
+//                me: true,
+//            },
+//        ];
+//
+//        let string = space_show_starmap(&objects);
+//        assert_eq!("", string.as_str());
+//    }
 }

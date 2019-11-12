@@ -1,12 +1,26 @@
-use commons::{PlayerId, ObjId, DeltaTime};
+use commons::{PlayerId, DeltaTime};
 use crate::game::container::Container;
-use crate::game::{Outputs, player, comm, avatars};
-use crate::game::room::RoomId;
+use crate::game::{Outputs, comm};
 use crate::game::mob::{Mob, Attributes, Damage, Pv, MobId};
 use crate::game::labels::Label;
 
+//struct PlayerC<'a> {
+//    pub coniner: &'a Container,
+//    pub player_id: PlayerId,
+//    player: Option<&'a Player>,
+//    mob_id: MobId,
+//    mob: Option<&'a Mob>,
+//    room_id: Option<Room_id>,
+//}
+//
+//impl PlayerC {
+//    pub fn get_mob_id(&mut self) -> MobId {
+//        self.conatiner.players.get_player_by_id(self.player_id);
+//    }
+//}
+
 pub fn on_player_disconnect(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) {
-    let player = container.players.get_player_by_id(player_id);
+    let player = container.players.get(player_id);
     let mob_id = player.mob_id;
 }
 
@@ -30,13 +44,11 @@ pub fn respawn_avatar(container: &mut Container, outputs: &mut dyn Outputs, mob_
 
     mob.attributes.pv.current = 1;
 
-    let player = container.players.find_player_from_avatar_mob_id(mob.id);
-    let player = player.unwrap();
-
+    let player_id = container.players.find_from_mob(mob.id).unwrap();
     let mob_label = container.labels.get_label(mob_id).unwrap();
 
-    outputs.private(player.id, comm::mob_you_resurrected());
-    outputs.room(player.id, room_id, comm::mob_resurrected(mob_label));
+    outputs.private(player_id, comm::mob_you_resurrected());
+    outputs.room(player_id, room_id, comm::mob_resurrected(mob_label));
 
     container.mobs.update(mob);
     container.locations.set(mob_id, room_id);

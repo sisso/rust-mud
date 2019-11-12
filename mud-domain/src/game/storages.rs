@@ -1,4 +1,3 @@
-use commons::ObjId;
 
 // SparcedSTorage
 // DenseVStorage

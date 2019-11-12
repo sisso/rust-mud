@@ -28,7 +28,9 @@ impl Locations {
     }
 
     pub fn get(&self, obj_id: ObjId) -> Result<ObjId, ()> {
-        self.index.get(&obj_id).cloned().ok_or(())
+        let v = self.index.get(&obj_id).cloned().ok_or(());
+        println!("get {:?} result in {:?}", obj_id, v);
+        v
     }
 
     pub fn list_at<'a>(&'a self, location_id: ObjId) -> impl Iterator<Item = ObjId> + 'a {

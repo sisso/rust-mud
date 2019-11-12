@@ -8,7 +8,6 @@ edition = "2018"
 
 [dependencies]
 rand ="*"
-termion = "*"
 commons = { version = "*", path = "../commons" }
 mud-domain = { version = "*", path = "../mud-domain" }
 socket-server = { version = "*", path = "../socket-server" }

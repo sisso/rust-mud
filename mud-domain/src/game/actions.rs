@@ -6,7 +6,7 @@ use super::mob::*;
 use commons::PlayerId;
 
 pub fn look(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) -> Result<(),()> {
-    let player = container.players.get_player_by_id(player_id);
+    let player = container.players.get(player_id);
 
     outputs.private(
         player_id,
@@ -29,7 +29,7 @@ pub fn say(container: &mut Container, outputs: &mut dyn Outputs, player_id: Opti
 }
 
 pub fn mv(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, dir: Dir) -> Result<(),()> {
-    let player = container.players.get_player_by_id(player_id);
+    let player = container.players.get(player_id);
     let mob_id = player.mob_id;
     let location_id = container.locations.get(mob_id)?;
     let room = container.rooms.get(location_id)?;
@@ -62,7 +62,7 @@ pub fn mv(container: &mut Container, outputs: &mut dyn Outputs, player_id: Playe
 }
 
 pub fn attack(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, target_mob_id: MobId) -> Result<(),()> {
-    let player = container.players.get_player_by_id(player_id);
+    let player = container.players.get(player_id);
     let mob_id = player.mob_id;
     let room_id = container.locations.get(mob_id)?;
 

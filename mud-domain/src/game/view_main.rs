@@ -4,7 +4,7 @@ use super::domain::*;
 use super::actions;
 use super::comm;
 use super::container::Container;
-use crate::game::{actions_admin, input_handle_items, mob, inventory};
+use crate::game::{actions_admin, input_handle_items, mob, inventory, input_handle_space};
 use commons::{PlayerId, ObjId};
 use std::collections::HashSet;
 use crate::game::comm::InventoryDesc;
@@ -23,7 +23,7 @@ fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc>
     }).collect()
 }
 
-pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) {
+pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) -> Result<(),()> {
     match input {
         "h" | "help" => {
             outputs.private(player_id, comm::help());
@@ -63,20 +63,26 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
             outputs.private(player_id, comm::stats(&ctx.mob.attributes, &inventory_to_desc(container, ctx.player.mob_id)));
         },
 
+
+        "sm" | "starmap" => {
+            let mob_id = container.players.get_mob(player_id)?;
+            input_handle_space::show_starmap(container, outputs, player_id, mob_id);
+        },
+
         _ if has_command(input, &["pick"]) || has_command(&input, &["get"]) => {
             let _ = input_handle_items::pickup(container, outputs, player_id, parse_arguments(input));
         },
 
         _ if has_command(input, &["drop"]) => {
-            input_handle_items::drop(container, outputs, player_id, parse_arguments(input))
+            input_handle_items::drop(container, outputs, player_id, parse_arguments(input));
         },
 
         _ if has_command(input, &["remove"]) => {
-            input_handle_items::strip(container, outputs, player_id, parse_arguments(input))
+            input_handle_items::strip(container, outputs, player_id, parse_arguments(input));
         },
 
         _ if has_command(input, &["equip"]) => {
-            input_handle_items::equip(container, outputs, player_id, parse_arguments(input))
+            input_handle_items::equip(container, outputs, player_id, parse_arguments(input));
         },
 
         _ if has_command(input, &["examine "]) => {
@@ -104,7 +110,7 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
 
         _ if input.starts_with("say ")  => {
             let msg = input["say ".len()..].to_string();
-            let mob_id = container.players.get_player_by_id(player_id).mob_id;
+            let mob_id = container.players.get(player_id).mob_id;
             actions::say(container, outputs, Some(player_id), mob_id, msg);
         },
 
@@ -112,7 +118,7 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
             let arguments = parse_arguments(input);
             if arguments.len() != 2 {
                 outputs.private(player_id, comm::admin_invalid_command());
-                return;
+                return Err(());
             }
 
             match arguments.get(1).unwrap().as_ref() {
@@ -134,6 +140,8 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
             outputs.private(player_id, comm::unknown_input(input));
         },
     }
+
+    Ok(())
 }
 
 fn action_examine(container: &Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) {

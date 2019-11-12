@@ -78,7 +78,7 @@ impl Container {
     // TODO: add Result or complete remove this method
     /// If mob have no room, a exception will be throw
     pub fn get_player_context(&self, player_id: PlayerId) -> PlayerCtx {
-        let player = self.players.get_player_by_id(player_id);
+        let player = self.players.get(player_id);
         let mob = self.mobs.get(player.mob_id).unwrap();
         let room_id = self.locations.get(mob.id).unwrap();
         let room = self.rooms.get(room_id).unwrap();

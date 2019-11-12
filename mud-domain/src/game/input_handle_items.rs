@@ -58,7 +58,7 @@ pub fn parse_not_owned_item(labels: &Labels,
 }
 
 pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<&str>) -> Result<(),()> {
-    let player = container.players.get_player_by_id(player_id);
+    let player = container.players.get(player_id);
     let mob_id = player.mob_id;
     let room_id = container.locations.get(mob_id)?;
 
@@ -74,7 +74,7 @@ pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
 }
 
 pub fn equip(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<&str>) {
-    let player = container.players.get_player_by_id(player_id);
+    let player = container.players.get(player_id);
     let avatar_id = player.mob_id;
     match parser_owned_item(&container.labels, &container.locations, &container.items, avatar_id, args) {
         Ok(item_id) => {
@@ -86,7 +86,7 @@ pub fn equip(container: &mut Container, outputs: &mut dyn Outputs, player_id: Pl
 }
 
 pub fn drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<&str>) {
-    let player = container.players.get_player_by_id(player_id);
+    let player = container.players.get(player_id);
     let avatar_id = player.mob_id;
     match parser_owned_item(&container.labels, &container.locations, &container.items, avatar_id, args) {
         Ok(item_id) => {
@@ -98,7 +98,7 @@ pub fn drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: Pla
 }
 
 pub fn strip(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<&str>) {
-    let player = container.players.get_player_by_id(player_id);
+    let player = container.players.get(player_id);
     let avatar_id = player.mob_id;
     match parser_owned_item(&container.labels, &container.locations, &container.items, avatar_id, args) {
         Ok(item_id) => {
