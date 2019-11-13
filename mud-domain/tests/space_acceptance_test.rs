@@ -2,7 +2,7 @@ extern crate mud_domain;
 
 use mud_domain::game::{Game, loader};
 use mud_domain::game::container::Container;
-use commons::{PlayerId, ConnectionId};
+use commons::{PlayerId, ConnectionId, DeltaTime};
 use mud_domain::game::mob::MobId;
 use mud_domain::game::room::RoomId;
 
@@ -24,6 +24,7 @@ impl TestScenery {
     pub fn login(&mut self) {
         self.game.add_connection(self.connection_id);
         self.game.handle_input(self.connection_id, "player");
+        self.wait_for("welcome back");
     }
 
     pub fn send_input(&mut self, s: &str) {
@@ -39,6 +40,27 @@ impl TestScenery {
             }
         }).collect()
     }
+
+    pub fn wait_for(&mut self, contains: &str) -> Vec<String> {
+        for _ in 0..100 {
+            let outputs = self.take_outputs();
+            let found = outputs.iter().find(|msg| {
+                msg.contains(contains)
+            });
+
+            if found.is_some() {
+                return outputs;
+            } else {
+                self.tick();
+            }
+        }
+
+        panic!("")
+    }
+
+    pub fn tick(&mut self) {
+        self.game.tick(DeltaTime(0.5));
+    }
 }
 
 #[test]
@@ -46,8 +68,10 @@ fn test_sectormap() -> Result<(),()> {
     let mut scenery = TestScenery::new();
     scenery.login();
     scenery.send_input("sm");
-    let outputs = scenery.take_outputs();
+    let outputs = scenery.wait_for(".@.");
     assert!(outputs.join("\n").contains(".@."));
+//    assert_eq!("", outputs.join("\n").as_str());
+
     Ok(())
 }
 
