@@ -1,6 +1,8 @@
 # TODO
 
-- desesperated need simple way to execute acceptance test
+- fly ship to places
+- land ship
+
 - parametrize game initialization
 - remove item prefab and just put it into limbo
 - add put item at

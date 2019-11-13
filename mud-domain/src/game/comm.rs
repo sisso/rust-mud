@@ -3,7 +3,8 @@ use super::domain::*;
 use super::container::Container;
 use super::mob::*;
 use commons::{TotalTime, V2};
-use crate::utils::text::{PlotPoint, PlotCfg, plot_points, mkstring};
+use crate::utils::text::{PlotPoint, PlotCfg, plot_points, mkstring, append_right};
+use std::process::id;
 
 pub struct InventoryDesc<'a> {
     pub id: ItemId,
@@ -402,21 +403,26 @@ pub struct ShowStarmapDesc {
     pub kind: ShowStarmapDescKind,
     pub pos: V2,
     pub me: bool,
+    pub label: String,
 }
 
-pub fn space_show_starmap(desc: &Vec<ShowStarmapDesc>) -> String {
+pub fn space_show_sectormap(desc: &Vec<ShowStarmapDesc>) -> String {
     let cfg = PlotCfg {
         width: 10,
         height: 10,
         min_scale: 1.0,
     };
 
-    let points = desc.iter().map(|desc| {
+    let mut content_table = vec![];
+
+    let points = desc.iter().enumerate().map(|(i, desc)| {
         let ch = match desc.kind {
             ShowStarmapDescKind::Craft if desc.me => '@'.to_string(),
             ShowStarmapDescKind::Craft => '%'.to_string(),
             ShowStarmapDescKind::Planet => 'O'.to_string(),
         };
+
+        content_table.push(format!("{} - {} {}", i, ch, desc.label));
 
         PlotPoint {
             x: desc.pos.x,
@@ -425,7 +431,13 @@ pub fn space_show_starmap(desc: &Vec<ShowStarmapDesc>) -> String {
         }
     }).collect();
 
-    mkstring(plot_points(&cfg, &points))
+    let map = plot_points(&cfg, &points);
+    let mut buffer: Vec<String> = map.into_iter().map(|i| {
+        i.join("")
+    }).collect();
+
+    append_right(&mut buffer, content_table);
+    buffer.join("\n")
 }
 
 #[cfg(test)]
@@ -484,32 +496,36 @@ mod tests {
         assert!(result.len() > 0);
     }
 
-//    #[test]
-//    fn test_space_show_starmap() {
-//        let objects = vec![
-//            ShowStarmapDesc {
-//                kind: ShowStarmapDescKind::Planet,
-//                pos: V2::new(-2.0, 1.0),
-//                me: false,
-//            },
-//            ShowStarmapDesc {
-//                kind: ShowStarmapDescKind::Planet,
-//                pos: V2::new(1.0, 0.0),
-//                me: false,
-//            },
-//            ShowStarmapDesc {
-//                kind: ShowStarmapDescKind::Craft,
-//                pos: V2::new(1.0, 0.0),
-//                me: true,
-//            },
-//            ShowStarmapDesc {
-//                kind: ShowStarmapDescKind::Craft,
-//                pos: V2::new(0.0, 0.0),
-//                me: true,
-//            },
-//        ];
-//
-//        let string = space_show_starmap(&objects);
-//        assert_eq!("", string.as_str());
-//    }
+    #[test]
+    fn test_space_show_starmap() {
+        let objects = vec![
+            ShowStarmapDesc {
+                kind: ShowStarmapDescKind::Planet,
+                pos: V2::new(-2.0, 1.0),
+                me: false,
+                label: "one".to_string(),
+            },
+            ShowStarmapDesc {
+                kind: ShowStarmapDescKind::Planet,
+                pos: V2::new(1.0, 3.0),
+                me: false,
+                label: "two".to_string(),
+            },
+            ShowStarmapDesc {
+                kind: ShowStarmapDescKind::Craft,
+                pos: V2::new(1.0, 0.0),
+                me: true,
+                label: "three".to_string(),
+            },
+            ShowStarmapDesc {
+                kind: ShowStarmapDescKind::Craft,
+                pos: V2::new(2.0, -1.0),
+                me: false,
+                label: "four".to_string(),
+            },
+        ];
+
+        let string = space_show_sectormap(&objects);
+        assert!(string.as_str().contains(".......... 2 - @ three"));
+    }
 }

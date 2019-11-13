@@ -42,14 +42,24 @@ impl TestScenery {
 }
 
 #[test]
-fn test_one() -> Result<(),()> {
+fn test_sectormap() -> Result<(),()> {
     let mut scenery = TestScenery::new();
     scenery.login();
     scenery.send_input("sm");
     let outputs = scenery.take_outputs();
-    assert_eq!("", outputs.join("\n"));
+    assert!(outputs.join("\n").contains(".@."));
     Ok(())
 }
+
+//#[test]
+//fn test_fly_to() -> Result<(),()> {
+//    let mut scenery = TestScenery::new();
+//    scenery.login();
+//    scenery.send_input("sm");
+//    let outputs = scenery.take_outputs();
+//    assert!(outputs.join("\n").contains(".@."));
+//    Ok(())
+//}
 
 
 //use std::cell::RefCell;

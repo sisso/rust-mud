@@ -70,13 +70,28 @@ pub fn plot_points(cfg: &PlotCfg, points: &Vec<PlotPoint>) -> Vec<Vec<String>> {
     buffer
 }
 
+pub fn append_right(buffer: &mut Vec<String>, mut other: Vec<String>) {
+    let extra_lines = buffer.len().max(other.len());
+    for i in buffer.len()..extra_lines {
+        buffer.push("".to_string());
+    }
+
+    let buffer_max = buffer.iter().map(|i| i.len()).max().unwrap();
+    for i in 0..other.len() {
+        let size = buffer_max - buffer[i].len() + 1;
+        let append = String::from_utf8(vec![b' '; size]).unwrap();
+        buffer[i].push_str(append.as_str());
+        buffer[i].push_str(other[i].as_str());
+    }
+}
+
 pub fn mkstring(buffer: Vec<Vec<String>>) -> String {
     buffer.into_iter().map(|i| i.join("")).collect::<Vec<String>>().join("\n")
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::utils::text::{plot_points, PlotCfg, PlotPoint, mkstring};
+    use crate::utils::text::{plot_points, PlotCfg, PlotPoint, mkstring, append_right};
 
     const CFG: PlotCfg = PlotCfg {
         width: 6,
@@ -152,4 +167,25 @@ mod tests {
 4....3"#)
     }
 
+    #[test]
+    fn test_append_right() {
+        let mut buffer = vec![
+            "....".to_string(),
+            "...".to_string(),
+            "..".to_string(),
+            "....".to_string(),
+        ];
+
+        append_right(&mut buffer, vec![
+            "1 - One".to_string(),
+            "2 - two".to_string(),
+        ]);
+
+        assert_eq!(".... 1 - One\n\
+            ...  2 - two\n\
+            ..\n\
+            ....",
+            buffer.join("\n")
+        )
+    }
 }

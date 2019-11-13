@@ -23,6 +23,7 @@ pub fn show_starmap(container: &mut Container, outputs: &mut dyn Outputs, player
 
     // get type and pos and what we are
     let objects = container.locations.list_at(craft_location).flat_map(|id| {
+        let label = container.labels.get_label_f(id);
         let pos = container.pos.get(id).ok();
         let is_craft= container.crafts.exists(id);
         let is_planet = container.planets.exists(id);
@@ -31,18 +32,20 @@ pub fn show_starmap(container: &mut Container, outputs: &mut dyn Outputs, player
             Some(pos) if is_craft => Some(ShowStarmapDesc {
                 kind: ShowStarmapDescKind::Craft,
                 pos: pos.pos,
-                me: id == craft_id
+                me: id == craft_id,
+                label: label.to_string(),
             }),
             Some(pos) if is_planet => Some(ShowStarmapDesc {
                 kind: ShowStarmapDescKind::Planet,
                 pos: pos.pos,
-                me: false
+                me: false,
+                label: label.to_string(),
             }),
             _ => None
         }
     }).collect();
 
-    outputs.private(player_id, comm::space_show_starmap(&objects));
+    outputs.private(player_id, comm::space_show_sectormap(&objects));
 
     Ok(())
 }
