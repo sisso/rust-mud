@@ -164,4 +164,106 @@ How do we represent rooms, inventory and mobs? How do we restrict a player not p
         - if you have skill, what the problem if a giant pick you up?
     - we can say only pick items
     
+## 3D MAP
 
+
+....... 1) x - You    z+2 
+.x..... 2) y - Planet z-1
+.......
+....y..
+.......
+
+1) You    ( 2, 2,  2)
+2) Planet ( 5, 4, -1)
+
+....... 1) x - You    z+2 
+.x..... 2) y - Planet z-1
+.......
+....y..
+.......
+
+1) You    ( 2, 2,  2)
+2) Planet ( 5, 4, -1)
+
+
+## Ship Aerotinamic
+
+To land into atm places
+
+0.1-0.8 - smoth shape
+0.8-2.0 - wings (bad for very dense? -% fuel?)
+
+Atm thrusters
++100% fuel
+
+Aquatic thruster
+?
+
+## Surfaces
+
+Instead sector, we will introduce a new model Surface, that can be 2D or 3D.
+
+Sectors, planets, mons and astteroids will implement surfaces.  Where space and aquatic reagions have 3d space.
+
+Childrens of a Surface need to have position
+
+SurfaceBody define peroperits of a body in surface. Like can be landaded? 
+
+How to split planet atmosefpher and gravity from a city in a planet?
+
+I have sector, that have planet, that have surface, that have city, that have rooms
+
+I have sector, that have space station/craft, that have room
+
+As code is just
+
+if  me.get_location.is_surfac {
+    locations.list(me.get_lcation).zip(positions) { obj , pos {
+    }
+} else if m.location.is_room {
+}
+
+sector {
+    sector1 {
+        label: "Sector 1"
+        surface: { 
+            kind: "space", 
+            dimensions: 3, 
+            bounds: 10 
+            objects: {
+                dune: {
+                    location: "${surfaces.sector1.id}"
+                    label: "Dune",
+                    position: [2,3,0]
+                    planet: {
+                        atm: 0.8
+                    }
+
+                    surface: {
+                        kind: "desert",
+                        objects: {
+                            palace_city: {
+                                pos: [1, 4],
+                                rooms: {
+                                    palace {}
+                                    landing-pad {}
+                                    city {}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            station-1: { 
+                station: {}
+                rooms {
+                    docking {}
+                    airlock {}
+                    quarters {}
+                    bridge {}
+                    galley {}
+                }
+            }
+        }
+    }
+}
