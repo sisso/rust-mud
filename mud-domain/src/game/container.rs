@@ -14,9 +14,10 @@ use crate::game::tags::Tags;
 use crate::game::labels::Labels;
 use crate::game::config::Config;
 use crate::game::crafts::Crafts;
-use crate::game::sectors::Sectors;
+use crate::game::surfaces::Surfaces;
 use crate::game::planets::Planets;
 use crate::game::pos::PosRepo;
+use crate::game::surfaces_object::SurfaceObjects;
 
 pub struct Ctx<'a> {
     pub container: &'a mut Container,
@@ -37,9 +38,10 @@ pub struct Container {
     pub tags: Tags,
     pub labels: Labels,
     pub crafts: Crafts,
-    pub sectors: Sectors,
+    pub sectors: Surfaces,
     pub planets: Planets,
     pub pos: PosRepo,
+    pub surface_objects: SurfaceObjects,
 }
 
 impl Container {
@@ -58,9 +60,10 @@ impl Container {
             tags: Tags::new(),
             labels: Labels::new(),
             crafts: Crafts::new(),
-            sectors: Sectors::new(),
+            sectors: Surfaces::new(),
             planets: Planets::new(),
             pos: PosRepo::new(),
+            surface_objects: SurfaceObjects::new(),
         }
     }
 

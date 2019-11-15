@@ -4,9 +4,10 @@ use crate::game::room::RoomId;
 use crate::game::domain::Dir;
 use crate::game::labels::Label;
 use crate::game::crafts::Craft;
-use crate::game::sectors::*;
+use crate::game::surfaces::*;
 use crate::game::planets::*;
 use crate::game::pos::Pos;
+use crate::game::surfaces_object::SurfaceObject;
 
 type CraftId = ObjId;
 
@@ -30,7 +31,7 @@ fn load_sector(container: &mut Container) {
     container.config.initial_room = carft1_bridge;
 }
 
-fn add_sector(container: &mut Container, label: &str) -> SectorId {
+fn add_sector(container: &mut Container, label: &str) -> SurfaceId {
     let id = container.objects.create();
     container.labels.set(Label {
         id,
@@ -38,11 +39,11 @@ fn add_sector(container: &mut Container, label: &str) -> SectorId {
         code: label.to_string(),
         desc: label.to_string(),
     });
-    container.sectors.add(Sector::new(id));
+    container.sectors.add(Surface::new(id));
     id
 }
 
-fn add_planet(container: &mut Container, label: &str, sector_id: SectorId, pos: V2) -> PlanetId {
+fn add_planet(container: &mut Container, label: &str, sector_id: SurfaceId, pos: V2) -> PlanetId {
     let id = container.objects.create();
     container.labels.set(Label {
         id,
@@ -53,15 +54,17 @@ fn add_planet(container: &mut Container, label: &str, sector_id: SectorId, pos: 
     container.locations.set(id, sector_id);
     container.planets.add(Planet::new(id));
     container.pos.set(Pos { id, pos });
+    container.surface_objects.add(SurfaceObject::new(id));
     id
 }
 
-fn add_craft(container: &mut Container, label: &str, sector_id: SectorId, pos: V2) -> (CraftId, RoomId) {
+fn add_craft(container: &mut Container, label: &str, sector_id: SurfaceId, pos: V2) -> (CraftId, RoomId) {
     let id = container.objects.create();
     container.labels.set(Label::new(id, label));
     container.locations.set(id, sector_id);
     container.crafts.add(Craft::new(id));
     container.pos.set(Pos { id, pos });
+    container.surface_objects.add(SurfaceObject::new(id));
 
     let bridge_id = add_craft_room(container, id, "Bridge", "Ship bridge");
     let cargo_id = add_craft_room(container, id, "Cargo", "Cargo hold");

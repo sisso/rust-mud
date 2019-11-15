@@ -85,6 +85,10 @@ impl Tick {
 #[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
 pub struct ObjId(pub u32);
 
+pub type UResult = Result<(),()>;
+pub const UOk: UResult = Ok(());
+pub const UErr: UResult = Err(());
+
 impl ObjId {
     pub fn as_u32(&self) -> u32 {
         self.0

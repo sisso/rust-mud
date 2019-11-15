@@ -399,14 +399,14 @@ pub enum ShowStarmapDescKind {
     Craft
 }
 
-pub struct ShowStarmapDesc {
+pub struct SurfaceDesc {
     pub kind: ShowStarmapDescKind,
     pub pos: V2,
     pub me: bool,
     pub label: String,
 }
 
-pub fn space_show_sectormap(desc: &Vec<ShowStarmapDesc>) -> String {
+pub fn space_show_sectormap(desc: &Vec<SurfaceDesc>) -> String {
     let cfg = PlotCfg {
         width: 10,
         height: 10,
@@ -436,8 +436,34 @@ pub fn space_show_sectormap(desc: &Vec<ShowStarmapDesc>) -> String {
         i.join("")
     }).collect();
 
-    append_right(&mut buffer, content_table);
+    buffer.push("\n".to_string());
+    buffer.append(&mut content_table);
+
     buffer.join("\n")
+}
+
+pub fn space_show_move_targets(desc: &Vec<SurfaceDesc>) -> String {
+    let mut buffer = vec!["Targets:".to_string()];
+
+    let items: Vec<String> =
+        desc.iter().enumerate().flat_map(|(i, desc)| {
+            if desc.me {
+                return None;
+            }
+
+            Some(format!("- {}", desc.label))
+        }).collect();
+
+    buffer.extend(items);
+    buffer.join("\n")
+}
+
+pub fn space_move() -> String {
+    "ship start to accelerate to the new target".to_string()
+}
+
+pub fn space_move_invalid() -> String {
+    "can not move to that".to_string()
 }
 
 #[cfg(test)]
@@ -499,25 +525,25 @@ mod tests {
     #[test]
     fn test_space_show_starmap() {
         let objects = vec![
-            ShowStarmapDesc {
+            SurfaceDesc {
                 kind: ShowStarmapDescKind::Planet,
                 pos: V2::new(-2.0, 1.0),
                 me: false,
                 label: "one".to_string(),
             },
-            ShowStarmapDesc {
+            SurfaceDesc {
                 kind: ShowStarmapDescKind::Planet,
                 pos: V2::new(1.0, 3.0),
                 me: false,
                 label: "two".to_string(),
             },
-            ShowStarmapDesc {
+            SurfaceDesc {
                 kind: ShowStarmapDescKind::Craft,
                 pos: V2::new(1.0, 0.0),
                 me: true,
                 label: "three".to_string(),
             },
-            ShowStarmapDesc {
+            SurfaceDesc {
                 kind: ShowStarmapDescKind::Craft,
                 pos: V2::new(2.0, -1.0),
                 me: false,
@@ -526,6 +552,7 @@ mod tests {
         ];
 
         let string = space_show_sectormap(&objects);
+//        assert_eq!("", string.as_str());
         assert!(string.as_str().contains(".......... 2 - @ three"));
     }
 }

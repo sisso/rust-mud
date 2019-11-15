@@ -3,6 +3,8 @@
 - fly ship to places
 - land ship
 
+- send messages to mob_id instead player_id
+
 - parametrize game initialization
 - remove item prefab and just put it into limbo
 - add put item at

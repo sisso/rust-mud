@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use commons::ObjId;
 use logs::*;
 
-pub(crate) type PlanetId = ObjId;
+pub type PlanetId = ObjId;
 
 #[derive(Clone,Debug)]
 pub struct Planet {

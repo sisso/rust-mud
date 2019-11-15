@@ -35,9 +35,11 @@ pub mod config;
 pub mod storages;
 pub mod crafts;
 pub mod planets;
-pub mod sectors;
+pub mod surfaces;
 pub mod pos;
 pub mod input_handle_space;
+pub mod surfaces_object;
+pub mod actions_craft;
 
 #[derive(Debug)]
 pub struct ConnectionState {

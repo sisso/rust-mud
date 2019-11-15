@@ -68,9 +68,17 @@ fn test_sectormap() -> Result<(),()> {
     let mut scenery = TestScenery::new();
     scenery.login();
     scenery.send_input("sm");
+
+    // look star map
     let outputs = scenery.wait_for(".@.");
     assert!(outputs.join("\n").contains(".@."));
 //    assert_eq!("", outputs.join("\n").as_str());
+
+    // check move targets
+    scenery.send_input("move");
+
+    let outputs = scenery.take_outputs();
+    assert_eq!("", outputs.join("\n"));
 
     Ok(())
 }

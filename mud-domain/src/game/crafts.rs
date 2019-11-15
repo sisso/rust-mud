@@ -1,18 +1,26 @@
 use std::collections::HashMap;
-use commons::ObjId;
+use commons::{ObjId, UResult, UErr, UOk};
 use logs::*;
 
 pub type CraftId = ObjId;
 
 #[derive(Clone,Debug)]
+pub enum CraftCommand {
+    Idle,
+    MoveTo { target_id: ObjId }
+}
+
+#[derive(Clone,Debug)]
 pub struct Craft {
     pub id: ObjId,
+    pub command: CraftCommand,
 }
 
 impl Craft {
     pub fn new(id: ObjId) -> Self {
         Craft {
-            id
+            id,
+            command: CraftCommand::Idle,
         }
     }
 }
@@ -42,6 +50,15 @@ impl Crafts {
 
     pub fn get(&self, id: ObjId) -> Result<&Craft,()> {
         self.index.get(&id).ok_or(())
+    }
+
+    pub fn set_command(&mut self, craft_id: CraftId, command: CraftCommand) -> UResult {
+        if let Some(craft) = self.index.get_mut(&craft_id) {
+            craft.command = command;
+            UOk
+        } else {
+            UErr
+        }
     }
 
     pub fn exists(&self, id: ObjId) -> bool { self.index.contains_key(&id) }

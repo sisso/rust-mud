@@ -18,20 +18,22 @@ fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc>
             id: item.id,
             label: item_label,
             amount: item.amount,
-            equipped: equip.contains(&item.id)
+            equipped: equip.contains(&item.id),
         }
     }).collect()
 }
 
-pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) -> Result<(),()> {
+pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) -> Result<(), ()> {
+    let mob_id = container.players.get_mob(player_id)?;
+
     match input {
         "h" | "help" => {
             outputs.private(player_id, comm::help());
-        },
+        }
 
         "l" | "look" => {
             actions::look(container, outputs, player_id);
-        },
+        }
 
         "n" | "s" | "e" | "w" => {
             let dir = match input.as_ref() {
@@ -43,51 +45,45 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
             };
 
             actions::mv(container, outputs, player_id, dir);
-        },
+        }
 
         "uptime" => {
             outputs.private(player_id, comm::uptime(container.time.total));
-        },
+        }
 
         "rest" => {
             actions::rest(container, outputs, player_id);
-        },
+        }
 
         "stand" => {
             let _ = actions::stand(container, outputs, player_id);
-        },
+        }
 
         "stats" | "inv" | "score" => {
             let ctx = container.get_player_context(player_id);
             let equiped = container.equips.get(ctx.mob.id).unwrap_or(HashSet::new());
             outputs.private(player_id, comm::stats(&ctx.mob.attributes, &inventory_to_desc(container, ctx.player.mob_id)));
-        },
-
-
-        "sm" | "starmap" => {
-            let mob_id = container.players.get_mob(player_id)?;
-            input_handle_space::show_starmap(container, outputs, player_id, mob_id);
-        },
+        }
 
         _ if has_command(input, &["pick"]) || has_command(&input, &["get"]) => {
             let _ = input_handle_items::pickup(container, outputs, player_id, parse_arguments(input));
-        },
+        }
 
         _ if has_command(input, &["drop"]) => {
             input_handle_items::drop(container, outputs, player_id, parse_arguments(input));
-        },
+        }
 
         _ if has_command(input, &["remove"]) => {
             input_handle_items::strip(container, outputs, player_id, parse_arguments(input));
-        },
+        }
 
         _ if has_command(input, &["equip"]) => {
             input_handle_items::equip(container, outputs, player_id, parse_arguments(input));
-        },
+        }
 
         _ if has_command(input, &["examine "]) => {
-            action_examine(container, outputs,player_id, input);
-        },
+            action_examine(container, outputs, player_id, input);
+        }
 
         _ if has_command(input, &["k ", "kill "]) => {
             let target = parse_command(input, &["k ", "kill "]);
@@ -98,23 +94,22 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
             match candidate {
                 Some(mob_id) if !container.mobs.is_avatar(*mob_id) => {
                     let _ = actions::attack(container, outputs, player_id, *mob_id);
-                },
+                }
                 Some(_) => {
                     outputs.private(player_id, comm::kill_can_not_kill_players(&target));
-                },
+                }
                 None => {
                     outputs.private(player_id, comm::kill_target_not_found(&target));
                 }
             }
-        },
+        }
 
-        _ if input.starts_with("say ")  => {
+        _ if input.starts_with("say ") => {
             let msg = input["say ".len()..].to_string();
-            let mob_id = container.players.get(player_id).mob_id;
             let _ = actions::say(container, outputs, Some(player_id), mob_id, msg);
-        },
+        }
 
-        _ if input.starts_with("admin ")  => {
+        _ if input.starts_with("admin ") => {
             let arguments = parse_arguments(input);
             if arguments.len() != 2 {
                 outputs.private(player_id, comm::admin_invalid_command());
@@ -129,16 +124,28 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
                     outputs.private(player_id, comm::admin_suicide());
                     outputs.room(player_id, pctx.room.id, comm::admin_suicide_others(mob_label));
                     actions_admin::kill(container, outputs, mob_id);
-                },
+                }
                 other => {
                     outputs.private(player_id, comm::admin_invalid_command());
                 }
             }
-        },
+        }
+
+        "sm" | "map" => {
+            input_handle_space::show_starmap(container, outputs, player_id, mob_id);
+        }
+
+        "move" => {
+            input_handle_space::move_list_targets(container, outputs, player_id, mob_id);
+        }
+
+        _ if input.starts_with("move") => {
+            input_handle_space::move_to(container, outputs, player_id, mob_id, parse_arguments(input));
+        }
 
         _ => {
             outputs.private(player_id, comm::unknown_input(input));
-        },
+        }
     }
 
     Ok(())
@@ -156,7 +163,7 @@ fn action_examine(container: &Container, outputs: &mut dyn Outputs, player_id: P
             outputs.private(player_id, comm::examine_target(mob_label, &mob.attributes, &inventory_to_desc(container, mob_id)));
             return;
         }
-        _ => {},
+        _ => {}
     }
 
     let items = inventory::search(&container.labels, &container.locations, &container.items, ctx.room.id, target_label);
@@ -165,8 +172,8 @@ fn action_examine(container: &Container, outputs: &mut dyn Outputs, player_id: P
             let item_label = container.labels.get_label_f(item_id);
             outputs.private(player_id, comm::examine_target_item(item_label, &inventory_to_desc(container, item_id)));
             return;
-        },
-        _ => {},
+        }
+        _ => {}
     }
 
     // else

@@ -223,7 +223,7 @@ Would be more interesting to have
     
 }
 
-## SurfacesO
+## Surfaces
 
 Instead sector, we will introduce a new model Surface, that can be 2D or 3D.
 
@@ -306,3 +306,43 @@ sector {
     }
 }
 
+## Piloting
+
+Many vehicles are planed to be available and allow player to move around.
+
+Craft - to fly in space and land into planets
+Vehicels - to drive/fly/dive into planets, moons, asteroids
+Feets - to walk around rooms
+Mechs - PErsonal Mech are wearing, Large mech are vehicles
+
+## Planet vs SpaceBody
+
+Sectors 
+- Planet
+  - city
+   - room
+   - craft
+     - room
+- Craft
+  - room
+  
+Station in space has same semantic as City in a planet
+
+We will just call places. Places are things in Surfaces.
+
+## Msg to playerid
+
+We never want to send message to players, we always want o send message to avatars. A player can monitor many avatars. 
+For example, the person itself, a drone, the current vehicle and current ship.
+
+A message to the ship will hit all people inside, a message to vehicle only for who is incide, for the character, only himself.
+
+This means that we want to attach player_id, or better, connections, to receive any message to the attached resources.
+
+But how do we solve the issue if the pilot send a wrong command? everybody receive a spawn?
+- well, the ship can shake and all fell
+- if ship was not affected, only the mob_id that execute the action will receive the message.
+
+Conclusion: 
+- each mob can be watched by one or more player_id, messages are never to player only to mobs. 
+- e should process all messages and map into mob_id
