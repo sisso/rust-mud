@@ -199,7 +199,31 @@ Atm thrusters
 Aquatic thruster
 ?
 
-## Surfaces
+## XML format
+
+While lthe XML format is better that I would like to assume. Still assume that you can only have a "Kind". While when using a ECS system usually you will have many types. For instance, instead:
+
+<surface name="Planet" type="2D" size="10">
+</surface>
+
+Would be more interesting to have
+
+{
+    id: 1
+    label: "Planet"
+    surface: {
+        size: 10
+        type: 2d
+    }
+    planet: {
+        atm: 0.8
+    }
+    position: [0, 2, 3]
+    at: sector1
+    
+}
+
+## SurfacesO
 
 Instead sector, we will introduce a new model Surface, that can be 2D or 3D.
 
@@ -267,3 +291,18 @@ sector {
         }
     }
 }
+
+
+{
+    "1" {
+        surface {
+        }
+    }
+    
+    "2" {
+        location: 1
+        planet {
+        }
+    }
+}
+
