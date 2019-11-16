@@ -31,7 +31,6 @@ impl Locations {
 
     pub fn get(&self, obj_id: ObjId) -> Result<ObjId, ()> {
         let v = self.index.get(&obj_id).cloned().ok_or(());
-        println!("get {:?} result in {:?}", obj_id, v);
         v
     }
 

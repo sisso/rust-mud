@@ -8,6 +8,7 @@ pub struct Label {
     /// how we call it
     pub label: String,
     /// tokens used to reference in commends
+    // TODO: array
     pub code: String,
     pub desc: String,
 }

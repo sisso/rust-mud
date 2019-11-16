@@ -459,11 +459,15 @@ pub fn space_show_move_targets(desc: &Vec<SurfaceDesc>) -> String {
 }
 
 pub fn space_move() -> String {
-    "ship start to accelerate to the new target".to_string()
+    "command accepted, the craft is accelerating to the target".to_string()
 }
 
 pub fn space_move_invalid() -> String {
     "can not move to that".to_string()
+}
+
+pub fn space_command_failed() -> String {
+    "command failed!".to_string()
 }
 
 #[cfg(test)]

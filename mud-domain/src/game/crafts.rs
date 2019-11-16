@@ -11,9 +11,23 @@ pub enum CraftCommand {
 }
 
 #[derive(Clone,Debug)]
+pub struct CraftAttributes {
+    pub speed: f32
+}
+
+impl CraftAttributes {
+    pub fn new() -> Self {
+        CraftAttributes {
+            speed: 1.0
+        }
+    }
+}
+
+#[derive(Clone,Debug)]
 pub struct Craft {
     pub id: ObjId,
     pub command: CraftCommand,
+    pub attributes: CraftAttributes,
 }
 
 impl Craft {
@@ -21,6 +35,7 @@ impl Craft {
         Craft {
             id,
             command: CraftCommand::Idle,
+            attributes: CraftAttributes::new()
         }
     }
 }
@@ -62,4 +77,12 @@ impl Crafts {
     }
 
     pub fn exists(&self, id: ObjId) -> bool { self.index.contains_key(&id) }
+
+    pub fn list(&self) -> Vec<CraftId> {
+        self.index.keys().cloned().collect()
+    }
+
+    pub fn list_all<'a>(&'a self) -> impl Iterator<Item = &'a Craft> + 'a {
+        self.index.values()
+    }
 }

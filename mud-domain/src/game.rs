@@ -40,6 +40,8 @@ pub mod pos;
 pub mod input_handle_space;
 pub mod surfaces_object;
 pub mod actions_craft;
+pub mod crafts_system;
+pub mod space_utils;
 
 #[derive(Debug)]
 pub struct ConnectionState {
@@ -280,7 +282,7 @@ impl Game {
         for game_output in outputs {
             match game_output {
                 Output::Room { player_id, room_id, msg } => {
-                    debug!("game_controller - {:?}/{:?}: {}", player_id, room_id, msg);
+                    debug!("{:?}/{:?}: {}", player_id, room_id, msg);
 
                     let players_per_room = find_players_per_room(&self.container);
 
@@ -298,18 +300,21 @@ impl Game {
                                 .flat_map(|i_player_id| self.connection_id_from_player_id(*i_player_id))
                                 .collect();
 
-                        debug!("game_controller - players at room {:?}, selected connections: {:?}", players, connections_id);
+                        debug!("players at room {:?}, selected connections: {:?}", players, connections_id);
                         for connection_id in connections_id {
                             self.server_outputs.push((connection_id, msg.clone()));
                         }
                     } else {
-                        debug!("game_controller - no players at room");
+                        debug!("no players at room");
                     }
                 }
 
                 Output::Private { player_id, msg } => {
                     if let Some(connection_id) = self.connection_id_from_player_id(player_id) {
+                        debug!("{:?} - {}", player_id, msg);
                         self.server_outputs.push((connection_id, msg));
+                    } else {
+                        debug!("{:?} has no conection - {}", player_id, msg);
                     }
                 }
             }

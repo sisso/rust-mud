@@ -76,9 +76,16 @@ fn test_sectormap() -> Result<(),()> {
 
     // check move targets
     scenery.send_input("move");
+    scenery.wait_for("Dune");
+
+    scenery.send_input("move dune");
+    scenery.wait_for("command accepted");
+
+    scenery.wait_for("arrival");
 
     let outputs = scenery.take_outputs();
     assert_eq!("", outputs.join("\n"));
+
 
     Ok(())
 }
