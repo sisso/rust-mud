@@ -4,6 +4,8 @@ use logs::*;
 use crate::game::labels::Labels;
 use crate::game::room::RoomId;
 
+pub type LocationId = ObjId;
+
 #[derive(Clone,Debug)]
 pub struct Locations {
     // TODO: add inverse index
@@ -44,12 +46,8 @@ impl Locations {
     }
 }
 
-pub fn search_at(labels: &Labels, locations: &Locations, room_id: RoomId, label: &str) -> Vec<ObjId> {
-    locations.list_at(room_id).filter_map(|obj_id| {
-        match labels.get(obj_id) {
-            Ok(l) if l.code.eq_ignore_ascii_case(label) => Some(obj_id),
-            _ => None,
-        }
-    }).collect()
+pub fn search_at(labels: &Labels, locations: &Locations, location_id: LocationId, input: &str) -> Vec<ObjId> {
+    let candidates = locations.list_at(location_id).collect::<Vec<_>>();
+    labels.search_codes(&candidates, input)
 }
 

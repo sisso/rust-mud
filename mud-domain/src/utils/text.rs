@@ -89,15 +89,45 @@ pub fn mkstring(buffer: Vec<Vec<String>>) -> String {
     buffer.into_iter().map(|i| i.join("")).collect::<Vec<String>>().join("\n")
 }
 
+/// search in labels giving an inputs and return all matches, sorted by score
+///
+/// if a full match is found, no fuzy query is used
+pub fn search_label(input: &str, labels: &Vec<&str>) -> Vec<usize> {
+    labels.iter().enumerate().filter_map(|(i,s)| {
+        if s.eq_ignore_ascii_case(input) {
+            Some(i)
+        } else {
+            None
+        }
+    }).collect()
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::utils::text::{plot_points, PlotCfg, PlotPoint, mkstring, append_right};
+    use crate::utils::text::{plot_points, PlotCfg, PlotPoint, mkstring, append_right, search_label};
 
     const CFG: PlotCfg = PlotCfg {
         width: 6,
         height: 6,
         min_scale: 10.0,
     };
+
+    #[test]
+    pub fn test_search_label() {
+        fn test_one(input: &str, strings: Vec<&str>, expected: Vec<usize>) {
+            let result = search_label(input, &strings);
+            assert_eq!(result, expected);
+        }
+
+        test_one("", vec![], vec![]);
+        test_one("", vec!["one"], vec![]);
+        test_one("one", vec!["one", "two"], vec![0]);
+        test_one("two", vec!["one", "two"], vec![1]);
+        test_one("one a", vec!["one a", "one b"], vec![0]);
+//        test_one("one", vec!["one a", "one b"], vec![0, 1]);
+//        test_one("one", vec!["ONE a", "ONE b"], vec![0, 1]);
+//        test_one("one", vec!["ONE a", "ONE"], vec![1]);
+    }
 
     #[test]
     pub fn test_plot_points_empty() {

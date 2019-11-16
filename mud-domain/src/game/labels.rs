@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use commons::ObjId;
+use crate::utils::text;
 
 #[derive(Clone,Debug)]
 pub struct Label {
@@ -68,4 +69,26 @@ impl Labels {
             .unwrap_or("???")
     }
 
+    pub fn resolve_codes(&self, ids: &Vec<ObjId>) -> Vec<&str> {
+        // flat map can not be used because we want replace none by ???
+        ids.iter().map(|id| {
+            self.index.get(&id)
+                .map(|labels| labels.code.as_str())
+                .unwrap_or("???")
+        }).collect()
+    }
+
+    pub fn resolve_labels(&self, ids: &Vec<ObjId>) -> Vec<&str> {
+        ids.iter().map(|id| self.get_label_f(*id)).collect()
+    }
+
+    pub fn search_codes(&self, ids: &Vec<ObjId>, input: &str) -> Vec<ObjId> {
+        let candidates = self.resolve_labels(&ids);
+        let selected = text::search_label(input, &candidates);
+        let mut result = vec![];
+        for selected_index in selected {
+            result.push(ids[selected_index]);
+        }
+        result
+    }
 }

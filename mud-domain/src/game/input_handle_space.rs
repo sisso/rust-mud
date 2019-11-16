@@ -6,6 +6,7 @@ use crate::game::mob::MobId;
 use crate::game::crafts::CraftId;
 use crate::game::comm::{SurfaceDesc, ShowStarmapDescKind};
 use logs::*;
+use crate::utils::text::search_label;
 
 pub fn show_starmap(container: &Container, outputs: &mut dyn Outputs, player_id: PlayerId, mob_id: MobId) -> Result<(),()> {
     let (craft_id, craft_location) = get_craft_and_location(container, outputs, player_id, mob_id)?;
@@ -23,30 +24,19 @@ pub fn move_list_targets(container: & Container, outputs: &mut dyn Outputs, play
 
 pub fn move_to(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, mob_id: MobId, input: Vec<&str>) -> Result<(),()> {
     let (craft_id, craft_location) = get_craft_and_location(container, outputs, player_id, mob_id)?;
-
-    let result =
-    input.get(1).ok_or_else(|| {
-        outputs.private(player_id, comm::space_move_invalid());
-    }).and_then(|label| {
-        find_surface_target(container, craft_location, label).first().cloned().ok_or_else(|| {
-            outputs.private(player_id, comm::space_move_invalid());
-        })
+    input.get(1).ok_or(()).and_then(|label| {
+        find_surface_target(container, craft_location, label)
     }).and_then(|target_id| {
         actions_craft::move_to(container, outputs, player_id, craft_id, target_id)
-    });
-
-    Ok(())
+    }).map_err(|_| {
+        outputs.private(player_id, comm::space_move_invalid());
+    })
 }
 
-fn find_surface_target(container: &mut Container, craft_location: ObjId, label: &str) -> Vec<ObjId> {
-    container.locations.list_at(craft_location).flat_map(|id| {
-        let obj_label = container.labels.get_label_f(id);
-        if obj_label.starts_with(label) {
-            Some(id)
-        } else {
-            None
-        }
-    }).collect()
+fn find_surface_target(container: &mut Container, craft_location: ObjId, label: &str) -> Result<ObjId,()> {
+    let candidates = container.locations.list_at(craft_location).collect::<Vec<_>>();
+    let founds = container.labels.search_codes(&candidates, label);
+    founds.first().cloned().ok_or(())
 }
 
 fn get_objects_in_surface(container: &Container, craft_id: ObjId, craft_location: ObjId) -> Vec<SurfaceDesc> {
