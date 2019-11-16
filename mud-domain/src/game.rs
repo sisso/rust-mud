@@ -4,6 +4,7 @@ use logs::*;
 use container::Container;
 use crate::game::view_login::LoginResult;
 use crate::game::room::RoomId;
+use crate::game::location::LocationId;
 
 pub mod obj;
 pub mod actions;
@@ -62,34 +63,15 @@ pub enum Output {
         room_id: RoomId,
         msg: String,
     },
-}
 
-impl Output {
-    pub fn private(player_id: PlayerId, msg: String) -> Self {
-        Output::Private {
-            player_id,
-            msg,
-        }
-    }
-
-    pub fn room(player_id: PlayerId, room_id: RoomId, msg: String) -> Self {
-        Output::Room {
-            player_id: Some(player_id),
-            room_id,
-            msg,
-        }
-    }
-
-    pub fn room_all(room_id: RoomId, msg: String) -> Self {
-        Output::Room {
-            player_id: None,
-            room_id,
-            msg,
-        }
+    Zone {
+        location_id: LocationId,
+        msg: String,
     }
 }
 
 pub trait Outputs {
+    fn zone_all(&mut self, location_id: LocationId, msg: String);
     fn room_all(&mut self, room_id: RoomId, msg: String);
     fn room(&mut self, player_id: PlayerId, room_id: RoomId, msg: String);
     fn room_opt(&mut self, player_id: Option<PlayerId>, room_id: RoomId, msg: String);
@@ -115,20 +97,22 @@ impl OutputsBuffer {
 }
 
 impl Outputs for OutputsBuffer {
+    fn zone_all(&mut self, location_id: ObjId, msg: String) {
+        self.list.push(Output::Zone { location_id, msg });
+    }
+
     fn room_all(&mut self, room_id: RoomId, msg: String) {
-        self.list.push(Output::room_all(room_id, msg));
+        self.list.push(Output::Room { player_id: None, room_id, msg });
     }
 
     fn room(&mut self, player_id: PlayerId, room_id: RoomId, msg: String) {
-        self.list.push(Output::room(player_id, room_id, msg));
+        self.list.push(Output::Room { player_id: Some(player_id), room_id, msg });
     }
 
     fn room_opt(&mut self, player_id: Option<PlayerId>, room_id: RoomId, msg: String) {
-        match player_id {
-            Some(player_id) => self.room(player_id, room_id, msg),
-            None => self.room_all(room_id, msg),
-        }
+        self.list.push(Output::Room { player_id, room_id, msg });
     }
+
     fn private_opt(&mut self, player_id: Option<PlayerId>, msg: String) {
         match player_id {
             Some(player_id) => self.private(player_id, msg),
@@ -137,7 +121,7 @@ impl Outputs for OutputsBuffer {
     }
 
     fn private(&mut self, player_id: PlayerId, msg: String) {
-        self.list.push(Output::private(player_id, msg));
+        self.list.push(Output::Private { player_id, msg });
     }
 }
 
@@ -290,14 +274,14 @@ impl Game {
                         let connections_id: Vec<ConnectionId> =
                             players
                                 .iter()
-                                .filter(|i_player_id| {
+                                .filter(|&&i_player_id| {
                                     match player_id {
                                         // exclude player that emit the message from receivers
-                                        Some(player_id) if **i_player_id == player_id => false,
+                                        Some(player_id) if i_player_id == player_id => false,
                                         _ => true
                                     }
                                 })
-                                .flat_map(|i_player_id| self.connection_id_from_player_id(*i_player_id))
+                                .flat_map(|&i_player_id| self.connection_id_from_player_id(i_player_id))
                                 .collect();
 
                         debug!("players at room {:?}, selected connections: {:?}", players, connections_id);
@@ -315,6 +299,20 @@ impl Game {
                         self.server_outputs.push((connection_id, msg));
                     } else {
                         debug!("{:?} has no conection - {}", player_id, msg);
+                    }
+                }
+
+                Output::Zone { location_id, msg } => {
+                    let connections: Vec<(PlayerId, ConnectionId)> =
+                        avatars::find_deep_all_players_in(&self.container, location_id).iter()
+                            .flat_map(|&player_id| {
+                                self.connection_id_by_player_id.get(&player_id).cloned()
+                                    .map(|v| (player_id, v))
+                            }).collect();
+
+                    for (player_id, connection_id) in connections {
+                        debug!("{:?} - {}", player_id, msg);
+                        self.server_outputs.push((connection_id, msg.clone()))
                     }
                 }
             }

@@ -5,10 +5,6 @@ use crate::game::{Outputs, comm};
 use crate::game::mob::MobId;
 use crate::game::space_utils::*;
 
-
-
-
-
 pub fn show_starmap(container: &Container, outputs: &mut dyn Outputs, player_id: PlayerId, mob_id: MobId) -> Result<(),()> {
     let (craft_id, craft_location) = get_craft_and_location(container, outputs, player_id, mob_id)?;
     let objects = get_objects_in_surface(container, craft_id, craft_location);

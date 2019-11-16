@@ -8,7 +8,7 @@ use commons::{PlayerId, ObjId, DeltaTime};
 use crate::game::obj::Objects;
 use crate::game::location::Locations;
 use crate::game::equip::{Equips};
-use crate::game::{Outputs, spawn, mob, item};
+use crate::game::{Outputs, spawn, mob, item, crafts_system};
 use logs::*;
 use crate::game::tags::Tags;
 use crate::game::labels::Labels;
@@ -108,6 +108,7 @@ impl Container {
         spawn::run(&mut ctx);
         mob::run_tick(&mut ctx);
         item::run_tick(&mut ctx);
+        crafts_system::tick(&mut ctx);
     }
 
 //    pub fn save(&self, save: &mut dyn Save) {

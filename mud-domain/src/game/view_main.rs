@@ -52,7 +52,7 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
         }
 
         "rest" => {
-            actions::rest(container, outputs, player_id);
+            let _ = actions::rest(container, outputs, player_id);
         }
 
         "stand" => {
@@ -132,15 +132,15 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
         }
 
         "sm" | "map" => {
-            input_handle_space::show_starmap(container, outputs, player_id, mob_id);
+            let _ = input_handle_space::show_starmap(container, outputs, player_id, mob_id);
         }
 
         "move" => {
-            input_handle_space::move_list_targets(container, outputs, player_id, mob_id);
+            let _ = input_handle_space::move_list_targets(container, outputs, player_id, mob_id);
         }
 
         _ if input.starts_with("move") => {
-            input_handle_space::move_to(container, outputs, player_id, mob_id, parse_arguments(input));
+            let _ = input_handle_space::move_to(container, outputs, player_id, mob_id, parse_arguments(input));
         }
 
         _ => {

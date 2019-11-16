@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use commons::{ObjId, V2, UResult};
-
-
+use logs::*;
 
 #[derive(Clone,Debug)]
 pub struct Pos {
@@ -22,10 +21,12 @@ impl PosRepo {
     }
 
     pub fn set(&mut self, value: Pos) {
+        info!("{:?} added", value);
         self.index.insert(value.id, value);
     }
 
     pub fn remove(&mut self, id: ObjId) -> Option<Pos> {
+        info!("{:?} removed", id);
         self.index.remove(&id)
     }
 
@@ -39,6 +40,7 @@ impl PosRepo {
 
     pub fn set_pos(&mut self, id: ObjId, new_pos: V2) -> UResult {
         self.index.get_mut(&id).ok_or(()).map(|i| {
+            info!("{:?} set_pos {:?}", id, new_pos);
             i.pos = new_pos;
             ()
         })

@@ -1,7 +1,4 @@
 use commons::{ObjId, PlayerId};
-
-
-
 use crate::game::{comm, Outputs};
 use crate::game::comm::{ShowStarmapDescKind, SurfaceDesc};
 use crate::game::container::Container;

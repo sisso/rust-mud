@@ -3,6 +3,7 @@ use crate::game::container::Container;
 use crate::game::{Outputs, comm};
 use crate::game::mob::{Mob, Attributes, Damage, Pv, MobId};
 use crate::game::labels::Label;
+use crate::game::location::LocationId;
 
 //struct PlayerC<'a> {
 //    pub coniner: &'a Container,
@@ -93,3 +94,9 @@ pub fn create_player(container: &mut Container, login: &str) -> PlayerId {
     player.id
 }
 
+pub fn find_deep_all_players_in(container: &Container, location_id: LocationId) -> Vec<PlayerId> {
+    let candidates = container.locations.list_deep_at(location_id);
+    candidates.into_iter().flat_map(|id| {
+       container.players.find_from_mob(id).ok()
+    }).collect()
+}

@@ -470,6 +470,10 @@ pub fn space_command_failed() -> String {
     "command failed!".to_string()
 }
 
+pub fn space_command_complete() -> String {
+    "command complete!".to_string()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

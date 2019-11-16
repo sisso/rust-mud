@@ -55,7 +55,7 @@ impl TestScenery {
             }
         }
 
-        panic!("")
+        panic!()
     }
 
     pub fn tick(&mut self) {
@@ -81,10 +81,10 @@ fn test_sectormap() -> Result<(),()> {
     scenery.send_input("move dune");
     scenery.wait_for("command accepted");
 
-    scenery.wait_for("arrival");
+    scenery.wait_for("complete");
 
     let outputs = scenery.take_outputs();
-    assert_eq!("", outputs.join("\n"));
+    assert_eq!("???", outputs.join("\n"));
 
 
     Ok(())

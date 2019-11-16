@@ -4,9 +4,5 @@ members = [
   "logs",
   "mud-server",
   "commons",
-  "mud-engine",
   "socket-server",
-  "http-server",
-  "mud-main",
-  "mud-space",
 ]
