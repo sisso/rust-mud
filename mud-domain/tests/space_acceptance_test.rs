@@ -55,7 +55,7 @@ impl TestScenery {
             }
         }
 
-        panic!()
+        panic!(format!("timeout waiting for {:?}", contains));
     }
 
     pub fn tick(&mut self) {
@@ -80,12 +80,21 @@ fn test_sectormap() -> Result<(),()> {
 
     scenery.send_input("move dune");
     scenery.wait_for("command accepted");
-
     scenery.wait_for("complete");
 
-    let outputs = scenery.take_outputs();
-    assert_eq!("???", outputs.join("\n"));
+    scenery.send_input("land");
+    scenery.wait_for("Palace");
 
+    scenery.send_input("land palace");
+    scenery.wait_for("complete");
+
+    scenery.send_input("s");
+    scenery.send_input("s");
+    scenery.send_input("out");
+    scenery.wait_for("Palace");
+
+//    let outputs = scenery.take_outputs();
+//    assert_eq!("???", outputs.join("\n"));
 
     Ok(())
 }

@@ -35,12 +35,14 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
             actions::look(container, outputs, player_id);
         }
 
-        "n" | "s" | "e" | "w" => {
+        "n" | "s" | "e" | "w" | "enter" | "out" | "exit" => {
             let dir = match input.as_ref() {
                 "n" => Dir::N,
                 "s" => Dir::S,
                 "e" => Dir::E,
                 "w" => Dir::W,
+                "enter" => Dir::Enter,
+                "out" | "exit" => Dir::Out,
                 _ => panic!("invalid input {}", input),
             };
 
@@ -139,8 +141,16 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
             let _ = input_handle_space::move_list_targets(container, outputs, player_id, mob_id);
         }
 
-        _ if input.starts_with("move") => {
+        _ if input.starts_with("move ") => {
             let _ = input_handle_space::move_to(container, outputs, player_id, mob_id, parse_arguments(input));
+        }
+
+        "land" => {
+            let _ = input_handle_space::land_list(container, outputs, player_id, mob_id);
+        }
+
+        _ if input.starts_with("land ") => {
+            let _ = input_handle_space::land_at(container, outputs, player_id, mob_id, parse_arguments(input));
         }
 
         _ => {
@@ -200,6 +210,7 @@ fn parse_command<'a>(input: &'a str, commands: &[&str]) -> &'a str {
     panic!("unable to parse!");
 }
 
+// TODO: drop first argument
 fn parse_arguments(input: &str) -> Vec<&str> {
     input
         .split_ascii_whitespace()

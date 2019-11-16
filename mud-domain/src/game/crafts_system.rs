@@ -2,7 +2,6 @@ use crate::game::container::Ctx;
 use crate::game::crafts::CraftCommand;
 use crate::utils::geometry;
 use crate::game::{comm, avatars};
-use std::process::id;
 
 pub fn tick(ctx: &mut Ctx) {
     let mut commands_complete = vec![];
@@ -32,6 +31,8 @@ pub fn tick(ctx: &mut Ctx) {
     }
 
     for (craft_id, success) in commands_complete {
+        ctx.container.crafts.set_command(craft_id, CraftCommand::Idle).unwrap();
+
         let msg =
             if success { comm::space_command_complete() }
             else { comm::space_command_failed() };

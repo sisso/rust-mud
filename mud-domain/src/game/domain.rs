@@ -32,6 +32,8 @@ pub enum Dir {
     S,
     W,
     E,
+    Enter,
+    Out,
 }
 
 impl Dir {
@@ -41,6 +43,8 @@ impl Dir {
             Dir::S => Dir::N,
             Dir::E => Dir::E,
             Dir::W => Dir::W,
+            Dir::Enter => Dir::Out,
+            Dir::Out => Dir::Enter,
         }
     }
 
@@ -50,18 +54,9 @@ impl Dir {
            Dir::S => "s",
            Dir::E => "e",
            Dir::W => "w",
+           Dir::Enter => "enter",
+           Dir::Out => "out",
        }
-    }
-}
-
-impl std::fmt::Display for Dir {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match self {
-            Dir::N => write!(f, "N"),
-            Dir::S => write!(f, "S"),
-            Dir::E => write!(f, "E"),
-            Dir::W => write!(f, "W"),
-        }
     }
 }
 

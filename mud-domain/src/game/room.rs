@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use logs::*;
 use super::domain::Dir;
-use commons::ObjId;
+use commons::{ObjId, UResult, UErr, UOk};
 
 pub type RoomId = ObjId;
 
@@ -9,6 +9,17 @@ pub type RoomId = ObjId;
 pub struct Room {
     pub id: RoomId,
     pub exits: Vec<(Dir, RoomId)>,
+    pub is_airlock: bool,
+}
+
+impl Room {
+    pub fn new(id: RoomId) -> Self {
+        Room {
+            id,
+            exits: vec![],
+            is_airlock: false
+        }
+    }
 }
 
 impl Room {
@@ -35,7 +46,7 @@ impl RoomRepository {
         if self.index.contains_key(&room.id) {
             panic!("room already exists");
         }
-        debug!("{:?} add room {:?}", room.id, room);
+        debug!("{:?} added", room);
         self.index.insert(room.id, room);
     }
 
@@ -53,5 +64,17 @@ impl RoomRepository {
 
     pub fn exists(&self, id: RoomId) -> bool {
         self.index.contains_key(&id)
+    }
+
+    pub fn update<F>(&mut self, room_id: RoomId, f: F) -> UResult
+        where F: FnOnce(&mut Room) {
+
+        if let Some(room) = self.index.get_mut(&room_id) {
+            f(room);
+            debug!("{:?} updated", room);
+            UOk
+        } else {
+            UErr
+        }
     }
 }

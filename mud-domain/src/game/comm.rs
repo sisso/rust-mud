@@ -103,19 +103,19 @@ pub fn say_someone_said(actor: &str, msg: &str) -> String {
 }
 
 pub fn move_you_move(dir: &Dir) -> String {
-    format!("you move to {}!", dir)
+    format!("you move to {}!", dir.as_str())
 }
 
 pub fn move_come(who: &str, dir: &Dir) -> String {
-    format!("{} comes from {}.", who, dir)
+    format!("{} comes from {}.", who, dir.as_str())
 }
 
 pub fn move_goes(who: &str, dir: &Dir) -> String {
-    format!("{} goes to {}.", who, dir)
+    format!("{} goes to {}.", who, dir.as_str())
 }
 
 pub fn move_not_possible(dir: &Dir) -> String {
-    format!("not possible to move to {}!", dir)
+    format!("not possible to move to {}!", dir.as_str())
 }
 
 pub fn spawn_mob(label: &str) -> String {
@@ -394,6 +394,10 @@ pub fn space_needs_to_be_in_space() -> String {
     "you need to be in space to do it".to_string()
 }
 
+pub fn space_land_complete() -> String {
+    "landing complete".to_string()
+}
+
 pub enum ShowStarmapDescKind {
     Planet,
     Craft
@@ -472,6 +476,24 @@ pub fn space_command_failed() -> String {
 
 pub fn space_command_complete() -> String {
     "command complete!".to_string()
+}
+
+pub fn space_land_invalid() -> String {
+    "invalid selection, can not land on that".to_string()
+}
+
+//pub fn space_land_started() -> String {
+//    "command accepted, starting landing procedures.".to_string()
+//}
+
+pub fn space_land_list(candidates: &Vec<&str>) -> String {
+    let mut buffer = Vec::new();
+    buffer.push("Landing locations:".to_string());
+
+    for label in candidates {
+        buffer.push(format!("- {}", label))
+    }
+    buffer.join("\n")
 }
 
 #[cfg(test)]

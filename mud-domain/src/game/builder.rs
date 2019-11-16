@@ -12,10 +12,7 @@ Builder methods to instantiate game components from code. Main use for testing.
 pub fn add_room(container: &mut Container, label: &str, desc: &str) -> RoomId {
     let room_id = container.objects.create();
 
-    container.rooms.add(Room {
-        id: room_id,
-        exits: vec![]
-    });
+    container.rooms.add(Room::new(room_id));
 
     container.labels.set(Label {
         id: room_id,

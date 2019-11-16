@@ -61,6 +61,16 @@ impl V2 {
     pub fn div(&self, scale: f32) -> V2 {
         self.mult(1.0 / scale)
     }
+
+    pub fn distance(&self, other: V2) -> f32 {
+        let delta = other.sub(self);
+        let len = delta.length();
+        if len.is_nan() {
+            0.0
+        } else {
+            len
+        }
+    }
 }
 
 pub type Position = V2;

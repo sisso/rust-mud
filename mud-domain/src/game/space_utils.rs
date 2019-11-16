@@ -1,10 +1,10 @@
-use commons::{ObjId, PlayerId};
+use commons::{ObjId, PlayerId, MIN_DISTANCE};
 use crate::game::{comm, Outputs};
 use crate::game::comm::{ShowStarmapDescKind, SurfaceDesc};
 use crate::game::container::Container;
 use crate::game::crafts::CraftId;
 use crate::game::mob::MobId;
-
+use crate::game::location::LocationId;
 
 pub fn find_surface_target(container: &mut Container, craft_location: ObjId, label: &str) -> Result<ObjId,()> {
     let candidates = container.locations.list_at(craft_location).collect::<Vec<_>>();
@@ -35,7 +35,41 @@ pub fn get_objects_in_surface(container: &Container, craft_id: ObjId, craft_loca
             _ => None
         }
     }).collect();
+
     objects
+}
+
+pub fn search_near_landing_sites(container: &Container, craft_id: ObjId) -> Vec<ObjId> {
+    container.locations.get(craft_id)
+        .and_then(|location_id| {
+            container.pos.get_pos(craft_id).map(|pos| {
+                (location_id, pos)
+            })
+        })
+        .map(|(location_id, pos)|{
+            container.locations.list_at(location_id)
+                .filter(|&obj_id| {
+                    if !container.planets.exists(obj_id) {
+                        return false;
+                    }
+
+                    let is_near = container.pos.get_pos(obj_id).ok().map(|planet_pos| {
+                        let distance = planet_pos.distance(pos);
+                        distance <= MIN_DISTANCE
+                    }).unwrap_or(false);
+
+                    is_near
+                })
+                .flat_map(|planet_id| {
+                    container.locations.list_at(planet_id)
+                        .filter(|&id| {
+                            container.rooms
+                                .get(id)
+                                .map(|room| room.is_airlock)
+                                .unwrap_or(false)
+                        })
+                }).collect()
+        }).unwrap_or(vec![])
 }
 
 pub fn get_craft_and_location(container: &Container, outputs: &mut dyn Outputs, player_id: PlayerId, mob_id: MobId) -> Result<(CraftId, ObjId),()> {
@@ -70,3 +104,10 @@ pub fn get_craft(container: &Container, mob_id: MobId) -> Result<CraftId, ()> {
     Ok(craft_id)
 }
 
+pub fn get_landing_airlocks(container: &Container, location_id: LocationId) -> Vec<LocationId> {
+   container.locations.list_at(location_id)
+       .flat_map(|id| container.rooms.get(id).ok())
+       .filter(|room| room.is_airlock)
+       .map(|room| room.id)
+       .collect()
+}
