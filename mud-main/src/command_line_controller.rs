@@ -2,9 +2,9 @@ mod view;
 mod comm;
 
 use std::collections::{HashMap, HashSet};
-use std::borrow::BorrowMut;
 
-use socket_server::{Server, ServerOutput, ServerChanges};
+
+use socket_server::{Server};
 use commons::{PlayerId, ConnectionId};
 use mud_engine::{Engine, ConnectionEvent, Action};
 use logs::*;
@@ -149,11 +149,11 @@ impl<'a> CommandLineViewController<'a> {
 }
 
 impl<'a> view::login_view::LoginController for CommandLineViewController<'a> {
-    fn output(&mut self, msg: String) {
+    fn output(&mut self, _msg: String) {
         unimplemented!()
     }
 
-    fn login(&mut self, login: &str, pass: &str) -> bool {
+    fn login(&mut self, _login: &str, _pass: &str) -> bool {
         unimplemented!()
     }
 

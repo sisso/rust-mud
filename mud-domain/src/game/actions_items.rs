@@ -13,7 +13,7 @@ pub enum PickUpError {
 }
 
 pub fn do_pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId, inventory_id: Option<ItemId>) -> Result<(),PickUpError> {
-    let mob = container.mobs.get(mob_id).map_err(|_| PickUpError::Other)?;
+    let _mob = container.mobs.get(mob_id).map_err(|_| PickUpError::Other)?;
     let item = container.items.get(item_id).map_err(|_| PickUpError::Other)?;
     let room_id = container.locations.get(mob_id).map_err(|_| PickUpError::Other)?;
     let mob_label = container.labels.get_label_f(mob_id);
@@ -50,7 +50,7 @@ pub fn do_pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id
 
 /// As a humanoid entity in mud, try to equip a item
 pub fn do_equip(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId) -> Result<(), ()> {
-    let item = container.items.get(item_id)?;
+    let _item = container.items.get(item_id)?;
     let item_label = container.labels.get_label_f(item_id);
 
     // check if mob own the item
@@ -77,7 +77,7 @@ pub fn do_equip(container: &mut Container, outputs: &mut dyn Outputs, player_id:
     // TODO: remove old equip in sample place?
     container.equips.add(mob_id, item_id);
 
-    let mob = container.mobs.get(mob_id)?;
+    let _mob = container.mobs.get(mob_id)?;
     let mob_label = container.labels.get_label_f(mob_id);
     let room_id = container.locations.get(mob_id)?;
     outputs.private_opt(player_id, comm::equip_player_from_room(item_label));
@@ -86,7 +86,7 @@ pub fn do_equip(container: &mut Container, outputs: &mut dyn Outputs, player_id:
 }
 
 pub fn do_strip(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId) -> Result<(),()> {
-    let mob = container.mobs.get(mob_id)?;
+    let _mob = container.mobs.get(mob_id)?;
     let mob_label = container.labels.get_label_f(mob_id);
     let room_id = container.locations.get(mob_id)?;
     let item_label = container.labels.get_label_f(item_id);
@@ -100,10 +100,10 @@ pub fn do_strip(container: &mut Container, outputs: &mut dyn Outputs, player_id:
 }
 
 pub fn do_drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId) -> Result<(),()> {
-    let mob = container.mobs.get(mob_id)?;
+    let _mob = container.mobs.get(mob_id)?;
     let mob_label = container.labels.get_label_f(mob_id);
     let room_id = container.locations.get(mob_id)?;
-    let item = container.items.get(item_id)?;
+    let _item = container.items.get(item_id)?;
     let item_label = container.labels.get_label_f(item_id);
 
     // strip if is in use

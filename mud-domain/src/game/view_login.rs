@@ -5,7 +5,7 @@ pub enum LoginResult {
     Login { login: String },
 }
 
-pub fn handle(game: &mut Container, input: &str) -> LoginResult {
+pub fn handle(_game: &mut Container, input: &str) -> LoginResult {
     if input.len() > 3 {
         LoginResult::Login { login: input.to_string() }
    } else {

@@ -38,9 +38,9 @@ pub fn plot_points(cfg: &PlotCfg, points: &Vec<PlotPoint>) -> Vec<Vec<String>> {
     let mut buffer = vec![];
 
     // draw empty map
-    for i in 0..cfg.height {
+    for _i in 0..cfg.height {
         let mut b = Vec::new();
-        for j in 0..cfg.width {
+        for _j in 0..cfg.width {
             b.push(".".to_string());
         }
         buffer.push(b)
@@ -70,9 +70,9 @@ pub fn plot_points(cfg: &PlotCfg, points: &Vec<PlotPoint>) -> Vec<Vec<String>> {
     buffer
 }
 
-pub fn append_right(buffer: &mut Vec<String>, mut other: Vec<String>) {
+pub fn append_right(buffer: &mut Vec<String>, other: Vec<String>) {
     let extra_lines = buffer.len().max(other.len());
-    for i in buffer.len()..extra_lines {
+    for _i in buffer.len()..extra_lines {
         buffer.push("".to_string());
     }
 

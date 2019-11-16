@@ -51,7 +51,7 @@ impl Server for SocketServer {
         });
     }
 
-    fn disconnect(&mut self, connection_id: ConnectionId) {
+    fn disconnect(&mut self, _connection_id: ConnectionId) {
         unimplemented!()
     }
 }

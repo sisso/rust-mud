@@ -17,10 +17,10 @@ impl Tags {
         }
     }
 
-    pub fn add(&mut self, obj_id: ObjId, tag: Tag) {
+    pub fn add(&mut self, _obj_id: ObjId, _tag: Tag) {
     }
 
-    pub fn remove(&mut self, id: ObjId, tag_id: ObjId) -> bool {
+    pub fn remove(&mut self, _id: ObjId, _tag_id: ObjId) -> bool {
         false
     }
 

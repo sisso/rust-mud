@@ -61,7 +61,7 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
 
         "stats" | "inv" | "score" => {
             let ctx = container.get_player_context(player_id);
-            let equiped = container.equips.get(ctx.mob.id).unwrap_or(HashSet::new());
+            let _equiped = container.equips.get(ctx.mob.id).unwrap_or(HashSet::new());
             outputs.private(player_id, comm::stats(&ctx.mob.attributes, &inventory_to_desc(container, ctx.player.mob_id)));
         }
 
@@ -125,7 +125,7 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
                     outputs.room(player_id, pctx.room.id, comm::admin_suicide_others(mob_label));
                     actions_admin::kill(container, outputs, mob_id);
                 }
-                other => {
+                _other => {
                     outputs.private(player_id, comm::admin_invalid_command());
                 }
             }

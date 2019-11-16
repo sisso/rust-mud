@@ -115,7 +115,7 @@ mod test {
 
     #[test]
     fn test_parse_not_owned_item_not_found_in_room() {
-        let mut scenery = crate::game::test::setup();
+        let scenery = crate::game::test::setup();
         let result = parse_not_owned_item(&scenery.container.labels, &scenery.container.locations, &scenery.container.items, scenery.room_id, vec!["get", "item3"]);
         match result {
             Err(ParseItemError::ItemNotFound { label }) => {
@@ -127,7 +127,7 @@ mod test {
 
     #[test]
     fn test_parse_not_owned_item_should_find_item_in_the_floor() {
-        let mut scenery = crate::game::test::setup();
+        let scenery = crate::game::test::setup();
         let result = parse_not_owned_item(&scenery.container.labels, &scenery.container.locations, &scenery.container.items,scenery.room_id, vec!["get", "item1"]);
         match result {
             Ok((item_id, None)) => assert_eq!(item_id, scenery.item1_id),
@@ -137,7 +137,7 @@ mod test {
 
     #[test]
     fn test_parse_not_owned_item_not_found_in_container() {
-        let mut scenery = crate::game::test::setup();
+        let scenery = crate::game::test::setup();
         let result = parse_not_owned_item(&scenery.container.labels, &scenery.container.locations, &scenery.container.items,scenery.room_id, vec!["get", "item1", "in", "container1"]);
         match result {
             Err(ParseItemError::ItemNotFound { label }) => {
@@ -149,7 +149,7 @@ mod test {
 
     #[test]
     fn test_parse_not_owned_item_should_find_item_in_the_container() {
-        let mut scenery = crate::game::test::setup();
+        let scenery = crate::game::test::setup();
         let result = parse_not_owned_item(&scenery.container.labels, &scenery.container.locations, &scenery.container.items,scenery.room_id, vec!["get", "item2", "in", "container1"]);
         match result {
             Ok((item_id, Some(container_id))) => {

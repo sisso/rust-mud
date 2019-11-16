@@ -8,14 +8,14 @@ pub struct HttpController {
 }
 
 impl HttpController {
-    pub fn new(server: HttpServer) -> Self {
+    pub fn new(_server: HttpServer) -> Self {
         HttpController {}
     }
 
-    pub fn handle_inputs(&mut self, engine: &mut Engine) {
+    pub fn handle_inputs(&mut self, _engine: &mut Engine) {
 
     }
 
-    pub fn handle_events(&mut self, engine: &mut Engine, events: &Vec<ConnectionEvent>) {
+    pub fn handle_events(&mut self, _engine: &mut Engine, _events: &Vec<ConnectionEvent>) {
     }
 }

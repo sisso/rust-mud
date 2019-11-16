@@ -2,7 +2,7 @@ use std::fs::ReadDir;
 use std::path::Path;
 
 use hocon::{*, HoconLoader as HLoader};
-use serde_json::{Number, Value};
+
 
 use commons::save::Load;
 
@@ -34,11 +34,11 @@ impl Loader for HoconLoader {
 
         match doc {
             Hocon::Hash(map) => {
-                let items = map.get("items");
-                let rooms = map.get("rooms");
-                let mobs = map.get("mobs");
-                let tags = map.get("tags");
-                let spawns = map.get("spawns");
+                let _items = map.get("items");
+                let _rooms = map.get("rooms");
+                let _mobs = map.get("mobs");
+                let _tags = map.get("tags");
+                let _spawns = map.get("spawns");
             },
             _ => return Err(LoaderError::Unknown.into())
         }

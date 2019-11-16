@@ -1,13 +1,13 @@
-use commons::{PlayerId, ObjId};
+use commons::{PlayerId};
 use crate::game::container::Container;
 use crate::game::{actions_craft};
 use crate::game::{Outputs, comm};
 use crate::game::mob::MobId;
 use crate::game::space_utils::*;
-use crate::game::crafts::CraftId;
-use crate::game::comm::{SurfaceDesc, ShowStarmapDescKind};
-use logs::*;
-use crate::utils::text::search_label;
+
+
+
+
 
 pub fn show_starmap(container: &Container, outputs: &mut dyn Outputs, player_id: PlayerId, mob_id: MobId) -> Result<(),()> {
     let (craft_id, craft_location) = get_craft_and_location(container, outputs, player_id, mob_id)?;

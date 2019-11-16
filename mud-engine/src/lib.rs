@@ -1,13 +1,13 @@
 extern crate mud_domain;
 extern crate logs;
 
-use commons::{DeltaTime, PlayerId, ConnectionId, TotalTime, Tick};
-use mud_domain::game::{Game, spawn, mob, item, OutputsBuffer, view_main, Output, find_players_per_room, loader};
+use commons::{DeltaTime, PlayerId};
+use mud_domain::game::{spawn, mob, item, OutputsBuffer, view_main, Output, find_players_per_room, loader};
 use mud_domain::game::container::{Container, Ctx};
-use mud_domain::game::player;
-use mud_domain::game::domain::GameTime;
+
+
 use std::collections::HashMap;
-use logs::*;
+
 
 pub struct Engine {
     container: Container,
@@ -24,7 +24,7 @@ impl Engine {
         }
     }
 
-    pub fn load(&mut self, data_dir: &str) {
+    pub fn load(&mut self, _data_dir: &str) {
         loader::load(&mut self.container);
     }
 
@@ -41,7 +41,7 @@ impl Engine {
         item::run_tick(&mut ctx);
     }
 
-    pub fn disconnect(&mut self, player_id: PlayerId) {
+    pub fn disconnect(&mut self, _player_id: PlayerId) {
         unimplemented!()
     }
 
@@ -77,7 +77,7 @@ impl Engine {
         result.into_iter().map(|(player_id, events)| ConnectionEvent { player_id, events } ).collect()
     }
 
-    pub fn login(&mut self, login: &str, pass: &str) -> Result<PlayerId, ()> {
+    pub fn login(&mut self, _login: &str, _pass: &str) -> Result<PlayerId, ()> {
 //        let player_id = add_player(&mut self.container, login);
 //        Ok(player_id)
         // TODO: copy from game

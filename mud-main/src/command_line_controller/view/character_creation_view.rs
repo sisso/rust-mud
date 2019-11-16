@@ -11,10 +11,10 @@ impl CharacterCreationView {
 }
 
 impl View for CharacterCreationView {
-    fn init(&mut self, view_manager: &mut dyn ViewController, data: &mut ViewData) {
+    fn init(&mut self, _view_manager: &mut dyn ViewController, _data: &mut ViewData) {
     }
 
-    fn handle(&mut self, view_manager: &mut dyn ViewController, input: &str, data: &mut ViewData) -> ViewAction {
+    fn handle(&mut self, _view_manager: &mut dyn ViewController, _input: &str, _data: &mut ViewData) -> ViewAction {
         // TODO: query game classes
         // TODO: query game races
         // TODO: create character for player
@@ -22,7 +22,7 @@ impl View for CharacterCreationView {
         ViewAction::None
     }
 
-    fn handle_events(&mut self, view_manager: &mut dyn ViewController, data: &mut ViewData, events: &Vec<Event>) -> ViewAction {
+    fn handle_events(&mut self, _view_manager: &mut dyn ViewController, _data: &mut ViewData, _events: &Vec<Event>) -> ViewAction {
         ViewAction::None
     }
 }

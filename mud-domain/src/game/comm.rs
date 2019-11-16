@@ -3,8 +3,8 @@ use super::domain::*;
 use super::container::Container;
 use super::mob::*;
 use commons::{TotalTime, V2};
-use crate::utils::text::{PlotPoint, PlotCfg, plot_points, mkstring, append_right};
-use std::process::id;
+use crate::utils::text::{PlotPoint, PlotCfg, plot_points};
+
 
 pub struct InventoryDesc<'a> {
     pub id: ItemId,
@@ -446,7 +446,7 @@ pub fn space_show_move_targets(desc: &Vec<SurfaceDesc>) -> String {
     let mut buffer = vec!["Targets:".to_string()];
 
     let items: Vec<String> =
-        desc.iter().enumerate().flat_map(|(i, desc)| {
+        desc.iter().enumerate().flat_map(|(_i, desc)| {
             if desc.me {
                 return None;
             }

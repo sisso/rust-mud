@@ -1,5 +1,5 @@
 fn main() {
-    let value = "One\n\
+    let _value = "One\n\
         Two\n\
         tree";
 

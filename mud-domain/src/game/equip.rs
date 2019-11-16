@@ -57,7 +57,7 @@ impl Equips {
     }
 
     pub fn remove(&mut self, id: ObjId) -> Result<(),()> {
-        self.index.iter_mut().for_each(|(owner_id, equip)| {
+        self.index.iter_mut().for_each(|(_owner_id, equip)| {
            if equip.equipments.remove(&id) {
                debug!("{:?} remove equip", id);
            }

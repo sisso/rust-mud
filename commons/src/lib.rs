@@ -204,7 +204,7 @@ pub fn vec_take<T, F>(collection: &mut Vec<T>, closure: F) -> Option<T>
     where F: FnMut(&T) -> bool {
     match collection.iter().position(closure) {
         Some(index) => Some(collection.remove(index)),
-        other => None,
+        _other => None,
     }
 }
 

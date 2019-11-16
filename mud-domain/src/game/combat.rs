@@ -31,7 +31,7 @@ pub fn tick_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id:
     Ok(())
 }
 
-fn cancel_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, _target: Option<&MobId>) {
+fn cancel_attack(container: &mut Container, _outputs: &mut dyn Outputs, mob_id: MobId, _target: Option<&MobId>) {
 //    let attacker = container.get_mob(&mob_id.0);
 
 //    let msg_others = comm::kill_cancel(attacker, defender);
@@ -93,10 +93,10 @@ fn execute_attack(container: &mut Container, outputs: &mut dyn Outputs, attacker
 
 fn execute_attack_killed(container: &mut Container, outputs: &mut dyn Outputs, attacker_id: MobId, target_id: MobId) -> Result<(),()> {
     let attacker_player_id = container.players.find_from_mob(attacker_id);
-    let attacker = container.mobs.get(attacker_id)?;
-    let attacker_label = container.labels.get_label_f(attacker_id);
+    let _attacker = container.mobs.get(attacker_id)?;
+    let _attacker_label = container.labels.get_label_f(attacker_id);
     let attacker_room_id = container.locations.get(attacker_id)?;
-    let defender = container.mobs.get(target_id)?;
+    let _defender = container.mobs.get(target_id)?;
     let defender_label = container.labels.get_label_f(target_id);
 
     let room_attack_msg = comm::killed(defender_label);
@@ -154,7 +154,7 @@ fn roll_damage(damage: &Damage) -> u32 {
 fn check_return_attack(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, aggressor_mob_id: MobId) -> Result<(),()> {
     match container.mobs.get(mob_id) {
         Ok(mob) if mob.command.is_idle() => {
-            let aggressor_mob = container.mobs.get(aggressor_mob_id)?;
+            let _aggressor_mob = container.mobs.get(aggressor_mob_id)?;
             let room_id = container.locations.get(aggressor_mob_id)?;
             let mob_label = container.labels.get_label_f(mob_id);
             let aggressor_mob_label = container.labels.get_label_f(aggressor_mob_id);

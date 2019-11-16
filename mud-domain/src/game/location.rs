@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use commons::ObjId;
 use logs::*;
 use crate::game::labels::Labels;
-use crate::game::room::RoomId;
+
 
 pub type LocationId = ObjId;
 

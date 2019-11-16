@@ -25,7 +25,7 @@ impl View for MenuView {
                 view_manager.disconnect(data.connection_id);
                 ViewAction::None
             },
-            other => {
+            _other => {
                 view_manager.output(data.connection_id, comm::menu_invalid(input));
                 view_manager.output(data.connection_id, comm::menu_welcome());
                 ViewAction::None
@@ -33,7 +33,7 @@ impl View for MenuView {
         }
     }
 
-    fn handle_events(&mut self, view_manager: &mut dyn ViewController, data: &mut ViewData, events: &Vec<Event>) -> ViewAction {
+    fn handle_events(&mut self, _view_manager: &mut dyn ViewController, _data: &mut ViewData, _events: &Vec<Event>) -> ViewAction {
         ViewAction::None
     }
 }

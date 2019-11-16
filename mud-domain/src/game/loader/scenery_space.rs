@@ -24,9 +24,9 @@ fn load_sector(container: &mut Container) {
     add_portal(container,planet1_room1, planet1_room2, Dir::S);
 
     let planet2 = add_planet(container, "Planet 2", sector_id, V2::new(-2.0, 0.0));
-    let planet2_room1 = add_room(container, planet2, "Vilalge", "The Chavez village");
+    let _planet2_room1 = add_room(container, planet2, "Vilalge", "The Chavez village");
 
-    let (craft1, carft1_bridge) = add_craft(container, "Light Transport", sector_id, V2::new(0.0, 0.0));
+    let (_craft1, carft1_bridge) = add_craft(container, "Light Transport", sector_id, V2::new(0.0, 0.0));
 
     container.config.initial_room = carft1_bridge;
 }

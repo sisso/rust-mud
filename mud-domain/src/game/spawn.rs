@@ -92,7 +92,7 @@ pub fn run(ctx: &mut Ctx) {
                 schedule_next_spawn(total_time, spawn);
                 mob_spawns.push((spawn.id, spawn.room_id, spawn.prefab_id))
             },
-            Some(next) => { },
+            Some(_next) => { },
             None => schedule_next_spawn(total_time, spawn),
         };
     }

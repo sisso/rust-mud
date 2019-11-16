@@ -55,7 +55,7 @@ impl View for LoginView {
         }
     }
 
-    fn handle_events(&mut self, view_manager: &mut dyn ViewController, data: &mut ViewData, events: &Vec<Event>) -> ViewAction {
+    fn handle_events(&mut self, _view_manager: &mut dyn ViewController, _data: &mut ViewData, _events: &Vec<Event>) -> ViewAction {
         ViewAction::None
     }
 }

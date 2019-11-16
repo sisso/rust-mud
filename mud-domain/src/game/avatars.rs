@@ -19,12 +19,12 @@ use crate::game::labels::Label;
 //    }
 //}
 
-pub fn on_player_disconnect(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) {
+pub fn on_player_disconnect(container: &mut Container, _outputs: &mut dyn Outputs, player_id: PlayerId) {
     let player = container.players.get(player_id);
-    let mob_id = player.mob_id;
+    let _mob_id = player.mob_id;
 }
 
-pub fn on_player_login(container: &mut Container, outputs: &mut dyn Outputs, login: &str) -> PlayerId {
+pub fn on_player_login(container: &mut Container, _outputs: &mut dyn Outputs, login: &str) -> PlayerId {
     match container.players.login(login) {
         Some(player_id) => {
             player_id

@@ -2,10 +2,10 @@ use super::*;
 use logs::*;
 
 use std::io;
-use std::sync::{mpsc, Arc, Mutex};
+use std::sync::{Arc, Mutex};
 use std::thread;
-use std::time::Duration;
-use std::borrow::{BorrowMut, Borrow};
+
+
 use std::sync::atomic::{AtomicBool, Ordering};
 use commons::ConnectionId;
 
@@ -18,7 +18,7 @@ impl AsyncStdIn {
     pub fn new() -> Self {
         let instance = AsyncStdIn {
             close: Arc::new(AtomicBool::new(false)),
-            buffer: Arc::new((Mutex::new(Vec::new()))),
+            buffer: Arc::new(Mutex::new(Vec::new())),
         };
 
         let thread_buffer = instance.buffer.clone();
@@ -88,11 +88,11 @@ impl Server for LocalServer {
         sc
     }
 
-    fn output(&mut self, connection_id: ConnectionId, msg: String) {
+    fn output(&mut self, _connection_id: ConnectionId, msg: String) {
         print!("{}", msg);
     }
 
-    fn disconnect(&mut self, connection_id: ConnectionId) {
+    fn disconnect(&mut self, _connection_id: ConnectionId) {
         info!("DISCONNECT!");
         self.asyncsdin.close();
     }

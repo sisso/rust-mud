@@ -2,11 +2,11 @@ use serde_json::{json, Value};
 use serde::{Serialize, Deserialize};
 
 use std::fs::File;
-use std::io::prelude::*;
+
 use std::io::{Write, BufReader};
 use std::collections::HashMap;
 
-use super::jsons::JsonValueExtra;
+
 
 /*
 
@@ -106,7 +106,7 @@ pub struct LoadFromFile {
 
 impl LoadFromFile {
     pub fn new(file_path: &str) -> Self {
-       let mut file = File::open(file_path).expect(&format!("failed to open file {:?}", file_path));
+       let file = File::open(file_path).expect(&format!("failed to open file {:?}", file_path));
         let raw: RawData = serde_json::from_reader(BufReader::new(file)).unwrap();
         LoadFromFile {
             raw,

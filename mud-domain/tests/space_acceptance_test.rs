@@ -2,9 +2,9 @@ extern crate mud_domain;
 
 use mud_domain::game::{Game, loader};
 use mud_domain::game::container::Container;
-use commons::{PlayerId, ConnectionId, DeltaTime};
-use mud_domain::game::mob::MobId;
-use mud_domain::game::room::RoomId;
+use commons::{ConnectionId, DeltaTime};
+
+
 
 pub struct TestScenery {
     pub game: Game,
