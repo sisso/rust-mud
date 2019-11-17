@@ -96,8 +96,8 @@ impl Tick {
 pub struct ObjId(pub u32);
 
 pub type UResult = Result<(),()>;
-pub const UOk: UResult = Ok(());
-pub const UErr: UResult = Err(());
+pub const UOK: UResult = Ok(());
+pub const UERR: UResult = Err(());
 
 impl ObjId {
     pub fn as_u32(&self) -> u32 {
@@ -158,6 +158,16 @@ impl std::ops::Sub<DeltaTime> for DeltaTime {
 
     fn sub(self, rhs: DeltaTime) -> DeltaTime {
         DeltaTime(self.0 - rhs.0)
+    }
+}
+
+pub trait AsResult<T> {
+    fn as_result(self) -> Result<T,()>;
+}
+
+impl<T> AsResult<T> for Option<T> {
+    fn as_result(self) -> Result<T, ()> {
+        self.ok_or(())
     }
 }
 

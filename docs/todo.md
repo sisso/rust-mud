@@ -14,7 +14,7 @@
 - move portal to own index (to allow ship to dock and connect)
 - remove room_id from spawn (we could want ot have spawn per multiples rooms, zones? regions?)
 - seller and store
-- serialization
+- serializatio
 - move to to mud-engine
 - decouple messages (to allow other games/i18n) 
   - probably will not be necessary, even if we decide to re-use for space game
@@ -54,6 +54,7 @@
 
 ## Refactoring
 
+- use ReadRepo<T> and WriteRepo<T>
 - send messages to mob_id instead player_id
 - add timers 
 - add trigger

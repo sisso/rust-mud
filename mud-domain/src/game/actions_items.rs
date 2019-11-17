@@ -3,7 +3,7 @@ use super::item::*;
 use super::mob::*;
 use crate::game::comm;
 use crate::game::Outputs;
-use commons::PlayerId;
+use commons::{PlayerId, AsResult};
 
 #[derive(Debug, Clone,PartialEq)]
 pub enum PickUpError {
@@ -13,9 +13,9 @@ pub enum PickUpError {
 }
 
 pub fn do_pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId, inventory_id: Option<ItemId>) -> Result<(),PickUpError> {
-    let _mob = container.mobs.get(mob_id).map_err(|_| PickUpError::Other)?;
-    let item = container.items.get(item_id).map_err(|_| PickUpError::Other)?;
-    let room_id = container.locations.get(mob_id).map_err(|_| PickUpError::Other)?;
+    let _mob = container.mobs.get(mob_id).ok_or(PickUpError::Other)?;
+    let item = container.items.get(item_id).ok_or(PickUpError::Other)?;
+    let room_id = container.locations.get(mob_id).ok_or(PickUpError::Other)?;
     let mob_label = container.labels.get_label_f(mob_id);
     let item_label = container.labels.get_label_f(item_id);
 
@@ -27,7 +27,7 @@ pub fn do_pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id
     match inventory_id {
         Some(inventory_id) => {
             let inventory_label = container.labels.get_label_f(inventory_id);
-            let inventory = container.items.get(inventory_id).map_err(|_| PickUpError::Other)?;
+            let inventory = container.items.get(inventory_id).ok_or(PickUpError::Other)?;
 
             if !inventory.is_inventory {
                 outputs.private_opt(player_id, comm::pick_fail_storage_is_not_inventory(inventory_label));
@@ -50,7 +50,7 @@ pub fn do_pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id
 
 /// As a humanoid entity in mud, try to equip a item
 pub fn do_equip(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId) -> Result<(), ()> {
-    let _item = container.items.get(item_id)?;
+    let _item = container.items.get(item_id).as_result()?;
     let item_label = container.labels.get_label_f(item_id);
 
     // check if mob own the item
@@ -58,7 +58,7 @@ pub fn do_equip(container: &mut Container, outputs: &mut dyn Outputs, player_id:
         .find(|id| *id == item_id)
         .is_some();
 
-    let item = container.items.get(item_id).ok();
+    let item = container.items.get(item_id);
 
     if !has_item || item.is_none() {
         outputs.private_opt(player_id, comm::equip_what());
@@ -77,18 +77,16 @@ pub fn do_equip(container: &mut Container, outputs: &mut dyn Outputs, player_id:
     // TODO: remove old equip in sample place?
     container.equips.add(mob_id, item_id);
 
-    let _mob = container.mobs.get(mob_id)?;
     let mob_label = container.labels.get_label_f(mob_id);
-    let room_id = container.locations.get(mob_id)?;
+    let room_id = container.locations.get(mob_id).as_result()?;
     outputs.private_opt(player_id, comm::equip_player_from_room(item_label));
     outputs.room_opt(player_id, room_id,comm::equip_from_room(mob_label, item_label));
     Ok(())
 }
 
 pub fn do_strip(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId) -> Result<(),()> {
-    let _mob = container.mobs.get(mob_id)?;
     let mob_label = container.labels.get_label_f(mob_id);
-    let room_id = container.locations.get(mob_id)?;
+    let room_id = container.locations.get(mob_id).as_result()?;
     let item_label = container.labels.get_label_f(item_id);
 
     // strip if is in use
@@ -100,10 +98,10 @@ pub fn do_strip(container: &mut Container, outputs: &mut dyn Outputs, player_id:
 }
 
 pub fn do_drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId) -> Result<(),()> {
-    let _mob = container.mobs.get(mob_id)?;
+    let _mob = container.mobs.get(mob_id).as_result()?;
     let mob_label = container.labels.get_label_f(mob_id);
-    let room_id = container.locations.get(mob_id)?;
-    let _item = container.items.get(item_id)?;
+    let room_id = container.locations.get(mob_id).as_result()?;
+    let _item = container.items.get(item_id).as_result()?;
     let item_label = container.labels.get_label_f(item_id);
 
     // strip if is in use

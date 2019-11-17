@@ -1,6 +1,6 @@
 use crate::game::container::Container;
 use crate::game::{Outputs, comm, inventory};
-use commons::{PlayerId, ObjId};
+use commons::{PlayerId, ObjId, AsResult};
 use crate::game::item::{ItemId, ItemRepository};
 use crate::game::actions_items::*;
 use crate::game::location::Locations;
@@ -60,7 +60,7 @@ pub fn parse_not_owned_item(labels: &Labels,
 pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<&str>) -> Result<(),()> {
     let player = container.players.get(player_id);
     let mob_id = player.mob_id;
-    let room_id = container.locations.get(mob_id)?;
+    let room_id = container.locations.get(mob_id).as_result()?;
 
     match parse_not_owned_item(&container.labels, &container.locations, &container.items,room_id, args) {
         Ok((item_id, maybe_container)) => {

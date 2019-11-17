@@ -2,7 +2,7 @@ use super::item::*;
 use super::domain::*;
 use super::container::Container;
 use super::mob::*;
-use commons::{TotalTime, V2};
+use commons::{TotalTime, V2, AsResult};
 use crate::utils::text::{PlotPoint, PlotCfg, plot_points};
 
 
@@ -38,8 +38,8 @@ pub fn help() -> String {
 }
 
 pub fn look_description(container: &Container, mob_id: MobId) -> Result<String, ()> {
-    let room_id = container.locations.get(mob_id)?;
-    let room = container.rooms.get(room_id)?;
+    let room_id = container.locations.get(mob_id).as_result()?;
+    let room = container.rooms.get(room_id).as_result()?;
 
     let exits: Vec<&str> = room.exits.iter()
         .map(|(dir, _)| dir.as_str())
@@ -47,16 +47,16 @@ pub fn look_description(container: &Container, mob_id: MobId) -> Result<String, 
 
     let exits = exits.join(", ");
     let mut mobs = vec![];
+    let mut crafts = vec![];
     let mut items = vec![];
 
     for obj_id in container.locations.list_at(room_id) {
-        let item = container.items.get(obj_id);
-        let mob = container.mobs.get(obj_id);
-
-        match (mob, item) {
-            (Ok(mob), _) => mobs.push(mob),
-            (_, Ok(item)) => items.push(item),
-            _ => {},
+        if let Some(item) = container.items.get(obj_id) {
+            items.push(item);
+        } else if let Some(mob) = container.mobs.get(obj_id) {
+            mobs.push(mob);
+        } else if let Some(craft) = container.crafts.get(obj_id) {
+            crafts.push(craft);
         }
     }
 
@@ -86,8 +86,8 @@ pub fn look_description(container: &Container, mob_id: MobId) -> Result<String, 
     let items = items.join("\n");
 
     let room_label = container.labels.get(room.id).unwrap();
-
-    Ok(format!("{}\n{}\n[{}]\n{}\n{}\n", room_label.label, room_label.desc, exits, mobs, items).to_string())
+    let output = format!("{}\n{}\n[{}]\n{}\n{}\n", room_label.label, room_label.desc, exits, mobs, items);
+    Ok(output.trim().to_string())
 }
 
 pub fn unknown_input(input: &str) -> String {

@@ -1,4 +1,4 @@
-use commons::{PlayerId, DeltaTime};
+use commons::{PlayerId, DeltaTime, AsResult};
 use crate::game::container::Container;
 use crate::game::{Outputs, comm};
 use crate::game::mob::{Mob, Attributes, Damage, Pv, MobId};
@@ -38,21 +38,20 @@ pub fn on_player_login(container: &mut Container, _outputs: &mut dyn Outputs, lo
 
 // TODO: use trigger
 pub fn respawn_avatar(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<(),()> {
-    let mut mob = container.mobs.get(mob_id)?.clone();
-    assert!(mob.is_avatar);
-
+    container.mobs.update(mob_id, |mob| {
+        assert!(mob.is_avatar);
+        mob.attributes.pv.current = 1;
+    })?;
     let room_id = container.config.initial_room;
 
-    mob.attributes.pv.current = 1;
-
-    let player_id = container.players.find_from_mob(mob.id).unwrap();
+    let player_id = container.players.find_from_mob(mob_id).unwrap();
     let mob_label = container.labels.get_label(mob_id).unwrap();
+
+    container.locations.set(mob_id, room_id);
 
     outputs.private(player_id, comm::mob_you_resurrected());
     outputs.room(player_id, room_id, comm::mob_resurrected(mob_label));
 
-    container.mobs.update(mob);
-    container.locations.set(mob_id, room_id);
     Ok(())
 }
 

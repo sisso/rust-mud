@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use commons::{ObjId, UResult, UErr, UOk};
+use commons::{ObjId, UResult, UERR, UOK};
 use logs::*;
 
 pub type CraftId = ObjId;
@@ -63,17 +63,17 @@ impl Crafts {
         self.index.remove(&id)
     }
 
-    pub fn get(&self, id: ObjId) -> Result<&Craft,()> {
-        self.index.get(&id).ok_or(())
+    pub fn get(&self, id: ObjId) -> Option<&Craft> {
+        self.index.get(&id)
     }
 
     pub fn set_command(&mut self, craft_id: CraftId, command: CraftCommand) -> UResult {
         if let Some(craft) = self.index.get_mut(&craft_id) {
             info!("{:?} set command to {:?}", craft_id, command);
             craft.command = command;
-            UOk
+            UOK
         } else {
-            UErr
+            UERR
         }
     }
 

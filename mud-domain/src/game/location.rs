@@ -29,9 +29,8 @@ impl Locations {
         self.index.remove(&obj_id);
     }
 
-    pub fn get(&self, obj_id: ObjId) -> Result<ObjId, ()> {
-        let v = self.index.get(&obj_id).cloned().ok_or(());
-        v
+    pub fn get(&self, obj_id: ObjId) -> Option<ObjId> {
+        self.index.get(&obj_id).cloned()
     }
 
     pub fn list_at<'a>(&'a self, location_id: ObjId) -> impl Iterator<Item = ObjId> + 'a {
@@ -66,7 +65,6 @@ pub fn search_at(labels: &Labels, locations: &Locations, location_id: LocationId
 mod test {
     use crate::game::location::Locations;
     use commons::ObjId;
-    use crate::game::obj::Obj;
     use std::collections::HashSet;
 
     #[test]

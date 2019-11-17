@@ -154,8 +154,8 @@ impl ItemRepository {
        self.index.contains_key(&item_id)
     }
 
-    pub fn get(&self, item_id: ItemId) -> Result<&Item,()> {
-        self.index.get(&item_id).ok_or(())
+    pub fn get(&self, item_id: ItemId) -> Option<&Item> {
+        self.index.get(&item_id)
     }
 
     pub fn add(&mut self, item: Item) {
@@ -240,11 +240,11 @@ pub fn run_tick(ctx: &mut Ctx) {
 }
 
 fn run_for(ctx: &mut Ctx, item_id: ItemId) -> Result<(),()> {
-    let item = ctx.container.items.get(item_id)?;
+    let item = ctx.container.items.get(item_id).as_result()?;
 
     if let Some(decay) = item.decay {
         // TODO: Only decay items on ground?
-        let location_id = ctx.container.locations.get(item.id)?;
+        let location_id = ctx.container.locations.get(item.id).as_result()?;
         if ctx.container.rooms.exists(location_id) && decay.is_before(ctx.container.time.total)  {
             info!("{:?} removed by decay", item.id);
 

@@ -1,4 +1,4 @@
-use commons::{PlayerId, UErr, UOk};
+use commons::{PlayerId, UERR, UOK};
 use crate::game::container::Container;
 use crate::game::{actions_craft};
 use crate::game::{Outputs, comm};
@@ -6,7 +6,6 @@ use crate::game::mob::MobId;
 use crate::game::space_utils::*;
 use crate::utils::text;
 use crate::game::crafts::CraftId;
-use crate::game::room::RoomId;
 use crate::game::actions_craft::do_land_at;
 
 pub fn show_starmap(container: &Container, outputs: &mut dyn Outputs, player_id: PlayerId, mob_id: MobId) -> Result<(),()> {
@@ -58,10 +57,10 @@ pub fn land_at(container: &mut Container, outputs: &mut dyn Outputs, player_id: 
                     let landing_room = sites[index];
                     do_land_at(container, outputs, craft_id, landing_room)
                 },
-                None => UErr,
+                None => UERR,
             }
         },
-        _ => UErr,
+        _ => UERR,
     };
 
     result.map_err(|err| {

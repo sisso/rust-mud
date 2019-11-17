@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use logs::*;
 use super::domain::Dir;
-use commons::{ObjId, UResult, UErr, UOk};
+use commons::{ObjId, UResult, UERR, UOK};
 
 pub type RoomId = ObjId;
 
@@ -50,8 +50,8 @@ impl RoomRepository {
         self.index.insert(room.id, room);
     }
 
-    pub fn get(&self, id: RoomId) -> Result<&Room, ()> {
-        self.index.get(&id).ok_or(())
+    pub fn get(&self, id: RoomId) -> Option<&Room> {
+        self.index.get(&id)
     }
 
     pub fn add_portal(&mut self, room1_id: RoomId, room2_id: RoomId, dir: Dir) {
@@ -72,9 +72,9 @@ impl RoomRepository {
         if let Some(room) = self.index.get_mut(&room_id) {
             f(room);
             debug!("{:?} updated", room);
-            UOk
+            UOK
         } else {
-            UErr
+            UERR
         }
     }
 }

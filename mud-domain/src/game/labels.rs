@@ -54,8 +54,8 @@ impl Labels {
         self.index.remove(&id)
     }
 
-    pub fn get(&self, id: ObjId) -> Result<&Label,()> {
-        self.index.get(&id).ok_or(())
+    pub fn get(&self, id: ObjId) -> Option<&Label> {
+        self.index.get(&id)
     }
 
     pub fn get_label(&self, id: ObjId) -> Result<&str,()> {

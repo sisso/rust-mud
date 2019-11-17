@@ -1,6 +1,6 @@
 use crate::game::crafts::{CraftId, CraftCommand};
-use commons::{ObjId, PlayerId, UErr};
-use crate::game::{Outputs, comm, space_utils, builder};
+use commons::{ObjId, PlayerId, AsResult};
+use crate::game::{Outputs, comm, space_utils};
 use crate::game::container::Container;
 use crate::game::room::RoomId;
 use crate::game::domain::Dir;
@@ -30,7 +30,7 @@ pub fn do_land_at(container: &mut Container, outputs: &mut dyn Outputs, craft_id
 
     trace!("landing {:?} at {:?}, landing pad: {:?}, craft airlock: {:?}", craft_id, room_id, landing_id, craft_airlock_id);
 
-    let location_id = container.locations.get(room_id)?;
+    let location_id = container.locations.get(room_id).as_result()?;
     container.locations.set(craft_id, location_id);
 
     // connect the craft with room

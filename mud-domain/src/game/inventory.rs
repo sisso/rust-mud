@@ -13,7 +13,7 @@ pub fn move_all(locations: &mut Locations, from: ObjId, to: ObjId) {
 
 pub fn get_inventory_list<'a>(locations: &Locations, items: &'a ItemRepository, obj_id: ObjId) -> Vec<&'a Item> {
    locations.list_at(obj_id).flat_map(|id| {
-      items.get(id).ok()
+      items.get(id)
    }).collect()
 }
 

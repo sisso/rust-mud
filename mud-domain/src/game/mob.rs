@@ -221,19 +221,16 @@ impl MobRepository {
         self.index.get(&id).unwrap()
     }
 
-    // TODO: replace by enum with update entries
-    pub fn update(&mut self, mob: Mob) -> &Mob {
-        let id = mob.id;
+    pub fn update<F>(&mut self, id: MobId, f: F) -> UResult
+        where F: FnOnce(&mut Mob) {
 
-
-        let old_mob = self.index.remove(&id);
-        if old_mob.is_none() {
-            panic!("mob do not exists")
+        if let Some(mob) = self.index.get_mut(&id) {
+            f(mob);
+            debug!("{:?} updated", mob);
+            UOK
+        } else {
+            UERR
         }
-
-        debug!("{:?} update mob {:?}", mob.id, mob);
-        self.index.insert(id, mob);
-        self.index.get(&id).unwrap()
     }
 
     pub fn remove(&mut self, id: MobId) {
@@ -242,8 +239,8 @@ impl MobRepository {
         }
     }
 
-    pub fn get(&self, id: MobId) -> Result<&Mob,()> {
-        self.index.get(&id).ok_or(())
+    pub fn get(&self, id: MobId) -> Option<&Mob> {
+        self.index.get(&id)
     }
 
     pub fn exists(&self, id: MobId) -> bool {
@@ -317,39 +314,42 @@ impl MobRepository {
 }
 
 // TODO: move game rules with output outside of mobs module
-pub fn run_tick(ctx: &mut Ctx) -> Result<(),()> {
+pub fn run_tick(ctx: &mut Ctx) {
     for mob_id in ctx.container.mobs.list() {
-        if !ctx.container.mobs.exists(mob_id) {
-            continue;
-        }
+        let mob = match ctx.container.mobs.get(mob_id) {
+            Some(mob) => mob,
+            _ => continue,
+        };
 
-        let mob = ctx.container.mobs.get(mob_id)?;
+        let is_resting = mob.is_resting();
 
         match mob.command {
             MobCommand::None => {},
             MobCommand::Kill { target } => {
-                combat::tick_attack(ctx.container, ctx.outputs, mob_id, target);
+                let _ = combat::tick_attack(ctx.container, ctx.outputs, mob_id, target);
             }
         }
 
-        let mob = ctx.container.mobs.get(mob_id)?;
-        if mob.is_resting() {
-            let mut mob = mob.clone();
-            if mob.update_resting(ctx.container.time.total) {
-                if mob.is_avatar {
-                    let player_id = ctx.container.players.find_from_mob(mob.id).unwrap();
-                    if mob.attributes.pv.is_damaged() {
-                        ctx.outputs.private(player_id, comm::rest_healing(mob.attributes.pv.current));
-                    } else {
-                        ctx.outputs.private(player_id, comm::rest_healed());
+        if is_resting {
+            let total_time = ctx.container.time.total;
+            let player_id = ctx.container.players.find_from_mob(mob_id).unwrap();
+
+            let mobs = &mut ctx.container.mobs;
+            let outputs = &mut ctx.outputs;
+
+            let _ = mobs.update(mob_id, |mob| {
+                if mob.update_resting(total_time) {
+                    if mob.is_avatar {
+                        if mob.attributes.pv.is_damaged() {
+                            outputs.private(player_id, comm::rest_healing(mob.attributes.pv.current));
+                        } else {
+                            outputs.private(player_id, comm::rest_healed());
+                        }
                     }
                 }
-            }
-            ctx.container.mobs.update(mob);
+            });
         }
     }
-
-    Ok(())
 }
 
 // TODO: move game rules with output outside of mobs module
@@ -360,7 +360,7 @@ pub fn kill_mob(container: &mut Container, outputs: &mut dyn Outputs, mob_id: Mo
     let _ = create_body(container, outputs, mob_id);
 
     // remove mob
-    let mob = container.mobs.get(mob_id)?;
+    let mob = container.mobs.get(mob_id).unwrap();
     if mob.is_avatar {
         avatars::respawn_avatar(container, outputs, mob_id);
     } else {
