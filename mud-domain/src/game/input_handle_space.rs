@@ -1,4 +1,4 @@
-use commons::{PlayerId, UERR};
+use commons::{PlayerId, UERR, UOK, UResult};
 use crate::game::container::Container;
 use crate::game::{actions_craft};
 use crate::game::{Outputs, comm};
@@ -6,7 +6,7 @@ use crate::game::mob::MobId;
 use crate::game::space_utils::*;
 use crate::utils::text;
 
-use crate::game::actions_craft::do_land_at;
+use crate::game::actions_craft::{do_land_at, do_launch};
 
 pub fn show_starmap(container: &Container, outputs: &mut dyn Outputs, player_id: PlayerId, mob_id: MobId) -> Result<(),()> {
     let (craft_id, craft_location) = get_craft_and_location(container, outputs, player_id, mob_id)?;
@@ -41,14 +41,14 @@ pub fn land_list(container: & Container, outputs: &mut dyn Outputs, player_id: P
             }).collect();
 
         outputs.private(player_id, comm::space_land_list(&labels));
-    }).map_err(|_| {
+    }).ok_or_else(|| {
         outputs.private(player_id, comm::space_land_invalid());
     })
 }
 
 pub fn land_at(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, mob_id: MobId, input: Vec<&str>) -> Result<(),()> {
     let result = match (input.get(1), get_craft(container, mob_id)) {
-        (Some(input), Ok(craft_id)) => {
+        (Some(input), Some(craft_id)) => {
             let sites = search_near_landing_sites(container, craft_id);
             let labels = container.labels.resolve_codes(&sites);
 
@@ -68,7 +68,12 @@ pub fn land_at(container: &mut Container, outputs: &mut dyn Outputs, player_id: 
     })
 }
 
-pub fn launch(container: & Container, outputs: &mut dyn Outputs, player_id: PlayerId, mob_id: MobId) -> Result<(),()> {
-    UERR
+pub fn launch(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, mob_id: MobId) -> UResult {
+    get_craft(container, mob_id).ok_or(())
+        .map_err(|_| {
+            outputs.private(player_id, comm::space_invalid_not_in_craft());
+        }).and_then(|craft_id| {
+            do_launch(container, outputs, player_id, craft_id)
+        })
 }
 

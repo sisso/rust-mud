@@ -73,7 +73,7 @@ pub fn search_near_landing_sites(container: &Container, craft_id: ObjId) -> Vec<
 }
 
 pub fn get_craft_and_location(container: &Container, outputs: &mut dyn Outputs, player_id: PlayerId, mob_id: MobId) -> Result<(CraftId, ObjId),()> {
-    let craft_id = match get_craft(container, mob_id) {
+    let craft_id = match get_craft(container, mob_id).ok_or(()) {
         Ok(craft_id) => craft_id,
         Err(()) => {
             outputs.private(player_id, comm::space_not_in_craft());
@@ -90,18 +90,18 @@ pub fn get_craft_and_location(container: &Container, outputs: &mut dyn Outputs, 
     return Ok((craft_id, craft_location));
 }
 
-pub fn get_craft(container: &Container, mob_id: MobId) -> Result<CraftId, ()> {
-    let room_id = container.locations.get(mob_id).as_result()?;
+pub fn get_craft(container: &Container, mob_id: MobId) -> Option<CraftId> {
+    let room_id = container.locations.get(mob_id)?;
     if !container.rooms.exists(room_id) {
-        return Err(());
+        return None;
     }
 
-    let craft_id = container.locations.get(room_id).as_result()?;
+    let craft_id = container.locations.get(room_id)?;
     if !container.crafts.exists(craft_id) {
-        return Err(());
+        return None;
     }
 
-    Ok(craft_id)
+    Some(craft_id)
 }
 
 pub fn get_landing_airlocks(container: &Container, location_id: LocationId) -> Vec<LocationId> {
@@ -111,3 +111,4 @@ pub fn get_landing_airlocks(container: &Container, location_id: LocationId) -> V
        .map(|room| room.id)
        .collect()
 }
+

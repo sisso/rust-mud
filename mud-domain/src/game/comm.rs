@@ -364,18 +364,6 @@ pub fn stand_up_others(label: &str) -> String {
     format!("{} stand up", label)
 }
 
-pub fn space_not_in_craft() -> String {
-    "you are not in a craft".to_string()
-}
-
-pub fn space_needs_to_be_in_space() -> String {
-    "you need to be in space to do it".to_string()
-}
-
-pub fn space_land_complete() -> String {
-    "landing complete".to_string()
-}
-
 pub enum ShowStarmapDescKind {
     Planet,
     Craft
@@ -440,6 +428,10 @@ pub fn space_show_move_targets(desc: &Vec<SurfaceDesc>) -> String {
     buffer.join("\n")
 }
 
+pub fn space_invalid_not_in_craft() -> String {
+    "You can not do this, you are not in a craft.".to_string()
+}
+
 pub fn space_move() -> String {
     "command accepted, the craft is accelerating to the target".to_string()
 }
@@ -458,6 +450,34 @@ pub fn space_command_complete() -> String {
 
 pub fn space_land_invalid() -> String {
     "invalid selection, can not land on that".to_string()
+}
+
+pub fn space_not_in_craft() -> String {
+    "you are not in a craft".to_string()
+}
+
+pub fn space_needs_to_be_in_space() -> String {
+    "you need to be in space to do it".to_string()
+}
+
+pub fn space_land_complete() -> String {
+    "landing complete".to_string()
+}
+
+pub fn space_land_complete_others(craft_label: &str) -> String {
+    "The {} come from orbit and land".to_string()
+}
+
+pub fn space_launch_failed() -> String {
+    "fail to launch, you can not launch from here".to_string()
+}
+
+pub fn space_launch_complete() -> String {
+    "launch complete, you are in space now".to_string()
+}
+
+pub fn space_launch_complete_others(craft_label: &str) -> String {
+    "{} have launched into orbit".to_string()
 }
 
 //pub fn space_land_started() -> String {

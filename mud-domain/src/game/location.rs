@@ -54,6 +54,23 @@ impl Locations {
 
         result
     }
+
+    /// return list of parents from a giving object, non inclusive
+    pub fn list_parents(&self, obj_id: ObjId) -> Vec<LocationId> {
+        let mut result = vec![];
+        let mut current = obj_id;
+        loop {
+            let parent = self.get(current);
+            match parent {
+                Some(location_id) => {
+                    result.push(location_id);
+                    current = location_id;
+                }
+                None => break,
+            }
+        }
+        result
+    }
 }
 
 pub fn search_at(labels: &Labels, locations: &Locations, location_id: LocationId, input: &str) -> Vec<ObjId> {
