@@ -30,8 +30,7 @@ pub fn do_land_at(container: &mut Container, outputs: &mut dyn Outputs, craft_id
 
     trace!("landing {:?} at {:?}, landing pad: {:?}, craft airlock: {:?}", craft_id, room_id, landing_id, craft_airlock_id);
 
-    let location_id = container.locations.get(room_id).as_result()?;
-    container.locations.set(craft_id, location_id);
+    container.locations.set(craft_id, room_id);
 
     // connect the craft with room
     container.rooms.add_portal(landing_id, craft_airlock_id, Dir::Enter);

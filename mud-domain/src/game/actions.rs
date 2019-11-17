@@ -92,7 +92,7 @@ pub fn rest(container: &mut Container, outputs: &mut dyn Outputs, player_id: Pla
         return Err(());
     }
 
-    let mob_label = container.labels.get_label(mob_id)?;
+    let mob_label = container.labels.get_label(mob_id).unwrap();
 
     outputs.private(player_id, comm::rest_start());
     outputs.room(player_id, room_id,comm::rest_start_others(mob_label));
@@ -113,7 +113,7 @@ pub fn stand(container: &mut Container, outputs: &mut dyn Outputs, player_id: Pl
         return Err(());
     }
 
-    let mob_label = container.labels.get_label(mob_id)?;
+    let mob_label = container.labels.get_label(mob_id).unwrap();
 
     outputs.private(player_id, comm::stand_up());
     outputs.room(player_id, ctx.room.id,comm::stand_up_others(mob_label));

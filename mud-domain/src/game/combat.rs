@@ -78,7 +78,7 @@ fn execute_attack(container: &mut Container, outputs: &mut dyn Outputs, attacker
         container.mobs.update(target_id, |mob| {
             mob.attributes.pv.current -= attack_result.damage as i32;
             dead = mob.attributes.pv.current < 0;
-        });
+        })?;
 
         if dead {
             execute_attack_killed(container, outputs, attacker_id, target_id);
@@ -112,8 +112,7 @@ fn execute_attack_killed(container: &mut Container, outputs: &mut dyn Outputs, a
         outputs.room_all(attacker_room_id, room_attack_msg);
     }
 
-    mob::kill_mob(container, outputs, target_id);
-    Ok(())
+    mob::kill_mob(container, outputs, target_id)
 }
 
 

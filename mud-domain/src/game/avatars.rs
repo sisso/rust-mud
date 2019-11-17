@@ -1,4 +1,4 @@
-use commons::{PlayerId, DeltaTime, AsResult};
+use commons::{PlayerId, DeltaTime};
 use crate::game::container::Container;
 use crate::game::{Outputs, comm};
 use crate::game::mob::{Mob, Attributes, Damage, Pv, MobId};

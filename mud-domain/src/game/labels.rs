@@ -58,10 +58,9 @@ impl Labels {
         self.index.get(&id)
     }
 
-    pub fn get_label(&self, id: ObjId) -> Result<&str,()> {
+    pub fn get_label(&self, id: ObjId) -> Option<&str> {
         self.index.get(&id)
             .map(|label| label.label.as_str())
-            .ok_or(())
     }
 
     pub fn get_label_f(&self, id: ObjId) -> &str {
@@ -70,6 +69,7 @@ impl Labels {
             .unwrap_or("???")
     }
 
+    // TODO: do not replace codes per ???
     pub fn resolve_codes(&self, ids: &Vec<ObjId>) -> Vec<&str> {
         // flat map can not be used because we want replace none by ???
         ids.iter().map(|id| {

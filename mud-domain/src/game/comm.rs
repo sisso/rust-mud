@@ -41,53 +41,31 @@ pub fn look_description(container: &Container, mob_id: MobId) -> Result<String, 
     let room_id = container.locations.get(mob_id).as_result()?;
     let room = container.rooms.get(room_id).as_result()?;
 
-    let exits: Vec<&str> = room.exits.iter()
+    let mut buffer = vec![];
+
+    let exits = room.exits.iter()
         .map(|(dir, _)| dir.as_str())
-        .collect();
-
-    let exits = exits.join(", ");
-    let mut mobs = vec![];
-    let mut crafts = vec![];
-    let mut items = vec![];
-
-    for obj_id in container.locations.list_at(room_id) {
-        if let Some(item) = container.items.get(obj_id) {
-            items.push(item);
-        } else if let Some(mob) = container.mobs.get(obj_id) {
-            mobs.push(mob);
-        } else if let Some(craft) = container.crafts.get(obj_id) {
-            crafts.push(craft);
-        }
-    }
-
-    let mobs =
-        if mobs.is_empty() {
-            "".to_string()
-        } else {
-            let labels: Vec<String> =
-                mobs.iter()
-                    .filter(|i| i.id != mob_id)
-                    .map(|i| {
-                        let label = container.labels.get_label(i.id).unwrap_or("???");
-                        format!("- {} is here", label)
-                    }).collect();
-
-            labels.join("\n")
-        };
-
-    // TODO: migrate to location
-    let items: Vec<String> = items
-        .into_iter()
-        .map(|item| {
-            let label = container.labels.get_label(item.id).unwrap_or("???");
-            format!("- {} in the floor", label)
-        })
-        .collect();
-    let items = items.join("\n");
+        .collect::<Vec<&str>>()
+        .join(", ");
 
     let room_label = container.labels.get(room.id).unwrap();
-    let output = format!("{}\n{}\n[{}]\n{}\n{}\n", room_label.label, room_label.desc, exits, mobs, items);
-    Ok(output.trim().to_string())
+    buffer.push(format!("[{}] - {}", room_label.label, exits));
+    buffer.push(format!("{}", room_label.desc));
+
+    for obj_id in container.locations.list_at(room_id) {
+        if obj_id == mob_id {
+            continue;
+        }
+
+        let label = match container.labels.get_label(obj_id) {
+            Some(label) => label,
+            _ => continue,
+        };
+
+        buffer.push(format!("- {}", label));
+    }
+
+    Ok(buffer.join("\n"))
 }
 
 pub fn unknown_input(input: &str) -> String {
@@ -583,6 +561,6 @@ mod tests {
 
         let string = space_show_sectormap(&objects);
 //        assert_eq!("", string.as_str());
-        assert!(string.as_str().contains(".......... 2 - @ three"));
+        assert!(string.as_str().contains("2 - @ three"));
     }
 }
