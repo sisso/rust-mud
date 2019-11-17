@@ -68,4 +68,7 @@ pub fn land_at(container: &mut Container, outputs: &mut dyn Outputs, player_id: 
     })
 }
 
+pub fn launch(container: & Container, outputs: &mut dyn Outputs, player_id: PlayerId, mob_id: MobId) -> Result<(),()> {
+    UERR
+}
 

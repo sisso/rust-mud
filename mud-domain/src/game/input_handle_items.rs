@@ -1,6 +1,6 @@
 use crate::game::container::Container;
 use crate::game::{Outputs, comm, inventory};
-use commons::{PlayerId, ObjId, AsResult};
+use commons::{PlayerId, ObjId, AsResult, UResult, UERR};
 use crate::game::item::{ItemId, ItemRepository};
 use crate::game::actions_items::*;
 use crate::game::location::Locations;
@@ -73,40 +73,53 @@ pub fn pickup(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
     Ok(())
 }
 
-pub fn equip(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<&str>) {
+pub fn equip(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<&str>) -> UResult {
     let player = container.players.get(player_id);
     let avatar_id = player.mob_id;
     match parser_owned_item(&container.labels, &container.locations, &container.items, avatar_id, args) {
         Ok(item_id) => {
-            let _ = do_equip(container, outputs, Some(player_id),avatar_id, item_id);
+            do_equip(container, outputs, Some(player_id),avatar_id, item_id)
         },
-        Err(ParseItemError::ItemNotProvided) => outputs.private(player_id, comm::equip_what()),
-        Err(ParseItemError::ItemNotFound { label }) => outputs.private(player_id, comm::equip_item_not_found(label.as_str())),
+        Err(ParseItemError::ItemNotProvided) => {
+            outputs.private(player_id, comm::equip_what());
+            UERR
+        },
+        Err(ParseItemError::ItemNotFound { label }) => {
+            outputs.private(player_id, comm::equip_item_not_found(label.as_str()));
+            UERR
+        },
     }
 }
 
-pub fn drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<&str>) {
+pub fn drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<&str>) -> UResult {
     let player = container.players.get(player_id);
     let avatar_id = player.mob_id;
-    match parser_owned_item(&container.labels, &container.locations, &container.items, avatar_id, args) {
-        Ok(item_id) => {
-            let _ = do_drop(container, outputs, Some(player_id), avatar_id, item_id);
-        },
-        Err(ParseItemError::ItemNotProvided) => outputs.private(player_id, comm::drop_item_no_target()),
-        Err(ParseItemError::ItemNotFound { label }) => outputs.private(player_id, comm::drop_item_not_found(label.as_str())),
-    }
+    parser_owned_item(&container.labels, &container.locations, &container.items, avatar_id, args)
+        .map_err(|err| {
+            match err {
+                ParseItemError::ItemNotProvided => outputs.private(player_id, comm::drop_item_no_target()),
+                ParseItemError::ItemNotFound { label } => outputs.private(player_id, comm::drop_item_not_found(label.as_str())),
+            };
+        })
+        .and_then(|item_id| {
+            do_drop(container, outputs, Some(player_id), avatar_id, item_id)
+        })
 }
 
-pub fn strip(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<&str>) {
+pub fn strip(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, args: Vec<&str>) -> UResult {
     let player = container.players.get(player_id);
     let avatar_id = player.mob_id;
-    match parser_owned_item(&container.labels, &container.locations, &container.items, avatar_id, args) {
-        Ok(item_id) => {
-            let _ = do_strip(container, outputs, Some(player_id), avatar_id, item_id);
-        },
-        Err(ParseItemError::ItemNotProvided) => outputs.private(player_id, comm::strip_what()),
-        Err(ParseItemError::ItemNotFound { label }) => outputs.private(player_id, comm::strip_item_not_found(label.as_str())),
-    }
+
+    parser_owned_item(&container.labels, &container.locations, &container.items, avatar_id, args)
+        .map_err(|err| {
+            match err {
+                ParseItemError::ItemNotProvided => outputs.private(player_id, comm::strip_what()),
+                ParseItemError::ItemNotFound { label } => outputs.private(player_id, comm::strip_item_not_found(label.as_str())),
+            };
+        })
+        .and_then(|item_id| {
+            do_strip(container, outputs, Some(player_id), avatar_id, item_id)
+        })
 }
 
 #[cfg(test)]

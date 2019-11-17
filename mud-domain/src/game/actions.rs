@@ -3,7 +3,7 @@ use super::Outputs;
 use super::domain::*;
 use super::container::Container;
 use super::mob::*;
-use commons::{PlayerId, AsResult};
+use commons::{PlayerId, AsResult, UResult};
 
 pub fn look(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) -> Result<(),()> {
     let player = container.players.get(player_id);
@@ -28,7 +28,7 @@ pub fn say(container: &mut Container, outputs: &mut dyn Outputs, player_id: Opti
     Ok(())
 }
 
-pub fn mv(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, dir: Dir) -> Result<(),()> {
+pub fn mv(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, dir: Dir) -> UResult {
     let player = container.players.get(player_id);
     let mob_id = player.mob_id;
     let location_id = container.locations.get(mob_id).as_result()?;

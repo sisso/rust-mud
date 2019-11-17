@@ -5,7 +5,7 @@ use super::actions;
 use super::comm;
 use super::container::Container;
 use crate::game::{actions_admin, input_handle_items, mob, inventory, input_handle_space};
-use commons::{PlayerId, ObjId};
+use commons::{PlayerId, ObjId, UOK, UResult, UERR};
 use std::collections::HashSet;
 use crate::game::comm::InventoryDesc;
 
@@ -23,16 +23,18 @@ fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc>
     }).collect()
 }
 
-pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) -> Result<(), ()> {
+pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) -> UResult {
     let mob_id = container.players.get_mob(player_id)?;
 
     match input {
         "h" | "help" => {
             outputs.private(player_id, comm::help());
+            UOK
         }
 
         "l" | "look" => {
             actions::look(container, outputs, player_id);
+            UOK
         }
 
         "n" | "s" | "e" | "w" | "enter" | "out" | "exit" => {
@@ -46,45 +48,46 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
                 _ => panic!("invalid input {}", input),
             };
 
-            actions::mv(container, outputs, player_id, dir);
+            actions::mv(container, outputs, player_id, dir)
         }
 
         "uptime" => {
             outputs.private(player_id, comm::uptime(container.time.total));
+            UOK
         }
 
         "rest" => {
-            let _ = actions::rest(container, outputs, player_id);
+            actions::rest(container, outputs, player_id)
         }
 
         "stand" => {
-            let _ = actions::stand(container, outputs, player_id);
+            actions::stand(container, outputs, player_id)
         }
 
         "stats" | "inv" | "score" => {
             let ctx = container.get_player_context(player_id);
-            let _equiped = container.equips.get(ctx.mob.id).unwrap_or(HashSet::new());
             outputs.private(player_id, comm::stats(&ctx.mob.attributes, &inventory_to_desc(container, ctx.player.mob_id)));
+            UOK
         }
 
         _ if has_command(input, &["pick"]) || has_command(&input, &["get"]) => {
-            let _ = input_handle_items::pickup(container, outputs, player_id, parse_arguments(input));
+            input_handle_items::pickup(container, outputs, player_id, parse_arguments(input))
         }
 
         _ if has_command(input, &["drop"]) => {
-            input_handle_items::drop(container, outputs, player_id, parse_arguments(input));
+            input_handle_items::drop(container, outputs, player_id, parse_arguments(input))
         }
 
         _ if has_command(input, &["remove"]) => {
-            input_handle_items::strip(container, outputs, player_id, parse_arguments(input));
+            input_handle_items::strip(container, outputs, player_id, parse_arguments(input))
         }
 
         _ if has_command(input, &["equip"]) => {
-            input_handle_items::equip(container, outputs, player_id, parse_arguments(input));
+            input_handle_items::equip(container, outputs, player_id, parse_arguments(input))
         }
 
         _ if has_command(input, &["examine "]) => {
-            action_examine(container, outputs, player_id, input);
+            action_examine(container, outputs, player_id, input)
         }
 
         _ if has_command(input, &["k ", "kill "]) => {
@@ -95,27 +98,30 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
 
             match candidate {
                 Some(mob_id) if !container.mobs.is_avatar(*mob_id) => {
-                    let _ = actions::attack(container, outputs, player_id, *mob_id);
+                    actions::attack(container, outputs, player_id, *mob_id);
+                    UOK
                 }
                 Some(_) => {
                     outputs.private(player_id, comm::kill_can_not_kill_players(&target));
+                    UERR
                 }
                 None => {
                     outputs.private(player_id, comm::kill_target_not_found(&target));
+                    UERR
                 }
             }
         }
 
         _ if input.starts_with("say ") => {
             let msg = input["say ".len()..].to_string();
-            let _ = actions::say(container, outputs, Some(player_id), mob_id, msg);
+            actions::say(container, outputs, Some(player_id), mob_id, msg)
         }
 
         _ if input.starts_with("admin ") => {
             let arguments = parse_arguments(input);
             if arguments.len() != 2 {
                 outputs.private(player_id, comm::admin_invalid_command());
-                return Err(());
+                return UERR;
             }
 
             match arguments.get(1).unwrap().as_ref() {
@@ -125,43 +131,47 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
                     let mob_label = container.labels.get_label_f(mob_id);
                     outputs.private(player_id, comm::admin_suicide());
                     outputs.room(player_id, pctx.room.id, comm::admin_suicide_others(mob_label));
-                    actions_admin::kill(container, outputs, mob_id);
+                    actions_admin::kill(container, outputs, mob_id)
                 }
                 _other => {
                     outputs.private(player_id, comm::admin_invalid_command());
+                    UERR
                 }
             }
         }
 
         "sm" | "map" => {
-            let _ = input_handle_space::show_starmap(container, outputs, player_id, mob_id);
+            input_handle_space::show_starmap(container, outputs, player_id, mob_id)
         }
 
         "move" => {
-            let _ = input_handle_space::move_list_targets(container, outputs, player_id, mob_id);
+            input_handle_space::move_list_targets(container, outputs, player_id, mob_id)
         }
 
         _ if input.starts_with("move ") => {
-            let _ = input_handle_space::move_to(container, outputs, player_id, mob_id, parse_arguments(input));
+            input_handle_space::move_to(container, outputs, player_id, mob_id, parse_arguments(input))
         }
 
         "land" => {
-            let _ = input_handle_space::land_list(container, outputs, player_id, mob_id);
+            input_handle_space::land_list(container, outputs, player_id, mob_id)
         }
 
         _ if input.starts_with("land ") => {
-            let _ = input_handle_space::land_at(container, outputs, player_id, mob_id, parse_arguments(input));
+            input_handle_space::land_at(container, outputs, player_id, mob_id, parse_arguments(input))
         }
+
+       "launch" => {
+            input_handle_space::launch(container, outputs, player_id, mob_id)
+        },
 
         _ => {
             outputs.private(player_id, comm::unknown_input(input));
+            UERR
         }
     }
-
-    Ok(())
 }
 
-fn action_examine(container: &Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) {
+fn action_examine(container: &Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) -> UResult {
     let target_label = parse_command(input, &["examine "]);
     let ctx = container.get_player_context(player_id);
     let mobs = mob::search_mobs_at(&container.labels, &container.locations, &container.mobs, ctx.room.id, target_label);
@@ -171,7 +181,7 @@ fn action_examine(container: &Container, outputs: &mut dyn Outputs, player_id: P
             let mob_label = container.labels.get_label_f(mob_id);
             let mob = container.mobs.get(mob_id).unwrap();
             outputs.private(player_id, comm::examine_target(mob_label, &mob.attributes, &inventory_to_desc(container, mob_id)));
-            return;
+            return UOK;
         }
         _ => {}
     }
@@ -181,13 +191,14 @@ fn action_examine(container: &Container, outputs: &mut dyn Outputs, player_id: P
         Some(item_id) => {
             let item_label = container.labels.get_label_f(item_id);
             outputs.private(player_id, comm::examine_target_item(item_label, &inventory_to_desc(container, item_id)));
-            return;
+            return UOK;
         }
         _ => {}
     }
 
     // else
     outputs.private(player_id, comm::examine_target_not_found(target_label));
+    UERR
 }
 
 fn has_command(input: &str, commands: &[&str]) -> bool {

@@ -3,7 +3,7 @@ use super::item::*;
 use super::mob::*;
 use crate::game::comm;
 use crate::game::Outputs;
-use commons::{PlayerId, AsResult};
+use commons::{PlayerId, AsResult, UResult};
 
 #[derive(Debug, Clone,PartialEq)]
 pub enum PickUpError {
@@ -97,7 +97,7 @@ pub fn do_strip(container: &mut Container, outputs: &mut dyn Outputs, player_id:
     Ok(())
 }
 
-pub fn do_drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId) -> Result<(),()> {
+pub fn do_drop(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, item_id: ItemId) -> UResult {
     let _mob = container.mobs.get(mob_id).as_result()?;
     let mob_label = container.labels.get_label_f(mob_id);
     let room_id = container.locations.get(mob_id).as_result()?;
