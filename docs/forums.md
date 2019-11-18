@@ -1,3 +1,75 @@
+# Item Prefab 2
+
+All loader objects are prefabs. They need to be materialized to generate a ID. 
+
+Any object that need to create another object from prefab, will always reference
+the string key in load.
+
+The loading process is create all Prefabs and instantiate the root? 
+- no, we dont want to put everything always in a single tree
+
+But we can have a bootstrap list. 
+- no, because most of things will be in bootstrap
+
+The better is to split files, prefabs and auto initilize.
+
+
+# Loader models
+
+Files are just a bunch of keys, each key is mapped to a static id.
+
+Values are flatten independent of current model, but similar. For instance, 
+we will have fields label and desc, that will mapped to Label { label:, desc }
+
+Most of fields will have direct map like item, mob, room, craft, etc.
+
+    {
+        shuttle-1: {
+            label: "Shuttle-1"
+            desc: "Shuttle very nice"
+            
+            children: {
+                bridge: {
+                    label:
+                    children: {
+                        control: {
+                            label: "panel control"
+                            item: { craft_control: true } 
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+# Loader
+
+Load a bunch of configuration files that can be easy merge. All IDs and 
+references should be unique strings.
+
+A string_id -> id mapping is generated automatically and keep persistent. 
+
+The string_id -> id is used to create entities during the load and keep
+references from dynamic objects.
+
+
+
+
+# Item Prefab
+
+Any component can be just moved into limbo to be used as prefab. It will 
+not make things complete easy since some of components will contains 
+references that need to be mapped when clone a entity.
+
+A builder can be used both for testing, parsing and prefab generation. 
+But how?
+
+PrefabObject -> Builder -> build(contianer).
+
+So a prefab is a ID to a function that create a object tree. This object
+tree can be defined in configuration files.
+
+
 # General
 
 ## Disarm in Circle mud
