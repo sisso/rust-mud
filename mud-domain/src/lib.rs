@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports)]
+
 extern crate hocon;
 extern crate rand;
 extern crate serde_json;
