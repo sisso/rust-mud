@@ -1,3 +1,4 @@
+use serde::Deserialize;
 use std::fs;
 use hocon::{Hocon, HoconLoader, Error};
 use serde_json::{Number, Value};
@@ -44,77 +45,12 @@ impl HoconExtra for Hocon {
     }
 }
 
-pub struct RoomExitData {
-    pub dir: Dir,
-    pub to: StaticId,
-}
-
-pub struct RoomData {
-    pub airlock: bool,
-    pub exits: Vec<RoomExitData>
-}
-
-pub struct PlanetData {
-
-}
-
-pub struct SectorData {
-
-}
-
-pub struct MobData {
-    attack: u32,
-    defense: u32,
-    damage_min: u32,
-    damage_max: u32,
-    pv: u32
-}
-
-pub struct PosData {
-    pub x: f32,
-    pub y: f32,
-}
-
-pub struct StaticId(pub String);
-
-pub struct ObjData {
-    pub id: StaticId,
-    pub label: String,
-    pub code: Vec<String>,
-    pub desc: String,
-    pub room: Option<RoomData>,
-    pub planet: Option<PlanetData>,
-    pub sector: Option<SectorData>,
-    pub mob: Option<MobData>,
-    pub pos: Option<PosData>,
-}
-
-pub struct CfgData {
-    initial_room: StaticId,
-    avatar_mob: StaticId,
-    initial_craft: StaticId,
-}
-
+#[derive(Debug, Deserialize)]
 pub struct Data {
-    pub cfg: CfgData,
-    pub objects: HashMap<StaticId, ObjData>,
-    pub prefabs: HashMap<StaticId, ObjData>,
+    a: u32,
 }
 
 fn parse(hocon: Hocon) -> Result<(), Error> {
-    for id in hocon.keys()? {
-        println!("{:?}", id);
-        let value = hocon[id].keys().expect("All object must have keys");
-        println!("{:?}", value);
-
-        // parse special keys
-        if id == "cfg" {
-            println!("configuration");
-        } else {
-            println!("object");
-        }
-    }
-
     Ok(())
 }
 

@@ -1,3 +1,4 @@
+use serde::Deserialize;
 use super::mob::*;
 use super::player::*;
 use super::room::*;
@@ -26,7 +27,7 @@ impl GameTime {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Copy)]
+#[derive(Clone, Debug, Eq, PartialEq, Copy, Deserialize)]
 pub enum Dir {
     N,
     S,
