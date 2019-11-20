@@ -7,6 +7,7 @@ use crate::game::domain::Dir;
 use std::collections::HashMap;
 use crate::game::loader::hocon_loader::Error::HoconError;
 use std::io::Error as IError;
+use crate::game::obj::Obj;
 
 #[derive(Debug)]
 pub enum Error {
@@ -44,14 +45,14 @@ impl HoconExtra for Hocon {
 
 #[derive(Deserialize, Debug)]
 pub struct RoomExitData {
-    pub dir: Dir,
+    pub dir: String,
     pub to: StaticId,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct RoomData {
-    pub airlock: bool,
-    pub exits: Vec<RoomExitData>
+    pub airlock: Option<bool>,
+    pub exits: Option<Vec<RoomExitData>>
 }
 
 #[derive(Deserialize, Debug)]
@@ -90,15 +91,15 @@ impl StaticId {
 
 #[derive(Deserialize, Debug)]
 pub struct ObjData {
-    pub id: StaticId,
     pub label: String,
-    pub code: Vec<String>,
-    pub desc: String,
+    pub code: Option<Vec<String>>,
+    pub desc: Option<String>,
     pub room: Option<RoomData>,
     pub planet: Option<PlanetData>,
     pub sector: Option<SectorData>,
     pub mob: Option<MobData>,
     pub pos: Option<PosData>,
+    pub parent: Option<StaticId>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -129,11 +130,18 @@ impl HLoader {
         };
 
         for (key, value) in map {
-            if key == "cfg" {
-                let v: CfgData = value.resolve()?;
-                cfg = Some(v);
-            } else {
-                unimplemented!();
+            match key.as_str() {
+                "cfg" => {
+                    cfg = Some(HLoader::load_cfg(value)?);
+                },
+                "objects" => {
+                    HLoader::load_all(value, &mut objects)?;
+                },
+                "prefabs" => {
+                    HLoader::load_all(value, &mut prefabs)?;
+                },
+
+                _ => unimplemented!(),
             }
         }
 
@@ -142,6 +150,28 @@ impl HLoader {
             objects,
             prefabs,
         })
+    }
+
+    fn load_cfg(hocon: Hocon) -> Result<CfgData, Error> {
+        hocon.resolve().map_err(|e| e.into())
+    }
+
+    fn load_obj(hocon: Hocon) -> Result<ObjData, Error> {
+        hocon.resolve().map_err(|e| e.into())
+    }
+
+    fn load_all(hocon: Hocon, objects: &mut HashMap<StaticId, ObjData>) -> Result<(), Error> {
+        let map = match hocon {
+            Hocon::Hash(map) => map,
+            _ => return Err(Error::NotObject),
+        };
+
+        for (key, value) in map {
+            let obj: ObjData = HLoader::load_obj(value)?;
+            objects.insert(StaticId(key), obj);
+        }
+
+        Ok(())
     }
 
     fn load_from_str(input: &str) -> Result<Data, Error> {
@@ -183,6 +213,92 @@ cfg {
         assert_eq!(cfg.avatar_mob.as_str(), "avatar");
         assert_eq!(cfg.initial_craft.as_str(), "light_cargo_1");
 
+        Ok(())
+    }
+
+    #[test]
+    pub fn test_load_objects() -> Result<(), Error>{
+        let sample = r##"
+objects {
+  sector_1 {
+    label: "Sector 1"
+    code: ["sector1"]
+    sector: {}
+  }
+
+  dune: {
+    label: "Dune"
+    planet: {}
+    pos: { x: 3, y: 4 }
+    parent: "sector_1"
+  }
+
+  palace: {
+    label: "Palace"
+    desc: "The greate Palace of Dune"
+    room: {
+      exits: [
+        {dir: "s", to: "landing_pad"}
+      ]
+    }
+    parent: "dune"
+  }
+
+  landing_pad: {
+    label: "Landing pad"
+    desc: "City landing pad."
+    room: {
+      landing_pad: true
+      exits: [
+        {dir: "n", to: "palace"}
+        {dir: "s", to: "city"}
+      ]
+    }
+    parent: "dune"
+  }
+
+  city: {
+    label: "City center"
+    desc: "The deserts market and city center"
+    room: {
+      exits: [
+        {dir: "n", to: "landing_pad"}
+      ]
+    }
+    parent: "dune"
+  }
+}
+        "##;
+
+        let data= HLoader::load_from_str(sample).unwrap();
+        assert!(data.prefabs.is_empty());
+        assert_eq!(5, data.objects.len());
+        Ok(())
+    }
+
+    #[test]
+    pub fn test_load_prefabs() -> Result<(), Error>{
+        let sample = r##"
+prefabs {
+  shuttle: {
+    label: "Shuttle"
+    desc: "Small shuttle"
+  }
+
+  shuttle_cockpit: {
+    label: "Cockpit"
+    desc: "Small cockpit used to control the craft"
+    room {
+      airlock: true
+    }
+    parent: "shuttle"
+  }
+}
+          "##;
+
+        let data= HLoader::load_from_str(sample).unwrap();
+        assert!(data.objects.is_empty());
+        assert_eq!(2, data.prefabs.len());
         Ok(())
     }
 }
