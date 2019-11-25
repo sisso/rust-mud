@@ -59,6 +59,18 @@ impl Dir {
            Dir::Out => "out",
        }
     }
+
+    pub fn parse(value: &str) -> Result<Dir, ()> {
+        match value {
+            "n" => Ok(Dir::N),
+            "s" => Ok(Dir::S),
+            "e" => Ok(Dir::E),
+            "w" => Ok(Dir::W),
+            "out" => Ok(Dir::Out),
+            "enter" => Ok(Dir::Enter),
+            _ => Err(())
+        }
+    }
 }
 
 pub struct PlayerCtx<'a> {

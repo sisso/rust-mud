@@ -3,6 +3,8 @@ use mud_domain::game::container::Container;
 use mud_domain::game::loader;
 use socket_server::*;
 use commons::{TimeTrigger, TotalTime, DeltaTime};
+use std::path::Path;
+use logs::*;
 
 pub struct ServerRunner {
     server: Box<dyn Server>,
@@ -14,7 +16,10 @@ impl ServerRunner {
     pub fn new(server: Box<dyn Server>, save: Option<(String, DeltaTime)>) -> Self {
         let mut container: Container = Container::new();
 //        loader::load(&mut container);
-        loader::scenery_space::load(&mut container);
+//        loader::scenery_space::load(&mut container);
+        let config_path = Path::new("./data/space");
+        info!("loading configuration: {:?}", config_path.canonicalize().unwrap());
+        loader::hocon_loader::load(&config_path, &mut container);
 
         ServerRunner {
             server,

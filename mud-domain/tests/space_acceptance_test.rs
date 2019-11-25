@@ -3,7 +3,7 @@ extern crate mud_domain;
 use mud_domain::game::{Game, loader};
 use mud_domain::game::container::Container;
 use commons::{ConnectionId, DeltaTime};
-
+use std::path::Path;
 
 
 pub struct TestScenery {
@@ -14,7 +14,8 @@ pub struct TestScenery {
 impl TestScenery {
     pub fn new() -> Self {
         let mut container = Container::new();
-        loader::scenery_space::load(&mut container);
+        // loader::scenery_space::load(&mut container);
+        loader::hocon_loader::load(&Path::new("../data/space"), &mut container);
         TestScenery {
             game: Game::new(container),
             connection_id: ConnectionId(0),

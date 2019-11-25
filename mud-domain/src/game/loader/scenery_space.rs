@@ -8,6 +8,7 @@ use crate::game::surfaces::*;
 use crate::game::planets::*;
 use crate::game::pos::Pos;
 use crate::game::surfaces_object::SurfaceObject;
+use super::super::builder;
 
 type CraftId = ObjId;
 
@@ -53,7 +54,7 @@ fn add_planet(container: &mut Container, label: &str, sector_id: SurfaceId, pos:
     });
     container.locations.set(id, sector_id);
     container.planets.add(Planet::new(id));
-    container.pos.set(Pos { id, pos });
+    container.pos.set(id, pos);
     container.surface_objects.add(SurfaceObject::new(id));
     id
 }
@@ -70,7 +71,7 @@ fn add_craft(container: &mut Container, label: &str, sector_id: SurfaceId, pos: 
     container.labels.set(Label::new(id, label));
     container.locations.set(id, sector_id);
     container.crafts.add(Craft::new(id));
-    container.pos.set(Pos { id, pos });
+    container.pos.set(id, pos);
     container.surface_objects.add(SurfaceObject::new(id));
 
     let bridge_id = add_craft_room(container, id, "Bridge", "Ship bridge", false);
@@ -84,7 +85,7 @@ fn add_craft(container: &mut Container, label: &str, sector_id: SurfaceId, pos: 
 }
 
 fn add_craft_room(container: &mut Container, craft_id: CraftId, label: &str, desc: &str, airlock: bool) -> RoomId {
-    let id = super::builder::add_room(container, label, desc);
+    let id = builder::add_room(container, label, desc);
     container.locations.set(id, craft_id);
     if airlock {
         container.rooms.update(id, |room| room.is_airlock = true).unwrap();
@@ -93,7 +94,7 @@ fn add_craft_room(container: &mut Container, craft_id: CraftId, label: &str, des
 }
 
 fn add_room(container: &mut Container, planet_id: PlanetId, label: &str, desc: &str) -> RoomId {
-    let id = super::builder::add_room(container, label, desc);
+    let id = builder::add_room(container, label, desc);
     container.locations.set(id, planet_id);
     container.rooms.update(id, |room| room.is_airlock = true).unwrap();
     id

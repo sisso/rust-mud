@@ -20,21 +20,23 @@ impl PosRepo {
         }
     }
 
-    pub fn set(&mut self, value: Pos) {
-        info!("{:?} added", value);
-        self.index.insert(value.id, value);
+    pub fn set(&mut self, id: ObjId, value: V2) {
+        self.index.insert(id, Pos {
+            id,
+            pos: value
+        });
     }
 
-    pub fn remove(&mut self, id: ObjId) -> Option<Pos> {
+    pub fn remove(&mut self, id: ObjId) -> Option<V2> {
         info!("{:?} removed", id);
-        self.index.remove(&id)
+        self.index.remove(&id).map(|i| i.pos)
     }
 
     pub fn get_pos(&self, id: ObjId) -> Option<V2> {
         self.index.get(&id).map(|i| i.pos)
     }
 
-    pub fn set_pos(&mut self, id: ObjId, new_pos: V2) -> UResult {
+    pub fn update(&mut self, id: ObjId, new_pos: V2) -> UResult {
         self.index.get_mut(&id).map(|i| {
             info!("{:?} set_pos {:?}", id, new_pos);
             i.pos = new_pos;

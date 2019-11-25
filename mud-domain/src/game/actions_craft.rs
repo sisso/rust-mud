@@ -84,7 +84,7 @@ pub fn do_launch(container: &mut Container, outputs: &mut dyn Outputs, player_id
 
     // put ship in position
     container.locations.set(craft_id, sector_id);
-    container.pos.set_pos(craft_id, pos);
+    container.pos.update(craft_id, pos);
 
     // collect labels
     let craft_label = container.labels.get_label(craft_id).unwrap();

@@ -17,7 +17,7 @@ pub fn tick(ctx: &mut Ctx) {
                     (Some(self_pos), Some(target_pos)) => {
                         let max_distance = craft.attributes.speed * ctx.container.time.delta.as_f32();
                         let (new_pos, done) = geometry::move_towards(self_pos, target_pos, max_distance);
-                        let _ = ctx.container.pos.set_pos(craft.id, new_pos);
+                        let _ = ctx.container.pos.update(craft.id, new_pos);
                         if done {
                             commands_complete.push((craft.id, true));
                         }

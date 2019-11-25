@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use commons::ObjId;
 use crate::utils::text;
+use logs::*;
 
 #[derive(Clone,Debug)]
 pub struct Label {
@@ -45,12 +46,14 @@ impl Labels {
         }
     }
 
-    pub fn set(&mut self, labels: Label) {
-        assert!(!self.index.contains_key(&labels.id));
-        self.index.insert(labels.id, labels);
+    pub fn set(&mut self, label: Label) {
+        assert!(!self.index.contains_key(&label.id));
+        debug!("{:?} added", label);
+        self.index.insert(label.id, label);
     }
 
     pub fn remove(&mut self, id: ObjId) -> Option<Label> {
+        debug!("{:?} removed", id);
         self.index.remove(&id)
     }
 

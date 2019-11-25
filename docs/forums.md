@@ -378,6 +378,12 @@ sector {
     }
 }
 
+### Parent Child ves parent_id
+
+parent_id:
+- is more verbose, require more infrastructure to parse and more attention to work
+- more flexible to append new child from different files if we want to go into mod way
+
 ## Piloting
 
 Many vehicles are planed to be available and allow player to move around.
