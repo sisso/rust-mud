@@ -1,7 +1,7 @@
 use crate::game::container::Container;
 use std::path::Path;
-use crate::game::loader::hocon_loader::hocon_parser::{HParser, StaticId, ObjData};
 use std::collections::HashMap;
+use crate::game::loader::hocon_loader::hocon_parser::{HParser};
 use crate::game::labels::Label;
 use crate::game::pos::Pos;
 use commons::{V2, ObjId};
@@ -10,6 +10,7 @@ use crate::game::planets::Planet;
 use crate::game::mob::Mob;
 use crate::game::room::Room;
 use crate::game::domain::Dir;
+use super::*;
 
 mod hocon_parser;
 
@@ -26,6 +27,9 @@ pub fn load(module_folder: &Path, container: &mut Container) {
     if let Some(cfg) = data.cfg {
         container.config.initial_room = *id_by_static_id.get(&cfg.initial_room).unwrap();
     }
+
+    // create prefabs
+
 }
 
 fn load_objects(container: &mut Container, objects: HashMap<StaticId, ObjData>) -> HashMap<StaticId, ObjId> {
@@ -40,22 +44,19 @@ fn load_objects(container: &mut Container, objects: HashMap<StaticId, ObjData>) 
     for (key, data) in objects.into_iter() {
         let obj_id = *obj_by_id.get(&key).unwrap();
 
-        match (data.desc, data.code) {
-            (desc, code) => {
-                let label = data.label;
-                let code = code.map(|i| i.first().cloned())
-                    .and_then(|o| o)
-                    .unwrap_or(label.to_string());
-                let desc = desc.unwrap_or("".to_string());
+        {
+            let label = data.label;
+            let code = data.code.map(|i| i.first().cloned())
+                .and_then(|o| o)
+                .unwrap_or(label.clone());
+            let desc = data.desc.unwrap_or("".to_string());
 
-                container.labels.set(Label {
-                    id: obj_id,
-                    label,
-                    code,
-                    desc: desc
-                });
-            },
-            _ => {},
+            container.labels.set(Label {
+                id: obj_id,
+                label,
+                code,
+                desc
+            });
         }
 
         if let Some(pos) = data.pos {

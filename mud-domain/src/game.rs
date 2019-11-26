@@ -43,6 +43,7 @@ pub mod surfaces_object;
 pub mod actions_craft;
 pub mod crafts_system;
 pub mod space_utils;
+pub mod prefabs;
 
 #[derive(Debug)]
 pub struct ConnectionState {
