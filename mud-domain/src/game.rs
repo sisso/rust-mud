@@ -1,49 +1,49 @@
-use commons::*;
-use std::collections::{HashMap, HashSet};
-use logs::*;
-use container::Container;
-use crate::game::view_login::LoginResult;
-use crate::game::room::RoomId;
 use crate::game::location::LocationId;
+use crate::game::room::RoomId;
+use crate::game::view_login::LoginResult;
+use commons::*;
+use container::Container;
+use logs::*;
+use std::collections::{HashMap, HashSet};
 
-pub mod obj;
 pub mod actions;
-pub mod body;
-pub mod comm;
-pub mod container;
-pub mod combat;
-pub mod domain;
-pub mod mob;
-pub mod player;
-pub mod room;
-pub mod spawn;
-pub mod view_main;
-pub mod view_login;
-pub mod item;
-pub mod actions_items;
 pub mod actions_admin;
-pub mod loader;
-pub mod input_handle_items;
-pub mod location;
-pub mod template;
-pub mod avatars;
-pub mod equip;
-pub mod inventory;
-pub mod tags;
-pub mod builder;
-pub mod labels;
-pub mod config;
-pub mod storages;
-pub mod crafts;
-pub mod planets;
-pub mod surfaces;
-pub mod pos;
-pub mod input_handle_space;
-pub mod surfaces_object;
 pub mod actions_craft;
+pub mod actions_items;
+pub mod avatars;
+pub mod body;
+pub mod builder;
+pub mod combat;
+pub mod comm;
+pub mod config;
+pub mod container;
+pub mod crafts;
 pub mod crafts_system;
-pub mod space_utils;
+pub mod domain;
+pub mod equip;
+pub mod input_handle_items;
+pub mod input_handle_space;
+pub mod inventory;
+pub mod item;
+pub mod labels;
+pub mod loader;
+pub mod location;
+pub mod mob;
+pub mod obj;
+pub mod planets;
+pub mod player;
+pub mod pos;
 pub mod prefabs;
+pub mod room;
+pub mod space_utils;
+pub mod spawn;
+pub mod storages;
+pub mod surfaces;
+pub mod surfaces_object;
+pub mod tags;
+pub mod template;
+pub mod view_login;
+pub mod view_main;
 
 #[derive(Debug)]
 pub struct ConnectionState {
@@ -68,7 +68,7 @@ pub enum Output {
     Zone {
         location_id: LocationId,
         msg: String,
-    }
+    },
 }
 
 pub trait Outputs {
@@ -82,14 +82,12 @@ pub trait Outputs {
 
 #[derive(Debug)]
 pub struct OutputsBuffer {
-    list: Vec<Output>
+    list: Vec<Output>,
 }
 
 impl OutputsBuffer {
     pub fn new() -> Self {
-        OutputsBuffer {
-            list: vec![]
-        }
+        OutputsBuffer { list: vec![] }
     }
 
     pub fn take(&mut self) -> Vec<Output> {
@@ -103,21 +101,33 @@ impl Outputs for OutputsBuffer {
     }
 
     fn room_all(&mut self, room_id: RoomId, msg: String) {
-        self.list.push(Output::Room { player_id: None, room_id, msg });
+        self.list.push(Output::Room {
+            player_id: None,
+            room_id,
+            msg,
+        });
     }
 
     fn room(&mut self, player_id: PlayerId, room_id: RoomId, msg: String) {
-        self.list.push(Output::Room { player_id: Some(player_id), room_id, msg });
+        self.list.push(Output::Room {
+            player_id: Some(player_id),
+            room_id,
+            msg,
+        });
     }
 
     fn room_opt(&mut self, player_id: Option<PlayerId>, room_id: RoomId, msg: String) {
-        self.list.push(Output::Room { player_id, room_id, msg });
+        self.list.push(Output::Room {
+            player_id,
+            room_id,
+            msg,
+        });
     }
 
     fn private_opt(&mut self, player_id: Option<PlayerId>, msg: String) {
         match player_id {
             Some(player_id) => self.private(player_id, msg),
-            None => {},
+            None => {}
         }
     }
 
@@ -154,10 +164,13 @@ impl Game {
 
     pub fn add_connection(&mut self, connection_id: ConnectionId) {
         info!("{:?} receive connection", connection_id);
-        self.connections.insert(connection_id.clone(), ConnectionState {
-            connection_id,
-            player_id: None,
-        });
+        self.connections.insert(
+            connection_id.clone(),
+            ConnectionState {
+                connection_id,
+                player_id: None,
+            },
+        );
 
         let msg = view_login::handle_welcome();
 
@@ -190,10 +203,15 @@ impl Game {
             match view_login::handle(&mut self.container, input) {
                 LoginResult::Msg { msg } => {
                     self.server_outputs.push((connection_id, msg));
-                },
+                }
                 LoginResult::Login { login } => {
-                    self.server_outputs.push((connection_id, view_login::on_login_success(login.as_str())));
-                    let player_id = avatars::on_player_login(&mut self.container, &mut self.outputs, login.as_str());
+                    self.server_outputs
+                        .push((connection_id, view_login::on_login_success(login.as_str())));
+                    let player_id = avatars::on_player_login(
+                        &mut self.container,
+                        &mut self.outputs,
+                        login.as_str(),
+                    );
                     debug!("{:?} login complete for {:?}", connection_id, player_id);
                     self.set_state(ConnectionState {
                         connection_id,
@@ -219,9 +237,9 @@ impl Game {
         std::mem::replace(&mut self.server_outputs, vec![])
     }
 
-//    pub fn save(&self, save: &mut dyn Save) {
-//        self.container.save(save);
-//    }
+    //    pub fn save(&self, save: &mut dyn Save) {
+    //        self.container.save(save);
+    //    }
 
     /// For each player that will receive output, append new line with cursor.
     ///
@@ -238,7 +256,9 @@ impl Game {
                     append_cursor_ids.push(connection_id.clone());
 
                     // if player do not have newline because sent a input, append new line in start
-                    if !self.connections_with_input.contains(connection_id) && !new_lines_ids.contains(&connection_id) {
+                    if !self.connections_with_input.contains(connection_id)
+                        && !new_lines_ids.contains(&connection_id)
+                    {
                         new_lines_ids.push(connection_id.clone());
                     }
                 }
@@ -247,7 +267,8 @@ impl Game {
         }
 
         for connection_id in new_lines_ids {
-            self.server_outputs.insert(0, (connection_id, "\n".to_string()));
+            self.server_outputs
+                .insert(0, (connection_id, "\n".to_string()));
         }
 
         for connection_id in append_cursor_ids {
@@ -266,26 +287,32 @@ impl Game {
 
         for game_output in outputs {
             match game_output {
-                Output::Room { player_id, room_id, msg } => {
+                Output::Room {
+                    player_id,
+                    room_id,
+                    msg,
+                } => {
                     debug!("{:?}/{:?}: {}", player_id, room_id, msg);
 
                     let players_per_room = find_players_per_room(&self.container);
 
                     if let Some(players) = players_per_room.get(&room_id) {
-                        let connections_id: Vec<ConnectionId> =
-                            players
-                                .iter()
-                                .filter(|&&i_player_id| {
-                                    match player_id {
-                                        // exclude player that emit the message from receivers
-                                        Some(player_id) if i_player_id == player_id => false,
-                                        _ => true
-                                    }
-                                })
-                                .flat_map(|&i_player_id| self.connection_id_from_player_id(i_player_id))
-                                .collect();
+                        let connections_id: Vec<ConnectionId> = players
+                            .iter()
+                            .filter(|&&i_player_id| {
+                                match player_id {
+                                    // exclude player that emit the message from receivers
+                                    Some(player_id) if i_player_id == player_id => false,
+                                    _ => true,
+                                }
+                            })
+                            .flat_map(|&i_player_id| self.connection_id_from_player_id(i_player_id))
+                            .collect();
 
-                        debug!("players at room {:?}, selected connections: {:?}", players, connections_id);
+                        debug!(
+                            "players at room {:?}, selected connections: {:?}",
+                            players, connections_id
+                        );
                         for connection_id in connections_id {
                             self.server_outputs.push((connection_id, msg.clone()));
                         }
@@ -305,11 +332,15 @@ impl Game {
 
                 Output::Zone { location_id, msg } => {
                     let connections: Vec<(PlayerId, ConnectionId)> =
-                        avatars::find_deep_all_players_in(&self.container, location_id).iter()
+                        avatars::find_deep_all_players_in(&self.container, location_id)
+                            .iter()
                             .flat_map(|&player_id| {
-                                self.connection_id_by_player_id.get(&player_id).cloned()
+                                self.connection_id_by_player_id
+                                    .get(&player_id)
+                                    .cloned()
                                     .map(|v| (player_id, v))
-                            }).collect();
+                            })
+                            .collect();
 
                     for (player_id, connection_id) in connections {
                         debug!("{:?} - {}", player_id, msg);
@@ -321,9 +352,7 @@ impl Game {
     }
 
     fn connection_id_from_player_id(&self, player_id: PlayerId) -> Option<ConnectionId> {
-        self.connection_id_by_player_id
-            .get(&player_id)
-            .cloned()
+        self.connection_id_by_player_id.get(&player_id).cloned()
     }
 
     fn get_state(&self, connection_id: ConnectionId) -> &ConnectionState {
@@ -334,28 +363,32 @@ impl Game {
 
     fn set_state(&mut self, state: ConnectionState) {
         if let Some(player_id) = state.player_id {
-            self.connection_id_by_player_id.insert(player_id.clone(), state.connection_id.clone());
+            self.connection_id_by_player_id
+                .insert(player_id.clone(), state.connection_id.clone());
         }
         self.connections.insert(state.connection_id.clone(), state);
     }
 
     fn player_id_from_connection_id(&self, connection_id: &ConnectionId) -> Option<PlayerId> {
-        self.connections.get(connection_id)
+        self.connections
+            .get(connection_id)
             .and_then(|i| i.player_id)
     }
 }
 
 pub fn find_players_per_room(container: &Container) -> HashMap<RoomId, Vec<PlayerId>> {
-    let room_player: Vec<(RoomId, PlayerId)> =
-        container.players.list_players()
-            .into_iter()
-            .flat_map(|player_id| {
-                let player = container.players.get(player_id);
-                container.locations.get(player.mob_id).map(|room_id| {
-                    (room_id,player_id)
-                })
-            })
-            .collect();
+    let room_player: Vec<(RoomId, PlayerId)> = container
+        .players
+        .list_players()
+        .into_iter()
+        .flat_map(|player_id| {
+            let player = container.players.get(player_id);
+            container
+                .locations
+                .get(player.mob_id)
+                .map(|room_id| (room_id, player_id))
+        })
+        .collect();
 
     // group_by
     let mut result: HashMap<RoomId, Vec<PlayerId>> = HashMap::new();
@@ -369,9 +402,9 @@ pub fn find_players_per_room(container: &Container) -> HashMap<RoomId, Vec<Playe
 pub mod test {
     use super::builder;
     use crate::game::container::Container;
-    use crate::game::room::RoomId;
     use crate::game::item::ItemId;
     use crate::game::mob::MobId;
+    use crate::game::room::RoomId;
 
     pub struct TestScenery {
         pub container: Container,
@@ -406,7 +439,7 @@ pub mod test {
             container_id,
             item1_id,
             item2_id,
-            mob_id
+            mob_id,
         }
     }
 }

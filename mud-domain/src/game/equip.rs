@@ -1,11 +1,11 @@
-use std::collections::HashSet;
-use std::collections::HashMap;
-use commons::ObjId;
-use crate::game::mob::MobId;
 use crate::game::item::ItemId;
+use crate::game::mob::MobId;
+use commons::ObjId;
 use logs::*;
+use std::collections::HashMap;
+use std::collections::HashSet;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Equip {
     pub obj_id: MobId,
     pub equipments: HashSet<ItemId>,
@@ -13,12 +13,15 @@ pub struct Equip {
 
 impl Equip {
     pub fn new(obj_id: MobId) -> Self {
-        Equip { obj_id, equipments: HashSet::new() }
+        Equip {
+            obj_id,
+            equipments: HashSet::new(),
+        }
     }
 }
 
 /// What a object is using wielding or wearing
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Equips {
     index: HashMap<ObjId, Equip>,
 }
@@ -36,7 +39,7 @@ impl Equips {
         equip.equipments.insert(item_id);
     }
 
-    pub fn strip(&mut self, mob_id: MobId, item_id: ItemId) -> Result<(),()> {
+    pub fn strip(&mut self, mob_id: MobId, item_id: ItemId) -> Result<(), ()> {
         debug!("{:?} strip {:?}", mob_id, item_id);
         match self.index.get_mut(&mob_id) {
             Some(equip) => {
@@ -45,25 +48,25 @@ impl Equips {
                     return Err(());
                 }
                 Ok(())
-            },
-            None => Err(())
+            }
+            None => Err(()),
         }
     }
 
     pub fn get(&self, id: MobId) -> Result<HashSet<ItemId>, ()> {
-        self.index.get(&id)
+        self.index
+            .get(&id)
             .map(|equip| equip.equipments.clone())
             .ok_or(())
     }
 
-    pub fn remove(&mut self, id: ObjId) -> Result<(),()> {
+    pub fn remove(&mut self, id: ObjId) -> Result<(), ()> {
         self.index.iter_mut().for_each(|(_owner_id, equip)| {
-           if equip.equipments.remove(&id) {
-               debug!("{:?} remove equip", id);
-           }
+            if equip.equipments.remove(&id) {
+                debug!("{:?} remove equip", id);
+            }
         });
 
         Ok(())
     }
 }
-

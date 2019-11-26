@@ -1,12 +1,10 @@
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use serde::{Serialize, Deserialize};
 
 use std::fs::File;
 
-use std::io::{Write, BufReader};
 use std::collections::HashMap;
-
-
+use std::io::{BufReader, Write};
 
 /*
 
@@ -72,7 +70,6 @@ impl RawData {
     }
 }
 
-
 impl SaveToFile {
     pub fn new(file_path: &str) -> Self {
         SaveToFile {
@@ -84,7 +81,9 @@ impl SaveToFile {
 
 impl Save for SaveToFile {
     fn add_header(&mut self, header_name: &str, header_value: serde_json::Value) {
-        self.raw.headers.insert(header_name.to_string(), header_value);
+        self.raw
+            .headers
+            .insert(header_name.to_string(), header_value);
     }
 
     fn add(&mut self, id: u32, component: &str, value: serde_json::Value) {
@@ -106,11 +105,9 @@ pub struct LoadFromFile {
 
 impl LoadFromFile {
     pub fn new(file_path: &str) -> Self {
-       let file = File::open(file_path).expect(&format!("failed to open file {:?}", file_path));
+        let file = File::open(file_path).expect(&format!("failed to open file {:?}", file_path));
         let raw: RawData = serde_json::from_reader(BufReader::new(file)).unwrap();
-        LoadFromFile {
-            raw,
-        }
+        LoadFromFile { raw }
     }
 }
 
@@ -120,20 +117,22 @@ impl Load for LoadFromFile {
     }
 
     fn get_components(&self, component: &str) -> Vec<(u32, &Value)> {
-        self.raw.objects.iter().flat_map(|(id, value)| {
-            match value.get(component) {
+        self.raw
+            .objects
+            .iter()
+            .flat_map(|(id, value)| match value.get(component) {
                 Some(value) => Some((*id, value)),
                 None => None,
-            }
-        }).collect()
+            })
+            .collect()
     }
 }
 
 #[cfg(test)]
 mod test {
-    use std::{io, fs};
+    use crate::save::{Load, LoadFromFile, Save, SaveToFile};
     use serde_json::json;
-    use crate::save::{SaveToFile, Save, LoadFromFile, Load};
+    use std::{fs, io};
 
     #[test]
     pub fn save_and_load_test() -> io::Result<()> {
@@ -142,38 +141,52 @@ mod test {
 
         let mut save = SaveToFile::new(file);
         save.add_header("start_room", json!(22));
-        save.add(0, "label", json!({
-            "label": "Room 1",
-            "desc": "No description"
-        }));
-        save.add(0, "room", json!({
-            "exits": [
-                { "dir": "n", "id": 1 }
-            ]
-        }));
-        save.add(1, "label", json!({
-            "label": "Room 2",
-            "desc": "No description"
-        }));
+        save.add(
+            0,
+            "label",
+            json!({
+                "label": "Room 1",
+                "desc": "No description"
+            }),
+        );
+        save.add(
+            0,
+            "room",
+            json!({
+                "exits": [
+                    { "dir": "n", "id": 1 }
+                ]
+            }),
+        );
+        save.add(
+            1,
+            "label",
+            json!({
+                "label": "Room 2",
+                "desc": "No description"
+            }),
+        );
         save.flush();
-
 
         let load = LoadFromFile::new(file);
         let labels = load.get_components("label");
 
-        assert_eq!(22 as i64, load.get_headers("start_room").unwrap().as_i64().unwrap());
+        assert_eq!(
+            22 as i64,
+            load.get_headers("start_room").unwrap().as_i64().unwrap()
+        );
 
         assert_eq!(2, labels.len());
         match labels.first() {
             Some((id, value)) if *id == 0 => {
                 let value = value["label"].as_str().unwrap();
                 assert_eq!("Room 1", value);
-            },
+            }
             Some((id, value)) if *id == 1 => {
                 let value = value["label"].as_str().unwrap();
                 assert_eq!("Room 2", value);
-            },
-            _ => panic!()
+            }
+            _ => panic!(),
         }
 
         Ok(())

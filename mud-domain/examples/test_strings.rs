@@ -1,11 +1,11 @@
 fn main() {
     let _value = "One\n\
-        Two\n\
-        tree";
+                  Two\n\
+                  tree";
 
     let value_2 = ".... 1 - One\n\
-            ...  2 - two\n\
-            ..\n\
-            ....\n";
+                   ...  2 - two\n\
+                   ..\n\
+                   ....\n";
     println!("{}", value_2);
 }

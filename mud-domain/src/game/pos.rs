@@ -1,14 +1,14 @@
-use std::collections::HashMap;
-use commons::{ObjId, V2, UResult};
+use commons::{ObjId, UResult, V2};
 use logs::*;
+use std::collections::HashMap;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Pos {
     pub id: ObjId,
     pub pos: V2,
 }
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct PosRepo {
     index: HashMap<ObjId, Pos>,
 }
@@ -21,10 +21,7 @@ impl PosRepo {
     }
 
     pub fn set(&mut self, id: ObjId, value: V2) {
-        self.index.insert(id, Pos {
-            id,
-            pos: value
-        });
+        self.index.insert(id, Pos { id, pos: value });
     }
 
     pub fn remove(&mut self, id: ObjId) -> Option<V2> {
@@ -37,10 +34,13 @@ impl PosRepo {
     }
 
     pub fn update(&mut self, id: ObjId, new_pos: V2) -> UResult {
-        self.index.get_mut(&id).map(|i| {
-            info!("{:?} set_pos {:?}", id, new_pos);
-            i.pos = new_pos;
-            ()
-        }).ok_or(())
+        self.index
+            .get_mut(&id)
+            .map(|i| {
+                info!("{:?} set_pos {:?}", id, new_pos);
+                i.pos = new_pos;
+                ()
+            })
+            .ok_or(())
     }
 }

@@ -1,10 +1,9 @@
 extern crate mud_domain;
 
-use mud_domain::game::{Game, loader};
-use mud_domain::game::container::Container;
 use commons::{ConnectionId, DeltaTime};
+use mud_domain::game::container::Container;
+use mud_domain::game::{loader, Game};
 use std::path::Path;
-
 
 pub struct TestScenery {
     pub game: Game,
@@ -33,21 +32,23 @@ impl TestScenery {
     }
 
     pub fn take_outputs(&mut self) -> Vec<String> {
-        self.game.get_outputs().into_iter().filter_map(|(id, msg)| {
-            if id == self.connection_id {
-                Some(msg)
-            } else {
-                None
-            }
-        }).collect()
+        self.game
+            .get_outputs()
+            .into_iter()
+            .filter_map(|(id, msg)| {
+                if id == self.connection_id {
+                    Some(msg)
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
 
     pub fn wait_for(&mut self, contains: &str) -> Vec<String> {
         for _ in 0..100 {
             let outputs = self.take_outputs();
-            let found = outputs.iter().find(|msg| {
-                msg.contains(contains)
-            });
+            let found = outputs.iter().find(|msg| msg.contains(contains));
 
             if found.is_some() {
                 return outputs;
@@ -65,7 +66,7 @@ impl TestScenery {
 }
 
 #[test]
-fn test_sectormap() -> Result<(),()> {
+fn test_sectormap() -> Result<(), ()> {
     let mut scenery = TestScenery::new();
     scenery.login();
     scenery.send_input("sm");
@@ -73,7 +74,7 @@ fn test_sectormap() -> Result<(),()> {
     // look star map
     let outputs = scenery.wait_for(".@.");
     assert!(outputs.join("\n").contains(".@."));
-//    assert_eq!("", outputs.join("\n").as_str());
+    //    assert_eq!("", outputs.join("\n").as_str());
 
     // check move targets
     scenery.send_input("move");
@@ -100,11 +101,10 @@ fn test_sectormap() -> Result<(),()> {
     scenery.send_input("launch");
     scenery.wait_for("launch complete");
 
+    //    scenery.wait_for("Palace");
 
-//    scenery.wait_for("Palace");
-
-//    let outputs = scenery.take_outputs();
-//    assert_eq!("???", outputs.join("\n"));
+    //    let outputs = scenery.take_outputs();
+    //    assert_eq!("???", outputs.join("\n"));
 
     Ok(())
 }
@@ -118,7 +118,6 @@ fn test_sectormap() -> Result<(),()> {
 //    assert!(outputs.join("\n").contains(".@."));
 //    Ok(())
 //}
-
 
 //use std::cell::RefCell;
 //use std::rc::Rc;

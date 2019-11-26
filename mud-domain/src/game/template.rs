@@ -1,12 +1,12 @@
-use std::collections::HashMap;
 use commons::ObjId;
+use std::collections::HashMap;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Template {
     pub id: ObjId,
 }
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Templates {
     index: HashMap<ObjId, Template>,
 }
@@ -27,7 +27,7 @@ impl Templates {
         self.index.remove(&id)
     }
 
-    pub fn get(&self, id: ObjId) -> Result<&Template,()> {
+    pub fn get(&self, id: ObjId) -> Result<&Template, ()> {
         self.index.get(&id).ok_or(())
     }
 }

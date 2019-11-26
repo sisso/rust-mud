@@ -1,10 +1,10 @@
-use std::collections::HashMap;
 use commons::ObjId;
 use logs::*;
+use std::collections::HashMap;
 
 pub type SurfaceId = ObjId;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Surface {
     pub id: SurfaceId,
     pub size: u32,
@@ -13,11 +13,15 @@ pub struct Surface {
 
 impl Surface {
     pub fn new(id: SurfaceId) -> Self {
-        Surface { id, size: 10, is_3d: false }
+        Surface {
+            id,
+            size: 10,
+            is_3d: false,
+        }
     }
 }
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Surfaces {
     index: HashMap<SurfaceId, Surface>,
 }
@@ -40,7 +44,7 @@ impl Surfaces {
         self.index.remove(&id)
     }
 
-    pub fn get(&self, id: SurfaceId) -> Result<&Surface,()> {
+    pub fn get(&self, id: SurfaceId) -> Result<&Surface, ()> {
         self.index.get(&id).ok_or(())
     }
 

@@ -1,10 +1,10 @@
-use serde::Deserialize;
 use super::mob::*;
 use super::player::*;
 use super::room::*;
 use commons::{DeltaTime, Tick, TotalTime};
+use serde::Deserialize;
 
-#[derive(Clone,Copy,Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct GameTime {
     pub tick: Tick,
     pub total: TotalTime,
@@ -16,7 +16,7 @@ impl GameTime {
         GameTime {
             tick: Tick(0),
             total: TotalTime(0.0),
-            delta: DeltaTime(0.0)
+            delta: DeltaTime(0.0),
         }
     }
 
@@ -50,14 +50,14 @@ impl Dir {
     }
 
     pub fn as_str(&self) -> &'static str {
-       match self {
-           Dir::N => "n",
-           Dir::S => "s",
-           Dir::E => "e",
-           Dir::W => "w",
-           Dir::Enter => "enter",
-           Dir::Out => "out",
-       }
+        match self {
+            Dir::N => "n",
+            Dir::S => "s",
+            Dir::E => "e",
+            Dir::W => "w",
+            Dir::Enter => "enter",
+            Dir::Out => "out",
+        }
     }
 
     pub fn parse(value: &str) -> Result<Dir, ()> {
@@ -68,7 +68,7 @@ impl Dir {
             "w" => Ok(Dir::W),
             "out" => Ok(Dir::Out),
             "enter" => Ok(Dir::Enter),
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }
@@ -85,15 +85,11 @@ pub struct NextId {
 
 impl NextId {
     pub fn new() -> Self {
-        NextId {
-            next: 0
-        }
+        NextId { next: 0 }
     }
 
     pub fn new_from(value: u32) -> Self {
-        NextId {
-            next: value
-        }
+        NextId { next: value }
     }
 
     pub fn next(&mut self) -> u32 {

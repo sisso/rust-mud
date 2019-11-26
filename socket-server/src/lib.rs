@@ -1,27 +1,27 @@
-extern crate logs;
 extern crate commons;
+extern crate logs;
 
 use commons::ConnectionId;
 
+pub mod local_server;
 pub mod server_dummy;
 pub mod server_socket;
-pub mod local_server;
 
 /// Going outside the server, to the user
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct ServerOutput {
     pub connection_id: ConnectionId,
-    pub msg: String
+    pub msg: String,
 }
 
 /// Coming from user into the server
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct ServerInput {
     pub connection_id: ConnectionId,
-    pub msg: String
+    pub msg: String,
 }
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct ServerChanges {
     pub connects: Vec<ConnectionId>,
     pub disconnects: Vec<ConnectionId>,

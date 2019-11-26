@@ -1,12 +1,12 @@
 use super::comm;
+use super::container::*;
 use super::item::*;
 use super::mob::*;
-use super::container::*;
 use super::Outputs;
-use commons::DeltaTime;
 use crate::game::inventory;
-use logs::*;
 use crate::game::labels::Label;
+use commons::DeltaTime;
+use logs::*;
 
 const DECAY_TIME: DeltaTime = DeltaTime(20.0);
 
@@ -18,7 +18,7 @@ pub fn create_body(container: &mut Container, outputs: &mut dyn Outputs, mob_id:
     let mut body = Item::new(
         body_id,
         ITEM_KIND_BODY,
-//        format!("{} body", mob.label).to_string(),
+        //        format!("{} body", mob.label).to_string(),
     );
     body.decay = Some(container.time.total + DECAY_TIME);
     container.items.add(body);
@@ -35,7 +35,10 @@ pub fn create_body(container: &mut Container, outputs: &mut dyn Outputs, mob_id:
     });
     inventory::move_all(&mut container.locations, mob_id, body_id);
 
-    info!("{:?} body of {:?} created at {:?}", body_id, mob_id, room_id);
+    info!(
+        "{:?} body of {:?} created at {:?}",
+        body_id, mob_id, room_id
+    );
 
     let msg = comm::item_body_appears_in_room(body_label.as_str());
     outputs.room_all(room_id, msg);

@@ -1,22 +1,29 @@
 use super::comm;
-use super::Outputs;
-use super::domain::*;
 use super::container::Container;
+use super::domain::*;
 use super::mob::*;
-use commons::{PlayerId, AsResult, UResult};
+use super::Outputs;
+use commons::{AsResult, PlayerId, UResult};
 
-pub fn look(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) -> Result<(),()> {
+pub fn look(
+    container: &mut Container,
+    outputs: &mut dyn Outputs,
+    player_id: PlayerId,
+) -> Result<(), ()> {
     let player = container.players.get(player_id);
 
-    outputs.private(
-        player_id,
-        comm::look_description(container, player.mob_id)?
-    );
+    outputs.private(player_id, comm::look_description(container, player.mob_id)?);
 
     Ok(())
 }
 
-pub fn say(container: &mut Container, outputs: &mut dyn Outputs, player_id: Option<PlayerId>, mob_id: MobId, msg: String) -> Result<(),()> {
+pub fn say(
+    container: &mut Container,
+    outputs: &mut dyn Outputs,
+    player_id: Option<PlayerId>,
+    mob_id: MobId,
+    msg: String,
+) -> Result<(), ()> {
     let room_id = container.locations.get(mob_id).as_result()?;
     let mob_label = container.labels.get(mob_id).as_result()?;
     let player_msg = comm::say_you_say(&msg);
@@ -28,7 +35,12 @@ pub fn say(container: &mut Container, outputs: &mut dyn Outputs, player_id: Opti
     Ok(())
 }
 
-pub fn mv(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, dir: Dir) -> UResult {
+pub fn mv(
+    container: &mut Container,
+    outputs: &mut dyn Outputs,
+    player_id: PlayerId,
+    dir: Dir,
+) -> UResult {
     let player = container.players.get(player_id);
     let mob_id = player.mob_id;
     let location_id = container.locations.get(mob_id).as_result()?;
@@ -39,7 +51,7 @@ pub fn mv(container: &mut Container, outputs: &mut dyn Outputs, player_id: Playe
         Some(exit_room_id) => {
             let previous_room_id = location_id;
             // change mob place
-            container.locations.set(mob_id,exit_room_id);
+            container.locations.set(mob_id, exit_room_id);
 
             let label = container.labels.get(mob_id).unwrap();
             let mob_label = label.label.as_str();
@@ -53,7 +65,7 @@ pub fn mv(container: &mut Container, outputs: &mut dyn Outputs, player_id: Playe
             outputs.room(player_id, previous_room_id, exit_room_msg);
             outputs.room(player_id, exit_room_id, enter_room_msg);
             Ok(())
-        },
+        }
         None => {
             outputs.private(player_id, comm::move_not_possible(&dir));
             Err(())
@@ -61,7 +73,12 @@ pub fn mv(container: &mut Container, outputs: &mut dyn Outputs, player_id: Playe
     }
 }
 
-pub fn attack(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, target_mob_id: MobId) -> Result<(),()> {
+pub fn attack(
+    container: &mut Container,
+    outputs: &mut dyn Outputs,
+    player_id: PlayerId,
+    target_mob_id: MobId,
+) -> Result<(), ()> {
     let player = container.players.get(player_id);
     let mob_id = player.mob_id;
     let room_id = container.locations.get(mob_id).as_result()?;
@@ -80,7 +97,11 @@ pub fn attack(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
     Ok(())
 }
 
-pub fn rest(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) -> Result<(),()> {
+pub fn rest(
+    container: &mut Container,
+    outputs: &mut dyn Outputs,
+    player_id: PlayerId,
+) -> Result<(), ()> {
     let ctx = container.get_player_context(player_id);
     let room_id = ctx.room.id;
     let mob_id = ctx.mob.id;
@@ -95,7 +116,7 @@ pub fn rest(container: &mut Container, outputs: &mut dyn Outputs, player_id: Pla
     let mob_label = container.labels.get_label(mob_id).unwrap();
 
     outputs.private(player_id, comm::rest_start());
-    outputs.room(player_id, room_id,comm::rest_start_others(mob_label));
+    outputs.room(player_id, room_id, comm::rest_start_others(mob_label));
     container.mobs.update(mob_id, |mob| {
         mob.set_action(MobAction::Resting, total_time);
     });
@@ -103,7 +124,11 @@ pub fn rest(container: &mut Container, outputs: &mut dyn Outputs, player_id: Pla
     Ok(())
 }
 
-pub fn stand(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId) -> Result<(),()>{
+pub fn stand(
+    container: &mut Container,
+    outputs: &mut dyn Outputs,
+    player_id: PlayerId,
+) -> Result<(), ()> {
     let ctx = container.get_player_context(player_id);
     let mob_id = ctx.player.mob_id;
     let total_time = container.time.total;
@@ -116,7 +141,7 @@ pub fn stand(container: &mut Container, outputs: &mut dyn Outputs, player_id: Pl
     let mob_label = container.labels.get_label(mob_id).unwrap();
 
     outputs.private(player_id, comm::stand_up());
-    outputs.room(player_id, ctx.room.id,comm::stand_up_others(mob_label));
+    outputs.room(player_id, ctx.room.id, comm::stand_up_others(mob_label));
     container.mobs.update(mob_id, |mob| {
         mob.set_action(MobAction::None, total_time);
     });

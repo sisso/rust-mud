@@ -1,9 +1,9 @@
-use crate::game::room::{RoomId, Room};
 use crate::game::container::Container;
-use crate::game::item::{Item, ITEM_KIND_UNDEFINED, ItemId, ItemPrefabId};
-use commons::ObjId;
-use crate::game::mob::{Mob, MobId, MobPrefabId};
+use crate::game::item::{Item, ItemId, ItemPrefabId, ITEM_KIND_UNDEFINED};
 use crate::game::labels::Label;
+use crate::game::mob::{Mob, MobId, MobPrefabId};
+use crate::game::room::{Room, RoomId};
+use commons::ObjId;
 
 /*
 Builder methods to instantiate game components from code. Main use for testing.
@@ -18,7 +18,7 @@ pub fn add_room(container: &mut Container, label: &str, desc: &str) -> RoomId {
         id: room_id,
         label: label.to_string(),
         code: label.to_string(),
-        desc: desc.to_string()
+        desc: desc.to_string(),
     });
 
     room_id
@@ -35,7 +35,7 @@ pub fn add_item(container: &mut Container, label: &str, location_id: ObjId) -> I
         weapon: None,
         armor: None,
         is_inventory: false,
-        is_stuck: false
+        is_stuck: false,
     });
 
     container.labels.set(Label {
@@ -66,14 +66,15 @@ pub fn add_mob(container: &mut Container, label: &str, location_id: RoomId) -> M
     id
 }
 
-pub fn add_item_from_prefab(container: &mut Container, item_prefab_id: ItemPrefabId, location_id: ObjId) -> ItemId {
+pub fn add_item_from_prefab(
+    container: &mut Container,
+    item_prefab_id: ItemPrefabId,
+    location_id: ObjId,
+) -> ItemId {
     let item_id = container.objects.create();
     let prefab = container.items.get_prefab(&item_prefab_id);
 
-    let mut item = Item::new(
-        item_id,
-        prefab.kind,
-    );
+    let mut item = Item::new(item_id, prefab.kind);
 
     item.amount = prefab.amount;
     item.item_def_id = Some(item_prefab_id);
@@ -94,7 +95,11 @@ pub fn add_item_from_prefab(container: &mut Container, item_prefab_id: ItemPrefa
     item_id
 }
 
-pub fn add_mob_from_prefab(container: &mut Container, mob_prefab_id: MobPrefabId, room_id: RoomId) -> Result<MobId,()> {
+pub fn add_mob_from_prefab(
+    container: &mut Container,
+    mob_prefab_id: MobPrefabId,
+    room_id: RoomId,
+) -> Result<MobId, ()> {
     let prefab = container.mobs.get_mob_prefab(mob_prefab_id).clone();
 
     // create mob
@@ -102,7 +107,7 @@ pub fn add_mob_from_prefab(container: &mut Container, mob_prefab_id: MobPrefabId
 
     // add items
     for item_prefab_id in prefab.inventory {
-        let _= add_item_from_prefab(container, item_prefab_id, mob_id);
+        let _ = add_item_from_prefab(container, item_prefab_id, mob_id);
     }
 
     // instantiate
@@ -111,9 +116,9 @@ pub fn add_mob_from_prefab(container: &mut Container, mob_prefab_id: MobPrefabId
     container.mobs.add(mob);
 
     container.locations.set(mob_id, room_id);
-    container.labels.set(Label::new(mob_id, prefab.label.as_str()));
+    container
+        .labels
+        .set(Label::new(mob_id, prefab.label.as_str()));
 
     Ok(mob_id)
 }
-
-

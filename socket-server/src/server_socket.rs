@@ -1,11 +1,11 @@
-use std::net::{TcpStream, TcpListener};
-use std::io;
-use std::io::{Write, BufRead, ErrorKind};
 use logs::*;
+use std::io;
+use std::io::{BufRead, ErrorKind, Write};
+use std::net::{TcpListener, TcpStream};
 
 use super::*;
-use std::collections::HashMap;
 use commons::ConnectionId;
+use std::collections::HashMap;
 
 pub struct SocketServer {
     next_connection_id: u32,
@@ -16,7 +16,7 @@ pub struct SocketServer {
 
 struct Connection {
     id: ConnectionId,
-    stream: TcpStream
+    stream: TcpStream,
 }
 
 impl Connection {
@@ -45,10 +45,9 @@ impl Server for SocketServer {
     }
 
     fn output(&mut self, connection_id: ConnectionId, msg: String) {
-        self.pending_outputs.get_or_insert(vec![]).push(ServerOutput {
-            connection_id,
-            msg
-        });
+        self.pending_outputs
+            .get_or_insert(vec![])
+            .push(ServerOutput { connection_id, msg });
     }
 
     fn disconnect(&mut self, _connection_id: ConnectionId) {
@@ -68,7 +67,7 @@ impl SocketServer {
             next_connection_id: 0,
             connections: HashMap::new(),
             listener: None,
-            pending_outputs: None
+            pending_outputs: None,
         };
 
         ins.start();
@@ -95,12 +94,18 @@ impl SocketServer {
         if let Ok((stream, addr)) = listener.accept() {
             let id = self.next_connection_id();
 
-            info!("new connection ({}) {:?}, total connections {}", addr, id, self.connections.len());
-            stream.set_nonblocking(true)
+            info!(
+                "new connection ({}) {:?}, total connections {}",
+                addr,
+                id,
+                self.connections.len()
+            );
+            stream
+                .set_nonblocking(true)
                 .expect(format!("failed to set non_blocking stream for {:?}", id).as_str());
 
             // connection succeeded
-            let connection = Connection { id, stream, };
+            let connection = Connection { id, stream };
 
             connects.push(id);
             self.connections.insert(connection.id, connection);
@@ -109,7 +114,10 @@ impl SocketServer {
         // handle inputs
         for (connection_id, stream) in &mut self.connections {
             match stream.read_line() {
-                Ok(msg) => pending_inputs.push(ServerInput { connection_id: *connection_id, msg }),
+                Ok(msg) => pending_inputs.push(ServerInput {
+                    connection_id: *connection_id,
+                    msg,
+                }),
                 Err(ref err) if err.kind() == std::io::ErrorKind::WouldBlock => (),
                 Err(e) => {
                     warn!("{:?} failed: {}", connection_id, e);
@@ -120,7 +128,11 @@ impl SocketServer {
 
         // handle outputs
         for output in pending_outputs {
-            trace!("{:?} sending '{}'", output.connection_id, SocketServer::clean_output_to_log(&output.msg));
+            trace!(
+                "{:?} sending '{}'",
+                output.connection_id,
+                SocketServer::clean_output_to_log(&output.msg)
+            );
 
             match self.connections.get_mut(&output.connection_id) {
                 Some(connection) => {
@@ -128,23 +140,26 @@ impl SocketServer {
                         warn!("{:?} failed: {}", connection.id, err);
                         disconnects.push(connection.id);
                     }
-                },
+                }
                 None => error!("{:?} not found", output.connection_id),
             }
-
         }
 
         // remove broken connections
         for connection in &disconnects {
             self.connections.remove(connection);
 
-            info!("{:?} removed, total connections {}", connection, self.connections.len());
+            info!(
+                "{:?} removed, total connections {}",
+                connection,
+                self.connections.len()
+            );
         }
 
         ServerChanges {
             connects,
             disconnects,
-            inputs: pending_inputs
+            inputs: pending_inputs,
         }
     }
 

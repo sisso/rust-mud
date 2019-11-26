@@ -1,29 +1,27 @@
-use std::collections::HashMap;
 use commons::{ObjId, UResult, UERR, UOK};
 use logs::*;
+use std::collections::HashMap;
 
 pub type CraftId = ObjId;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub enum CraftCommand {
     Idle,
-    MoveTo { target_id: ObjId }
+    MoveTo { target_id: ObjId },
 }
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct CraftAttributes {
-    pub speed: f32
+    pub speed: f32,
 }
 
 impl CraftAttributes {
     pub fn new() -> Self {
-        CraftAttributes {
-            speed: 1.0
-        }
+        CraftAttributes { speed: 1.0 }
     }
 }
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Craft {
     pub id: ObjId,
     pub command: CraftCommand,
@@ -35,12 +33,12 @@ impl Craft {
         Craft {
             id,
             command: CraftCommand::Idle,
-            attributes: CraftAttributes::new()
+            attributes: CraftAttributes::new(),
         }
     }
 }
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Crafts {
     index: HashMap<ObjId, Craft>,
 }
@@ -77,7 +75,9 @@ impl Crafts {
         }
     }
 
-    pub fn exists(&self, id: ObjId) -> bool { self.index.contains_key(&id) }
+    pub fn exists(&self, id: ObjId) -> bool {
+        self.index.contains_key(&id)
+    }
 
     pub fn list(&self) -> Vec<CraftId> {
         self.index.keys().cloned().collect()

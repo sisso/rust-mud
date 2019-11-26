@@ -1,29 +1,37 @@
-use super::Outputs;
 use super::domain::*;
+use super::Outputs;
 
 use super::actions;
 use super::comm;
 use super::container::Container;
-use crate::game::{actions_admin, input_handle_items, mob, inventory, input_handle_space};
-use commons::{PlayerId, ObjId, UOK, UResult, UERR};
-use std::collections::HashSet;
 use crate::game::comm::InventoryDesc;
+use crate::game::{actions_admin, input_handle_items, input_handle_space, inventory, mob};
+use commons::{ObjId, PlayerId, UResult, UERR, UOK};
+use std::collections::HashSet;
 
 fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc> {
     let equip = container.equips.get(obj_id).unwrap_or(HashSet::new());
-    inventory::get_inventory_list(&container.locations, &container.items, obj_id).into_iter().map(|item| {
-        let item_label = container.labels.get_label_f(item.id);
+    inventory::get_inventory_list(&container.locations, &container.items, obj_id)
+        .into_iter()
+        .map(|item| {
+            let item_label = container.labels.get_label_f(item.id);
 
-        InventoryDesc {
-            id: item.id,
-            label: item_label,
-            amount: item.amount,
-            equipped: equip.contains(&item.id),
-        }
-    }).collect()
+            InventoryDesc {
+                id: item.id,
+                label: item_label,
+                amount: item.amount,
+                equipped: equip.contains(&item.id),
+            }
+        })
+        .collect()
 }
 
-pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) -> UResult {
+pub fn handle(
+    container: &mut Container,
+    outputs: &mut dyn Outputs,
+    player_id: PlayerId,
+    input: &str,
+) -> UResult {
     let mob_id = container.players.get_mob(player_id)?;
 
     match input {
@@ -56,17 +64,19 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
             UOK
         }
 
-        "rest" => {
-            actions::rest(container, outputs, player_id)
-        }
+        "rest" => actions::rest(container, outputs, player_id),
 
-        "stand" => {
-            actions::stand(container, outputs, player_id)
-        }
+        "stand" => actions::stand(container, outputs, player_id),
 
         "stats" | "inv" | "score" => {
             let ctx = container.get_player_context(player_id);
-            outputs.private(player_id, comm::stats(&ctx.mob.attributes, &inventory_to_desc(container, ctx.player.mob_id)));
+            outputs.private(
+                player_id,
+                comm::stats(
+                    &ctx.mob.attributes,
+                    &inventory_to_desc(container, ctx.player.mob_id),
+                ),
+            );
             UOK
         }
 
@@ -93,7 +103,13 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
         _ if has_command(input, &["k ", "kill "]) => {
             let target = parse_command(input, &["k ", "kill "]);
             let ctx = container.get_player_context(player_id);
-            let mobs = mob::search_mobs_at(&container.labels, &container.locations, &container.mobs, ctx.room.id, target);
+            let mobs = mob::search_mobs_at(
+                &container.labels,
+                &container.locations,
+                &container.mobs,
+                ctx.room.id,
+                target,
+            );
             let candidate = mobs.first();
 
             match candidate {
@@ -130,7 +146,11 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
                     let mob_id = pctx.mob.id;
                     let mob_label = container.labels.get_label_f(mob_id);
                     outputs.private(player_id, comm::admin_suicide());
-                    outputs.room(player_id, pctx.room.id, comm::admin_suicide_others(mob_label));
+                    outputs.room(
+                        player_id,
+                        pctx.room.id,
+                        comm::admin_suicide_others(mob_label),
+                    );
                     actions_admin::kill(container, outputs, mob_id)
                 }
                 _other => {
@@ -140,29 +160,29 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
             }
         }
 
-        "sm" | "map" => {
-            input_handle_space::show_starmap(container, outputs, player_id, mob_id)
-        }
+        "sm" | "map" => input_handle_space::show_starmap(container, outputs, player_id, mob_id),
 
-        "move" => {
-            input_handle_space::move_list_targets(container, outputs, player_id, mob_id)
-        }
+        "move" => input_handle_space::move_list_targets(container, outputs, player_id, mob_id),
 
-        _ if input.starts_with("move ") => {
-            input_handle_space::move_to(container, outputs, player_id, mob_id, parse_arguments(input))
-        }
+        _ if input.starts_with("move ") => input_handle_space::move_to(
+            container,
+            outputs,
+            player_id,
+            mob_id,
+            parse_arguments(input),
+        ),
 
-        "land" => {
-            input_handle_space::land_list(container, outputs, player_id, mob_id)
-        }
+        "land" => input_handle_space::land_list(container, outputs, player_id, mob_id),
 
-        _ if input.starts_with("land ") => {
-            input_handle_space::land_at(container, outputs, player_id, mob_id, parse_arguments(input))
-        }
+        _ if input.starts_with("land ") => input_handle_space::land_at(
+            container,
+            outputs,
+            player_id,
+            mob_id,
+            parse_arguments(input),
+        ),
 
-       "launch" => {
-            input_handle_space::launch(container, outputs, player_id, mob_id)
-        },
+        "launch" => input_handle_space::launch(container, outputs, player_id, mob_id),
 
         _ => {
             outputs.private(player_id, comm::unknown_input(input));
@@ -171,26 +191,53 @@ pub fn handle(container: &mut Container, outputs: &mut dyn Outputs, player_id: P
     }
 }
 
-fn action_examine(container: &Container, outputs: &mut dyn Outputs, player_id: PlayerId, input: &str) -> UResult {
+fn action_examine(
+    container: &Container,
+    outputs: &mut dyn Outputs,
+    player_id: PlayerId,
+    input: &str,
+) -> UResult {
     let target_label = parse_command(input, &["examine "]);
     let ctx = container.get_player_context(player_id);
-    let mobs = mob::search_mobs_at(&container.labels, &container.locations, &container.mobs, ctx.room.id, target_label);
+    let mobs = mob::search_mobs_at(
+        &container.labels,
+        &container.locations,
+        &container.mobs,
+        ctx.room.id,
+        target_label,
+    );
 
     match mobs.first().cloned() {
         Some(mob_id) => {
             let mob_label = container.labels.get_label_f(mob_id);
             let mob = container.mobs.get(mob_id).unwrap();
-            outputs.private(player_id, comm::examine_target(mob_label, &mob.attributes, &inventory_to_desc(container, mob_id)));
+            outputs.private(
+                player_id,
+                comm::examine_target(
+                    mob_label,
+                    &mob.attributes,
+                    &inventory_to_desc(container, mob_id),
+                ),
+            );
             return UOK;
         }
         _ => {}
     }
 
-    let items = inventory::search(&container.labels, &container.locations, &container.items, ctx.room.id, target_label);
+    let items = inventory::search(
+        &container.labels,
+        &container.locations,
+        &container.items,
+        ctx.room.id,
+        target_label,
+    );
     match items.first().cloned() {
         Some(item_id) => {
             let item_label = container.labels.get_label_f(item_id);
-            outputs.private(player_id, comm::examine_target_item(item_label, &inventory_to_desc(container, item_id)));
+            outputs.private(
+                player_id,
+                comm::examine_target_item(item_label, &inventory_to_desc(container, item_id)),
+            );
             return UOK;
         }
         _ => {}
@@ -223,8 +270,5 @@ fn parse_command<'a>(input: &'a str, commands: &[&str]) -> &'a str {
 
 // TODO: drop first argument
 fn parse_arguments(input: &str) -> Vec<&str> {
-    input
-        .split_ascii_whitespace()
-        .into_iter()
-        .collect()
+    input.split_ascii_whitespace().into_iter().collect()
 }

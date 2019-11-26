@@ -1,6 +1,5 @@
 use serde_json::Value;
 
-
 pub trait JsonValueExtra {
     fn to_f32(&self) -> f32;
     fn to_u32(&self) -> u32;

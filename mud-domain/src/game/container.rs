@@ -1,23 +1,23 @@
+use super::domain::*;
+use super::item::*;
 use super::mob::*;
 use super::player::*;
 use super::room::*;
 use super::spawn::*;
-use super::domain::*;
-use super::item::*;
-use commons::{PlayerId, ObjId, DeltaTime};
-use crate::game::obj::Objects;
-use crate::game::location::Locations;
-use crate::game::equip::{Equips};
-use crate::game::{Outputs, spawn, mob, item, crafts_system};
-use logs::*;
-use crate::game::tags::Tags;
-use crate::game::labels::Labels;
 use crate::game::config::Config;
 use crate::game::crafts::Crafts;
-use crate::game::surfaces::Surfaces;
+use crate::game::equip::Equips;
+use crate::game::labels::Labels;
+use crate::game::location::Locations;
+use crate::game::obj::Objects;
 use crate::game::planets::Planets;
 use crate::game::pos::PosRepo;
+use crate::game::surfaces::Surfaces;
 use crate::game::surfaces_object::SurfaceObjects;
+use crate::game::tags::Tags;
+use crate::game::{crafts_system, item, mob, spawn, Outputs};
+use commons::{DeltaTime, ObjId, PlayerId};
+use logs::*;
 
 pub struct Ctx<'a> {
     pub container: &'a mut Container,
@@ -86,11 +86,7 @@ impl Container {
         let room_id = self.locations.get(mob.id).unwrap();
         let room = self.rooms.get(room_id).unwrap();
 
-        PlayerCtx {
-            player,
-            mob,
-            room
-        }
+        PlayerCtx { player, mob, room }
     }
 
     pub fn tick(&mut self, outputs: &mut dyn Outputs, delta_time: DeltaTime) {
@@ -111,10 +107,9 @@ impl Container {
         crafts_system::tick(&mut ctx);
     }
 
-//    pub fn save(&self, save: &mut dyn Save) {
-//        self.players.save(save);
-//        self.mobs.save(save);
-//        self.items.save(save);
-//    }
+    //    pub fn save(&self, save: &mut dyn Save) {
+    //        self.players.save(save);
+    //        self.mobs.save(save);
+    //        self.items.save(save);
+    //    }
 }
-

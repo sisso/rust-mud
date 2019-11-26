@@ -1,20 +1,20 @@
-use commons::*;
-use rand::Rng;
 use super::comm;
-use super::Outputs;
 use super::mob::*;
 use super::room::RoomId;
-use logs::*;
-use std::collections::HashMap;
-use crate::game::container::Ctx;
+use super::Outputs;
 use crate::game::builder;
+use crate::game::container::Ctx;
+use commons::*;
+use logs::*;
+use rand::Rng;
+use std::collections::HashMap;
 
 type SpawnId = ObjId;
 
 #[derive(Debug)]
 pub struct SpawnDelay {
     pub min: DeltaTime,
-    pub max: DeltaTime
+    pub max: DeltaTime,
 }
 
 #[derive(Debug)]
@@ -53,9 +53,9 @@ impl Spawns {
         self.spawns.get(&id)
     }
 
-//    pub fn list(&self) -> Vec<&Spawn> {
-//        unimplemented!()
-//    }
+    //    pub fn list(&self) -> Vec<&Spawn> {
+    //        unimplemented!()
+    //    }
 
     pub fn list_entries_mut<'a>(&'a mut self) -> impl Iterator<Item = (&ObjId, &mut Spawn)> + 'a {
         self.spawns.iter_mut()
@@ -81,28 +81,25 @@ pub fn run(ctx: &mut Ctx) {
 
     for spawn in ctx.container.spawns.list_mut() {
         clean_up_dead_mobs(&mut ctx.container.mobs, spawn);
-        let can_spawn_mobs = || { spawn.mobs_id.len() < spawn.max as usize };
+        let can_spawn_mobs = || spawn.mobs_id.len() < spawn.max as usize;
 
         match spawn.next {
             Some(next) if next.is_before(total_time) && !can_spawn_mobs() => {
-               // when full, just schedule next spawn
-               schedule_next_spawn(total_time, spawn);
-            },
+                // when full, just schedule next spawn
+                schedule_next_spawn(total_time, spawn);
+            }
             Some(next) if next.is_before(total_time) => {
                 schedule_next_spawn(total_time, spawn);
                 mob_spawns.push((spawn.id, spawn.room_id, spawn.prefab_id))
-            },
-            Some(_next) => { },
+            }
+            Some(_next) => {}
             None => schedule_next_spawn(total_time, spawn),
         };
     }
 
     for (spawn_id, room_id, mob_prefab_id) in mob_spawns {
-        let mob_id = match builder::add_mob_from_prefab(
-            &mut ctx.container,
-            mob_prefab_id,
-            room_id
-        ) {
+        let mob_id = match builder::add_mob_from_prefab(&mut ctx.container, mob_prefab_id, room_id)
+        {
             Ok(mob_id) => mob_id,
             Err(()) => {
                 warn!("spawn failed for {:?} at {:?}", mob_prefab_id, room_id);
@@ -134,9 +131,7 @@ fn schedule_next_spawn(now: TotalTime, spawn: &mut Spawn) {
 
 // TODO: should be a trigger
 fn clean_up_dead_mobs(mobs: &mut MobRepository, spawn: &mut Spawn) {
-    spawn.mobs_id.retain(|mob_id| {
-       mobs.exists(*mob_id)
-    });
+    spawn.mobs_id.retain(|mob_id| mobs.exists(*mob_id));
 }
 
 //#[cfg(test)]

@@ -5,9 +5,8 @@ use std::io;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
-
-use std::sync::atomic::{AtomicBool, Ordering};
 use commons::ConnectionId;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 struct AsyncStdIn {
     close: Arc<AtomicBool>,
@@ -70,14 +69,14 @@ impl Server for LocalServer {
         let mut sc = ServerChanges {
             connects: vec![],
             disconnects: vec![],
-            inputs: vec![]
+            inputs: vec![],
         };
 
         if self.return_connected {
             for msg in self.asyncsdin.take() {
                 sc.inputs.push(ServerInput {
                     connection_id: ConnectionId(0),
-                    msg
+                    msg,
                 });
             }
         } else {

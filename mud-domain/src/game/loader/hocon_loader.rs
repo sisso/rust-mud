@@ -1,16 +1,16 @@
-use crate::game::container::Container;
-use std::path::Path;
-use std::collections::HashMap;
-use crate::game::loader::hocon_loader::hocon_parser::{HParser};
-use crate::game::labels::Label;
-use crate::game::pos::Pos;
-use commons::{V2, ObjId};
-use crate::game::surfaces::Surface;
-use crate::game::planets::Planet;
-use crate::game::mob::Mob;
-use crate::game::room::Room;
-use crate::game::domain::Dir;
 use super::*;
+use crate::game::container::Container;
+use crate::game::domain::Dir;
+use crate::game::labels::Label;
+use crate::game::loader::hocon_loader::hocon_parser::HParser;
+use crate::game::mob::Mob;
+use crate::game::planets::Planet;
+use crate::game::pos::Pos;
+use crate::game::room::Room;
+use crate::game::surfaces::Surface;
+use commons::{ObjId, V2};
+use std::collections::HashMap;
+use std::path::Path;
 
 mod hocon_parser;
 
@@ -21,7 +21,7 @@ pub fn load(module_folder: &Path, container: &mut Container) {
 
     // convert update configuration
     // convert prefabs into builder
-    let id_by_static_id= load_objects(container, data.objects);
+    let id_by_static_id = load_objects(container, data.objects);
 
     // update configurations with references
     if let Some(cfg) = data.cfg {
@@ -29,10 +29,12 @@ pub fn load(module_folder: &Path, container: &mut Container) {
     }
 
     // create prefabs
-
 }
 
-fn load_objects(container: &mut Container, objects: HashMap<StaticId, ObjData>) -> HashMap<StaticId, ObjId> {
+fn load_objects(
+    container: &mut Container,
+    objects: HashMap<StaticId, ObjData>,
+) -> HashMap<StaticId, ObjId> {
     // create object by id
     let mut obj_by_id = HashMap::new();
 
@@ -46,7 +48,9 @@ fn load_objects(container: &mut Container, objects: HashMap<StaticId, ObjData>) 
 
         {
             let label = data.label;
-            let code = data.code.map(|i| i.first().cloned())
+            let code = data
+                .code
+                .map(|i| i.first().cloned())
                 .and_then(|o| o)
                 .unwrap_or(label.clone());
             let desc = data.desc.unwrap_or("".to_string());
@@ -55,7 +59,7 @@ fn load_objects(container: &mut Container, objects: HashMap<StaticId, ObjData>) 
                 id: obj_id,
                 label,
                 code,
-                desc
+                desc,
             });
         }
 
@@ -63,13 +67,11 @@ fn load_objects(container: &mut Container, objects: HashMap<StaticId, ObjData>) 
             container.pos.set(obj_id, V2::new(pos.x, pos.y));
         }
 
-        if let Some(planet) = data.planet {
-            container.planets.add(Planet {
-               id: obj_id
-            });
+        if let Some(_planet) = data.planet {
+            container.planets.add(Planet { id: obj_id });
         }
 
-        if let Some(surfaces) = data.sector {
+        if let Some(_surfaces) = data.sector {
             container.sectors.add(Surface {
                 id: obj_id,
                 size: 10,
@@ -91,12 +93,17 @@ fn load_objects(container: &mut Container, objects: HashMap<StaticId, ObjData>) 
         if let Some(room_data) = data.room {
             let mut room = Room::new(obj_id);
             room.is_airlock = room_data.airlock.unwrap_or(false);
-            let mut exits = room_data.exits.unwrap_or(vec![]).into_iter().map(|e| {
-                let dir = Dir::parse(e.dir.as_str()).unwrap();
-                let to_id = obj_by_id.get(&e.to).unwrap();
+            let exits = room_data
+                .exits
+                .unwrap_or(vec![])
+                .into_iter()
+                .map(|e| {
+                    let dir = Dir::parse(e.dir.as_str()).unwrap();
+                    let to_id = obj_by_id.get(&e.to).unwrap();
 
-                (dir, *to_id)
-            }).collect();
+                    (dir, *to_id)
+                })
+                .collect();
 
             room.exits = exits;
 
@@ -111,4 +118,3 @@ fn load_objects(container: &mut Container, objects: HashMap<StaticId, ObjData>) 
 
     obj_by_id
 }
-

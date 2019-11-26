@@ -1,12 +1,11 @@
-use std::collections::HashMap;
+use crate::game::labels::Labels;
 use commons::ObjId;
 use logs::*;
-use crate::game::labels::Labels;
-
+use std::collections::HashMap;
 
 pub type LocationId = ObjId;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Locations {
     // TODO: add inverse index
     index: HashMap<ObjId, ObjId>,
@@ -73,7 +72,12 @@ impl Locations {
     }
 }
 
-pub fn search_at(labels: &Labels, locations: &Locations, location_id: LocationId, input: &str) -> Vec<ObjId> {
+pub fn search_at(
+    labels: &Labels,
+    locations: &Locations,
+    location_id: LocationId,
+    input: &str,
+) -> Vec<ObjId> {
     let candidates = locations.list_at(location_id).collect::<Vec<_>>();
     labels.search_codes(&candidates, input)
 }
@@ -114,20 +118,15 @@ mod test {
             assert_eq!(sa, sb);
         }
 
-        assert(locations.list_deep_at(ObjId(0)), vec![
-            ObjId(1),
-            ObjId(2),
-            ObjId(3),
-            ObjId(4),
-            ObjId(5),
-            ObjId(6),
-        ]);
+        assert(
+            locations.list_deep_at(ObjId(0)),
+            vec![ObjId(1), ObjId(2), ObjId(3), ObjId(4), ObjId(5), ObjId(6)],
+        );
 
-        assert(locations.list_deep_at(ObjId(2)), vec![
-            ObjId(4),
-            ObjId(5),
-            ObjId(6),
-        ]);
+        assert(
+            locations.list_deep_at(ObjId(2)),
+            vec![ObjId(4), ObjId(5), ObjId(6)],
+        );
 
         assert(locations.list_deep_at(ObjId(5)), vec![ObjId(6)]);
         assert(locations.list_deep_at(ObjId(6)), vec![]);

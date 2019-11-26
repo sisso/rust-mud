@@ -1,8 +1,7 @@
 pub mod jsons;
 pub mod save;
 
-
-#[derive(Debug,Clone,Copy,PartialEq,Eq,Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ConnectionId(pub u32);
 
 impl ConnectionId {
@@ -14,7 +13,7 @@ impl ConnectionId {
 pub const MIN_DISTANCE: f32 = 0.01;
 pub const MIN_DISTANCE_SQR: f32 = MIN_DISTANCE * MIN_DISTANCE;
 
-#[derive(Clone,Copy,PartialEq,Debug)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct V2 {
     pub x: f32,
     pub y: f32,
@@ -75,7 +74,7 @@ impl V2 {
 
 pub type Position = V2;
 
-#[derive(Clone,Copy,Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct Tick(pub u32);
 
 impl Tick {
@@ -92,10 +91,10 @@ impl Tick {
     }
 }
 
-#[derive(Clone,Copy,PartialEq,Eq,Hash,Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct ObjId(pub u32);
 
-pub type UResult = Result<(),()>;
+pub type UResult = Result<(), ()>;
 pub const UOK: UResult = Ok(());
 pub const UERR: UResult = Err(());
 
@@ -107,23 +106,27 @@ impl ObjId {
 
 pub type PlayerId = ObjId;
 
-#[derive(Clone,Copy,Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct DeltaTime(pub f32);
 
-impl DeltaTime{
+impl DeltaTime {
     pub fn as_second(&self) -> DeltaTime {
         DeltaTime(self.0)
     }
 
-    pub fn as_f32(&self) -> f32 { self.0 }
+    pub fn as_f32(&self) -> f32 {
+        self.0
+    }
 
-    pub fn as_f64(&self) -> f64 { self.0 as f64 }
+    pub fn as_f64(&self) -> f64 {
+        self.0 as f64
+    }
 }
 
-#[derive(Clone,Copy,Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct TotalTime(pub f64);
 
-impl TotalTime{
+impl TotalTime {
     pub fn as_f64(&self) -> f64 {
         self.0 as f64
     }
@@ -162,7 +165,7 @@ impl std::ops::Sub<DeltaTime> for DeltaTime {
 }
 
 pub trait AsResult<T> {
-    fn as_result(self) -> Result<T,()>;
+    fn as_result(self) -> Result<T, ()>;
 }
 
 impl<T> AsResult<T> for Option<T> {
@@ -173,7 +176,7 @@ impl<T> AsResult<T> for Option<T> {
 
 /// @see Trigger::check
 ///
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct TimeTrigger {
     calm_down: DeltaTime,
     next_trigger: TotalTime,
@@ -181,7 +184,10 @@ pub struct TimeTrigger {
 
 impl TimeTrigger {
     pub fn new(calm_down: DeltaTime, total: TotalTime) -> Self {
-        let mut t = TimeTrigger { calm_down, next_trigger: TotalTime(0.0) };
+        let mut t = TimeTrigger {
+            calm_down,
+            next_trigger: TotalTime(0.0),
+        };
         t.reset(total);
         t
     }
@@ -192,8 +198,8 @@ impl TimeTrigger {
             Some(next) => {
                 self.next_trigger = next;
                 true
-            },
-            _ => false
+            }
+            _ => false,
         }
     }
 
@@ -210,7 +216,11 @@ impl TimeTrigger {
     }
 
     /// If trigger, return next trigger
-    pub fn check_trigger(calm_down: DeltaTime, next_trigger: TotalTime, total: TotalTime) -> Option<TotalTime> {
+    pub fn check_trigger(
+        calm_down: DeltaTime,
+        next_trigger: TotalTime,
+        total: TotalTime,
+    ) -> Option<TotalTime> {
         if TimeTrigger::should_trigger(next_trigger, total) {
             let next = next_trigger + calm_down;
             Some(next)
@@ -221,7 +231,9 @@ impl TimeTrigger {
 }
 
 pub fn vec_take<T, F>(collection: &mut Vec<T>, closure: F) -> Option<T>
-    where F: FnMut(&T) -> bool {
+where
+    F: FnMut(&T) -> bool,
+{
     match collection.iter().position(closure) {
         Some(index) => Some(collection.remove(index)),
         _other => None,
@@ -230,7 +242,7 @@ pub fn vec_take<T, F>(collection: &mut Vec<T>, closure: F) -> Option<T>
 
 #[cfg(test)]
 mod test {
-    use crate::{TimeTrigger, DeltaTime, TotalTime};
+    use crate::{DeltaTime, TimeTrigger, TotalTime};
 
     #[test]
     fn test_trigger() {

@@ -1,11 +1,11 @@
+use crate::game::builder;
 use crate::game::container::Container;
-use crate::game::item::*;
-use crate::game::mob::*;
 use crate::game::domain::*;
+use crate::game::item::*;
+use crate::game::labels::Label;
+use crate::game::mob::*;
 use crate::game::room::*;
 use crate::game::spawn::*;
-use crate::game::labels::Label;
-use crate::game::builder;
 use commons::*;
 
 const ID_ROOM_INIT: RoomId = ObjId(0);
@@ -38,7 +38,7 @@ fn load_items_prefabs(container: &mut Container) {
         ItemPrefab::build(ID_ITEM_DEF_COINS_2, "coins".to_string())
             .with_kind(ITEM_KIND_GOLD)
             .with_amount(2)
-            .build()
+            .build(),
     );
 
     container.items.add_prefab(
@@ -46,25 +46,22 @@ fn load_items_prefabs(container: &mut Container) {
             .with_weapon(Weapon {
                 damage_min: 2,
                 damage_max: 4,
-                reload: DeltaTime(1.0)
+                reload: DeltaTime(1.0),
             })
-            .build()
+            .build(),
     );
 
     container.items.add_prefab(
         ItemPrefab::build(ID_ITEM_DEF_ARMOR, "armor".to_string())
-            .with_armor(Armor {
-                rd: 2,
-                dp: 1
-            })
-            .build()
+            .with_armor(Armor { rd: 2, dp: 1 })
+            .build(),
     );
 
     container.items.add_prefab(
         ItemPrefab::build(ID_ITEM_DEF_CHEST, "chest".to_string())
             .with_inventory()
             .with_stuck()
-            .build()
+            .build(),
     );
 }
 
@@ -76,8 +73,12 @@ fn load_mobs_prefabs(container: &mut Container) {
             attack: 12,
             defense: 12,
             damage: Damage { min: 2, max: 4 },
-            pv: Pv { current: 10, max: 10, heal_rate: DeltaTime(1.0) },
-            attack_calm_down: DeltaTime(1.0)
+            pv: Pv {
+                current: 10,
+                max: 10,
+                heal_rate: DeltaTime(1.0),
+            },
+            attack_calm_down: DeltaTime(1.0),
         },
         inventory: vec![],
     });
@@ -89,12 +90,14 @@ fn load_mobs_prefabs(container: &mut Container) {
             attack: 8,
             defense: 8,
             damage: Damage { min: 1, max: 2 },
-            pv: Pv { current: 8, max: 8, heal_rate: DeltaTime(1.0) },
+            pv: Pv {
+                current: 8,
+                max: 8,
+                heal_rate: DeltaTime(1.0),
+            },
             attack_calm_down: DeltaTime(1.0),
         },
-        inventory: vec![
-            ID_ITEM_DEF_COINS_2
-        ],
+        inventory: vec![ID_ITEM_DEF_COINS_2],
     });
 }
 
@@ -102,25 +105,37 @@ fn load_rooms(container: &mut Container) {
     let room1 = Room {
         id: ID_ROOM_INIT,
         exits: vec![(Dir::S, ID_ROOM_BAR)],
-        is_airlock: false
+        is_airlock: false,
     };
     container.rooms.add(room1);
-    container.labels.set(Label::new_desc(ID_ROOM_INIT, "Main Room", "Where new characters born."));
+    container.labels.set(Label::new_desc(
+        ID_ROOM_INIT,
+        "Main Room",
+        "Where new characters born.",
+    ));
 
     let room2 = Room {
         id: ID_ROOM_BAR,
         exits: vec![(Dir::N, ID_ROOM_INIT), (Dir::S, ID_ROOM_FLOREST)],
-        is_airlock: false
+        is_airlock: false,
     };
     container.rooms.add(room2);
-    container.labels.set(Label::new_desc(ID_ROOM_BAR, "Bar", "A dirty bar where people come to relax"));
+    container.labels.set(Label::new_desc(
+        ID_ROOM_BAR,
+        "Bar",
+        "A dirty bar where people come to relax",
+    ));
 
     let room3 = Room {
         id: ID_ROOM_FLOREST,
         exits: vec![(Dir::N, ID_ROOM_BAR)],
-        is_airlock: false
+        is_airlock: false,
     };
-    container.labels.set(Label::new_desc(ID_ROOM_FLOREST, "Dark forest", "A dark forest where you think you can die"));
+    container.labels.set(Label::new_desc(
+        ID_ROOM_FLOREST,
+        "Dark forest",
+        "A dark forest where you think you can die",
+    ));
     container.rooms.add(room3);
 }
 
@@ -141,14 +156,18 @@ fn load_spawns(container: &mut Container) {
     });
 }
 
-fn create_item_at(container: &mut Container, item_prefab_id: ItemPrefabId, location_id: ObjId) -> ItemId {
+fn create_item_at(
+    container: &mut Container,
+    item_prefab_id: ItemPrefabId,
+    location_id: ObjId,
+) -> ItemId {
     builder::add_item_from_prefab(container, item_prefab_id, location_id)
 }
 
 pub fn load_rooms_objects(container: &mut Container) {
     let chest_id = create_item_at(container, ID_ITEM_DEF_CHEST, ID_ROOM_FLOREST);
     create_item_at(container, ID_ITEM_DEF_ARMOR, chest_id);
-    create_item_at(container, ID_ITEM_DEF_SWORD,chest_id);
+    create_item_at(container, ID_ITEM_DEF_SWORD, chest_id);
 }
 
 pub fn load(container: &mut Container) {

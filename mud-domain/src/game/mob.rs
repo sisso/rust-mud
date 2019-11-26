@@ -8,13 +8,13 @@ use super::combat;
 use super::comm;
 use super::container::Container;
 use super::item::*;
-use crate::game::room::RoomId;
-use crate::game::container::Ctx;
-use crate::game::Outputs;
-use crate::game::location;
-use crate::game::labels::Labels;
-use crate::game::location::Locations;
 use crate::game::avatars;
+use crate::game::container::Ctx;
+use crate::game::labels::Labels;
+use crate::game::location;
+use crate::game::location::Locations;
+use crate::game::room::RoomId;
+use crate::game::Outputs;
 
 pub type MobId = ObjId;
 pub type MobPrefabId = ObjId;
@@ -23,7 +23,7 @@ pub type MobPrefabId = ObjId;
 #[derive(Clone, Debug, Copy)]
 pub enum MobCommand {
     None,
-    Kill { target: MobId }
+    Kill { target: MobId },
 }
 
 impl MobCommand {
@@ -36,11 +36,11 @@ impl MobCommand {
 }
 
 /// What is current doing
-#[derive(Clone,Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum MobAction {
     None,
     Combat,
-    Resting
+    Resting,
 }
 
 #[derive(Clone, Debug)]
@@ -73,16 +73,16 @@ pub struct Attributes {
 
 impl Attributes {
     pub fn new() -> Self {
-        Attributes { 
-            attack: 10, 
-            defense: 10, 
+        Attributes {
+            attack: 10,
+            defense: 10,
             damage: Damage { min: 1, max: 1 },
             pv: Pv {
                 current: 10,
                 max: 10,
-                heal_rate: DeltaTime(60.0)
+                heal_rate: DeltaTime(60.0),
             },
-            attack_calm_down: DeltaTime(1.0) 
+            attack_calm_down: DeltaTime(1.0),
         }
     }
 }
@@ -93,7 +93,7 @@ struct MobState {
     attack_calm_down: TotalTime,
     // after this total time can heal
     heal_calm_down: TotalTime,
-    action: MobAction
+    action: MobAction,
 }
 
 impl MobState {
@@ -101,7 +101,7 @@ impl MobState {
         MobState {
             attack_calm_down: TotalTime(0.0),
             heal_calm_down: TotalTime(0.0),
-            action: MobAction::None
+            action: MobAction::None,
         }
     }
 }
@@ -158,7 +158,7 @@ impl Mob {
         match self.state.action {
             MobAction::Resting => {
                 self.state.heal_calm_down = TimeTrigger::next(self.attributes.pv.heal_rate, total);
-            },
+            }
             _ => {}
         }
     }
@@ -168,12 +168,16 @@ impl Mob {
             return false;
         }
 
-        match TimeTrigger::check_trigger(self.attributes.pv.heal_rate, self.state.heal_calm_down, total) {
+        match TimeTrigger::check_trigger(
+            self.attributes.pv.heal_rate,
+            self.state.heal_calm_down,
+            total,
+        ) {
             Some(next) => {
                 self.state.heal_calm_down = next;
                 self.attributes.pv.current += 1;
                 true
-            },
+            }
             None => false,
         }
     }
@@ -184,7 +188,7 @@ pub struct MobPrefab {
     pub id: MobPrefabId,
     pub label: String,
     pub attributes: Attributes,
-    pub inventory: Vec<ItemPrefabId>
+    pub inventory: Vec<ItemPrefabId>,
 }
 
 pub struct MobRepository {
@@ -205,7 +209,7 @@ impl MobRepository {
         self.index
             .iter()
             .into_iter()
-            .map(| (id, _)| id.clone())
+            .map(|(id, _)| id.clone())
             .collect()
     }
 
@@ -222,8 +226,9 @@ impl MobRepository {
     }
 
     pub fn update<F>(&mut self, id: MobId, f: F) -> UResult
-        where F: FnOnce(&mut Mob) {
-
+    where
+        F: FnOnce(&mut Mob),
+    {
         if let Some(mob) = self.index.get_mut(&id) {
             f(mob);
             debug!("{:?} updated", mob);
@@ -249,7 +254,9 @@ impl MobRepository {
 
     pub fn set_mob_attack_target(&mut self, mob_id: MobId, target: MobId) {
         let mut mob = self.index.get_mut(&mob_id).unwrap();
-        mob.command = MobCommand::Kill { target: target.clone() };
+        mob.command = MobCommand::Kill {
+            target: target.clone(),
+        };
         mob.state.action = MobAction::Combat;
     }
 
@@ -269,48 +276,49 @@ impl MobRepository {
     }
 
     pub fn get_mob_prefab(&mut self, id: MobPrefabId) -> &MobPrefab {
-        self.mob_prefabs.get(&id)
+        self.mob_prefabs
+            .get(&id)
             .expect(format!("could not found mob prefab id {:?}", id).as_str())
     }
 
-//    pub fn save(&self, save: &mut dyn Save) {
-//        use serde_json::json;
-//
-//        for (id, obj) in self.index.iter() {
-//            let command_json = match obj.command {
-//                MobCommand::None => json!({ "kind": "idle" }),
-//                MobCommand::Kill { target } => json!({ "kind": "kill", "target": target.0 }),
-//            };
-//
-//            let obj_json = json!({
-//                "room_id": obj.room_id.0,
-//                "label": obj.label,
-//                "is_avatar": obj.is_avatar,
-//                "command": command_json,
-//                "attributes": {
-//                    "attack": obj.attributes.attack,
-//                    "defense": obj.attributes.defense,
-//                    "damage_min": obj.attributes.damage.min,
-//                    "damage_max": obj.attributes.damage.max,
-//                    "damage_calm_down": obj.attributes.attack_calm_down.as_float(),
-//                    "pv": obj.attributes.pv.current,
-//                    "pv_max": obj.attributes.pv.max,
-//                    "pv_heal_rate": obj.attributes.pv.heal_rate.as_float(),
-//                },
-//                "state": {
-//                    "attack_ready": obj.state.attack_calm_down.as_float(),
-//                    "heal_ready": obj.state.heal_calm_down.as_float(),
-//                    "action": match obj.state.action {
-//                        MobAction::None => "none",
-//                        MobAction::Combat => "combat",
-//                        MobAction::Resting => "rest",
-//                    },
-//                }
-//            });
-//
-//            save.add(id.0, "mob", obj_json);
-//        }
-//    }
+    //    pub fn save(&self, save: &mut dyn Save) {
+    //        use serde_json::json;
+    //
+    //        for (id, obj) in self.index.iter() {
+    //            let command_json = match obj.command {
+    //                MobCommand::None => json!({ "kind": "idle" }),
+    //                MobCommand::Kill { target } => json!({ "kind": "kill", "target": target.0 }),
+    //            };
+    //
+    //            let obj_json = json!({
+    //                "room_id": obj.room_id.0,
+    //                "label": obj.label,
+    //                "is_avatar": obj.is_avatar,
+    //                "command": command_json,
+    //                "attributes": {
+    //                    "attack": obj.attributes.attack,
+    //                    "defense": obj.attributes.defense,
+    //                    "damage_min": obj.attributes.damage.min,
+    //                    "damage_max": obj.attributes.damage.max,
+    //                    "damage_calm_down": obj.attributes.attack_calm_down.as_float(),
+    //                    "pv": obj.attributes.pv.current,
+    //                    "pv_max": obj.attributes.pv.max,
+    //                    "pv_heal_rate": obj.attributes.pv.heal_rate.as_float(),
+    //                },
+    //                "state": {
+    //                    "attack_ready": obj.state.attack_calm_down.as_float(),
+    //                    "heal_ready": obj.state.heal_calm_down.as_float(),
+    //                    "action": match obj.state.action {
+    //                        MobAction::None => "none",
+    //                        MobAction::Combat => "combat",
+    //                        MobAction::Resting => "rest",
+    //                    },
+    //                }
+    //            });
+    //
+    //            save.add(id.0, "mob", obj_json);
+    //        }
+    //    }
 }
 
 // TODO: move game rules with output outside of mobs module
@@ -324,7 +332,7 @@ pub fn run_tick(ctx: &mut Ctx) {
         let is_resting = mob.is_resting();
 
         match mob.command {
-            MobCommand::None => {},
+            MobCommand::None => {}
             MobCommand::Kill { target } => {
                 let _ = combat::tick_attack(ctx.container, ctx.outputs, mob_id, target);
             }
@@ -341,7 +349,8 @@ pub fn run_tick(ctx: &mut Ctx) {
                 if mob.update_resting(total_time) {
                     if mob.is_avatar {
                         if mob.attributes.pv.is_damaged() {
-                            outputs.private(player_id, comm::rest_healing(mob.attributes.pv.current));
+                            outputs
+                                .private(player_id, comm::rest_healing(mob.attributes.pv.current));
                         } else {
                             outputs.private(player_id, comm::rest_healed());
                         }
@@ -354,7 +363,11 @@ pub fn run_tick(ctx: &mut Ctx) {
 
 // TODO: move game rules with output outside of mobs module
 // TODO: become a trigger?
-pub fn kill_mob(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<(),()> {
+pub fn kill_mob(
+    container: &mut Container,
+    outputs: &mut dyn Outputs,
+    mob_id: MobId,
+) -> Result<(), ()> {
     info!("{:?} was killed", mob_id);
 
     let _ = create_body(container, outputs, mob_id);
@@ -370,10 +383,15 @@ pub fn kill_mob(container: &mut Container, outputs: &mut dyn Outputs, mob_id: Mo
     Ok(())
 }
 
-pub fn search_mobs_at(labels: &Labels, locations: &Locations, mobs: &MobRepository, room_id: RoomId, label: &str) -> Vec<MobId> {
+pub fn search_mobs_at(
+    labels: &Labels,
+    locations: &Locations,
+    mobs: &MobRepository,
+    room_id: RoomId,
+    label: &str,
+) -> Vec<MobId> {
     location::search_at(labels, locations, room_id, label)
         .into_iter()
         .filter(|mob_id| mobs.exists(*mob_id))
         .collect()
 }
-

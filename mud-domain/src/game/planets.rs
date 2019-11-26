@@ -1,10 +1,10 @@
-use std::collections::HashMap;
 use commons::ObjId;
 use logs::*;
+use std::collections::HashMap;
 
 pub type PlanetId = ObjId;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Planet {
     pub id: PlanetId,
 }
@@ -15,7 +15,7 @@ impl Planet {
     }
 }
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Planets {
     index: HashMap<PlanetId, Planet>,
 }
@@ -38,7 +38,7 @@ impl Planets {
         self.index.remove(&id)
     }
 
-    pub fn get(&self, id: PlanetId) -> Result<&Planet,()> {
+    pub fn get(&self, id: PlanetId) -> Result<&Planet, ()> {
         self.index.get(&id).ok_or(())
     }
 
@@ -46,4 +46,3 @@ impl Planets {
         self.index.contains_key(&id)
     }
 }
-

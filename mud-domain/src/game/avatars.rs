@@ -1,9 +1,9 @@
-use commons::{PlayerId, DeltaTime};
 use crate::game::container::Container;
-use crate::game::{Outputs, comm};
-use crate::game::mob::{Mob, Attributes, Damage, Pv, MobId};
 use crate::game::labels::Label;
 use crate::game::location::LocationId;
+use crate::game::mob::{Attributes, Damage, Mob, MobId, Pv};
+use crate::game::{comm, Outputs};
+use commons::{DeltaTime, PlayerId};
 
 //struct PlayerC<'a> {
 //    pub coniner: &'a Container,
@@ -20,24 +20,32 @@ use crate::game::location::LocationId;
 //    }
 //}
 
-pub fn on_player_disconnect(container: &mut Container, _outputs: &mut dyn Outputs, player_id: PlayerId) {
+pub fn on_player_disconnect(
+    container: &mut Container,
+    _outputs: &mut dyn Outputs,
+    player_id: PlayerId,
+) {
     let player = container.players.get(player_id);
     let _mob_id = player.mob_id;
 }
 
-pub fn on_player_login(container: &mut Container, _outputs: &mut dyn Outputs, login: &str) -> PlayerId {
+pub fn on_player_login(
+    container: &mut Container,
+    _outputs: &mut dyn Outputs,
+    login: &str,
+) -> PlayerId {
     match container.players.login(login) {
-        Some(player_id) => {
-            player_id
-        },
-        None => {
-            create_player(container, login)
-        }
+        Some(player_id) => player_id,
+        None => create_player(container, login),
     }
 }
 
 // TODO: use trigger
-pub fn respawn_avatar(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<(),()> {
+pub fn respawn_avatar(
+    container: &mut Container,
+    outputs: &mut dyn Outputs,
+    mob_id: MobId,
+) -> Result<(), ()> {
     container.mobs.update(mob_id, |mob| {
         assert!(mob.is_avatar);
         mob.attributes.pv.current = 1;
@@ -57,26 +65,21 @@ pub fn respawn_avatar(container: &mut Container, outputs: &mut dyn Outputs, mob_
 
 pub fn create_player(container: &mut Container, login: &str) -> PlayerId {
     let room_id = container.config.initial_room;
-    let player_id= container.objects.create();
+    let player_id = container.objects.create();
     let mob_id = container.objects.create();
 
-    let mut mob = Mob::new(
-        mob_id,
-    );
+    let mut mob = Mob::new(mob_id);
     mob.is_avatar = true;
     mob.attributes = Attributes {
         attack: 12,
         defense: 12,
-        damage: Damage {
-            min: 1,
-            max: 4,
-        },
+        damage: Damage { min: 1, max: 4 },
         pv: Pv {
             current: 10,
             max: 10,
             heal_rate: DeltaTime(1.0),
         },
-        attack_calm_down: DeltaTime(1.0)
+        attack_calm_down: DeltaTime(1.0),
     };
     container.mobs.add(mob);
 
@@ -89,13 +92,16 @@ pub fn create_player(container: &mut Container, login: &str) -> PlayerId {
     });
 
     // add player to game
-    let player = container.players.create(player_id, login.to_string(), mob_id);
+    let player = container
+        .players
+        .create(player_id, login.to_string(), mob_id);
     player.id
 }
 
 pub fn find_deep_all_players_in(container: &Container, location_id: LocationId) -> Vec<PlayerId> {
     let candidates = container.locations.list_deep_at(location_id);
-    candidates.into_iter().flat_map(|id| {
-       container.players.find_from_mob(id).ok()
-    }).collect()
+    candidates
+        .into_iter()
+        .flat_map(|id| container.players.find_from_mob(id).ok())
+        .collect()
 }

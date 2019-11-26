@@ -1,9 +1,7 @@
+use hocon::{Error, Hocon, HoconLoader};
 use serde::Deserialize;
-use std::fs;
-use hocon::{Hocon, HoconLoader, Error};
 use serde_json::{Number, Value};
-use std::collections::HashMap;
-use mud_domain::game::domain::Dir;
+use std::fs;
 
 fn hocon_to_json(hocon: Hocon) -> Option<Value> {
     match hocon {
@@ -37,10 +35,8 @@ trait HoconExtra {
 impl HoconExtra for Hocon {
     fn keys(&self) -> Result<Vec<&str>, Error> {
         match self {
-            Hocon::Hash(map) => {
-                Ok(map.keys().map(|i| i.as_str()).collect())
-            },
-            _ => Err(Error::InvalidKey)
+            Hocon::Hash(map) => Ok(map.keys().map(|i| i.as_str()).collect()),
+            _ => Err(Error::InvalidKey),
         }
     }
 }
@@ -50,21 +46,21 @@ pub struct Data {
     a: u32,
 }
 
-fn parse(hocon: Hocon) -> Result<(), Error> {
+fn parse(_hocon: Hocon) -> Result<(), Error> {
     Ok(())
 }
 
 fn main() -> Result<(), Error> {
     let base_path = "./data/space";
-    let mut loader = HoconLoader::new();
+    let loader = HoconLoader::new();
 
     for file in fs::read_dir(base_path).unwrap() {
         let os_string = file.unwrap().file_name();
         let filename = os_string.to_str().unwrap();
-        let mut loader = loader.load_file(format!("{}/{}", base_path, filename).as_str())?;
+        let loader = loader.load_file(format!("{}/{}", base_path, filename).as_str())?;
         let doc = loader.hocon()?;
         println!("----------------------\n{}\n------------------", filename);
-//        println!("{}", serde_json::to_string_pretty(&hocon_to_json(doc)).unwrap());
+        //        println!("{}", serde_json::to_string_pretty(&hocon_to_json(doc)).unwrap());
         parse(doc)?;
     }
 

@@ -1,9 +1,9 @@
-use std::collections::HashMap;
-use commons::ObjId;
 use crate::utils::text;
+use commons::ObjId;
 use logs::*;
+use std::collections::HashMap;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Label {
     pub id: ObjId,
     /// how we call it
@@ -34,7 +34,7 @@ impl Label {
     }
 }
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Labels {
     index: HashMap<ObjId, Label>,
 }
@@ -62,12 +62,12 @@ impl Labels {
     }
 
     pub fn get_label(&self, id: ObjId) -> Option<&str> {
-        self.index.get(&id)
-            .map(|label| label.label.as_str())
+        self.index.get(&id).map(|label| label.label.as_str())
     }
 
     pub fn get_label_f(&self, id: ObjId) -> &str {
-        self.index.get(&id)
+        self.index
+            .get(&id)
             .map(|label| label.label.as_str())
             .unwrap_or("???")
     }
@@ -75,11 +75,14 @@ impl Labels {
     // TODO: do not replace codes per ???
     pub fn resolve_codes(&self, ids: &Vec<ObjId>) -> Vec<&str> {
         // flat map can not be used because we want replace none by ???
-        ids.iter().map(|id| {
-            self.index.get(&id)
-                .map(|labels| labels.code.as_str())
-                .unwrap_or("???")
-        }).collect()
+        ids.iter()
+            .map(|id| {
+                self.index
+                    .get(&id)
+                    .map(|labels| labels.code.as_str())
+                    .unwrap_or("???")
+            })
+            .collect()
     }
 
     pub fn resolve_labels(&self, ids: &Vec<ObjId>) -> Vec<&str> {

@@ -1,14 +1,14 @@
+use super::super::builder;
 use crate::game::container::Container;
-use commons::{ObjId, V2};
-use crate::game::room::RoomId;
+use crate::game::crafts::Craft;
 use crate::game::domain::Dir;
 use crate::game::labels::Label;
-use crate::game::crafts::Craft;
-use crate::game::surfaces::*;
 use crate::game::planets::*;
 use crate::game::pos::Pos;
+use crate::game::room::RoomId;
+use crate::game::surfaces::*;
 use crate::game::surfaces_object::SurfaceObject;
-use super::super::builder;
+use commons::{ObjId, V2};
 
 type CraftId = ObjId;
 
@@ -22,12 +22,13 @@ fn load_sector(container: &mut Container) {
     let planet1 = add_planet(container, "Dune", sector_id, V2::new(3.0, 4.0));
     let planet1_room1 = add_room(container, planet1, "Palace", "The desert palace of Dune");
     let planet1_room2 = add_room(container, planet1, "Desert", "The grate deserts of dune!");
-    add_portal(container,planet1_room1, planet1_room2, Dir::S);
+    add_portal(container, planet1_room1, planet1_room2, Dir::S);
 
     let planet2 = add_planet(container, "Planet 2", sector_id, V2::new(-2.0, 0.0));
     let _planet2_room1 = add_room(container, planet2, "Village", "The Chavez village");
 
-    let (_craft1, craft1_bridge) = add_craft(container, "Light Transport", sector_id, V2::new(0.0, 0.0));
+    let (_craft1, craft1_bridge) =
+        add_craft(container, "Light Transport", sector_id, V2::new(0.0, 0.0));
 
     container.config.initial_room = craft1_bridge;
 }
@@ -66,7 +67,12 @@ fn add_planet(container: &mut Container, label: &str, sector_id: SurfaceId, pos:
     |
     2 Airlock
 */
-fn add_craft(container: &mut Container, label: &str, sector_id: SurfaceId, pos: V2) -> (CraftId, RoomId) {
+fn add_craft(
+    container: &mut Container,
+    label: &str,
+    sector_id: SurfaceId,
+    pos: V2,
+) -> (CraftId, RoomId) {
     let id = container.objects.create();
     container.labels.set(Label::new(id, label));
     container.locations.set(id, sector_id);
@@ -84,11 +90,20 @@ fn add_craft(container: &mut Container, label: &str, sector_id: SurfaceId, pos: 
     (id, bridge_id)
 }
 
-fn add_craft_room(container: &mut Container, craft_id: CraftId, label: &str, desc: &str, airlock: bool) -> RoomId {
+fn add_craft_room(
+    container: &mut Container,
+    craft_id: CraftId,
+    label: &str,
+    desc: &str,
+    airlock: bool,
+) -> RoomId {
     let id = builder::add_room(container, label, desc);
     container.locations.set(id, craft_id);
     if airlock {
-        container.rooms.update(id, |room| room.is_airlock = true).unwrap();
+        container
+            .rooms
+            .update(id, |room| room.is_airlock = true)
+            .unwrap();
     }
     id
 }
@@ -96,11 +111,13 @@ fn add_craft_room(container: &mut Container, craft_id: CraftId, label: &str, des
 fn add_room(container: &mut Container, planet_id: PlanetId, label: &str, desc: &str) -> RoomId {
     let id = builder::add_room(container, label, desc);
     container.locations.set(id, planet_id);
-    container.rooms.update(id, |room| room.is_airlock = true).unwrap();
+    container
+        .rooms
+        .update(id, |room| room.is_airlock = true)
+        .unwrap();
     id
 }
 
 fn add_portal(container: &mut Container, room1_id: RoomId, room2_id: RoomId, dir: Dir) {
     container.rooms.add_portal(room1_id, room2_id, dir);
 }
-

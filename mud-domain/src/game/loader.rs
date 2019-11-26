@@ -1,9 +1,9 @@
 use serde::Deserialize;
 use std::collections::HashMap;
 
-pub mod scenery_space;
-pub mod scenery_fantasy;
 pub mod hocon_loader;
+pub mod scenery_fantasy;
+pub mod scenery_space;
 
 #[derive(Deserialize, Debug)]
 pub struct RoomExitData {
@@ -14,18 +14,14 @@ pub struct RoomExitData {
 #[derive(Deserialize, Debug)]
 pub struct RoomData {
     pub airlock: Option<bool>,
-    pub exits: Option<Vec<RoomExitData>>
+    pub exits: Option<Vec<RoomExitData>>,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct PlanetData {
-
-}
+pub struct PlanetData {}
 
 #[derive(Deserialize, Debug)]
-pub struct SectorData {
-
-}
+pub struct SectorData {}
 
 #[derive(Deserialize, Debug)]
 pub struct MobData {
@@ -33,7 +29,7 @@ pub struct MobData {
     pub defense: u32,
     pub damage_min: u32,
     pub damage_max: u32,
-    pub pv: u32
+    pub pv: u32,
 }
 
 #[derive(Deserialize, Debug)]
@@ -77,4 +73,3 @@ pub struct Data {
     pub objects: HashMap<StaticId, ObjData>,
     pub prefabs: HashMap<StaticId, ObjData>,
 }
-

@@ -1,10 +1,9 @@
-use super::item::*;
-use super::domain::*;
 use super::container::Container;
+use super::domain::*;
+use super::item::*;
 use super::mob::*;
-use commons::{TotalTime, V2, AsResult};
-use crate::utils::text::{PlotPoint, PlotCfg, plot_points};
-
+use crate::utils::text::{plot_points, PlotCfg, PlotPoint};
+use commons::{AsResult, TotalTime, V2};
 
 pub struct InventoryDesc<'a> {
     pub id: ItemId,
@@ -43,7 +42,9 @@ pub fn look_description(container: &Container, mob_id: MobId) -> Result<String, 
 
     let mut buffer = vec![];
 
-    let exits = room.exits.iter()
+    let exits = room
+        .exits
+        .iter()
         .map(|(dir, _)| dir.as_str())
         .collect::<Vec<&str>>()
         .join(", ");
@@ -130,7 +131,10 @@ pub fn kill_cancel(mob: &str, target: &str) -> String {
 
 pub fn kill_player_execute_attack(target: &str, attack_result: &AttackResult) -> String {
     if attack_result.success {
-        format!("you attack {} and hit, causing {} damage!", target, attack_result.damage)
+        format!(
+            "you attack {} and hit, causing {} damage!",
+            target, attack_result.damage
+        )
     } else {
         format!("you attack {} and miss!", target)
     }
@@ -138,7 +142,10 @@ pub fn kill_player_execute_attack(target: &str, attack_result: &AttackResult) ->
 
 pub fn kill_mob_execute_attack(mob: &str, target: &str, attack_result: &AttackResult) -> String {
     if attack_result.success {
-        format!("{} execute a attack and hit {} causing {} damage!", mob, target, attack_result.damage)
+        format!(
+            "{} execute a attack and hit {} causing {} damage!",
+            mob, target, attack_result.damage
+        )
     } else {
         format!("{} execute a attack {} and miss!", mob, target)
     }
@@ -153,7 +160,10 @@ pub fn killed(mob: &str) -> String {
 }
 
 pub fn kill_return_attack(mob_label: &str, aggressor_mob_label: &str) -> String {
-    format!("{} give back combat against {}", mob_label, aggressor_mob_label)
+    format!(
+        "{} give back combat against {}",
+        mob_label, aggressor_mob_label
+    )
 }
 
 pub fn item_body_appears_in_room(item: &str) -> String {
@@ -167,19 +177,20 @@ pub fn item_body_disappears(item: &str) -> String {
 pub fn stats(attributes: &Attributes, inventory: &Vec<InventoryDesc>) -> String {
     let inventory_str = show_inventory(inventory);
 
-    format!("Stats: \n\
-        attack:  {}\n\
-        defense: {}\n\
-        damage:  {}-{}\n\
-        pv:      {}-{}\n\
-        {}\n",
-            attributes.attack,
-            attributes.defense,
-            attributes.damage.min,
-            attributes.damage.max,
-            attributes.pv.current,
-            attributes.pv.max,
-            inventory_str
+    format!(
+        "Stats: \n\
+         attack:  {}\n\
+         defense: {}\n\
+         damage:  {}-{}\n\
+         pv:      {}-{}\n\
+         {}\n",
+        attributes.attack,
+        attributes.defense,
+        attributes.damage.min,
+        attributes.damage.max,
+        attributes.pv.current,
+        attributes.pv.max,
+        inventory_str
     )
 }
 
@@ -187,8 +198,16 @@ pub fn examine_target_not_found(target: &str) -> String {
     format!("no [{}] can be found!\n", target)
 }
 
-pub fn examine_target(mob_label: &str, attributes: &Attributes, inventory: &Vec<InventoryDesc>) -> String {
-    format!("you examine {}!\n{}", mob_label, stats(attributes, inventory))
+pub fn examine_target(
+    mob_label: &str,
+    attributes: &Attributes,
+    inventory: &Vec<InventoryDesc>,
+) -> String {
+    format!(
+        "you examine {}!\n{}",
+        mob_label,
+        stats(attributes, inventory)
+    )
 }
 
 pub fn examine_target_item(item: &str, inventory: &Vec<InventoryDesc>) -> String {
@@ -196,11 +215,12 @@ pub fn examine_target_item(item: &str, inventory: &Vec<InventoryDesc>) -> String
 }
 
 pub fn show_inventory(inventory: &Vec<InventoryDesc>) -> String {
-    let mut buffer: Vec<String> = vec![
-        "Inventory:".to_string(),
-    ];
+    let mut buffer: Vec<String> = vec!["Inventory:".to_string()];
     for item in inventory {
-        buffer.push(format!("- {}", print_item(item.label, item.amount, item.equipped)));
+        buffer.push(format!(
+            "- {}",
+            print_item(item.label, item.amount, item.equipped)
+        ));
     }
     buffer.join("\n")
 }
@@ -226,13 +246,13 @@ pub fn pick_where_not_found(target: &str) -> String {
 }
 
 pub fn pick_what() -> String {
-//    let mut buffer: Vec<String> = vec![
-//        "what do you want to pick?".to_string(),
-//    ];
-//    for item in items {
-//        buffer.push(format!("- {}", print_item(item)));
-//    }
-//    buffer.join("\n")
+    //    let mut buffer: Vec<String> = vec![
+    //        "what do you want to pick?".to_string(),
+    //    ];
+    //    for item in items {
+    //        buffer.push(format!("- {}", print_item(item)));
+    //    }
+    //    buffer.join("\n")
     "get what?\n".to_string()
 }
 
@@ -366,7 +386,7 @@ pub fn stand_up_others(label: &str) -> String {
 
 pub enum ShowStarmapDescKind {
     Planet,
-    Craft
+    Craft,
 }
 
 pub struct SurfaceDesc {
@@ -385,26 +405,28 @@ pub fn space_show_sectormap(desc: &Vec<SurfaceDesc>) -> String {
 
     let mut content_table = vec![];
 
-    let points = desc.iter().enumerate().map(|(i, desc)| {
-        let ch = match desc.kind {
-            ShowStarmapDescKind::Craft if desc.me => '@'.to_string(),
-            ShowStarmapDescKind::Craft => '%'.to_string(),
-            ShowStarmapDescKind::Planet => 'O'.to_string(),
-        };
+    let points = desc
+        .iter()
+        .enumerate()
+        .map(|(i, desc)| {
+            let ch = match desc.kind {
+                ShowStarmapDescKind::Craft if desc.me => '@'.to_string(),
+                ShowStarmapDescKind::Craft => '%'.to_string(),
+                ShowStarmapDescKind::Planet => 'O'.to_string(),
+            };
 
-        content_table.push(format!("{} - {} {}", i, ch, desc.label));
+            content_table.push(format!("{} - {} {}", i, ch, desc.label));
 
-        PlotPoint {
-            x: desc.pos.x,
-            y: desc.pos.y,
-            c: ch
-        }
-    }).collect();
+            PlotPoint {
+                x: desc.pos.x,
+                y: desc.pos.y,
+                c: ch,
+            }
+        })
+        .collect();
 
     let map = plot_points(&cfg, &points);
-    let mut buffer: Vec<String> = map.into_iter().map(|i| {
-        i.join("")
-    }).collect();
+    let mut buffer: Vec<String> = map.into_iter().map(|i| i.join("")).collect();
 
     buffer.push("\n".to_string());
     buffer.append(&mut content_table);
@@ -415,14 +437,17 @@ pub fn space_show_sectormap(desc: &Vec<SurfaceDesc>) -> String {
 pub fn space_show_move_targets(desc: &Vec<SurfaceDesc>) -> String {
     let mut buffer = vec!["Targets:".to_string()];
 
-    let items: Vec<String> =
-        desc.iter().enumerate().flat_map(|(_i, desc)| {
+    let items: Vec<String> = desc
+        .iter()
+        .enumerate()
+        .flat_map(|(_i, desc)| {
             if desc.me {
                 return None;
             }
 
             Some(format!("- {}", desc.label))
-        }).collect();
+        })
+        .collect();
 
     buffer.extend(items);
     buffer.join("\n")
@@ -464,7 +489,7 @@ pub fn space_land_complete() -> String {
     "landing complete".to_string()
 }
 
-pub fn space_land_complete_others(craft_label: &str) -> String {
+pub fn space_land_complete_others(_craft_label: &str) -> String {
     "The {} come from orbit and land".to_string()
 }
 
@@ -476,7 +501,7 @@ pub fn space_launch_complete() -> String {
     "launch complete, you are in space now".to_string()
 }
 
-pub fn space_launch_complete_others(craft_label: &str) -> String {
+pub fn space_launch_complete_others(_craft_label: &str) -> String {
     "{} have launched into orbit".to_string()
 }
 
@@ -497,51 +522,51 @@ pub fn space_land_list(candidates: &Vec<&str>) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-//    use commons::{DeltaTime, ObjId};
-//    use std::collections::HashSet;
+    //    use commons::{DeltaTime, ObjId};
+    //    use std::collections::HashSet;
 
-//    fn item_0_coins() -> Item {
-//        let mut item = Item::new(
-//            ObjId(0),
-//            ITEM_KIND_GOLD,
-//            "coins".to_string()
-//        );
-//
-//        item.amount = 2;
-//
-//        item
-//    }
-//
-//    fn item_1_weapon() -> Item {
-//        let mut item = Item::new(
-//            ObjId(1),
-//            ITEM_KIND_UNDEFINED,
-//            "weapon".to_string()
-//        );
-//
-//        item.weapon = Some(Weapon {
-//            damage_min: 1,
-//            damage_max: 2,
-//            reload: DeltaTime(1.0)
-//        });
-//
-//        item
-//    }
-//
-//    fn strip_colors(input: String) -> String {
-//        input
-//    }
+    //    fn item_0_coins() -> Item {
+    //        let mut item = Item::new(
+    //            ObjId(0),
+    //            ITEM_KIND_GOLD,
+    //            "coins".to_string()
+    //        );
+    //
+    //        item.amount = 2;
+    //
+    //        item
+    //    }
+    //
+    //    fn item_1_weapon() -> Item {
+    //        let mut item = Item::new(
+    //            ObjId(1),
+    //            ITEM_KIND_UNDEFINED,
+    //            "weapon".to_string()
+    //        );
+    //
+    //        item.weapon = Some(Weapon {
+    //            damage_min: 1,
+    //            damage_max: 2,
+    //            reload: DeltaTime(1.0)
+    //        });
+    //
+    //        item
+    //    }
+    //
+    //    fn strip_colors(input: String) -> String {
+    //        input
+    //    }
 
     #[test]
     fn show_inventory_test() {
-//        let coins = item_0_coins();
-//        let weapon = item_1_weapon();
-//        let items = vec![&coins, &weapon];
-//        let equip : HashSet<ItemId> = vec![weapon.id].into_iter().collect();
-//        let string = show_inventory(&items, &equip);
-//        assert_eq!("Inventory:\n\
-//                    - coins (2)\n\
-//                    - weapon*", string);
+        //        let coins = item_0_coins();
+        //        let weapon = item_1_weapon();
+        //        let items = vec![&coins, &weapon];
+        //        let equip : HashSet<ItemId> = vec![weapon.id].into_iter().collect();
+        //        let string = show_inventory(&items, &equip);
+        //        assert_eq!("Inventory:\n\
+        //                    - coins (2)\n\
+        //                    - weapon*", string);
     }
 
     #[test]
@@ -580,7 +605,7 @@ mod tests {
         ];
 
         let string = space_show_sectormap(&objects);
-//        assert_eq!("", string.as_str());
+        //        assert_eq!("", string.as_str());
         assert!(string.as_str().contains("2 - @ three"));
     }
 }

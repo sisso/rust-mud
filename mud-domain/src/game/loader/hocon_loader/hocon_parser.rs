@@ -1,18 +1,18 @@
-use std::fs::ReadDir;
-use std::path::Path;
-use logs::*;
-use hocon::{*, Error as HError};
-use crate::game::domain::Dir;
-use std::collections::HashMap;
-use std::io::Error as IError;
-use crate::game::obj::Obj;
 use super::super::*;
+use crate::game::domain::Dir;
+use crate::game::obj::Obj;
+use hocon::{Error as HError, *};
+use logs::*;
+use std::collections::HashMap;
+use std::fs::ReadDir;
+use std::io::Error as IError;
+use std::path::Path;
 
 #[derive(Debug)]
 pub enum Error {
     HoconError { error: HError },
     NotObject,
-    IOError { error: IError }
+    IOError { error: IError },
 }
 
 impl From<HError> for Error {
@@ -34,14 +34,11 @@ trait HoconExtra {
 impl HoconExtra for Hocon {
     fn keys(&self) -> Result<Vec<&str>, Error> {
         match self {
-            Hocon::Hash(map) => {
-                Ok(map.keys().map(|i| i.as_str()).collect())
-            },
-            _ => Err(Error::NotObject)
+            Hocon::Hash(map) => Ok(map.keys().map(|i| i.as_str()).collect()),
+            _ => Err(Error::NotObject),
         }
     }
 }
-
 
 pub struct HParser;
 
@@ -60,13 +57,13 @@ impl HParser {
             match key.as_str() {
                 "cfg" => {
                     cfg = Some(HParser::load_cfg(value)?);
-                },
+                }
                 "objects" => {
                     HParser::load_all(value, &mut objects)?;
-                },
+                }
                 "prefabs" => {
                     HParser::load_all(value, &mut prefabs)?;
-                },
+                }
 
                 _ => unimplemented!(),
             }
@@ -144,7 +141,7 @@ cfg {
 }
         "##;
 
-        let data= HParser::load_from_str(sample).unwrap();
+        let data = HParser::load_from_str(sample).unwrap();
         let cfg = data.cfg.expect("cfg field is not defined");
         assert_eq!(cfg.initial_room.as_str(), "sector_1/dune/palace");
         assert_eq!(cfg.avatar_mob.as_str(), "avatar");
@@ -154,7 +151,7 @@ cfg {
     }
 
     #[test]
-    pub fn test_load_objects() -> Result<(), Error>{
+    pub fn test_load_objects() -> Result<(), Error> {
         let sample = r##"
 objects {
   sector_1 {
@@ -207,14 +204,14 @@ objects {
 }
         "##;
 
-        let data= HParser::load_from_str(sample).unwrap();
+        let data = HParser::load_from_str(sample).unwrap();
         assert!(data.prefabs.is_empty());
         assert_eq!(5, data.objects.len());
         Ok(())
     }
 
     #[test]
-    pub fn test_load_prefabs() -> Result<(), Error>{
+    pub fn test_load_prefabs() -> Result<(), Error> {
         let sample = r##"
 prefabs {
   shuttle: {
@@ -233,7 +230,7 @@ prefabs {
 }
           "##;
 
-        let data= HParser::load_from_str(sample).unwrap();
+        let data = HParser::load_from_str(sample).unwrap();
         assert!(data.objects.is_empty());
         assert_eq!(2, data.prefabs.len());
         Ok(())

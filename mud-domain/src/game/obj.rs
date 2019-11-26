@@ -1,11 +1,11 @@
-use std::collections::HashMap;
 use crate::game::domain::NextId;
 use commons::ObjId;
 use logs::*;
+use std::collections::HashMap;
 
 pub const NAMESPACE_RESERVED: u32 = 100000;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Obj {
     id: ObjId,
 }
@@ -26,9 +26,7 @@ impl Objects {
     pub fn create(&mut self) -> ObjId {
         let id = ObjId(self.next_id.next());
         debug!("{:?} created", id);
-        self.objects.insert(id, Obj {
-            id
-        });
+        self.objects.insert(id, Obj { id });
         id
     }
 
@@ -36,9 +34,7 @@ impl Objects {
         assert!(!self.objects.contains_key(&id));
         debug!("{:?} obj insert", id);
         self.next_id.set_max(id.as_u32());
-        self.objects.insert(id, Obj {
-            id
-        });
+        self.objects.insert(id, Obj { id });
     }
 
     /// Make sure you remove from everything else first

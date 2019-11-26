@@ -1,8 +1,8 @@
-use commons::*;
-use std::collections::HashMap;
 use super::comm;
-use logs::*;
 use crate::game::container::Ctx;
+use commons::*;
+use logs::*;
+use std::collections::HashMap;
 
 pub type ItemId = ObjId;
 pub type ItemPrefabId = ObjId;
@@ -39,7 +39,7 @@ impl Item {
             weapon: None,
             armor: None,
             is_inventory: false,
-            is_stuck: false
+            is_stuck: false,
         }
     }
 
@@ -79,7 +79,7 @@ impl ItemPrefab {
 
 #[derive(Debug, Clone)]
 pub struct ItemPrefabBuilder {
-    pub prefab: ItemPrefab
+    pub prefab: ItemPrefab,
 }
 
 impl ItemPrefabBuilder {
@@ -109,7 +109,7 @@ impl ItemPrefabBuilder {
     }
 
     pub fn with_stuck(mut self) -> Self {
-        self.prefab.is_stuck= true;
+        self.prefab.is_stuck = true;
         self
     }
 
@@ -151,7 +151,7 @@ impl ItemRepository {
     }
 
     pub fn exists(&self, item_id: ItemId) -> bool {
-       self.index.contains_key(&item_id)
+        self.index.contains_key(&item_id)
     }
 
     pub fn get(&self, item_id: ItemId) -> Option<&Item> {
@@ -171,16 +171,19 @@ impl ItemRepository {
 
         // update index
         self.index.insert(item.id, item);
-   }
+    }
 
     pub fn add_prefab(&mut self, item_def: ItemPrefab) {
         if self.prefab_index.contains_key(&item_def.id) {
-            panic!(format!("item prefab {:?} already exists, failed ot insert {:?}", item_def.id, item_def));
+            panic!(format!(
+                "item prefab {:?} already exists, failed ot insert {:?}",
+                item_def.id, item_def
+            ));
         }
         self.prefab_index.insert(item_def.id, item_def);
     }
 
-    pub fn remove(&mut self, item_id: ItemId) -> Option<Item>{
+    pub fn remove(&mut self, item_id: ItemId) -> Option<Item> {
         self.index.remove(&item_id).map(|item| {
             debug!("{:?} item removed ", item_id);
             item
@@ -195,57 +198,52 @@ impl ItemRepository {
         self.prefab_index.get(item_prefab_id).unwrap()
     }
 
-
-//    pub fn save(&self, save: &mut dyn Save) {
-//        use serde_json::json;
-//
-//        for (id, obj) in self.index.iter() {
-//            let obj_json = json!({
-//                "kind": obj.kind.0,
-//                "label": obj.label,
-//                "decay": obj.decay.map(|i| i.0),
-//                "amount": obj.amount,
-//                "definition_id": obj.item_def_id.map(|i| i.0)
-//            });
-//
-//            save.add(id.0, "item", obj_json);
-//        }
-//
-//        for (id, (location, inventory)) in self.inventory.iter().enumerate() {
-//            let location_json = match location {
-//                ObjId::Limbo => json!({"kind": "limbo"}),
-//                ObjId::Mob { mob_id } => json!({"kind": "mob", "mob_id": mob_id.0 }),
-//                ObjId::Room { room_id } => json!({"kind": "room", "room_id": room_id.0 }),
-//                ObjId::Item { item_id } => json!({"kind": "item", "item_id": item_id.0 }),
-//            };
-//
-//            let obj_json = json!({
-//                "location": location_json,
-//                "items": inventory.list.iter().map(|i| i.0).collect::<Vec<u32>>()
-//            });
-//
-//            save.add(id as u32, "inventory", obj_json);
-//        }
-//    }
+    //    pub fn save(&self, save: &mut dyn Save) {
+    //        use serde_json::json;
+    //
+    //        for (id, obj) in self.index.iter() {
+    //            let obj_json = json!({
+    //                "kind": obj.kind.0,
+    //                "label": obj.label,
+    //                "decay": obj.decay.map(|i| i.0),
+    //                "amount": obj.amount,
+    //                "definition_id": obj.item_def_id.map(|i| i.0)
+    //            });
+    //
+    //            save.add(id.0, "item", obj_json);
+    //        }
+    //
+    //        for (id, (location, inventory)) in self.inventory.iter().enumerate() {
+    //            let location_json = match location {
+    //                ObjId::Limbo => json!({"kind": "limbo"}),
+    //                ObjId::Mob { mob_id } => json!({"kind": "mob", "mob_id": mob_id.0 }),
+    //                ObjId::Room { room_id } => json!({"kind": "room", "room_id": room_id.0 }),
+    //                ObjId::Item { item_id } => json!({"kind": "item", "item_id": item_id.0 }),
+    //            };
+    //
+    //            let obj_json = json!({
+    //                "location": location_json,
+    //                "items": inventory.list.iter().map(|i| i.0).collect::<Vec<u32>>()
+    //            });
+    //
+    //            save.add(id as u32, "inventory", obj_json);
+    //        }
+    //    }
 }
 
 pub fn run_tick(ctx: &mut Ctx) {
-    ctx.container
-        .items
-        .list()
-        .into_iter()
-        .for_each(|i| {
-            let _ = run_for(ctx, i);
-        });
+    ctx.container.items.list().into_iter().for_each(|i| {
+        let _ = run_for(ctx, i);
+    });
 }
 
-fn run_for(ctx: &mut Ctx, item_id: ItemId) -> Result<(),()> {
+fn run_for(ctx: &mut Ctx, item_id: ItemId) -> Result<(), ()> {
     let item = ctx.container.items.get(item_id).as_result()?;
 
     if let Some(decay) = item.decay {
         // TODO: Only decay items on ground?
         let location_id = ctx.container.locations.get(item.id).as_result()?;
-        if ctx.container.rooms.exists(location_id) && decay.is_before(ctx.container.time.total)  {
+        if ctx.container.rooms.exists(location_id) && decay.is_before(ctx.container.time.total) {
             info!("{:?} removed by decay", item.id);
 
             let label = ctx.container.labels.get_label_f(item.id);
@@ -259,5 +257,3 @@ fn run_for(ctx: &mut Ctx, item_id: ItemId) -> Result<(),()> {
 
     Ok(())
 }
-
-

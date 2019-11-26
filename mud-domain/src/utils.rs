@@ -1,2 +1,2 @@
-pub mod text;
 pub mod geometry;
+pub mod text;

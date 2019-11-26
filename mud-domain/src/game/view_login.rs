@@ -7,8 +7,10 @@ pub enum LoginResult {
 
 pub fn handle(_game: &mut Container, input: &str) -> LoginResult {
     if input.len() > 3 {
-        LoginResult::Login { login: input.to_string() }
-   } else {
+        LoginResult::Login {
+            login: input.to_string(),
+        }
+    } else {
         LoginResult::Msg {
             msg: format!("invalid login {}\n\nlogin: ", input),
         }

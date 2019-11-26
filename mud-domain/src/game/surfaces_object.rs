@@ -1,8 +1,8 @@
-use std::collections::HashMap;
 use commons::ObjId;
 use logs::*;
+use std::collections::HashMap;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct SurfaceObject {
     pub id: ObjId,
 }
@@ -13,7 +13,7 @@ impl SurfaceObject {
     }
 }
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct SurfaceObjects {
     index: HashMap<ObjId, SurfaceObject>,
 }
@@ -36,7 +36,7 @@ impl SurfaceObjects {
         self.index.remove(&id)
     }
 
-    pub fn get(&self, id: ObjId) -> Result<&SurfaceObject,()> {
+    pub fn get(&self, id: ObjId) -> Result<&SurfaceObject, ()> {
         self.index.get(&id).ok_or(())
     }
 
