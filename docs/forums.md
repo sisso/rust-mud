@@ -1,6 +1,27 @@
 # Loader / Prefab / Init / Serialization
 
-# Short term
+## Hocon vs JSON
+
+Hocon have many advanced features, including variable reference that save issues of change ID and allow intelj help
+with the object navigation.
+
+JSON is simple and more flexibe, but much more verbose. 
+
+Hocon complexity can be minimized by tools, like validate unique ids and double check that all references are always
+reachables.
+
+## Children / Parent
+
+Parent is easy to extend and is more independent, you can just add new object and set the parent, without need to
+apply any change to the parent object. However is only useful in for unique objects like rooms. For classic items, a 
+single item prefab can be part of many other mobs prefabs. 
+
+Use only children can cause a lot of extra work for situation like Zones.
+
+Conclusion: Children is more generic, but parent is more useful for static data or cases where some parent have too
+many unique children. So we will just support both.
+
+## Short term
 
 - All id are u32
 - Prefab get stored, objects get instantiated with same id
@@ -9,7 +30,7 @@
 
 To have better consistency, we should always serialize all objects, including static ones. All changes in static files need
 to be executed as Migration.
-- so what is the prupose of Prefab? Should we remove prefabs?
+- so what is the purpose of Prefab? Should we remove prefabs?
   - migrations can already only happens in prefab model?
   
 Maybe instances of prefab can be stored as enum Some[T], Inherited or None

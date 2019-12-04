@@ -46,7 +46,8 @@ pub struct Data {
     a: u32,
 }
 
-fn parse(_hocon: Hocon) -> Result<(), Error> {
+fn parse(hocon: Hocon) -> Result<(), Error> {
+    println!("{}", hocon_to_json(hocon).unwrap().to_string());
     Ok(())
 }
 
