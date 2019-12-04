@@ -22,7 +22,7 @@ impl ServerRunner {
             "loading configuration: {:?}",
             config_path.canonicalize().unwrap()
         );
-        loader::hocon_loader::load(&config_path, &mut container);
+        loader::Loader::load_folder(&mut container, &config_path).unwrap();
 
         ServerRunner {
             server,

@@ -1,5 +1,6 @@
 # Todo
 
+- project Err: IllegalArgument, Fatal, Error, Unknonw, Warning, etc
 - intelligent creation of codes for a label
 - parse initial configuration files
 - support multiples enter portal

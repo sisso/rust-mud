@@ -7,6 +7,7 @@ use std::collections::HashMap;
 use std::fs::ReadDir;
 use std::io::Error as IError;
 use std::path::Path;
+use crate::game::loader::{Data, CfgData, StaticId, ObjData};
 
 #[derive(Debug)]
 pub enum Error {
@@ -90,9 +91,9 @@ impl HParser {
             _ => return Err(Error::NotObject),
         };
 
-        for (key, value) in map {
+        for (_key, value) in map {
             let obj: ObjData = HParser::load_obj(value)?;
-            objects.insert(StaticId(key), obj);
+            objects.insert(StaticId(obj.id), obj);
         }
 
         Ok(())
@@ -143,9 +144,9 @@ cfg {
 
         let data = HParser::load_from_str(sample).unwrap();
         let cfg = data.cfg.expect("cfg field is not defined");
-        assert_eq!(cfg.initial_room.as_str(), "sector_1/dune/palace");
-        assert_eq!(cfg.avatar_mob.as_str(), "avatar");
-        assert_eq!(cfg.initial_craft.as_str(), "light_cargo_1");
+        assert_eq!(cfg.initial_room.as_u32(), 1);
+        assert_eq!(cfg.avatar_mob.as_u32(), 5);
+        assert_eq!(cfg.initial_craft.as_u32(), 6);
 
         Ok(())
     }

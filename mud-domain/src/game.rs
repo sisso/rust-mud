@@ -33,7 +33,6 @@ pub mod obj;
 pub mod planets;
 pub mod player;
 pub mod pos;
-pub mod prefabs;
 pub mod room;
 pub mod space_utils;
 pub mod spawn;

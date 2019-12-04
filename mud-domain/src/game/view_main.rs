@@ -114,7 +114,7 @@ pub fn handle(
 
             match candidate {
                 Some(mob_id) if !container.mobs.is_avatar(*mob_id) => {
-                    actions::attack(container, outputs, player_id, *mob_id);
+                    let _ = actions::attack(container, outputs, player_id, *mob_id);
                     UOK
                 }
                 Some(_) => {

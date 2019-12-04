@@ -1,4 +1,75 @@
-# Item Prefab 2
+# Loader / Prefab / Init / Serialization
+
+# Short term
+
+- All id are u32
+- Prefab get stored, objects get instantiated with same id
+
+## Serialize static objects
+
+To have better consistency, we should always serialize all objects, including static ones. All changes in static files need
+to be executed as Migration.
+- so what is the prupose of Prefab? Should we remove prefabs?
+  - migrations can already only happens in prefab model?
+  
+Maybe instances of prefab can be stored as enum Some[T], Inherited or None
+
+## Migration
+
+At some point database will require migration. Like update attributes from prefab, kill a mobs of a type, update something else.
+
+Init files need to be manually migrated. Save files need to contains a version that will cause the upgrade.
+
+Probably in a model much like database update.
+
+## Scenery spawn prefabs?
+
+How do we create a mob in prefabs. And boot strap the mob?
+If mob will spawn with prefab static id, what happens if it get killed and removed from DB. Next boot will re-spawn?
+
+Looks like initialize is only valid for static data. 
+
+## Prefab vs Cloning
+
+The idea of prefab is a fat struct that contain all fields as options. Before instantiation, validation is realized
+and all components created.
+
+This free model is much more easy to manipulate from user interfaces, serialization, reads and writes.
+
+For instance:
+
+    !prefab create 5
+    !prefab set 5 label "Short-sword"
+    !prefab set 5 damage 2
+    !spawn create target-prefab 5 min-time 10 max-time 100 max 1
+
+Cloning can be useful. But the algorithm to search for components, clean up undesired state can be very error prone. Even
+with cloning, will be still require a easy way to manipulate and serialize entities.
+
+### Conclusion
+
+Prefab is required, is more useful, is more flexible, is less error prone.
+
+## Prefabs 3
+
+Scenery need to have stable ID that will be still valid during persistence.
+
+Is not require that prefabs have String ID
+- we will use u32 since is used anywhere and more compatible
+  - later we can always implement tooling
+  
+Annotate objects as prefab?
+
+Initialize as second step?
+- this could more interesting and flexible for testing and exchange between modules. In the situation that is require 
+  to boot the server only with some regions, you need to remove other files or change some init objects as non default.
+- considering that spawn root will spawn any child, spawn the city without the mobs? 
+  - still will require a lot of manual configuration
+- currently I just need to switch parent from objects to prefabs, if some entities need to get out, I just need to move those
+
+
+
+## Item Prefab 2
 
 All loader objects are prefabs. They need to be materialized to generate a ID. 
 
@@ -7,6 +78,7 @@ the string key in load.
 
 The loading process is create all Prefabs and instantiate the root? 
 - no, we dont want to put everything always in a single tree
+  - there is no root anymore
 
 But we can have a bootstrap list. 
 - no, because most of things will be in bootstrap
@@ -14,7 +86,7 @@ But we can have a bootstrap list.
 The better is to split files, prefabs and auto initilize.
 
 
-# Loader models
+## Loader models
 
 Files are just a bunch of keys, each key is mapped to a static id.
 
@@ -42,7 +114,7 @@ Most of fields will have direct map like item, mob, room, craft, etc.
         }
     }
 
-# Loader
+## Loader
 
 Load a bunch of configuration files that can be easy merge. All IDs and 
 references should be unique strings.
@@ -55,7 +127,7 @@ references from dynamic objects.
 
 
 
-# Item Prefab
+## Item Prefab
 
 Any component can be just moved into limbo to be used as prefab. It will 
 not make things complete easy since some of components will contains 

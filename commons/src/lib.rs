@@ -94,6 +94,8 @@ impl Tick {
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct ObjId(pub u32);
 
+pub type SResult<T> = Result<T, String>;
+
 pub type UResult = Result<(), ()>;
 pub const UOK: UResult = Ok(());
 pub const UERR: UResult = Err(());

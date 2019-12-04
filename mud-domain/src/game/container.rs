@@ -18,6 +18,7 @@ use crate::game::tags::Tags;
 use crate::game::{crafts_system, item, mob, spawn, Outputs};
 use commons::{DeltaTime, ObjId, PlayerId};
 use logs::*;
+use crate::game::loader::Loader;
 
 pub struct Ctx<'a> {
     pub container: &'a mut Container,
@@ -42,6 +43,7 @@ pub struct Container {
     pub planets: Planets,
     pub pos: PosRepo,
     pub surface_objects: SurfaceObjects,
+    pub loader: Loader,
 }
 
 impl Container {
@@ -64,6 +66,7 @@ impl Container {
             planets: Planets::new(),
             pos: PosRepo::new(),
             surface_objects: SurfaceObjects::new(),
+            loader: Loader::new(),
         }
     }
 

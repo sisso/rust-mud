@@ -43,6 +43,10 @@ impl Objects {
             debug!("{:?} obj removed ", obj_id);
         }
     }
+
+    pub fn exists(&self, obj_id: ObjId) -> bool {
+        return self.objects.contains_key(&obj_id)
+    }
 }
 
 // TODO: use or remove?
