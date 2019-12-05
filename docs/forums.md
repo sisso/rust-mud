@@ -1,5 +1,29 @@
 # Loader / Prefab / Init / Serialization
 
+## IDS
+
+We have 3 types of IDs. Static ID that are fixed between server instantiations. Prefab IDs that are used by spawn and instantiation. Dynamic ID that are normal entities created during the gameplay.
+
+Some options
+
+enum ObjId {
+    Static(u32),
+    Dynamic(u32),
+    Prefab(u32)
+}
+
+impl Id {
+  fn as_u64(&self) {
+    match self {
+      Static(value) => value as u64 + 100000,
+      Prefab(value) => value as u64 + 200000,
+      Dynamic(value) => value
+  }
+}
+
+enum IdKind { Static, Dynamic, Prefab }
+struct Id { kind: IdKind, num: u32 }
+
 ## Hocon vs JSON
 
 Hocon have many advanced features, including variable reference that save issues of change ID and allow intelj help
@@ -19,7 +43,11 @@ single item prefab can be part of many other mobs prefabs.
 Use only children can cause a lot of extra work for situation like Zones.
 
 Conclusion: Children is more generic, but parent is more useful for static data or cases where some parent have too
-many unique children. So we will just support both.
+many unique children. 
+
+So we will just support both. But each one with different semantic. Parent will be used by static objects while children for prefabs. When instantiate, all children elements will be created with new Id, if used in static data, means that everytime server reload, a new object will be created  
+
+
 
 ## Short term
 
