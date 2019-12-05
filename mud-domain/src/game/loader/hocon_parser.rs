@@ -127,26 +127,24 @@ mod test {
         let path = Path::new("../data/space");
 
         let data = HParser::load_from_folder(path).unwrap();
-        println!("{:?}", data);
         assert!(!data.objects.is_empty());
-        assert!(false);
     }
 
     #[test]
     fn test_load_config() -> Result<(), Error> {
         let sample = r##"
 cfg {
-    initial_room: "sector_1/dune/palace"
-    avatar_mob: "avatar"
-    initial_craft: "light_cargo_1"
+    initial_room: 0
+    avatar_mob: 1
+    initial_craft: 2
 }
         "##;
 
         let data = HParser::load_from_str(sample).unwrap();
         let cfg = data.cfg.expect("cfg field is not defined");
-        assert_eq!(cfg.initial_room.as_u32(), 1);
-        assert_eq!(cfg.avatar_mob.as_u32(), 5);
-        assert_eq!(cfg.initial_craft.as_u32(), 6);
+        assert_eq!(cfg.initial_room.as_u32(), 0);
+        assert_eq!(cfg.avatar_mob.as_u32(), 1);
+        assert_eq!(cfg.initial_craft.as_u32(), 2);
 
         Ok(())
     }
@@ -156,51 +154,56 @@ cfg {
         let sample = r##"
 objects {
   sector_1 {
+    id: 0
     label: "Sector 1"
     code: ["sector1"]
     sector: {}
   }
 
   dune: {
+    id: 1
     label: "Dune"
     planet: {}
     pos: { x: 3, y: 4 }
-    parent: "sector_1"
+    parent: ${objects.sector_1.id}
   }
 
   palace: {
+    id: 2
     label: "Palace"
     desc: "The greate Palace of Dune"
     room: {
       exits: [
-        {dir: "s", to: "landing_pad"}
+        {dir: "s", to: ${objects.landing_pad.id} }
       ]
     }
-    parent: "dune"
+    parent: ${objects.dune.id}
   }
 
   landing_pad: {
+    id: 3
     label: "Landing pad"
     desc: "City landing pad."
     room: {
       landing_pad: true
       exits: [
-        {dir: "n", to: "palace"}
-        {dir: "s", to: "city"}
+        {dir: "n", to: ${objects.palace.id} }
+        {dir: "s", to: ${objects.city.id} }
       ]
     }
-    parent: "dune"
+    parent: ${objects.dune.id}
   }
 
   city: {
+    id: 4
     label: "City center"
     desc: "The deserts market and city center"
     room: {
       exits: [
-        {dir: "n", to: "landing_pad"}
+        {dir: "n", to: ${objects.landing_pad.id} }
       ]
     }
-    parent: "dune"
+    parent: ${objects.dune.id}
   }
 }
         "##;
@@ -216,17 +219,19 @@ objects {
         let sample = r##"
 prefabs {
   shuttle: {
+    id: 0
     label: "Shuttle"
     desc: "Small shuttle"
   }
 
   shuttle_cockpit: {
+    id: 1
     label: "Cockpit"
     desc: "Small cockpit used to control the craft"
     room {
       airlock: true
     }
-    parent: "shuttle"
+    parent: 0
   }
 }
           "##;
