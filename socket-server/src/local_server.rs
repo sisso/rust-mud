@@ -26,7 +26,7 @@ impl AsyncStdIn {
             let stdin = io::stdin();
             loop {
                 let mut string = String::new();
-                stdin.read_line(&mut string);
+                let _ = stdin.read_line(&mut string);
                 let mut buffer = thread_buffer.lock().unwrap();
                 buffer.push(string);
 

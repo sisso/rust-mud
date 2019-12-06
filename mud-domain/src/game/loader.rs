@@ -14,7 +14,7 @@ use crate::game::planets::Planet;
 use crate::game::pos::Pos;
 use crate::game::room::Room;
 use crate::game::surfaces::Surface;
-use commons::{ObjId, V2, SResult};
+use commons::{ObjId, V2, SResult, Either};
 use logs::*;
 use crate::game::obj::Objects;
 
@@ -72,6 +72,7 @@ pub struct ObjData {
     pub mob: Option<MobData>,
     pub pos: Option<PosData>,
     pub parent: Option<StaticId>,
+    pub children: Option<Vec<StaticId>>
 }
 
 #[derive(Deserialize, Debug)]
@@ -117,20 +118,39 @@ impl Loader {
         self.index.get(&id)
     }
 
-    pub fn spawn(container: &mut Container, id: StaticId) -> SResult<ObjId> {
-        let obj_id = container.objects.create();
-        let mut references = HashMap::new();
-        references.insert(id, obj_id);
-        Loader::do_spawn(container, obj_id, Either::Right(id), references)
+    pub fn find_prefabs_by_parent(&self, id: StaticId) -> Vec<StaticId> {
+        self.index.iter()
+            .filter(|(_, data)| {
+                data.parent
+                    .map(|parent_id| parent_id == id)
+                    .unwrap_or(false)
+            })
+            .map(|(&id, _)| id)
+            .collect()
     }
 
-//    /// Spawn a singleton of prefab, it can only be one and ObjId == StaticId
-//    fn initialize(container: &mut Container, id: StaticId) -> Result<ObjId, String> {
-//        let obj_id = ObjId(id.as_u32());
-//        // TODO: move to result
-//        container.objects.insert(obj_id);
-//        Loader::do_spawn(container, obj_id, HashMap::new())
-//    }
+    pub fn spawn_at(container: &mut Container, static_id: StaticId, parent_id: ObjId) -> SResult<ObjId> {
+        let obj_id = Loader::spawn(container, static_id)?;
+        container.locations.set(obj_id, parent_id);
+        Ok(obj_id)
+    }
+    pub fn spawn(container: &mut Container, id: StaticId) -> SResult<ObjId> {
+        let mut references = HashMap::new();
+        Loader::spawn_one(container, id, &mut references)
+    }
+
+    fn spawn_one(container: &mut Container, id: StaticId, references: &mut HashMap<StaticId, ObjId>) -> SResult<ObjId> {
+        let obj_id = container.objects.create();
+        references.insert(id, obj_id);
+        Loader::do_spawn(container, obj_id, Either::Right(id), &references)?;
+
+        let children_prefabs = container.loader.find_prefabs_by_parent(id);
+        for children_static_id in children_prefabs {
+            Loader::spawn_one(container, children_static_id, references)?;
+        }
+
+        Ok(obj_id)
+    }
 
     /// Resolve the static id to a ObjId by first searching in reference_map and then in container
     fn get_by_static_id(objects: &Objects, ref_map: &HashMap<StaticId, ObjId>, static_id: StaticId) -> SResult<ObjId> {
@@ -148,7 +168,7 @@ impl Loader {
     }
 
     // TODO: make it atomic: success and change or no change
-    fn do_spawn(container: &mut Container, obj_id: ObjId, data: Either<&ObjData, StaticId>, references: HashMap<StaticId, ObjId>) -> SResult<ObjId> {
+    fn do_spawn(container: &mut Container, obj_id: ObjId, data: Either<&ObjData, StaticId>, references: &HashMap<StaticId, ObjId>) -> SResult<()> {
         let data: &ObjData =
             match data {
                 Either::Left(data) => data,
@@ -157,6 +177,8 @@ impl Loader {
                         .ok_or(format!("prefab {:?} not found", static_id))?
                 },
             };
+
+        info!("{:?} spawn as {:?}", obj_id, data.id);
 
         if let Some(parent) = &data.parent {
             let parent_id = Loader::get_by_static_id(&container.objects, &references, *parent)?;
@@ -217,7 +239,7 @@ impl Loader {
                 for i in exists {
                     let dir = Dir::parse(i.dir.as_str())
                         .map_err(|e| format!("{:?}", e))?;
-                    let to_id = Loader::get_by_static_id(&container.objects, &references, i.to)?;
+                    let to_id = Loader::get_by_static_id(&container.objects, &references, i.to).unwrap();
 
                     room.exits.push((dir, to_id));
                 }
@@ -226,8 +248,23 @@ impl Loader {
             container.rooms.add(room);
         }
 
-        Ok(obj_id)
+        if let Some(children) = data.children.clone() {
+            for static_id in children.into_iter() {
+                info!("{:?} spawn children {:?}", obj_id, static_id);
+                Loader::spawn_at(container, static_id, obj_id)?;
+            }
+        }
+
+        Ok(())
     }
+
+    pub fn load_str(container: &mut Container, buffer: &str) -> SResult<()> {
+       let data = HParser::load_from_str(buffer)
+           .map_err(|e| format!("{:?}", e))?;
+
+        Loader::load_data(container, data)
+    }
+
 
     /// Algorithm
     ///
@@ -243,6 +280,10 @@ impl Loader {
         let data = HParser::load_from_folder(folder)
             .map_err(|e| format!("{:?}", e))?;
 
+        Loader::load_data(container, data)
+    }
+
+    fn load_data(container: &mut Container, data: Data) -> SResult<()> {
         let _ = Loader::validate(&data)?;
 
         // add prefabs
@@ -289,94 +330,21 @@ impl Loader {
         }
 
         for (id, data) in &objects {
-            let empty_references = Default::default();
-            Loader::do_spawn(container, ObjId(id.as_u32()), Either::Left(data), empty_references)?;
+            let mut empty_references = Default::default();
+            Loader::do_spawn(container, ObjId(id.as_u32()), Either::Left(data), &mut empty_references)?;
         }
 
         Ok(())
-
-//        for (key, data) in objects.into_iter() {
-//            let obj_id = *obj_by_id.get(&key).unwrap();
-//
-//            {
-//                let label = data.label;
-//                let code = data
-//                    .code
-//                    .map(|i| i.first().cloned())
-//                    .and_then(|o| o)
-//                    .unwrap_or(label.clone());
-//                let desc = data.desc.unwrap_or("".to_string());
-//
-//                container.labels.set(Label {
-//                    id: obj_id,
-//                    label,
-//                    code,
-//                    desc,
-//                });
-//            }
-//
-//            if let Some(pos) = data.pos {
-//                container.pos.set(obj_id, V2::new(pos.x, pos.y));
-//            }
-//
-//            if let Some(_planet) = data.planet {
-//                container.planets.add(Planet { id: obj_id });
-//            }
-//
-//            if let Some(_surfaces) = data.sector {
-//                container.sectors.add(Surface {
-//                    id: obj_id,
-//                    size: 10,
-//                    is_3d: false,
-//                });
-//            }
-//
-//            if let Some(mob_data) = data.mob {
-//                let mut mob = Mob::new(obj_id);
-//                mob.attributes.attack = mob_data.attack;
-//                mob.attributes.defense = mob_data.defense;
-//                mob.attributes.pv.current = mob_data.pv as i32;
-//                mob.attributes.pv.max = mob_data.pv;
-//                mob.attributes.damage.max = mob_data.damage_max;
-//                mob.attributes.damage.min = mob_data.damage_min;
-//                container.mobs.add(mob);
-//            }
-//
-//            if let Some(room_data) = data.room {
-//                let mut room = Room::new(obj_id);
-//                room.is_airlock = room_data.airlock.unwrap_or(false);
-//                let exits = room_data
-//                    .exits
-//                    .unwrap_or(vec![])
-//                    .into_iter()
-//                    .map(|e| {
-//                        let dir = Dir::parse(e.dir.as_str()).unwrap();
-//                        let to_id = obj_by_id.get(&e.to).unwrap();
-//
-//                        (dir, *to_id)
-//                    })
-//                    .collect();
-//
-//                room.exits = exits;
-//
-//                container.rooms.add(room);
-//            }
-//
-//            if let Some(parent) = data.parent {
-//                let parent_id = obj_by_id.get(&parent).unwrap();
-//                container.locations.set(obj_id, *parent_id)
-//            }
-//        }
-//
-//        obj_by_id
     }
 }
 
-//trait IdResolver {
-//    fn resolve(static_id: StaticId) -> ObjId;
-//}
+#[cfg(test)]
+mod test {
+    use super::*;
 
-enum Either<A,B> {
-    Left(A),
-    Right(B)
+    #[test]
+    pub fn intializer_with_spawn() {
+        let mut container = Container::new();
+        unimplemented!()
+    }
 }

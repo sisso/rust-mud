@@ -99,7 +99,7 @@ impl HParser {
         Ok(())
     }
 
-    fn load_from_str(input: &str) -> Result<Data, Error> {
+    pub fn load_from_str(input: &str) -> Result<Data, Error> {
         let loader = HoconLoader::new().no_system();
         let loader = loader.load_str(input)?;
         HParser::load(loader.hocon()?)
@@ -192,6 +192,7 @@ objects {
       ]
     }
     parent: ${objects.dune.id}
+    children: [1001, 1002]
   }
 
   city: {
@@ -211,6 +212,14 @@ objects {
         let data = HParser::load_from_str(sample).unwrap();
         assert!(data.prefabs.is_empty());
         assert_eq!(5, data.objects.len());
+
+        let (_id, obj_3) = data.objects.iter()
+            .find(|(id, _data)| id.as_u32() == 3)
+            .unwrap();
+
+        let obj_3_children = obj_3.children.clone().unwrap();
+        assert_eq!(obj_3_children, vec![StaticId(1001), StaticId(1002)]);
+
         Ok(())
     }
 

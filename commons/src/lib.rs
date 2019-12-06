@@ -242,6 +242,11 @@ where
     }
 }
 
+pub enum Either<A,B> {
+    Left(A),
+    Right(B)
+}
+
 #[cfg(test)]
 mod test {
     use crate::{DeltaTime, TimeTrigger, TotalTime};
