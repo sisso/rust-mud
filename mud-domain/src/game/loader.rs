@@ -146,6 +146,7 @@ impl Loader {
 
         let children_prefabs = container.loader.find_prefabs_by_parent(id);
         for children_static_id in children_prefabs {
+            info!("{:?} spawning prefab children {:?}", obj_id, children_static_id);
             Loader::spawn_one(container, children_static_id, references)?;
         }
 
@@ -178,7 +179,7 @@ impl Loader {
                 },
             };
 
-        info!("{:?} spawn as {:?}", obj_id, data.id);
+        info!("{:?} materialize as prefab {:?}", obj_id, data.id);
 
         if let Some(parent) = &data.parent {
             let parent_id = Loader::get_by_static_id(&container.objects, &references, *parent)?;
@@ -343,8 +344,67 @@ mod test {
     use super::*;
 
     #[test]
-    pub fn intializer_with_spawn() {
+    pub fn intialize_with_spawn() {
+        let buffer = r#"
+objects.sector_1_dune_palace: {
+    id: 0,
+    label: "Palace"
+    desc: "The greate Palace of Dune"
+    room: {
+      exits: [
+        {dir: "s", to: ${objects.sector_1_dune_landing_pad.id} }
+      ]
+    }
+    parent: ${objects.sector_1_dune.id}
+}
+
+objects.sector_1_dune_landing_pad: {
+    id: 1,
+    label: "Landing pad"
+    desc: "City landing pad."
+    room: {
+      landing_pad: true
+      exits: [
+        {dir: "n", to: ${objects.sector_1_dune_palace.id} }
+      ]
+    }
+    parent: ${objects.sector_1_dune.id}
+    children: [0]
+}
+
+prefabs.control_panel {
+    id: 0,
+    label: "Control Panel",
+}
+
+prefabs.control_panel_command_1 {
+    id: 1,
+    label: "Command 1",
+    parent: 0
+}
+
+        "#;
+
         let mut container = Container::new();
-        unimplemented!()
+        Loader::load_str(&mut container, buffer);
+
+        let landing_pad_id = ObjId(1);
+
+        let landing_pad = container.rooms.get(landing_pad_id).unwrap();
+        assert_eq!(ObjId(0), landing_pad.exits.first().unwrap().1);
+
+        let at_landing_pad = container.locations.list_at(landing_pad_id).collect::<Vec<_>>();
+        assert_eq!(1, at_landing_pad.len());
+
+        let control_panel_id = *at_landing_pad.first().unwrap();
+        let panel_str = container.labels.get_label_f(control_panel_id);
+        assert_eq!("Control Panel", panel_str);
+
+        let at_control= container.locations.list_at(control_panel_id).collect::<Vec<_>>();
+        assert_eq!(1, at_landing_pad.len());
+
+        let control_panel_command_id = *at_control.first().unwrap();
+        let panel_command_str = container.labels.get_label_f(control_panel_command_id);
+        assert_eq!("Command 1", panel_command_str);
     }
 }
