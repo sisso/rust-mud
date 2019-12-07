@@ -71,7 +71,9 @@ pub struct ObjData {
     pub sector: Option<SectorData>,
     pub mob: Option<MobData>,
     pub pos: Option<PosData>,
+    /// Is instantiate in same context of parent, ID is mapped
     pub parent: Option<StaticId>,
+    /// Are instantiate in own context, unique ID and place as children
     pub children: Option<Vec<StaticId>>
 }
 
@@ -129,27 +131,53 @@ impl Loader {
             .collect()
     }
 
+    pub fn find_deep_prefabs_by_parents(&self, static_id: StaticId) -> Vec<StaticId> {
+        let mut result = vec![];
+        let mut queue = vec![];
+
+        queue.push(static_id);
+
+        while !queue.is_empty() {
+            let current = queue.pop().unwrap();
+            for child_id in self.find_prefabs_by_parent(current) {
+                if result.contains(&child_id) {
+                    panic!("recursive reference found on {:?} when searching for {:?}", child_id, static_id);
+                }
+
+                result.push(child_id);
+                queue.push(child_id);
+            }
+        }
+
+        result
+    }
+
     pub fn spawn_at(container: &mut Container, static_id: StaticId, parent_id: ObjId) -> SResult<ObjId> {
         let obj_id = Loader::spawn(container, static_id)?;
         container.locations.set(obj_id, parent_id);
         Ok(obj_id)
     }
-    pub fn spawn(container: &mut Container, id: StaticId) -> SResult<ObjId> {
+
+    pub fn spawn(container: &mut Container, static_id: StaticId) -> SResult<ObjId> {
+        debug!("spawn {:?}", static_id);
+
         let mut references = HashMap::new();
-        Loader::spawn_one(container, id, &mut references)
-    }
 
-    fn spawn_one(container: &mut Container, static_id: StaticId, references: &mut HashMap<StaticId, ObjId>) -> SResult<ObjId> {
-        debug!("spawn_one {:?}", static_id);
+        // create objects
         let obj_id = container.objects.create();
+        debug!("spawn {:?} with id {:?}", static_id, obj_id);
         references.insert(static_id, obj_id);
-        Loader::do_spawn(container, obj_id, Either::Right(static_id), &references)?;
 
-        let children_prefabs = container.loader.find_prefabs_by_parent(static_id);
-        debug!("{:?} has {} children prefab", static_id, children_prefabs.len());
-        for children_static_id in children_prefabs {
-            info!("{:?} spawning prefab children {:?}", obj_id, children_static_id);
-            Loader::spawn_one(container, children_static_id, references)?;
+        let children_prefabs = container.loader.find_deep_prefabs_by_parents(static_id);
+        for child_static_id in children_prefabs {
+            let child_id = container.objects.create();
+            debug!("spawn {:?} child {:?} with id {:?}", static_id, child_static_id, child_id);
+            references.insert(child_static_id, child_id);
+        }
+
+        // initialize all
+        for (&static_id, &obj_id) in &references {
+            Loader::apply_prefab(container, obj_id, Either::Right(static_id), &references).unwrap();
         }
 
         Ok(obj_id)
@@ -171,7 +199,7 @@ impl Loader {
     }
 
     // TODO: make it atomic: success and change or no change
-    fn do_spawn(container: &mut Container, obj_id: ObjId, data: Either<&ObjData, StaticId>, references: &HashMap<StaticId, ObjId>) -> SResult<()> {
+    fn apply_prefab(container: &mut Container, obj_id: ObjId, data: Either<&ObjData, StaticId>, references: &HashMap<StaticId, ObjId>) -> SResult<()> {
         let data: &ObjData =
             match data {
                 Either::Left(data) => data,
@@ -181,7 +209,7 @@ impl Loader {
                 },
             };
 
-        info!("{:?} materialize as prefab {:?}", obj_id, data.id);
+        info!("{:?} apply prefab {:?}", obj_id, data.id);
 
         if let Some(parent) = &data.parent {
             let parent_id = Loader::get_by_static_id(&container.objects, &references, *parent)?;
@@ -334,7 +362,7 @@ impl Loader {
 
         for (id, data) in &objects {
             let mut empty_references = Default::default();
-            Loader::do_spawn(container, ObjId(id.as_u32()), Either::Left(data), &mut empty_references)?;
+            Loader::apply_prefab(container, ObjId(id.as_u32()), Either::Left(data), &mut empty_references)?;
         }
 
         Ok(())
@@ -437,10 +465,5 @@ prefabs.control_panel_command_2 {
 
         let room = container.rooms.get(command2_id.unwrap()).unwrap();
         assert_eq!(command1_id.unwrap(), room.exits.first().unwrap().1);
-
-//        let control_panel_command_id = *at_control_panel.first().unwrap();
-//        let panel_command_str = container.labels.get_label_f(control_panel_command_id);
-//        assert_eq!("Command 1", panel_command_str);
-        unimplemented!()
     }
 }
