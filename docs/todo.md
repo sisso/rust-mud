@@ -1,6 +1,9 @@
+
 # Todo
 
-- project Err: IllegalArgument, Fatal, Error, Unknonw, Warning, etc
+- project Err: IllegalArgument, Fatal, Error, Unknown, Warning, etc
+- replace exists types Enter/Out by specific actions in airlock and landing pad
+  - remove automatic portal creation when ship land or undock
 - intelligent creation of codes for a label
 - parse initial configuration files
 - support multiples enter portal

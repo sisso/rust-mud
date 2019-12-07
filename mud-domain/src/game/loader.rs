@@ -139,12 +139,14 @@ impl Loader {
         Loader::spawn_one(container, id, &mut references)
     }
 
-    fn spawn_one(container: &mut Container, id: StaticId, references: &mut HashMap<StaticId, ObjId>) -> SResult<ObjId> {
+    fn spawn_one(container: &mut Container, static_id: StaticId, references: &mut HashMap<StaticId, ObjId>) -> SResult<ObjId> {
+        debug!("spawn_one {:?}", static_id);
         let obj_id = container.objects.create();
-        references.insert(id, obj_id);
-        Loader::do_spawn(container, obj_id, Either::Right(id), &references)?;
+        references.insert(static_id, obj_id);
+        Loader::do_spawn(container, obj_id, Either::Right(static_id), &references)?;
 
-        let children_prefabs = container.loader.find_prefabs_by_parent(id);
+        let children_prefabs = container.loader.find_prefabs_by_parent(static_id);
+        debug!("{:?} has {} children prefab", static_id, children_prefabs.len());
         for children_static_id in children_prefabs {
             info!("{:?} spawning prefab children {:?}", obj_id, children_static_id);
             Loader::spawn_one(container, children_static_id, references)?;
@@ -342,11 +344,12 @@ impl Loader {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::game::comm::item_body_appears_in_room;
 
     #[test]
     pub fn intialize_with_spawn() {
         let buffer = r#"
-objects.sector_1_dune_palace: {
+objects.sector_1_dune_palace {
     id: 0,
     label: "Palace"
     desc: "The greate Palace of Dune"
@@ -358,7 +361,7 @@ objects.sector_1_dune_palace: {
     parent: ${objects.sector_1_dune.id}
 }
 
-objects.sector_1_dune_landing_pad: {
+objects.sector_1_dune_landing_pad {
     id: 1,
     label: "Landing pad"
     desc: "City landing pad."
@@ -369,20 +372,31 @@ objects.sector_1_dune_landing_pad: {
       ]
     }
     parent: ${objects.sector_1_dune.id}
-    children: [0]
+    children: [2]
 }
 
 prefabs.control_panel {
-    id: 0,
+    id: 2,
     label: "Control Panel",
 }
 
 prefabs.control_panel_command_1 {
-    id: 1,
+    id: 3,
     label: "Command 1",
-    parent: 0
+    parent: 2,
+    room: {
+        exits: [ {dir: "s", to: 4  } ]
+    }
 }
 
+prefabs.control_panel_command_2 {
+    id: 4,
+    label: "Command 2",
+    parent: 2,
+    room: {
+        exits: [ {dir: "n", to: 3  } ]
+    }
+}
         "#;
 
         let mut container = Container::new();
@@ -400,11 +414,33 @@ prefabs.control_panel_command_1 {
         let panel_str = container.labels.get_label_f(control_panel_id);
         assert_eq!("Control Panel", panel_str);
 
-        let at_control= container.locations.list_at(control_panel_id).collect::<Vec<_>>();
-        assert_eq!(1, at_landing_pad.len());
+        let at_control_panel = container.locations.list_at(control_panel_id).collect::<Vec<_>>();
+        assert_eq!(2, at_control_panel.len());
 
-        let control_panel_command_id = *at_control.first().unwrap();
-        let panel_command_str = container.labels.get_label_f(control_panel_command_id);
-        assert_eq!("Command 1", panel_command_str);
+        let mut command1_id = None;
+        let mut command2_id = None;
+
+        for id in at_control_panel {
+            let label = container.labels.get_label(id).unwrap();
+            match label {
+                "Command 1" => command1_id = Some(id),
+                "Command 2" => command2_id = Some(id),
+                other => panic!("Unexpected {:?}", other),
+            }
+        }
+
+        assert!(command1_id.is_some());
+        assert!(command2_id.is_some());
+
+        let room = container.rooms.get(command1_id.unwrap()).unwrap();
+        assert_eq!(command2_id.unwrap(), room.exits.first().unwrap().1);
+
+        let room = container.rooms.get(command2_id.unwrap()).unwrap();
+        assert_eq!(command1_id.unwrap(), room.exits.first().unwrap().1);
+
+//        let control_panel_command_id = *at_control_panel.first().unwrap();
+//        let panel_command_str = container.labels.get_label_f(control_panel_command_id);
+//        assert_eq!("Command 1", panel_command_str);
+        unimplemented!()
     }
 }

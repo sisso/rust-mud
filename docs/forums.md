@@ -1,5 +1,12 @@
 # Loader / Prefab / Init / Serialization
 
+## Spawn prefab VS apply prefab
+
+The spawn process can be simplified and increase flexibility by change a spawn method, that create object, prepare 
+components giving a prefab, by a apply prefab, that just create the required components by a prefab. 
+
+With new method we split some responsabilities and would be possible to apply multiples prefabs to the same object. 
+
 ## IDS
 
 We have 3 types of IDs. Static ID that are fixed between server instantiations. Prefab IDs that are used by spawn and instantiation. Dynamic ID that are normal entities created during the gameplay.
