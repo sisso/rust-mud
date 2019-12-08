@@ -91,6 +91,7 @@ pub struct CfgData {
     pub initial_craft: StaticId,
 }
 
+// TODO: remove HashMap, the key is probably never used
 #[derive(Deserialize, Debug)]
 pub struct Data {
     pub cfg: Option<CfgData>,
@@ -315,14 +316,17 @@ impl Loader {
     /// 3. Add all prefabs
     /// 4. Instantiate all static data
     pub fn load_folder(container: &mut Container, folder: &Path) -> SResult<()> {
+        let data = Loader::read_folder(folder)?;
+        Loader::load_data(container, data)
+    }
+
+    pub fn read_folder(folder: &Path) -> SResult<Data> {
         if !folder.exists() {
             return Err("module folder do not exists".to_string());
         }
 
-        let data = HParser::load_from_folder(folder)
-            .map_err(|e| format!("{:?}", e))?;
-
-        Loader::load_data(container, data)
+        HParser::load_from_folder(folder)
+            .map_err(|e| format!("{:?}", e))
     }
 
     fn load_data(container: &mut Container, data: Data) -> SResult<()> {
