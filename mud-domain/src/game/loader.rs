@@ -119,7 +119,7 @@ impl Loader {
 
     pub fn add_prefab(&mut self, id: StaticId, data: ObjData) {
         assert!(!self.index.contains_key(&id));
-        info!("{:?} adding prefab {:?}", id, data);
+        debug!("{:?} adding prefab {:?}", id, data);
         self.index.insert(id, data);
     }
 
@@ -172,13 +172,13 @@ impl Loader {
 
         // create objects
         let obj_id = container.objects.create();
-        debug!("spawn {:?} with id {:?}", static_id, obj_id);
+        trace!("spawn {:?} with id {:?}", static_id, obj_id);
         references.insert(static_id, obj_id);
 
         let children_prefabs = container.loader.find_deep_prefabs_by_parents(static_id);
         for child_static_id in children_prefabs {
             let child_id = container.objects.create();
-            debug!("spawn {:?} child {:?} with id {:?}", static_id, child_static_id, child_id);
+            trace!("spawn {:?} child {:?} with id {:?}", static_id, child_static_id, child_id);
             references.insert(child_static_id, child_id);
         }
 
@@ -216,7 +216,7 @@ impl Loader {
                 },
             };
 
-        info!("{:?} apply prefab {:?}", obj_id, data.id);
+        debug!("{:?} apply prefab {:?}", obj_id, data.id);
 
         if let Some(parent) = &data.parent {
             let parent_id = Loader::get_by_static_id(&container.objects, &references, *parent)?;
@@ -292,7 +292,7 @@ impl Loader {
 
         if let Some(children) = data.children.clone() {
             for static_id in children.into_iter() {
-                info!("{:?} spawn children {:?}", obj_id, static_id);
+                trace!("{:?} spawn children {:?}", obj_id, static_id);
                 Loader::spawn_at(container, static_id, obj_id)?;
             }
         }
@@ -345,18 +345,18 @@ impl Loader {
     }
 
     fn validate(data: &Data) -> SResult<()> {
-        let mut prefabs_id = HashSet::new();
-        for (_static_id, data) in data.prefabs.iter() {
-           if !prefabs_id.insert(data.id) {
-               return Err(format!("duplicate prefab id {}", data.id));
-           }
-        }
+        let mut ids = HashSet::new();
 
-        let mut objects_id = HashSet::new();
-        for (_static_id, data) in data.prefabs.iter() {
-            if !objects_id.insert(data.id) {
+        for (_static_id, data) in data.objects.iter() {
+            if !ids.insert(data.id) {
                 return Err(format!("duplicate object id {}", data.id));
             }
+        }
+
+        for (_static_id, data) in data.prefabs.iter() {
+           if !ids.insert(data.id) {
+               return Err(format!("duplicate prefab id {}", data.id));
+           }
         }
 
         Ok(())

@@ -22,6 +22,7 @@ impl ServerRunner {
             "loading configuration: {:?}",
             config_path.canonicalize().unwrap()
         );
+
         loader::Loader::load_folder(&mut container, &config_path).unwrap();
 
         ServerRunner {
