@@ -102,7 +102,7 @@ fn add_craft_room(
     if airlock {
         container
             .rooms
-            .update(id, |room| room.is_airlock = true)
+            .update(id, |room| room.can_exit = true)
             .unwrap();
     }
     id
@@ -113,7 +113,7 @@ fn add_room(container: &mut Container, planet_id: PlanetId, label: &str, desc: &
     container.locations.set(id, planet_id);
     container
         .rooms
-        .update(id, |room| room.is_airlock = true)
+        .update(id, |room| room.can_exit = true)
         .unwrap();
     id
 }

@@ -9,7 +9,8 @@ pub type RoomId = ObjId;
 pub struct Room {
     pub id: RoomId,
     pub exits: Vec<(Dir, RoomId)>,
-    pub is_airlock: bool,
+    /// Used to implement Airlock or cave exit
+    pub can_exit: bool,
 }
 
 impl Room {
@@ -17,7 +18,7 @@ impl Room {
         Room {
             id,
             exits: vec![],
-            is_airlock: false,
+            can_exit: false,
         }
     }
 }

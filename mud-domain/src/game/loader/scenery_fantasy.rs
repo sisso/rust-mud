@@ -105,7 +105,7 @@ fn load_rooms(container: &mut Container) {
     let room1 = Room {
         id: ID_ROOM_INIT,
         exits: vec![(Dir::S, ID_ROOM_BAR)],
-        is_airlock: false,
+        can_exit: false,
     };
     container.rooms.add(room1);
     container.labels.set(Label::new_desc(
@@ -117,7 +117,7 @@ fn load_rooms(container: &mut Container) {
     let room2 = Room {
         id: ID_ROOM_BAR,
         exits: vec![(Dir::N, ID_ROOM_INIT), (Dir::S, ID_ROOM_FLOREST)],
-        is_airlock: false,
+        can_exit: false,
     };
     container.rooms.add(room2);
     container.labels.set(Label::new_desc(
@@ -129,7 +129,7 @@ fn load_rooms(container: &mut Container) {
     let room3 = Room {
         id: ID_ROOM_FLOREST,
         exits: vec![(Dir::N, ID_ROOM_BAR)],
-        is_airlock: false,
+        can_exit: false,
     };
     container.labels.set(Label::new_desc(
         ID_ROOM_FLOREST,

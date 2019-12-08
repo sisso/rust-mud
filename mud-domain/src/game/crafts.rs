@@ -1,6 +1,7 @@
 use commons::{ObjId, UResult, UERR, UOK};
 use logs::*;
 use std::collections::HashMap;
+use crate::game::container::Container;
 
 pub type CraftId = ObjId;
 
@@ -83,7 +84,7 @@ impl Crafts {
         self.index.keys().cloned().collect()
     }
 
-    pub fn list_all<'a>(&'a self) -> impl Iterator<Item = &'a Craft> + 'a {
+    pub fn list_all<'a>(&'a self) -> impl Iterator<Item=&'a Craft> + 'a {
         self.index.values()
     }
 }

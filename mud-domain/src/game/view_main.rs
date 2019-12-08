@@ -45,18 +45,29 @@ pub fn handle(
             UOK
         }
 
-        "n" | "s" | "e" | "w" | "enter" | "out" | "exit" => {
+        "n" | "s" | "e" | "w" => {
             let dir = match input.as_ref() {
                 "n" => Dir::N,
                 "s" => Dir::S,
                 "e" => Dir::E,
                 "w" => Dir::W,
-                "enter" => Dir::Enter,
-                "out" | "exit" => Dir::Out,
                 _ => panic!("invalid input {}", input),
             };
 
             actions::mv(container, outputs, player_id, dir)
+        }
+
+        "enter" => {
+            actions::enter(container, outputs, Some(player_id), mob_id, "")
+        }
+
+        _ if has_command(input, &["enter "]) => {
+            let args= parse_command(input, &["enter "]);
+            actions::enter(container, outputs, Some(player_id), mob_id, args)
+        }
+
+        "exit" | "out" => {
+            actions::out(container, outputs, Some(player_id), mob_id)
         }
 
         "uptime" => {
@@ -80,19 +91,19 @@ pub fn handle(
             UOK
         }
 
-        _ if has_command(input, &["pick"]) || has_command(&input, &["get"]) => {
+        _ if has_command(input, &["pick ", "get "])  => {
             input_handle_items::pickup(container, outputs, player_id, parse_arguments(input))
         }
 
-        _ if has_command(input, &["drop"]) => {
+        _ if has_command(input, &["drop "]) => {
             input_handle_items::drop(container, outputs, player_id, parse_arguments(input))
         }
 
-        _ if has_command(input, &["remove"]) => {
+        _ if has_command(input, &["remove "]) => {
             input_handle_items::strip(container, outputs, player_id, parse_arguments(input))
         }
 
-        _ if has_command(input, &["equip"]) => {
+        _ if has_command(input, &["equip "]) => {
             input_handle_items::equip(container, outputs, player_id, parse_arguments(input))
         }
 

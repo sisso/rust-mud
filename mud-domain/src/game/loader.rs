@@ -17,6 +17,7 @@ use crate::game::surfaces::Surface;
 use commons::{ObjId, V2, SResult, Either};
 use logs::*;
 use crate::game::obj::Objects;
+use crate::game::crafts::Craft;
 
 #[derive(Deserialize, Debug)]
 pub struct RoomExitData {
@@ -26,7 +27,7 @@ pub struct RoomExitData {
 
 #[derive(Deserialize, Debug)]
 pub struct RoomData {
-    pub airlock: Option<bool>,
+    pub can_exit: Option<bool>,
     pub exits: Option<Vec<RoomExitData>>,
 }
 
@@ -43,6 +44,11 @@ pub struct MobData {
     pub damage_min: u32,
     pub damage_max: u32,
     pub pv: u32,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct CraftData {
+
 }
 
 #[derive(Deserialize, Debug)]
@@ -74,7 +80,8 @@ pub struct ObjData {
     /// Is instantiate in same context of parent, ID is mapped
     pub parent: Option<StaticId>,
     /// Are instantiate in own context, unique ID and place as children
-    pub children: Option<Vec<StaticId>>
+    pub children: Option<Vec<StaticId>>,
+    pub craft: Option<CraftData>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -243,6 +250,10 @@ impl Loader {
             container.planets.add(Planet { id: obj_id });
         }
 
+        if let Some(craft) = &data.craft {
+            container.crafts.add(Craft::new(obj_id));
+        }
+
         if let Some(_surfaces) = &data.sector {
             container.sectors.add(Surface {
                 id: obj_id,
@@ -264,7 +275,7 @@ impl Loader {
 
         if let Some(room_data) = &data.room {
             let mut room = Room::new(obj_id);
-            room.is_airlock = room_data.airlock.unwrap_or(false);
+            room.can_exit = room_data.can_exit.unwrap_or(false);
 
             if let Some(exists) = &room_data.exits {
                 for i in exists {

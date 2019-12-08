@@ -94,7 +94,7 @@ pub fn mkstring(buffer: Vec<Vec<String>>) -> String {
 
 /// search in labels giving an inputs and return all matches, sorted by score
 ///
-/// if a full match is found, no fuzy query is used
+// TODO: full match
 pub fn search_label(input: &str, labels: &Vec<&str>) -> Vec<usize> {
     labels
         .iter()

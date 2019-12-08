@@ -37,24 +37,7 @@ pub fn do_land_at(
     // find zone landing pad or airlock
     let landing_id = room_id;
 
-    // find craft airlock
-    let craft_airlock_candidates = space_utils::get_landing_airlocks(container, craft_id);
-    let craft_airlock_id = craft_airlock_candidates.first().cloned().ok_or(())?;
-
-    trace!(
-        "landing {:?} at {:?}, landing pad: {:?}, craft airlock: {:?}",
-        craft_id,
-        room_id,
-        landing_id,
-        craft_airlock_id
-    );
-
     container.locations.set(craft_id, room_id);
-
-    // connect the craft with room
-    container
-        .rooms
-        .add_portal(landing_id, craft_airlock_id, Dir::Enter);
 
     // collect labels
     let craft_label = container.labels.get_label(craft_id).unwrap();
@@ -73,6 +56,7 @@ pub fn do_launch(
     craft_id: CraftId,
 ) -> UResult {
     let parents = container.locations.list_parents(craft_id);
+    let landing_pad_id = parents.get(0).cloned().unwrap();
 
     // search sector
     let sector_index = match parents.iter().position(|&id| container.sectors.exists(id)) {
@@ -93,24 +77,6 @@ pub fn do_launch(
             return UERR;
         }
     };
-
-    // search for landing pad and airlock connection
-    let landing_pad_id = parents.get(0).cloned().unwrap();
-    let craft_airlock_candidates = space_utils::get_landing_airlocks(container, craft_id);
-    let (airlock_id, exit_dir) = craft_airlock_candidates
-        .iter()
-        .find_map(|&room_id| {
-            container
-                .rooms
-                .exists_exits(room_id, landing_pad_id)
-                .map(|exit_dir| (room_id, exit_dir))
-        })
-        .ok_or(())?;
-
-    // remove portal
-    container
-        .rooms
-        .remove_portal(airlock_id, landing_pad_id, exit_dir);
 
     // put ship in position
     container.locations.set(craft_id, sector_id);

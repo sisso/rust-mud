@@ -31,6 +31,8 @@ pub fn help() -> String {
   remove <item>      - strip an item you are using
   drop <item>        - drop a object
   put <item> <obj>   - put a object into other container
+  enter <target>     - enter in something
+  out                - get out of something
 -------------------------------------------------------------"#;
 
     str.to_string()
@@ -382,6 +384,50 @@ pub fn stand_up() -> String {
 
 pub fn stand_up_others(label: &str) -> String {
     format!("{} stand up", label)
+}
+
+pub fn enter_fail() -> String {
+    "fail to enter, you don't understand whats happens".to_string()
+}
+
+pub fn enter_player(target: &str) -> String {
+    format!("you enter in the {}", target).to_string()
+}
+
+pub fn enter_others(mob: &str, target: &str) -> String {
+    format!("{} enter in the {}", mob, target).to_string()
+}
+
+pub fn enter_others_other_side(mob: &str) -> String {
+    format!("{} comes from outside", mob).to_string()
+}
+
+pub fn enter_invalid(label: &str, candidates: &Vec<&str>) -> String {
+    format!("can not enter at [{}], candidates: [{:?}]", label, candidates.join(", "))
+}
+
+pub fn enter_list(candidates: &Vec<&str>) -> String {
+    format!("valid locations to enter: [{:?}]", candidates.join(", "))
+}
+
+pub fn out_fail() -> String {
+    "you can not go out from here".to_string()
+}
+
+pub fn out_fail_bad_outside() -> String {
+    "you can not go out from here, outside is not safe".to_string()
+}
+
+pub fn out_player() -> String {
+    "you go outside".to_string()
+}
+
+pub fn out_others_other_side(mob: &str, target: &str) -> String {
+    format!("{} come out of the {}", mob, target).to_string()
+}
+
+pub fn out_others(mob: &str) -> String {
+    format!("{} goes outside", mob).to_string()
 }
 
 pub enum ShowStarmapDescKind {

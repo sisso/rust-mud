@@ -33,8 +33,6 @@ pub enum Dir {
     S,
     W,
     E,
-    Enter,
-    Out,
 }
 
 impl Dir {
@@ -44,8 +42,6 @@ impl Dir {
             Dir::S => Dir::N,
             Dir::E => Dir::E,
             Dir::W => Dir::W,
-            Dir::Enter => Dir::Out,
-            Dir::Out => Dir::Enter,
         }
     }
 
@@ -55,8 +51,6 @@ impl Dir {
             Dir::S => "s",
             Dir::E => "e",
             Dir::W => "w",
-            Dir::Enter => "enter",
-            Dir::Out => "out",
         }
     }
 
@@ -66,8 +60,6 @@ impl Dir {
             "s" => Ok(Dir::S),
             "e" => Ok(Dir::E),
             "w" => Ok(Dir::W),
-            "out" => Ok(Dir::Out),
-            "enter" => Ok(Dir::Enter),
             _ => Err(()),
         }
     }

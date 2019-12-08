@@ -65,49 +65,84 @@ impl TestScenery {
     }
 }
 
+fn assert_outputs_contains(outputs: &Vec<String>, msg: &str) {
+    for i in outputs {
+        if i.contains(msg) {
+            return;
+        }
+    }
+
+    panic!("can not find {:?} in otuputs {:?}", msg, outputs);
+}
+
 #[test]
 fn test_sectormap() -> Result<(), ()> {
     let mut scenery = TestScenery::new();
     scenery.login();
-    scenery.send_input("sm");
 
-    // look star map
-    let outputs = scenery.wait_for(".@.");
-    assert!(outputs.join("\n").contains(".@."));
-    //    assert_eq!("", outputs.join("\n").as_str());
-
-    // check move targets
-    scenery.send_input("move");
-    scenery.wait_for("Dune");
-
-    scenery.send_input("move dune");
-    scenery.wait_for("command accepted");
-    scenery.wait_for("complete");
-
-    scenery.send_input("land");
+    scenery.send_input("look");
     scenery.wait_for("Palace");
 
-    scenery.send_input("land palace");
-    scenery.wait_for("complete");
+    scenery.send_input("s");
+    scenery.wait_for("Landing Pad");
 
-    scenery.send_input("s");
-    scenery.send_input("s");
-    scenery.send_input("out");
+    scenery.send_input("look");
     scenery.wait_for("Light Transport");
 
-    scenery.send_input("enter");
-    scenery.send_input("n");
-    scenery.send_input("n");
-    scenery.send_input("launch");
-    scenery.wait_for("launch complete");
+    scenery.send_input("enter transport");
+    let outputs = scenery.wait_for("you enter in");
 
-    //    scenery.wait_for("Palace");
+    scenery.send_input("out");
+    let outputs = scenery.wait_for("Landing Pad");
 
-    //    let outputs = scenery.take_outputs();
-    //    assert_eq!("???", outputs.join("\n"));
+    unimplemented!();
+
 
     Ok(())
 }
+
+//fn disabled_test_sectormap() -> Result<(), ()> {
+//    let mut scenery = TestScenery::new();
+//    scenery.login();
+//    scenery.send_input("sm");
+//
+//    // look star map
+//    let outputs = scenery.wait_for(".@.");
+//    assert!(outputs.join("\n").contains(".@."));
+//    //    assert_eq!("", outputs.join("\n").as_str());
+//
+//    // check move targets
+//    scenery.send_input("move");
+//    scenery.wait_for("Dune");
+//
+//    scenery.send_input("move dune");
+//    scenery.wait_for("command accepted");
+//    scenery.wait_for("complete");
+//
+//    scenery.send_input("land");
+//    scenery.wait_for("Palace");
+//
+//    scenery.send_input("land palace");
+//    scenery.wait_for("complete");
+//
+//    scenery.send_input("s");
+//    scenery.send_input("s");
+//    scenery.send_input("out");
+//    scenery.wait_for("Light Transport");
+//
+//    scenery.send_input("enter");
+//    scenery.send_input("n");
+//    scenery.send_input("n");
+//    scenery.send_input("launch");
+//    scenery.wait_for("launch complete");
+//
+//    //    scenery.wait_for("Palace");
+//
+//    //    let outputs = scenery.take_outputs();
+//    //    assert_eq!("???", outputs.join("\n"));
+//
+//    Ok(())
+//}
 
 //#[test]
 //fn test_fly_to() -> Result<(),()> {

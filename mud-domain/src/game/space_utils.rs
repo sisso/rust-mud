@@ -89,7 +89,7 @@ pub fn search_near_landing_sites(container: &Container, craft_id: ObjId) -> Vec<
                         container
                             .rooms
                             .get(id)
-                            .map(|room| room.is_airlock)
+                            .map(|room| room.can_exit)
                             .unwrap_or(false)
                     })
                 })
@@ -135,12 +135,20 @@ pub fn get_craft(container: &Container, mob_id: MobId) -> Option<CraftId> {
     Some(craft_id)
 }
 
-pub fn get_landing_airlocks(container: &Container, location_id: LocationId) -> Vec<LocationId> {
+pub fn find_ships_at(container: &Container, location_id: LocationId) -> Vec<CraftId> {
+    container
+        .locations
+        .list_at(location_id)
+        .filter(|&id| container.crafts.exists(id))
+        .collect()
+}
+
+pub fn find_children_rooms_with_can_exit(container: &Container, location_id: LocationId) -> Vec<LocationId> {
     container
         .locations
         .list_at(location_id)
         .flat_map(|id| container.rooms.get(id))
-        .filter(|room| room.is_airlock)
+        .filter(|room| room.can_exit)
         .map(|room| room.id)
         .collect()
 }

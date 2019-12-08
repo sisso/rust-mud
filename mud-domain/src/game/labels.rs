@@ -90,7 +90,7 @@ impl Labels {
     }
 
     pub fn search_codes(&self, ids: &Vec<ObjId>, input: &str) -> Vec<ObjId> {
-        let candidates = self.resolve_labels(&ids);
+        let candidates = self.resolve_codes(&ids);
         let selected = text::search_label(input, &candidates);
         let mut result = vec![];
         for selected_index in selected {

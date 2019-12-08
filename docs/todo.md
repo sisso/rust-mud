@@ -4,7 +4,11 @@
 - project Err: IllegalArgument, Fatal, Error, Unknown, Warning, etc
 - replace exists types Enter/Out by specific actions in airlock and landing pad
   - remove automatic portal creation when ship land or undock
+- rename land-pad and airlock
+  - airlock can be outside (going from room into recursive parent room) 
+  - landpad: hangar? landingpad? port? etc??
 - intelligent creation of codes for a label
+- see at Vehicle
 - parse initial configuration files
 - support multiples enter portal
 - time to land, time to launch
@@ -59,6 +63,7 @@
 
 ## Refactoring
 
+- split views, parsing, actions, domain methods and repository
 - use ReadRepo<T> and WriteRepo<T>
 - send messages to mob_id instead player_id
 - add timers 

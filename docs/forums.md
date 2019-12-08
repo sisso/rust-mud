@@ -1,3 +1,13 @@
+# Craft vs Ship
+
+Craft is the right term to define any space think, like a shuttle is a Craft
+
+Craft is the right term to make things.
+
+Ship even if wrong, will cause much less ambiguiti. Vehicle could be a better and more generic 
+option.
+
+
 # Loader / Prefab / Init / Serialization
 
 ## Spawn prefab VS apply prefab
