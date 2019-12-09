@@ -6,5 +6,10 @@ extern crate socket_server;
 pub mod game_server;
 
 fn main() {
-    crate::game_server::run();
+    let arguments: Vec<String> = std::env::args().collect();
+    let module = arguments.get(1)
+        .map(|i| i.as_str())
+        .unwrap_or("./data/space");
+
+    crate::game_server::run(module);
 }

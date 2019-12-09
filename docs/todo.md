@@ -1,22 +1,18 @@
 
 # Todo
 
+- parametrize game initialization
+
 - project Err: IllegalArgument, Fatal, Error, Unknown, Warning, etc
-- replace exists types Enter/Out by specific actions in airlock and landing pad
-  - remove automatic portal creation when ship land or undock
 - rename land-pad and airlock
-  - airlock can be outside (going from room into recursive parent room) 
   - landpad: hangar? landingpad? port? etc??
 - intelligent creation of codes for a label
 - see at Vehicle
-- parse initial configuration files
-- support multiples enter portal
 - time to land, time to launch
 - add exit type
 - surface in planets
 - move Portal a children of room
 - move room flags as children of room
-- parametrize game initialization
 - remove item prefab and just put it into limbo
 - add put item at
 - fix extra lines in output when look

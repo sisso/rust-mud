@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 // TODO: print a tree
 fn main() {
-    let path = env::args().nth(1).expect("argument not provided");
+    let path = env::args().nth(1).unwrap_or("data/space".to_string());
     let data = Loader::read_folder(Path::new(path.as_str())).unwrap();
 
     let mut m = HashMap::new();
@@ -25,7 +25,6 @@ fn main() {
     println!("List");
     let mut keys = m.keys().collect::<Vec<&u32>>();
     keys.sort();
-
 
     let mut max: u32 = 0;
     for key in keys {

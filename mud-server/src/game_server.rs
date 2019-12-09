@@ -13,19 +13,8 @@ pub struct ServerRunner {
 }
 
 impl ServerRunner {
-    pub fn new(server: Box<dyn Server>, save: Option<(String, DeltaTime)>) -> Self {
-        let mut container: Container = Container::new();
-        //        loader::load(&mut container);
-        //        loader::scenery_space::load(&mut container);
-        let config_path = Path::new("./data/space");
-        info!(
-            "loading configuration: {:?}",
-            config_path.canonicalize().unwrap()
-        );
-
-        loader::Loader::load_folder(&mut container, &config_path).unwrap();
-
-        ServerRunner {
+    pub fn new(server: Box<dyn Server>, container: Container, save: Option<(String, DeltaTime)>) -> Self {
+       ServerRunner {
             server,
             game: Game::new(container),
             save: save.map(|(file, seconds)| (file, TimeTrigger::new(seconds, TotalTime(0.0)))),
@@ -65,15 +54,26 @@ impl ServerRunner {
     }
 }
 
-pub fn run() {
+pub fn run(module_path: &str) {
+    let config_path = Path::new(module_path);
+
+    info!(
+        "loading configuration: {:?}",
+        config_path.canonicalize().unwrap()
+    );
+
+    let mut container: Container = Container::new();
+    loader::Loader::load_folder(&mut container, &config_path).unwrap();
+
     let server = server_socket::SocketServer::new();
-    let mut game = ServerRunner::new(
+    let mut runner = ServerRunner::new(
         Box::new(server),
+        container,
         Some(("/tmp/current".to_string(), DeltaTime(1.0))),
     );
 
     loop {
         std::thread::sleep(::std::time::Duration::from_millis(100));
-        game.run(DeltaTime(0.1));
+        runner.run(DeltaTime(0.1));
     }
 }
