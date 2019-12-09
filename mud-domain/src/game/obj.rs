@@ -2,6 +2,8 @@ use crate::game::domain::NextId;
 use commons::ObjId;
 use logs::*;
 use std::collections::HashMap;
+use crate::errors::{self, Error};
+use crate::errors::Error::Conflict;
 
 pub const NAMESPACE_RESERVED: u32 = 100000;
 
@@ -30,17 +32,24 @@ impl Objects {
         id
     }
 
-    pub fn insert(&mut self, id: ObjId) {
-        assert!(!self.objects.contains_key(&id));
+    pub fn insert(&mut self, id: ObjId) -> errors::Result<()> {
+        if self.objects.contains_key(&id) {
+            return Err(Conflict);
+        }
+
         debug!("{:?} obj insert", id);
         self.next_id.set_max(id.as_u32());
         self.objects.insert(id, Obj { id });
+        Ok(())
     }
 
     /// Make sure you remove from everything else first
-    pub fn remove(&mut self, obj_id: ObjId) {
+    pub fn remove(&mut self, obj_id: ObjId) -> bool {
         if self.objects.remove(&obj_id).is_some() {
             debug!("{:?} obj removed ", obj_id);
+            true
+        } else {
+            false
         }
     }
 

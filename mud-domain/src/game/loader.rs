@@ -14,10 +14,13 @@ use crate::game::planets::Planet;
 use crate::game::pos::Pos;
 use crate::game::room::Room;
 use crate::game::surfaces::Surface;
-use commons::{ObjId, V2, SResult, Either};
+use commons::{ObjId, V2, Either};
 use logs::*;
 use crate::game::obj::Objects;
 use crate::game::crafts::Craft;
+use crate::errors;
+use crate::errors::Error::StaticIdNotFound;
+use crate::errors::Error;
 
 #[derive(Deserialize, Debug)]
 pub struct RoomExitData {
@@ -160,13 +163,13 @@ impl Loader {
         result
     }
 
-    pub fn spawn_at(container: &mut Container, static_id: StaticId, parent_id: ObjId) -> SResult<ObjId> {
+    pub fn spawn_at(container: &mut Container, static_id: StaticId, parent_id: ObjId) -> errors::Result<ObjId> {
         let obj_id = Loader::spawn(container, static_id)?;
         container.locations.set(obj_id, parent_id);
         Ok(obj_id)
     }
 
-    pub fn spawn(container: &mut Container, static_id: StaticId) -> SResult<ObjId> {
+    pub fn spawn(container: &mut Container, static_id: StaticId) -> errors::Result<ObjId> {
         debug!("spawn {:?}", static_id);
 
         let mut references = HashMap::new();
@@ -185,14 +188,14 @@ impl Loader {
 
         // initialize all
         for (&static_id, &obj_id) in &references {
-            Loader::apply_prefab(container, obj_id, Either::Right(static_id), &references).unwrap();
+            Loader::apply_prefab(container, obj_id, Either::Right(static_id), &references)?;
         }
 
         Ok(obj_id)
     }
 
     /// Resolve the static id to a ObjId by first searching in reference_map and then in container
-    fn get_by_static_id(objects: &Objects, ref_map: &HashMap<StaticId, ObjId>, static_id: StaticId) -> SResult<ObjId> {
+    fn get_by_static_id(objects: &Objects, ref_map: &HashMap<StaticId, ObjId>, static_id: StaticId) -> errors::Result<ObjId> {
         // search from map and fallback to real ObjId
         ref_map.get(&static_id)
             .cloned()
@@ -203,17 +206,17 @@ impl Loader {
                 } else {
                     None
                 }
-            }).ok_or_else(|| format!("obj id for static_id {:?} not found", static_id))
+            }).ok_or_else(|| StaticIdNotFound(static_id.as_u32()))
     }
 
     // TODO: make it atomic: success and change or no change
-    fn apply_prefab(container: &mut Container, obj_id: ObjId, data: Either<&ObjData, StaticId>, references: &HashMap<StaticId, ObjId>) -> SResult<()> {
+    fn apply_prefab(container: &mut Container, obj_id: ObjId, data: Either<&ObjData, StaticId>, references: &HashMap<StaticId, ObjId>) -> errors::Result<()> {
         let data: &ObjData =
             match data {
                 Either::Left(data) => data,
                 Either::Right(static_id) => {
                     container.loader.get_prefab(static_id)
-                        .ok_or(format!("prefab {:?} not found", static_id))?
+                        .ok_or(StaticIdNotFound(static_id.as_u32()))?
                 },
             };
 
@@ -280,9 +283,8 @@ impl Loader {
 
             if let Some(exists) = &room_data.exits {
                 for i in exists {
-                    let dir = Dir::parse(i.dir.as_str())
-                        .map_err(|e| format!("{:?}", e))?;
-                    let to_id = Loader::get_by_static_id(&container.objects, &references, i.to).unwrap();
+                    let dir = Dir::parse(i.dir.as_str())?;
+                    let to_id = Loader::get_by_static_id(&container.objects, &references, i.to)?;
 
                     room.exits.push((dir, to_id));
                 }
@@ -301,11 +303,11 @@ impl Loader {
         Ok(())
     }
 
-    pub fn load_str(container: &mut Container, buffer: &str) -> SResult<()> {
-       let data = HParser::load_from_str(buffer)
-           .map_err(|e| format!("{:?}", e))?;
+    pub fn load_str(container: &mut Container, buffer: &str) -> errors::Result<()> {
+       let data: errors::Result<Data> = HParser::load_from_str(buffer)
+           .map_err(|e| format!("{:?}", e).into());
 
-        Loader::load_data(container, data)
+        Loader::load_data(container, data?)
     }
 
 
@@ -315,21 +317,21 @@ impl Loader {
     /// 2. Validate content
     /// 3. Add all prefabs
     /// 4. Instantiate all static data
-    pub fn load_folder(container: &mut Container, folder: &Path) -> SResult<()> {
+    pub fn load_folder(container: &mut Container, folder: &Path) -> errors::Result<()> {
         let data = Loader::read_folder(folder)?;
         Loader::load_data(container, data)
     }
 
-    pub fn read_folder(folder: &Path) -> SResult<Data> {
+    pub fn read_folder(folder: &Path) -> errors::Result<Data> {
         if !folder.exists() {
-            return Err("module folder do not exists".to_string());
+            return Err("module folder do not exists".into());
         }
 
         HParser::load_from_folder(folder)
-            .map_err(|e| format!("{:?}", e))
+            .map_err(|e| format!("{:?}", e).into())
     }
 
-    fn load_data(container: &mut Container, data: Data) -> SResult<()> {
+    fn load_data(container: &mut Container, data: Data) -> errors::Result<()> {
         let _ = Loader::validate(&data)?;
 
         // add prefabs
@@ -348,18 +350,18 @@ impl Loader {
         Ok(())
     }
 
-    fn validate(data: &Data) -> SResult<()> {
+    fn validate(data: &Data) -> errors::Result<()> {
         let mut ids = HashSet::new();
 
         for (_static_id, data) in data.objects.iter() {
             if !ids.insert(data.id) {
-                return Err(format!("duplicate object id {}", data.id));
+                return Err(format!("duplicate object id {}", data.id).into());
             }
         }
 
         for (_static_id, data) in data.prefabs.iter() {
            if !ids.insert(data.id) {
-               return Err(format!("duplicate prefab id {}", data.id));
+               return Err(format!("duplicate prefab id {}", data.id).into());
            }
         }
 
@@ -369,10 +371,9 @@ impl Loader {
     fn initialize_all(
         container: &mut Container,
         objects: HashMap<StaticId, ObjData>,
-    ) -> SResult<()> {
+    ) -> errors::Result<()> {
         for (key, _) in &objects {
-            // TODO: to result
-            container.objects.insert(ObjId(key.as_u32()));
+            container.objects.insert(ObjId(key.as_u32()))?;
         }
 
         for (id, data) in &objects {

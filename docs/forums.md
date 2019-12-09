@@ -1,3 +1,17 @@
+# Error Codes
+
+As first implementation is already showing, a centralized Error can get chaotic very shortly. A clear structure need
+to be defined, that can be easily recognize and only hold useful values. 
+
+Most errors we want to propagate and exploded with meaningful error message. This case we will just use Generic. 
+- and how it improves by simple unwrap? At least panic contains a full stack trace.
+
+General policy:
+- panic for unexpected errors
+- any other case that can expected to have a success/failure we return a error code
+- error codes need to be obvious, a Conflict(u32) moved 3 layers out where it was produced will not bring any useful
+  information. If objects.instert will return a Conflict, it will need to be map to Generic(String) to be propagated
+
 # Craft vs Ship
 
 Craft is the right term to define any space think, like a shuttle is a Craft

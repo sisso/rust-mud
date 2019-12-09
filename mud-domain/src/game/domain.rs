@@ -3,6 +3,8 @@ use super::player::*;
 use super::room::*;
 use commons::{DeltaTime, Tick, TotalTime};
 use serde::Deserialize;
+use crate::errors;
+use crate::errors::Error::ParserError;
 
 #[derive(Clone, Copy, Debug)]
 pub struct GameTime {
@@ -54,13 +56,16 @@ impl Dir {
         }
     }
 
-    pub fn parse(value: &str) -> Result<Dir, ()> {
+    pub fn parse(value: &str) -> errors::Result<Dir> {
         match value {
             "n" => Ok(Dir::N),
             "s" => Ok(Dir::S),
             "e" => Ok(Dir::E),
             "w" => Ok(Dir::W),
-            _ => Err(()),
+            _ => Err(ParserError {
+                kind: "Dir".to_string(),
+                value: value.to_string(),
+            }),
         }
     }
 }
