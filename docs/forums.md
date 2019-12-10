@@ -1,3 +1,8 @@
+# Vendors
+
+Vendors should contain a list of ID to sell, or should items have a tag that vendor can sell?
+- each vendor will keep its own list. But the list can be centralized by reference files in hocon
+
 # Error Codes
 
 As first implementation is already showing, a centralized Error can get chaotic very shortly. A clear structure need
