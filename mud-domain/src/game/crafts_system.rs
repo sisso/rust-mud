@@ -43,6 +43,6 @@ pub fn tick(ctx: &mut Ctx) {
         } else {
             comm::space_command_failed()
         };
-        ctx.outputs.zone_all(craft_id, msg);
+        ctx.outputs.broadcast(None, craft_id, msg);
     }
 }

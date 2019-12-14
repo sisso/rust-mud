@@ -41,5 +41,5 @@ pub fn create_body(container: &mut Container, outputs: &mut dyn Outputs, mob_id:
     );
 
     let msg = comm::item_body_appears_in_room(body_label.as_str());
-    outputs.room_all(room_id, msg);
+    outputs.broadcast(None, room_id, msg);
 }

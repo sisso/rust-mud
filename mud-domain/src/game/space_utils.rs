@@ -4,19 +4,23 @@ use crate::game::crafts::CraftId;
 use crate::game::location::LocationId;
 use crate::game::mob::MobId;
 use crate::game::{comm, Outputs};
-use commons::{AsResult, ObjId, PlayerId, MIN_DISTANCE};
+use crate::errors::{Result, Error, AsResult};
+use commons::{ObjId, PlayerId, MIN_DISTANCE};
 
 pub fn find_surface_target(
     container: &mut Container,
     craft_location: ObjId,
     label: &str,
-) -> Result<ObjId, ()> {
+) -> Result<ObjId> {
     let candidates = container
         .locations
         .list_at(craft_location)
         .collect::<Vec<_>>();
+
     let founds = container.labels.search_codes(&candidates, label);
-    founds.first().cloned().ok_or(())
+    founds.first()
+        .cloned()
+        .ok_or(Error::NotFound)
 }
 
 pub fn get_objects_in_surface(
@@ -101,21 +105,20 @@ pub fn search_near_landing_sites(container: &Container, craft_id: ObjId) -> Vec<
 pub fn get_craft_and_location(
     container: &Container,
     outputs: &mut dyn Outputs,
-    player_id: PlayerId,
     mob_id: MobId,
-) -> Result<(CraftId, ObjId), ()> {
-    let craft_id = match get_craft(container, mob_id).ok_or(()) {
-        Ok(craft_id) => craft_id,
-        Err(()) => {
-            outputs.private(player_id, comm::space_not_in_craft());
-            return Err(());
+) -> Result<(CraftId, ObjId)> {
+    let craft_id = match get_craft(container, mob_id) {
+        Some(craft_id) => craft_id,
+        None => {
+            outputs.private(mob_id, comm::space_not_in_craft());
+            return Err(Error::NotFound);
         }
     };
 
     let craft_location = container.locations.get(craft_id).as_result()?;
     if !container.sectors.exists(craft_location) {
-        outputs.private(player_id, comm::space_not_in_craft());
-        return Err(());
+        outputs.private(mob_id, comm::space_not_in_craft());
+        return Err(Error::NotFound);
     }
 
     return Ok((craft_id, craft_location));

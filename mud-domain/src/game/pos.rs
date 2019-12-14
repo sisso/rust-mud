@@ -1,6 +1,7 @@
-use commons::{ObjId, UResult, V2};
+use commons::{ObjId, V2};
 use logs::*;
 use std::collections::HashMap;
+use crate::errors::{Result, Error};
 
 #[derive(Clone, Debug)]
 pub struct Pos {
@@ -33,7 +34,7 @@ impl PosRepo {
         self.index.get(&id).map(|i| i.pos)
     }
 
-    pub fn update(&mut self, id: ObjId, new_pos: V2) -> UResult {
+    pub fn update(&mut self, id: ObjId, new_pos: V2) -> Result<()> {
         self.index
             .get_mut(&id)
             .map(|i| {
@@ -41,6 +42,6 @@ impl PosRepo {
                 i.pos = new_pos;
                 ()
             })
-            .ok_or(())
+            .ok_or(Error::NotFound)
     }
 }

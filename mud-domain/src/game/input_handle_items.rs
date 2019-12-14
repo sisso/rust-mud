@@ -4,7 +4,9 @@ use crate::game::item::{ItemId, ItemRepository};
 use crate::game::labels::Labels;
 use crate::game::location::Locations;
 use crate::game::{comm, inventory, Outputs};
-use commons::{AsResult, ObjId, PlayerId, UResult, UERR};
+use commons::{ObjId, PlayerId};
+use crate::game::mob::MobId;
+use crate::errors::{Error, Result, AsResult};
 
 #[derive(Debug)]
 pub enum ParseItemError {
@@ -18,7 +20,7 @@ pub fn parser_owned_item(
     items: &ItemRepository,
     item_location: ObjId,
     args: Vec<&str>,
-) -> Result<ItemId, ParseItemError> {
+) -> std::result::Result<ItemId, ParseItemError> {
     let item_label = match args.get(1) {
         Some(str) => str,
         None => return Err(ParseItemError::ItemNotProvided),
@@ -39,7 +41,7 @@ pub fn parse_not_owned_item(
     items: &ItemRepository,
     item_location: ObjId,
     args: Vec<&str>,
-) -> Result<(ItemId, Option<ItemId>), ParseItemError> {
+) -> std::result::Result<(ItemId, Option<ItemId>), ParseItemError> {
     let is_preposition = { |s: &str| s.eq("in") || s.eq("at") || s.eq("from") };
 
     match (args.get(1), args.get(2), args.get(3)) {
@@ -76,11 +78,9 @@ pub fn parse_not_owned_item(
 pub fn pickup(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: PlayerId,
+    mob_id: MobId,
     args: Vec<&str>,
-) -> Result<(), ()> {
-    let player = container.players.get(player_id);
-    let mob_id = player.mob_id;
+) -> Result<()> {
     let room_id = container.locations.get(mob_id).as_result()?;
 
     match parse_not_owned_item(
@@ -94,15 +94,14 @@ pub fn pickup(
             let _ = do_pickup(
                 container,
                 outputs,
-                Some(player_id),
                 mob_id,
                 item_id,
                 maybe_container,
             );
         }
-        Err(ParseItemError::ItemNotProvided) => outputs.private(player_id, comm::pick_what()),
+        Err(ParseItemError::ItemNotProvided) => outputs.private(mob_id, comm::pick_what()),
         Err(ParseItemError::ItemNotFound { label }) => {
-            outputs.private(player_id, comm::pick_where_not_found(label.as_str()))
+            outputs.private(mob_id, comm::pick_where_not_found(label.as_str()))
         }
     }
 
@@ -112,26 +111,24 @@ pub fn pickup(
 pub fn equip(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: PlayerId,
+    mob_id: MobId,
     args: Vec<&str>,
-) -> UResult {
-    let player = container.players.get(player_id);
-    let avatar_id = player.mob_id;
+) -> Result<()> {
     match parser_owned_item(
         &container.labels,
         &container.locations,
         &container.items,
-        avatar_id,
+        mob_id,
         args,
     ) {
-        Ok(item_id) => do_equip(container, outputs, Some(player_id), avatar_id, item_id),
+        Ok(item_id) => do_equip(container, outputs, mob_id, item_id),
         Err(ParseItemError::ItemNotProvided) => {
-            outputs.private(player_id, comm::equip_what());
-            UERR
+            outputs.private(mob_id, comm::equip_what());
+            Err(Error::IllegalArgument)
         }
         Err(ParseItemError::ItemNotFound { label }) => {
-            outputs.private(player_id, comm::equip_item_not_found(label.as_str()));
-            UERR
+            outputs.private(mob_id, comm::equip_item_not_found(label.as_str()));
+            Err(Error::IllegalArgument)
         }
     }
 }
@@ -139,56 +136,57 @@ pub fn equip(
 pub fn drop(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: PlayerId,
+    mob_id: MobId,
     args: Vec<&str>,
-) -> UResult {
-    let player = container.players.get(player_id);
-    let avatar_id = player.mob_id;
+) -> Result<()> {
     parser_owned_item(
         &container.labels,
         &container.locations,
         &container.items,
-        avatar_id,
+        mob_id,
         args,
     )
     .map_err(|err| {
         match err {
             ParseItemError::ItemNotProvided => {
-                outputs.private(player_id, comm::drop_item_no_target())
+                outputs.private(mob_id, comm::drop_item_no_target())
             }
             ParseItemError::ItemNotFound { label } => {
-                outputs.private(player_id, comm::drop_item_not_found(label.as_str()))
+                outputs.private(mob_id, comm::drop_item_not_found(label.as_str()))
             }
         };
+
+        Error::IllegalArgument
     })
-    .and_then(|item_id| do_drop(container, outputs, Some(player_id), avatar_id, item_id))
+    .and_then(|item_id| {
+        do_drop(container, outputs, mob_id, item_id)
+    })
 }
 
 pub fn strip(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: PlayerId,
+    mob_id: MobId,
     args: Vec<&str>,
-) -> UResult {
-    let player = container.players.get(player_id);
-    let avatar_id = player.mob_id;
-
+) -> Result<()> {
     parser_owned_item(
         &container.labels,
         &container.locations,
         &container.items,
-        avatar_id,
+        mob_id,
         args,
     )
     .map_err(|err| {
         match err {
-            ParseItemError::ItemNotProvided => outputs.private(player_id, comm::strip_what()),
+            ParseItemError::ItemNotProvided => outputs.private(mob_id, comm::strip_what()),
             ParseItemError::ItemNotFound { label } => {
-                outputs.private(player_id, comm::strip_item_not_found(label.as_str()))
+                outputs.private(mob_id, comm::strip_item_not_found(label.as_str()))
             }
         };
+
+        Error::IllegalArgument
     })
-    .and_then(|item_id| do_strip(container, outputs, Some(player_id), avatar_id, item_id))
+    .and_then(|item_id| do_strip(container, outputs, mob_id, item_id))
 }
 
 #[cfg(test)]

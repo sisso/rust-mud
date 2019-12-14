@@ -3,7 +3,8 @@ use super::item::*;
 use super::mob::*;
 use crate::game::comm;
 use crate::game::Outputs;
-use commons::{AsResult, PlayerId, UResult};
+use commons::PlayerId;
+use crate::errors::{Error, Result, AsResult};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum PickUpError {
@@ -15,11 +16,10 @@ pub enum PickUpError {
 pub fn do_pickup(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: Option<PlayerId>,
     mob_id: MobId,
     item_id: ItemId,
     inventory_id: Option<ItemId>,
-) -> Result<(), PickUpError> {
+) -> std::result::Result<(), PickUpError> {
     let _mob = container.mobs.get(mob_id).ok_or(PickUpError::Other)?;
     let item = container.items.get(item_id).ok_or(PickUpError::Other)?;
     let room_id = container.locations.get(mob_id).ok_or(PickUpError::Other)?;
@@ -27,7 +27,7 @@ pub fn do_pickup(
     let item_label = container.labels.get_label_f(item_id);
 
     if item.is_stuck {
-        outputs.private_opt(player_id, comm::pick_fail_item_is_stuck(item_label));
+        outputs.private(mob_id, comm::pick_fail_item_is_stuck(item_label));
         return Err(PickUpError::Stuck);
     }
 
@@ -40,27 +40,27 @@ pub fn do_pickup(
                 .ok_or(PickUpError::Other)?;
 
             if !inventory.is_inventory {
-                outputs.private_opt(
-                    player_id,
+                outputs.private(
+                    mob_id,
                     comm::pick_fail_storage_is_not_inventory(inventory_label),
                 );
                 return Err(PickUpError::NotInventory);
             }
 
-            outputs.private_opt(
-                player_id,
+            outputs.private(
+                mob_id,
                 comm::pick_player_from(inventory_label, item_label),
             );
-            outputs.room_opt(
-                player_id,
+            outputs.broadcast(
+                Some(mob_id),
                 room_id,
                 comm::pick_from(mob_label, inventory_label, item_label),
             );
         }
         None => {
-            outputs.private_opt(player_id, comm::pick_player_from_room(item_label));
-            outputs.room_opt(
-                player_id,
+            outputs.private(mob_id, comm::pick_player_from_room(item_label));
+            outputs.broadcast(
+                Some(mob_id),
                 room_id,
                 comm::pick_from_room(mob_label, item_label),
             );
@@ -76,10 +76,9 @@ pub fn do_pickup(
 pub fn do_equip(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: Option<PlayerId>,
     mob_id: MobId,
     item_id: ItemId,
-) -> Result<(), ()> {
+) -> Result<()> {
     let _item = container.items.get(item_id).as_result()?;
     let item_label = container.labels.get_label_f(item_id);
 
@@ -93,8 +92,8 @@ pub fn do_equip(
     let item = container.items.get(item_id);
 
     if !has_item || item.is_none() {
-        outputs.private_opt(player_id, comm::equip_what());
-        return Err(());
+        outputs.private(mob_id, comm::equip_what());
+        return Err(Error::NotFound);
     }
 
     // check if can be equipped
@@ -102,18 +101,18 @@ pub fn do_equip(
     let can_be_equipped = item.weapon.is_some() || item.armor.is_some();
 
     if !can_be_equipped {
-        outputs.private_opt(player_id, comm::equip_item_invalid(item_label));
-        return Err(());
+        outputs.private(mob_id, comm::equip_item_invalid(item_label));
+        return Err(Error::CanNotBeEquipped);
     }
 
-    // TODO: remove old equip in sample place?
+    // TODO: remove old equip in same place?
     container.equips.add(mob_id, item_id);
 
-    let mob_label = container.labels.get_label_f(mob_id);
+    let mob_label = container.labels.get_label(mob_id).as_result()?;
     let room_id = container.locations.get(mob_id).as_result()?;
-    outputs.private_opt(player_id, comm::equip_player_from_room(item_label));
-    outputs.room_opt(
-        player_id,
+    outputs.private(mob_id, comm::equip_player_from_room(item_label));
+    outputs.broadcast(
+        Some(mob_id),
         room_id,
         comm::equip_from_room(mob_label, item_label),
     );
@@ -123,20 +122,19 @@ pub fn do_equip(
 pub fn do_strip(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: Option<PlayerId>,
     mob_id: MobId,
     item_id: ItemId,
-) -> Result<(), ()> {
-    let mob_label = container.labels.get_label_f(mob_id);
+) -> Result<()> {
+    let mob_label = container.labels.get_label(mob_id).as_result()?;
     let room_id = container.locations.get(mob_id).as_result()?;
-    let item_label = container.labels.get_label_f(item_id);
+    let item_label = container.labels.get_label(item_id).as_result()?;
 
     // strip if is in use
     let _ = container.equips.strip(mob_id, item_id);
 
-    outputs.private_opt(player_id, comm::strip_player_from_room(item_label));
-    outputs.room_opt(
-        player_id,
+    outputs.private(mob_id, comm::strip_player_from_room(item_label));
+    outputs.broadcast(
+        Some(mob_id),
         room_id,
         comm::strip_from_room(mob_label, item_label),
     );
@@ -146,23 +144,20 @@ pub fn do_strip(
 pub fn do_drop(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: Option<PlayerId>,
     mob_id: MobId,
     item_id: ItemId,
-) -> UResult {
-    let _mob = container.mobs.get(mob_id).as_result()?;
-    let mob_label = container.labels.get_label_f(mob_id);
+) -> Result<()> {
+    let mob_label = container.labels.get_label(mob_id).as_result()?;
     let room_id = container.locations.get(mob_id).as_result()?;
-    let _item = container.items.get(item_id).as_result()?;
-    let item_label = container.labels.get_label_f(item_id);
+    let item_label = container.labels.get_label(item_id).as_result()?;
 
     // strip if is in use
     let _ = container.equips.strip(mob_id, item_id);
     container.locations.set(item_id, room_id);
 
-    outputs.private_opt(player_id, comm::drop_item(item_label));
-    outputs.room_opt(
-        player_id,
+    outputs.private(mob_id, comm::drop_item(item_label));
+    outputs.broadcast(
+        Some(mob_id),
         room_id,
         comm::drop_item_others(mob_label, item_label),
     );
@@ -182,7 +177,6 @@ mod test {
         let result = do_pickup(
             &mut scenery.container,
             &mut outputs,
-            None,
             scenery.mob_id,
             scenery.container_id,
             None,
@@ -197,7 +191,6 @@ mod test {
         let result = do_pickup(
             &mut scenery.container,
             &mut outputs,
-            None,
             scenery.mob_id,
             scenery.item1_id,
             Some(scenery.item2_id),

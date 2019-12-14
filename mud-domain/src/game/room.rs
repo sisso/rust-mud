@@ -1,7 +1,8 @@
 use super::domain::Dir;
-use commons::{ObjId, UResult, UERR, UOK};
+use commons::{ObjId};
 use logs::*;
 use std::collections::HashMap;
+use crate::errors::{Result, Error};
 
 pub type RoomId = ObjId;
 
@@ -36,14 +37,14 @@ impl Room {
             .cloned()
     }
 
-    pub fn remove_exit(&mut self, room_id: RoomId, dir: Dir) -> UResult {
+    pub fn remove_exit(&mut self, room_id: RoomId, dir: Dir) -> Result<()> {
         self.exits
             .iter()
             .position(|(i_dir, i_id)| *i_dir == dir && *i_id == room_id)
             .map(|position| {
                 self.exits.remove(position);
             })
-            .ok_or(())
+            .ok_or(Error::NotFound)
     }
 }
 
@@ -92,20 +93,21 @@ impl RoomRepository {
         self.index.contains_key(&id)
     }
 
-    pub fn update<F>(&mut self, room_id: RoomId, f: F) -> UResult
-    where
-        F: FnOnce(&mut Room),
+    pub fn update<F>(&mut self, room_id: RoomId, f: F) -> Result<()>
+    where F: FnOnce(&mut Room),
     {
-        self.index.get_mut(&room_id).ok_or(()).map(|room| {
-            f(room);
-            debug!("{:?} updated", room);
-        })
+        self.index.get_mut(&room_id)
+            .ok_or(Error::NotFound)
+            .map(|room| {
+                f(room);
+                debug!("{:?} updated", room);
+            })
     }
 
-    pub fn remove_portal(&mut self, room1_id: RoomId, room2_id: RoomId, dir: Dir) -> UResult {
+    pub fn remove_portal(&mut self, room1_id: RoomId, room2_id: RoomId, dir: Dir) -> Result<()> {
         self.index
             .get_mut(&room1_id)
-            .ok_or(())
+            .ok_or(Error::NotFound)
             .and_then(|room| room.remove_exit(room2_id, dir))?;
 
         debug!(
@@ -115,7 +117,7 @@ impl RoomRepository {
 
         self.index
             .get_mut(&room2_id)
-            .ok_or(())
+            .ok_or(Error::NotFound)
             .and_then(|room| room.remove_exit(room1_id, dir.inv()))?;
 
         debug!(
@@ -124,7 +126,7 @@ impl RoomRepository {
             room1_id,
             dir.inv()
         );
-        UOK
+        Ok(())
     }
 
     pub fn exists_exits(&self, room1_id: RoomId, room2_id: RoomId) -> Option<Dir> {

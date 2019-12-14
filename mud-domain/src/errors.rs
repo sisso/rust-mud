@@ -12,6 +12,11 @@ pub enum Error {
     IO(std::io::ErrorKind),
     ParserError { kind: String, value: String },
     Generic(String),
+    IllegalArgument,
+    InCombat,
+    IsResting,
+    NotFound,
+    CanNotBeEquipped
 }
 
 impl From<&str> for Error {
@@ -25,4 +30,30 @@ impl From<String> for Error {
         Error::Generic(string)
     }
 }
+
+pub trait AsResult<T> {
+    fn as_result(self) -> Result<T>;
+}
+
+impl<T> AsResult<T> for Option<T> {
+    fn as_result(self) -> Result<T> {
+        self.ok_or(Error::NotFound)
+    }
+}
+
+//trait ResultExtra<T> {
+//    fn when_err<O: FnOnce<Error>>(self, f: O) -> Result<T>;
+//}
+//
+//impl<T, 'a> ResultExtra<&T> for Result<T> {
+//    fn when_err<O: FnOnce<&'a Error>>(&'a self, f: O) -> Result<T> {
+//        match self {
+//            ok @ Ok(_)  => ok,
+//            er@ Err(ref e) => {
+//                f(e);
+//                er
+//            }
+//        }
+//    }
+//}
 

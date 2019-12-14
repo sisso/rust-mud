@@ -3,6 +3,7 @@ use crate::game::container::Ctx;
 use commons::*;
 use logs::*;
 use std::collections::HashMap;
+use crate::errors::{Error, Result, AsResult};
 
 pub type ItemId = ObjId;
 pub type ItemPrefabId = ObjId;
@@ -237,7 +238,7 @@ pub fn run_tick(ctx: &mut Ctx) {
     });
 }
 
-fn run_for(ctx: &mut Ctx, item_id: ItemId) -> Result<(), ()> {
+fn run_for(ctx: &mut Ctx, item_id: ItemId) -> Result<()> {
     let item = ctx.container.items.get(item_id).as_result()?;
 
     if let Some(decay) = item.decay {
@@ -249,7 +250,7 @@ fn run_for(ctx: &mut Ctx, item_id: ItemId) -> Result<(), ()> {
             let label = ctx.container.labels.get_label_f(item.id);
 
             let msg = comm::item_body_disappears(label);
-            ctx.outputs.room_all(location_id, msg);
+            ctx.outputs.broadcast(None, location_id, msg);
             ctx.container.remove(item_id);
             ctx.container.items.remove(item_id);
         }

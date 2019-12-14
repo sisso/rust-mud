@@ -4,60 +4,58 @@ use crate::game::mob::MobId;
 use crate::game::space_utils::*;
 use crate::game::{comm, Outputs};
 use crate::utils::text;
-use commons::{PlayerId, UResult, UERR, UOK};
+use commons::{PlayerId};
 
 use crate::game::actions_craft::{do_land_at, do_launch};
+use crate::errors::{Error, Result, AsResult};
 
 pub fn show_starmap(
     container: &Container,
     outputs: &mut dyn Outputs,
-    player_id: PlayerId,
     mob_id: MobId,
-) -> Result<(), ()> {
-    let (craft_id, craft_location) = get_craft_and_location(container, outputs, player_id, mob_id)?;
+) -> Result<()> {
+    let (craft_id, craft_location) = get_craft_and_location(container, outputs, mob_id)?;
     let objects = get_objects_in_surface(container, craft_id, craft_location);
-    outputs.private(player_id, comm::space_show_sectormap(&objects));
+    outputs.private(mob_id, comm::space_show_sectormap(&objects));
     Ok(())
 }
 
 pub fn move_list_targets(
     container: &Container,
     outputs: &mut dyn Outputs,
-    player_id: PlayerId,
     mob_id: MobId,
-) -> Result<(), ()> {
-    let (craft_id, craft_location) = get_craft_and_location(container, outputs, player_id, mob_id)?;
+) -> Result<()> {
+    let (craft_id, craft_location) = get_craft_and_location(container, outputs, mob_id)?;
     let objects = get_objects_in_surface(container, craft_id, craft_location);
-    outputs.private(player_id, comm::space_show_move_targets(&objects));
+    outputs.private(mob_id, comm::space_show_move_targets(&objects));
     Ok(())
 }
 
 pub fn move_to(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: PlayerId,
     mob_id: MobId,
     input: Vec<&str>,
-) -> Result<(), ()> {
-    let (craft_id, craft_location) = get_craft_and_location(container, outputs, player_id, mob_id)?;
+) -> Result<()> {
+    let (craft_id, craft_location) = get_craft_and_location(container, outputs, mob_id)?;
     input
         .get(1)
-        .ok_or(())
+        .ok_or(Error::IllegalArgument)
         .and_then(|label| find_surface_target(container, craft_location, label))
         .and_then(|target_id| {
-            actions_craft::move_to(container, outputs, player_id, craft_id, target_id)
+            actions_craft::move_to(container, outputs, mob_id, craft_id, target_id)
         })
         .map_err(|_| {
-            outputs.private(player_id, comm::space_move_invalid());
+            outputs.private(mob_id, comm::space_move_invalid());
+            Error::IllegalArgument
         })
 }
 
 pub fn land_list(
     container: &Container,
     outputs: &mut dyn Outputs,
-    player_id: PlayerId,
     mob_id: MobId,
-) -> Result<(), ()> {
+) -> Result<()> {
     get_craft(container, mob_id)
         .map(|craft_id| {
             let labels = search_near_landing_sites(container, craft_id)
@@ -65,20 +63,20 @@ pub fn land_list(
                 .map(|id| container.labels.get_label_f(id))
                 .collect();
 
-            outputs.private(player_id, comm::space_land_list(&labels));
+            outputs.private(mob_id, comm::space_land_list(&labels));
         })
         .ok_or_else(|| {
-            outputs.private(player_id, comm::space_land_invalid());
+            outputs.private(mob_id, comm::space_land_invalid());
+            Error::IllegalArgument
         })
 }
 
 pub fn land_at(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: PlayerId,
     mob_id: MobId,
     input: Vec<&str>,
-) -> Result<(), ()> {
+) -> Result<()> {
     let result = match (input.get(1), get_craft(container, mob_id)) {
         (Some(input), Some(craft_id)) => {
             let sites = search_near_landing_sites(container, craft_id);
@@ -89,25 +87,30 @@ pub fn land_at(
                     let landing_room = sites[index];
                     do_land_at(container, outputs, craft_id, landing_room)
                 }
-                None => UERR,
+                None => Err(Error::IllegalArgument),
             }
         }
-        _ => UERR,
+        _ => Err(Error::IllegalArgument),
     };
 
-    result.map_err(|_err| outputs.private(player_id, comm::space_land_invalid()))
+    result.map_err(|e| {
+        outputs.private(mob_id, comm::space_land_invalid());
+        e
+    })
 }
 
 pub fn launch(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: PlayerId,
     mob_id: MobId,
-) -> UResult {
+) -> Result<()> {
     get_craft(container, mob_id)
-        .ok_or(())
-        .map_err(|_| {
-            outputs.private(player_id, comm::space_invalid_not_in_craft());
+        .as_result()
+        .map_err(|e| {
+            outputs.private(mob_id, comm::space_invalid_not_in_craft());
+            e
         })
-        .and_then(|craft_id| do_launch(container, outputs, player_id, craft_id))
+        .and_then(|craft_id| {
+            do_launch(container, outputs, mob_id, craft_id)
+        })
 }

@@ -1,24 +1,25 @@
-use super::domain::*;
-use super::item::*;
-use super::mob::*;
-use super::player::*;
-use super::room::*;
-use super::spawn::*;
-use crate::game::config::Config;
-use crate::game::crafts::Crafts;
-use crate::game::equip::Equips;
-use crate::game::labels::Labels;
-use crate::game::location::Locations;
-use crate::game::obj::Objects;
-use crate::game::planets::Planets;
-use crate::game::pos::PosRepo;
-use crate::game::surfaces::Surfaces;
-use crate::game::surfaces_object::SurfaceObjects;
-use crate::game::tags::Tags;
-use crate::game::{crafts_system, item, mob, spawn, Outputs};
+use crate::errors::Result;
 use commons::{DeltaTime, ObjId, PlayerId};
 use logs::*;
 use crate::game::loader::Loader;
+use crate::game::{Outputs, spawn, mob, item, crafts_system};
+use crate::game::config::Config;
+use crate::game::domain::{GameTime, PlayerCtx, MobCtx};
+use crate::game::obj::Objects;
+use crate::game::player::PlayerRepository;
+use crate::game::mob::{MobRepository, MobId};
+use crate::game::item::ItemRepository;
+use crate::game::room::RoomRepository;
+use crate::game::spawn::Spawns;
+use crate::game::location::Locations;
+use crate::game::equip::Equips;
+use crate::game::tags::Tags;
+use crate::game::labels::Labels;
+use crate::game::crafts::Crafts;
+use crate::game::surfaces::Surfaces;
+use crate::game::planets::Planets;
+use crate::game::pos::PosRepo;
+use crate::game::surfaces_object::SurfaceObjects;
 
 pub struct Ctx<'a> {
     pub container: &'a mut Container,
@@ -81,15 +82,21 @@ impl Container {
         self.labels.remove(obj_id);
     }
 
-    // TODO: add Result or complete remove this method
-    /// If mob have no room, a exception will be throw
-    pub fn get_player_context(&self, player_id: PlayerId) -> PlayerCtx {
-        let player = self.players.get(player_id);
-        let mob = self.mobs.get(player.mob_id).unwrap();
-        let room_id = self.locations.get(mob.id).unwrap();
-        let room = self.rooms.get(room_id).unwrap();
+    pub fn get_mob_ctx(&self, mob_id: MobId) -> Option<MobCtx> {
+        let mob = self.mobs.get(mob_id)?;
+        let room_id = self.locations.get(mob.id)?;
+        let room = self.rooms.get(room_id)?;
 
-        PlayerCtx { player, mob, room }
+        Some(MobCtx { mob, room })
+    }
+
+    pub fn get_player_ctx(&self, player_id: PlayerId) -> Option<PlayerCtx> {
+        let player = self.players.get(player_id);
+        let mob = self.mobs.get(player.mob_id)?;
+        let room_id = self.locations.get(mob.id)?;
+        let room = self.rooms.get(room_id)?;
+
+        Some(PlayerCtx { player, mob, room })
     }
 
     pub fn tick(&mut self, outputs: &mut dyn Outputs, delta_time: DeltaTime) {

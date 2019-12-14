@@ -1,8 +1,10 @@
-use commons::{ObjId, UResult, UERR, UOK};
 use logs::*;
 use std::collections::HashMap;
 use crate::game::container::Container;
+use commons::ObjId;
+use crate::errors::{Result, Error};
 
+// TODO: rename to ShipId
 pub type CraftId = ObjId;
 
 #[derive(Clone, Debug)]
@@ -66,13 +68,13 @@ impl Crafts {
         self.index.get(&id)
     }
 
-    pub fn set_command(&mut self, craft_id: CraftId, command: CraftCommand) -> UResult {
+    pub fn set_command(&mut self, craft_id: CraftId, command: CraftCommand) -> Result<()> {
         if let Some(craft) = self.index.get_mut(&craft_id) {
             info!("{:?} set command to {:?}", craft_id, command);
             craft.command = command;
-            UOK
+            Ok(())
         } else {
-            UERR
+            Err(Error::IllegalArgument)
         }
     }
 

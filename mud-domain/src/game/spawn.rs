@@ -117,7 +117,7 @@ pub fn run(ctx: &mut Ctx) {
         ctx.container.spawns.add_mob_id(spawn_id, mob_id);
 
         // add outputs
-        ctx.outputs.room_all(room_id, spawn_msg);
+        ctx.outputs.broadcast(None, room_id, spawn_msg);
     }
 }
 

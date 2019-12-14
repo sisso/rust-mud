@@ -5,15 +5,15 @@ use super::container::*;
 use super::mob::*;
 use super::Outputs;
 use crate::game::mob;
-use commons::{AsResult, UERR, UOK};
+use crate::errors::{AsResult, Error, Result};
 
 pub fn tick_attack(
     container: &mut Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
     target_mob_id: MobId,
-) -> Result<(), ()> {
-    let attacker = container.mobs.get(mob_id).ok_or(())?;
+) -> Result<()> {
+    let attacker = container.mobs.get(mob_id).ok_or(Error::NotFound)?;
     let defender = container.mobs.get(target_mob_id);
 
     if let Some(defender) = defender {
@@ -22,7 +22,7 @@ pub fn tick_attack(
 
         if attacker_room_id != defender_room_id {
             cancel_attack(container, outputs, mob_id, Some(&target_mob_id));
-            return UERR;
+            return Err(Error::IllegalArgument);
         }
 
         if attacker.is_read_to_attack(container.time.total) {
@@ -34,7 +34,7 @@ pub fn tick_attack(
         cancel_attack(container, outputs, mob_id, None);
     }
 
-    UOK
+    Ok(())
 }
 
 fn cancel_attack(
@@ -64,14 +64,12 @@ fn cancel_attack(
 fn execute_attack(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    attacker_id: MobId,
+    mob_id: MobId,
     target_id: MobId,
-) -> Result<(), ()> {
-    let player_id = container.players.find_from_mob(attacker_id);
-
-    let attacker = container.mobs.get(attacker_id).as_result()?;
-    let attacker_room_id = container.locations.get(attacker_id).as_result()?;
-    let attacker_label = container.labels.get_label_f(attacker_id);
+) -> Result<()> {
+    let attacker = container.mobs.get(mob_id).as_result()?;
+    let attacker_room_id = container.locations.get(mob_id).as_result()?;
+    let attacker_label = container.labels.get_label_f(mob_id);
 
     let defender = container.mobs.get(target_id).as_result()?;
     let defender_label = container.labels.get_label_f(target_id);
@@ -84,13 +82,9 @@ fn execute_attack(
     let room_attack_msg =
         comm::kill_mob_execute_attack(attacker_label, defender_label, &attack_result);
 
-    if let Ok(player_id) = player_id {
-        let player_attack_msg = comm::kill_player_execute_attack(defender_label, &attack_result);
-        outputs.private(player_id, player_attack_msg);
-        outputs.room(player_id, attacker_room_id, room_attack_msg);
-    } else {
-        outputs.room_all(attacker_room_id, room_attack_msg);
-    }
+    let player_attack_msg = comm::kill_player_execute_attack(defender_label, &attack_result);
+    outputs.private(mob_id, player_attack_msg);
+    outputs.broadcast(Some(mob_id), attacker_room_id, room_attack_msg);
 
     if attack_result.success {
         // deduct pv
@@ -101,13 +95,13 @@ fn execute_attack(
         })?;
 
         if dead {
-            execute_attack_killed(container, outputs, attacker_id, target_id);
+            execute_attack_killed(container, outputs, mob_id, target_id);
         }
     }
 
     let total_time = container.time.total;
 
-    container.mobs.update(attacker_id, |mob| {
+    container.mobs.update(mob_id, |mob| {
         mob.add_attack_calm_time(total_time);
     });
 
@@ -117,25 +111,14 @@ fn execute_attack(
 fn execute_attack_killed(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    attacker_id: MobId,
+    mob_id: MobId,
     target_id: MobId,
-) -> Result<(), ()> {
-    let attacker_player_id = container.players.find_from_mob(attacker_id);
-    let _attacker = container.mobs.get(attacker_id).as_result()?;
-    let _attacker_label = container.labels.get_label_f(attacker_id);
-    let attacker_room_id = container.locations.get(attacker_id).as_result()?;
-    let _defender = container.mobs.get(target_id).as_result()?;
+) -> Result<()> {
+    let room_id = container.locations.get(mob_id).as_result()?;
     let defender_label = container.labels.get_label_f(target_id);
 
-    let room_attack_msg = comm::killed(defender_label);
-
-    if let Ok(player_id) = attacker_player_id {
-        let player_attack_msg = comm::killed_by_player(defender_label);
-        outputs.private(player_id, player_attack_msg);
-        outputs.room(player_id, attacker_room_id, room_attack_msg);
-    } else {
-        outputs.room_all(attacker_room_id, room_attack_msg);
-    }
+    outputs.private(mob_id, comm::killed_by_player(defender_label));
+    outputs.broadcast(Some(mob_id), room_id, comm::killed(defender_label));
 
     mob::kill_mob(container, outputs, target_id)
 }
@@ -179,7 +162,7 @@ fn check_return_attack(
     outputs: &mut dyn Outputs,
     mob_id: MobId,
     aggressor_mob_id: MobId,
-) -> Result<(), ()> {
+) -> Result<()> {
     match container.mobs.get(mob_id) {
         Some(mob) if mob.command.is_idle() => {
             let _aggressor_mob = container.mobs.get(aggressor_mob_id).as_result()?;
@@ -188,7 +171,7 @@ fn check_return_attack(
             let aggressor_mob_label = container.labels.get_label_f(aggressor_mob_id);
 
             let msg = comm::kill_return_attack(mob_label, aggressor_mob_label);
-            outputs.room_all(room_id, msg);
+            outputs.broadcast(None, room_id, msg);
 
             container
                 .mobs

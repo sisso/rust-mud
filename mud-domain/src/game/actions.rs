@@ -3,37 +3,34 @@ use super::container::Container;
 use super::domain::*;
 use super::mob::*;
 use super::Outputs;
-use commons::{AsResult, PlayerId, UResult, UERR, UOK, ObjId};
+use commons::{PlayerId, ObjId};
 use crate::game::space_utils;
 use std::process::id;
 use logs::*;
+use crate::errors::{Result, AsResult, Error};
 
 pub fn look(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: PlayerId,
-) -> Result<(), ()> {
-    let player = container.players.get(player_id);
-
-    outputs.private(player_id, comm::look_description(container, player.mob_id)?);
-
+    mob_id: MobId,
+) -> Result<()> {
+    outputs.private(mob_id, comm::look_description(container, mob_id)?);
     Ok(())
 }
 
 pub fn say(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: Option<PlayerId>,
     mob_id: MobId,
     msg: String,
-) -> Result<(), ()> {
+) -> Result<()> {
     let room_id = container.locations.get(mob_id).as_result()?;
     let mob_label = container.labels.get(mob_id).as_result()?;
     let player_msg = comm::say_you_say(&msg);
     let room_msg = comm::say_someone_said(mob_label.label.as_str(), &msg);
 
-    outputs.private_opt(player_id, player_msg);
-    outputs.room_opt(player_id, room_id, room_msg);
+    outputs.private(mob_id, player_msg);
+    outputs.broadcast(Some(mob_id), room_id, room_msg);
 
     Ok(())
 }
@@ -42,11 +39,9 @@ pub fn say(
 pub fn mv(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: PlayerId,
+    mob_id: MobId,
     dir: Dir,
-) -> UResult {
-    let player = container.players.get(player_id);
-    let mob_id = player.mob_id;
+) -> Result<()> {
     let location_id = container.locations.get(mob_id).as_result()?;
     let room = container.rooms.get(location_id).as_result()?;
     let exit_room_id = room.get_exit(&dir);
@@ -65,14 +60,14 @@ pub fn mv(
             let enter_room_msg = comm::move_come(mob_label, &dir.inv());
             let exit_room_msg = comm::move_goes(mob_label, &dir);
 
-            outputs.private(player_id, player_msg);
-            outputs.room(player_id, previous_room_id, exit_room_msg);
-            outputs.room(player_id, exit_room_id, enter_room_msg);
+            outputs.private(mob_id, player_msg);
+            outputs.broadcast(Some(mob_id), previous_room_id, exit_room_msg);
+            outputs.broadcast(Some(mob_id), exit_room_id, enter_room_msg);
             Ok(())
         }
         None => {
-            outputs.private(player_id, comm::move_not_possible(&dir));
-            Err(())
+            outputs.private(mob_id, comm::move_not_possible(&dir));
+            Err(Error::IllegalArgument)
         }
     }
 }
@@ -81,11 +76,9 @@ pub fn mv(
 pub fn attack(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: PlayerId,
+    mob_id: MobId,
     target_mob_id: MobId,
-) -> Result<(), ()> {
-    let player = container.players.get(player_id);
-    let mob_id = player.mob_id;
+) -> Result<()> {
     let room_id = container.locations.get(mob_id).as_result()?;
 
     let mob_label = container.labels.get_label(mob_id).unwrap();
@@ -94,8 +87,8 @@ pub fn attack(
     let player_msg = comm::attack_player_initiate(target_label);
     let room_msg = comm::attack_mob_initiate_attack(mob_label, target_label);
 
-    outputs.private(player_id, player_msg);
-    outputs.room(player_id, room_id, room_msg);
+    outputs.private(mob_id, player_msg);
+    outputs.broadcast(Some(mob_id), room_id, room_msg);
 
     container.mobs.set_mob_attack_target(mob_id, target_mob_id);
 
@@ -106,23 +99,22 @@ pub fn attack(
 pub fn rest(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: PlayerId,
-) -> Result<(), ()> {
-    let ctx = container.get_player_context(player_id);
-    let room_id = ctx.room.id;
-    let mob_id = ctx.mob.id;
+    mob_id: MobId,
+) -> Result<()> {
+    let room_id = container.locations.get(mob_id).as_result()?;
+    let mob = container.mobs.get(mob_id).as_result()?;
 
     let total_time = container.time.total;
 
-    if ctx.mob.is_combat() {
-        outputs.private(player_id, comm::rest_fail_in_combat());
-        return Err(());
+    if mob.is_combat() {
+        outputs.private(mob_id, comm::rest_fail_in_combat());
+        return Err(Error::InCombat);
     }
 
     let mob_label = container.labels.get_label(mob_id).unwrap();
 
-    outputs.private(player_id, comm::rest_start());
-    outputs.room(player_id, room_id, comm::rest_start_others(mob_label));
+    outputs.private(mob_id, comm::rest_start());
+    outputs.broadcast(Some(mob_id), room_id, comm::rest_start_others(mob_label));
     container.mobs.update(mob_id, |mob| {
         mob.set_action(MobAction::Resting, total_time);
     });
@@ -134,21 +126,20 @@ pub fn rest(
 pub fn stand(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: PlayerId,
-) -> Result<(), ()> {
-    let ctx = container.get_player_context(player_id);
-    let mob_id = ctx.player.mob_id;
+    mob_id: MobId,
+) -> Result<()> {
+    let ctx = container.get_mob_ctx(mob_id).as_result()?;
     let total_time = container.time.total;
 
     if ctx.mob.is_resting() {
-        outputs.private(player_id, comm::stand_fail_not_resting());
-        return Err(());
+        outputs.private(mob_id, comm::stand_fail_not_resting());
+        return Err(Error::IsResting);
     }
 
     let mob_label = container.labels.get_label(mob_id).unwrap();
 
-    outputs.private(player_id, comm::stand_up());
-    outputs.room(player_id, ctx.room.id, comm::stand_up_others(mob_label));
+    outputs.private(mob_id, comm::stand_up());
+    outputs.broadcast(Some(mob_id), ctx.room.id, comm::stand_up_others(mob_label));
     container.mobs.update(mob_id, |mob| {
         mob.set_action(MobAction::None, total_time);
     });
@@ -159,10 +150,9 @@ pub fn stand(
 pub fn enter(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: Option<PlayerId>,
     mob_id: MobId,
     arguments: &str
-) -> UResult {
+) -> Result<()> {
     let location_id = container.locations.get(mob_id).as_result()?;
     let candidates = space_utils::find_ships_at(container, location_id);
     let target =
@@ -173,19 +163,19 @@ pub fn enter(
 
     match target {
         Some(target) => {
-            enter_do(container, outputs, player_id, mob_id, target)
+            enter_do(container, outputs, mob_id, target)
         },
 
         None if arguments.is_empty() => {
             let codes = container.labels.resolve_codes(&candidates);
-            outputs.private_opt(player_id, comm::enter_list(&codes));
-            UERR
+            outputs.private(mob_id, comm::enter_list(&codes));
+            Err(Error::IllegalArgument)
         }
 
         None => {
             let codes = container.labels.resolve_codes(&candidates);
-            outputs.private_opt(player_id, comm::enter_invalid(arguments, &codes));
-            UERR
+            outputs.private(mob_id, comm::enter_invalid(arguments, &codes));
+            Err(Error::IllegalArgument)
         }
     }
 }
@@ -193,10 +183,9 @@ pub fn enter(
 pub fn enter_do(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: Option<PlayerId>,
     mob_id: MobId,
     target_id: ObjId,
-) -> UResult {
+) -> Result<()> {
     let current_location = container.locations
         .get(mob_id)
         .as_result()?;
@@ -216,17 +205,17 @@ pub fn enter_do(
             container.locations.set(mob_id, location_id);
 
             // emmit messages
-            outputs.private_opt(player_id, comm::enter_player(target_label));
-            outputs.private_opt(player_id, comm::look_description(&container, mob_id).unwrap());
-            outputs.room_opt(player_id, current_location, comm::enter_others(mob_label, target_label));
-            outputs.room_opt(player_id, location_id, comm::enter_others_other_side(mob_label));
+            outputs.private(mob_id, comm::enter_player(target_label));
+            outputs.private(mob_id, comm::look_description(&container, mob_id).unwrap());
+            outputs.broadcast(Some(mob_id), current_location, comm::enter_others(mob_label, target_label));
+            outputs.broadcast(Some(mob_id), location_id, comm::enter_others_other_side(mob_label));
 
-            UOK
+            Ok(())
         }
 
         None => {
-            outputs.private_opt(player_id, comm::enter_fail());
-            UERR
+            outputs.private(mob_id, comm::enter_fail());
+            Err(Error::IllegalArgument)
         }
     }
 }
@@ -234,9 +223,8 @@ pub fn enter_do(
 pub fn out(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: Option<PlayerId>,
     mob_id: MobId,
-) -> UResult {
+) -> Result<()> {
     let location_id = container.locations.get(mob_id).as_result()?;
 
     let can_exit = container.rooms.get(location_id)
@@ -244,8 +232,8 @@ pub fn out(
         .can_exit;
 
     if !can_exit {
-        outputs.private_opt(player_id, comm::out_fail());
-        return UERR;
+        outputs.private(mob_id, comm::out_fail());
+        return Err(Error::IllegalArgument);
     }
 
     let parents = container.locations.list_parents(location_id);
@@ -263,14 +251,14 @@ pub fn out(
         container.locations.set(mob_id, target_id);
 
         // emmit messages
-        outputs.private_opt(player_id, comm::out_player());
-        outputs.private_opt(player_id, comm::look_description(&container, mob_id).unwrap());
-        outputs.room_opt(player_id, location_id, comm::out_others(mob_label));
-        outputs.room_opt(player_id, target_id, comm::out_others_other_side(mob_label, from_label));
+        outputs.private(mob_id, comm::out_player());
+        outputs.private(mob_id, comm::look_description(&container, mob_id).unwrap());
+        outputs.broadcast(Some(mob_id), location_id, comm::out_others(mob_label));
+        outputs.broadcast(Some(mob_id),target_id, comm::out_others_other_side(mob_label, from_label));
 
-        UOK
+        Ok(())
     } else {
-        outputs.private_opt(player_id, comm::out_fail_bad_outside());
-        UERR
+        outputs.private(mob_id, comm::out_fail_bad_outside());
+        Err(Error::IllegalArgument)
     }
 }

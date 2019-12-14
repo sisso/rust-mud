@@ -3,7 +3,8 @@ use super::domain::*;
 use super::item::*;
 use super::mob::*;
 use crate::utils::text::{plot_points, PlotCfg, PlotPoint};
-use commons::{AsResult, TotalTime, V2};
+use crate::errors::{Result, AsResult};
+use commons::{TotalTime, V2};
 
 pub struct InventoryDesc<'a> {
     pub id: ItemId,
@@ -38,7 +39,7 @@ pub fn help() -> String {
     str.to_string()
 }
 
-pub fn look_description(container: &Container, mob_id: MobId) -> Result<String, ()> {
+pub fn look_description(container: &Container, mob_id: MobId) -> Result<String> {
     let room_id = container.locations.get(mob_id).as_result()?;
     let room = container.rooms.get(room_id).as_result()?;
 
@@ -568,6 +569,7 @@ pub fn space_land_list(candidates: &Vec<&str>) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use commons::V2;
     //    use commons::{DeltaTime, ObjId};
     //    use std::collections::HashSet;
 

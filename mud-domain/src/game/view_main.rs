@@ -6,8 +6,10 @@ use super::comm;
 use super::container::Container;
 use crate::game::comm::InventoryDesc;
 use crate::game::{actions_admin, input_handle_items, input_handle_space, inventory, mob};
-use commons::{ObjId, PlayerId, UResult, UERR, UOK};
+use commons::{ObjId, PlayerId};
 use std::collections::HashSet;
+use crate::game::mob::MobId;
+use crate::errors::{Error, Result, AsResult};
 
 fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc> {
     let equip = container.equips.get(obj_id).unwrap_or(HashSet::new());
@@ -29,20 +31,18 @@ fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc>
 pub fn handle(
     container: &mut Container,
     outputs: &mut dyn Outputs,
-    player_id: PlayerId,
+    mob_id: MobId,
     input: &str,
-) -> UResult {
-    let mob_id = container.players.get_mob(player_id)?;
-
+) -> Result<()> {
     match input {
         "h" | "help" => {
-            outputs.private(player_id, comm::help());
-            UOK
+            outputs.private(mob_id, comm::help());
+            Ok(())
         }
 
         "l" | "look" => {
-            actions::look(container, outputs, player_id);
-            UOK
+            actions::look(container, outputs, mob_id);
+            Ok(())
         }
 
         "n" | "s" | "e" | "w" => {
@@ -54,66 +54,66 @@ pub fn handle(
                 _ => panic!("invalid input {}", input),
             };
 
-            actions::mv(container, outputs, player_id, dir)
+            actions::mv(container, outputs, mob_id, dir)
         }
 
         "enter" => {
-            actions::enter(container, outputs, Some(player_id), mob_id, "")
+            actions::enter(container, outputs, mob_id, "")
         }
 
         _ if has_command(input, &["enter "]) => {
             let args= parse_command(input, &["enter "]);
-            actions::enter(container, outputs, Some(player_id), mob_id, args)
+            actions::enter(container, outputs, mob_id, args)
         }
 
         "exit" | "out" => {
-            actions::out(container, outputs, Some(player_id), mob_id)
+            actions::out(container, outputs, mob_id)
         }
 
         "uptime" => {
-            outputs.private(player_id, comm::uptime(container.time.total));
-            UOK
+            outputs.private(mob_id, comm::uptime(container.time.total));
+            Ok(())
         }
 
-        "rest" => actions::rest(container, outputs, player_id),
+        "rest" => actions::rest(container, outputs, mob_id),
 
-        "stand" => actions::stand(container, outputs, player_id),
+        "stand" => actions::stand(container, outputs, mob_id),
 
         "stats" | "inv" | "score" => {
-            let ctx = container.get_player_context(player_id);
+            let ctx = container.get_mob_ctx(mob_id).as_result()?;
             outputs.private(
-                player_id,
+                mob_id,
                 comm::stats(
                     &ctx.mob.attributes,
-                    &inventory_to_desc(container, ctx.player.mob_id),
+                    &inventory_to_desc(container, ctx.mob.id),
                 ),
             );
-            UOK
+            Ok(())
         }
 
         _ if has_command(input, &["pick ", "get "])  => {
-            input_handle_items::pickup(container, outputs, player_id, parse_arguments(input))
+            input_handle_items::pickup(container, outputs, mob_id, parse_arguments(input))
         }
 
         _ if has_command(input, &["drop "]) => {
-            input_handle_items::drop(container, outputs, player_id, parse_arguments(input))
+            input_handle_items::drop(container, outputs, mob_id, parse_arguments(input))
         }
 
         _ if has_command(input, &["remove "]) => {
-            input_handle_items::strip(container, outputs, player_id, parse_arguments(input))
+            input_handle_items::strip(container, outputs, mob_id, parse_arguments(input))
         }
 
         _ if has_command(input, &["equip "]) => {
-            input_handle_items::equip(container, outputs, player_id, parse_arguments(input))
+            input_handle_items::equip(container, outputs, mob_id, parse_arguments(input))
         }
 
         _ if has_command(input, &["examine "]) => {
-            action_examine(container, outputs, player_id, input)
+            action_examine(container, outputs, mob_id, input)
         }
 
         _ if has_command(input, &["k ", "kill "]) => {
             let target = parse_command(input, &["k ", "kill "]);
-            let ctx = container.get_player_context(player_id);
+            let ctx = container.get_mob_ctx(mob_id).as_result()?;
             let mobs = mob::search_mobs_at(
                 &container.labels,
                 &container.locations,
@@ -124,80 +124,78 @@ pub fn handle(
             let candidate = mobs.first();
 
             match candidate {
-                Some(mob_id) if !container.mobs.is_avatar(*mob_id) => {
-                    let _ = actions::attack(container, outputs, player_id, *mob_id);
-                    UOK
+                Some(&target_mob_id) if !container.mobs.is_avatar(target_mob_id) => {
+                    let _ = actions::attack(container, outputs, mob_id, target_mob_id);
+                    Ok(())
                 }
                 Some(_) => {
-                    outputs.private(player_id, comm::kill_can_not_kill_players(&target));
-                    UERR
+                    outputs.private(mob_id, comm::kill_can_not_kill_players(&target));
+                    Err(Error::IllegalArgument)
                 }
                 None => {
-                    outputs.private(player_id, comm::kill_target_not_found(&target));
-                    UERR
+                    outputs.private(mob_id, comm::kill_target_not_found(&target));
+                    Err(Error::IllegalArgument)
                 }
             }
         }
 
         _ if input.starts_with("say ") => {
             let msg = input["say ".len()..].to_string();
-            actions::say(container, outputs, Some(player_id), mob_id, msg)
+            actions::say(container, outputs, mob_id, msg)
         }
 
         _ if input.starts_with("admin ") => {
             let arguments = parse_arguments(input);
             if arguments.len() != 2 {
-                outputs.private(player_id, comm::admin_invalid_command());
-                return UERR;
+                outputs.private(mob_id, comm::admin_invalid_command());
+                return Err(Error::IllegalArgument);
             }
 
             match arguments.get(1).unwrap().as_ref() {
                 "suicide" => {
-                    let pctx = container.get_player_context(player_id);
-                    let mob_id = pctx.mob.id;
-                    let mob_label = container.labels.get_label_f(mob_id);
-                    outputs.private(player_id, comm::admin_suicide());
-                    outputs.room(
-                        player_id,
+                    let pctx = container.get_mob_ctx(mob_id).as_result()?;
+                    let target_mob_id = pctx.mob.id;
+                    let mob_label = container.labels.get_label_f(target_mob_id);
+                    outputs.private(mob_id, comm::admin_suicide());
+                    outputs.broadcast(
+                        None,
                         pctx.room.id,
                         comm::admin_suicide_others(mob_label),
                     );
-                    actions_admin::kill(container, outputs, mob_id)
+                    actions_admin::kill(container, outputs, target_mob_id)
                 }
                 _other => {
-                    outputs.private(player_id, comm::admin_invalid_command());
-                    UERR
+                    outputs.private(mob_id, comm::admin_invalid_command());
+                    Err(Error::IllegalArgument)
                 }
             }
         }
 
-        "sm" | "map" => input_handle_space::show_starmap(container, outputs, player_id, mob_id),
+        "sm" | "map" => input_handle_space::show_starmap(container, outputs, mob_id),
 
-        "move" => input_handle_space::move_list_targets(container, outputs, player_id, mob_id),
+        "move" => input_handle_space::move_list_targets(container, outputs, mob_id),
 
         _ if input.starts_with("move ") => input_handle_space::move_to(
             container,
             outputs,
-            player_id,
             mob_id,
             parse_arguments(input),
         ),
 
-        "land" => input_handle_space::land_list(container, outputs, player_id, mob_id),
+        "land" => input_handle_space::land_list(container, outputs, mob_id),
 
         _ if input.starts_with("land ") => input_handle_space::land_at(
             container,
             outputs,
-            player_id,
             mob_id,
             parse_arguments(input),
         ),
 
-        "launch" => input_handle_space::launch(container, outputs, player_id, mob_id),
+        "launch" => input_handle_space::launch(container, outputs, mob_id),
 
         _ => {
-            outputs.private(player_id, comm::unknown_input(input));
-            UERR
+            outputs.private(mob_id, comm::unknown_input(input));
+            Err(Error::IllegalArgument)
         }
     }
 }
@@ -205,16 +203,16 @@ pub fn handle(
 fn action_examine(
     container: &Container,
     outputs: &mut dyn Outputs,
-    player_id: PlayerId,
+    mob_id: MobId,
     input: &str,
-) -> UResult {
+) -> Result<()> {
     let target_label = parse_command(input, &["examine "]);
-    let ctx = container.get_player_context(player_id);
+    let room_id = container.locations.get(mob_id).as_result()?;
     let mobs = mob::search_mobs_at(
         &container.labels,
         &container.locations,
         &container.mobs,
-        ctx.room.id,
+        room_id,
         target_label,
     );
 
@@ -223,14 +221,14 @@ fn action_examine(
             let mob_label = container.labels.get_label_f(mob_id);
             let mob = container.mobs.get(mob_id).unwrap();
             outputs.private(
-                player_id,
+                mob_id,
                 comm::examine_target(
                     mob_label,
                     &mob.attributes,
                     &inventory_to_desc(container, mob_id),
                 ),
             );
-            return UOK;
+            return Ok(());
         }
         _ => {}
     }
@@ -239,24 +237,24 @@ fn action_examine(
         &container.labels,
         &container.locations,
         &container.items,
-        ctx.room.id,
+        room_id,
         target_label,
     );
     match items.first().cloned() {
         Some(item_id) => {
             let item_label = container.labels.get_label_f(item_id);
             outputs.private(
-                player_id,
+                mob_id,
                 comm::examine_target_item(item_label, &inventory_to_desc(container, item_id)),
             );
-            return UOK;
+            return Ok(());
         }
         _ => {}
     }
 
     // else
-    outputs.private(player_id, comm::examine_target_not_found(target_label));
-    UERR
+    outputs.private(mob_id, comm::examine_target_not_found(target_label));
+    Err(Error::IllegalArgument)
 }
 
 fn has_command(input: &str, commands: &[&str]) -> bool {

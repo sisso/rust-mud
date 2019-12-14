@@ -4,17 +4,16 @@ use crate::game::body::create_body;
 use commons::*;
 use logs::*;
 
-use super::combat;
-use super::comm;
 use super::container::Container;
-use super::item::*;
-use crate::game::avatars;
+use crate::game::{avatars, combat, comm};
 use crate::game::container::Ctx;
 use crate::game::labels::Labels;
 use crate::game::location;
 use crate::game::location::Locations;
 use crate::game::room::RoomId;
 use crate::game::Outputs;
+use crate::errors::{Result, Error};
+use crate::game::item::ItemPrefabId;
 
 pub type MobId = ObjId;
 pub type MobPrefabId = ObjId;
@@ -225,16 +224,16 @@ impl MobRepository {
         self.index.get(&id).unwrap()
     }
 
-    pub fn update<F>(&mut self, id: MobId, f: F) -> UResult
+    pub fn update<F>(&mut self, id: MobId, f: F) -> Result<()>
     where
         F: FnOnce(&mut Mob),
     {
         if let Some(mob) = self.index.get_mut(&id) {
             f(mob);
             debug!("{:?} updated", mob);
-            UOK
+            Ok(())
         } else {
-            UERR
+            Err(Error::IllegalArgument)
         }
     }
 
@@ -347,13 +346,11 @@ pub fn run_tick(ctx: &mut Ctx) {
 
             let _ = mobs.update(mob_id, |mob| {
                 if mob.update_resting(total_time) {
-                    if mob.is_avatar {
-                        if mob.attributes.pv.is_damaged() {
-                            outputs
-                                .private(player_id, comm::rest_healing(mob.attributes.pv.current));
-                        } else {
-                            outputs.private(player_id, comm::rest_healed());
-                        }
+                    if mob.attributes.pv.is_damaged() {
+                        let msg = comm::rest_healing(mob.attributes.pv.current);
+                        outputs.private(mob_id, msg);
+                    } else {
+                        outputs.private(mob_id, comm::rest_healed());
                     }
                 }
             });
@@ -367,7 +364,7 @@ pub fn kill_mob(
     container: &mut Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
-) -> Result<(), ()> {
+) -> Result<()> {
     info!("{:?} was killed", mob_id);
 
     let _ = create_body(container, outputs, mob_id);

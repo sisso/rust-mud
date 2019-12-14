@@ -70,6 +70,11 @@ impl Dir {
     }
 }
 
+pub struct MobCtx<'a> {
+    pub mob: &'a Mob,
+    pub room: &'a Room,
+}
+
 pub struct PlayerCtx<'a> {
     pub player: &'a Player,
     pub mob: &'a Mob,

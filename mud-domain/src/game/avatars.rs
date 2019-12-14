@@ -4,21 +4,8 @@ use crate::game::location::LocationId;
 use crate::game::mob::{Attributes, Damage, Mob, MobId, Pv};
 use crate::game::{comm, Outputs};
 use commons::{DeltaTime, PlayerId};
-
-//struct PlayerC<'a> {
-//    pub coniner: &'a Container,
-//    pub player_id: PlayerId,
-//    player: Option<&'a Player>,
-//    mob_id: MobId,
-//    mob: Option<&'a Mob>,
-//    room_id: Option<Room_id>,
-//}
-//
-//impl PlayerC {
-//    pub fn get_mob_id(&mut self) -> MobId {
-//        self.conatiner.players.get_player_by_id(self.player_id);
-//    }
-//}
+use crate::game::player::Player;
+use crate::errors::{Error, Result};
 
 pub fn on_player_disconnect(
     container: &mut Container,
@@ -45,7 +32,7 @@ pub fn respawn_avatar(
     container: &mut Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
-) -> Result<(), ()> {
+) -> Result<()> {
     container.mobs.update(mob_id, |mob| {
         assert!(mob.is_avatar);
         mob.attributes.pv.current = 1;
@@ -57,8 +44,8 @@ pub fn respawn_avatar(
 
     container.locations.set(mob_id, room_id);
 
-    outputs.private(player_id, comm::mob_you_resurrected());
-    outputs.room(player_id, room_id, comm::mob_resurrected(mob_label));
+    outputs.private(mob_id, comm::mob_you_resurrected());
+    outputs.broadcast(Some(mob_id), room_id, comm::mob_resurrected(mob_label));
 
     Ok(())
 }
@@ -102,6 +89,7 @@ pub fn find_deep_all_players_in(container: &Container, location_id: LocationId) 
     let candidates = container.locations.list_deep_at(location_id);
     candidates
         .into_iter()
-        .flat_map(|id| container.players.find_from_mob(id).ok())
+        .flat_map(|id| container.players.find_from_mob(id))
         .collect()
 }
+
