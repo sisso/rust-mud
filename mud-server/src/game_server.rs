@@ -39,7 +39,7 @@ impl ServerRunner {
 
         self.game.tick(delta_time);
 
-        for (connection_id, msg) in self.game.get_outputs() {
+        for (connection_id, msg) in self.game.flush_outputs() {
             self.server.output(connection_id, msg);
         }
 

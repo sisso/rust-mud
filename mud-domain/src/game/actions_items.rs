@@ -168,7 +168,7 @@ pub fn do_drop(
 mod test {
     use super::*;
     use crate::game::test::setup;
-    use crate::game::OutputsBuffer;
+    use crate::controller::OutputsBuffer;
 
     #[test]
     pub fn test_do_pickup_should_fail_if_inventory_is_not_inventory() {

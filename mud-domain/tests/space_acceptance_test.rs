@@ -33,7 +33,7 @@ impl TestScenery {
 
     pub fn take_outputs(&mut self) -> Vec<String> {
         self.game
-            .get_outputs()
+            .flush_outputs()
             .into_iter()
             .filter_map(|(id, msg)| {
                 if id == self.connection_id {

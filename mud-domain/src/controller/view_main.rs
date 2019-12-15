@@ -1,15 +1,16 @@
-use super::domain::*;
-use super::Outputs;
-
-use super::actions;
-use super::comm;
-use super::container::Container;
-use crate::game::comm::InventoryDesc;
-use crate::game::{actions_admin, input_handle_items, input_handle_space, inventory, mob};
-use commons::{ObjId, PlayerId};
 use std::collections::HashSet;
+
+use commons::{ObjId, PlayerId};
+
+use crate::errors::{AsResult, Error, Result};
+use crate::game::{actions_admin, input_handle_items, input_handle_space, inventory, mob};
+use crate::game::comm::InventoryDesc;
+use crate::game::container::Container;
 use crate::game::mob::MobId;
-use crate::errors::{Error, Result, AsResult};
+use crate::game::actions;
+use crate::game::comm;
+use crate::game::Outputs;
+use crate::game::domain::Dir;
 
 fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc> {
     let equip = container.equips.get(obj_id).unwrap_or(HashSet::new());
@@ -41,8 +42,7 @@ pub fn handle(
         }
 
         "l" | "look" => {
-            actions::look(container, outputs, mob_id);
-            Ok(())
+            actions::look(container, outputs, mob_id)
         }
 
         "n" | "s" | "e" | "w" => {

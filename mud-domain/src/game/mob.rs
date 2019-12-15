@@ -372,7 +372,7 @@ pub fn kill_mob(
     // remove mob
     let mob = container.mobs.get(mob_id).unwrap();
     if mob.is_avatar {
-        avatars::respawn_avatar(container, outputs, mob_id);
+        avatars::respawn_avatar(container, outputs, mob_id)?;
     } else {
         container.remove(mob_id);
     }
