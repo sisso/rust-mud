@@ -1,3 +1,40 @@
+# Game control connections?
+
+In what scope Game should manage players?
+
+ConnectionId, PlayerId or MobId.
+
+ConnectionId: Is what represent a real, single user. It is the identifier for the input and output, and the key for 
+a specific user state.
+
+PlayerId: Represent a in game player, each player can have multiples connections and have non or more Mobs. A player_id
+is attached to a connection_id through login.
+
+MobId: It is mobs controlled by player. A player can have none or multiples assigned to him. A mob_id is attached to 
+player_id after character creation.
+
+Mostly game rules should be applied in MobId. This mean that any mob, player controlled or no, can interact with the 
+world in a easy way.
+
+The use of player_id would be used only for advanced things like:
+- change avatar
+- change player persistent configuration
+
+## Posses, Connect to Matrix or VR a mech
+
+These are all commands that will require change temporary or permanently the avatar of a player.
+
+Player will need to keep a set of IDs:
+- avatar: MobId - Represent the player in the world, the way to kill you. A human or the hive mind, it is your.
+- monitor: Vec<MobId> - List of mobs that you activilly listen, all messages send to those mobs you will receive as 
+  your own. Including commands failure like, you can not move N
+- controlled: MobId - Is the mob_id that own any action you type
+
+In general case, avatar, monitor and controlled are same id. A posses command will switch both monitor and controlled. A
+camera system can add monitor. 
+
+Maybe: Outputs will need to be extend to split private outputs between "controller only" and monitor
+
 # Vendors
 
 Vendors should contain a list of ID to sell, or should items have a tag that vendor can sell?
