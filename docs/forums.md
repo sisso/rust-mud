@@ -1,3 +1,56 @@
+# Surface deprecation
+
+In terms of MUD would be better to just a list of planets and movement between celestial objects by "injection burn" ->
+"cycling burn" -> "orbital align" -> "dead transfer" ,etc.
+
+Starmap 
+
+$ sm
+Sum
+- Earth
+  - YOU 
+  - ISS (Station)
+  - Luna (Moon)
+    - Orbital (STATION)
+    - Dragon (Cruiser)
+- Venus
+
+$ move Orbital
+Calculating transfer.
+burn cost 5.000 DV, new fuel is 15000 DV
+Executing alignment burn.
+Executing launch burn.
+Launch complete, arrival in 38 seconds.
+Computing re-orbiting
+Executing cycling burn.
+Transfer complete.
+
+$ move sol earth luna orbital 200k 3
+Calculating transfer.
+burn cost 15.000 DV, new fuel is 5000 DV
+Executing alignment burn.
+Executing launch burn.
+Launch complete, arrival in 12 seconds.
+Computing re-orbiting at 200km
+.
+.
+.
+
+## Solar system structure
+
+Negative                                               Positive
+64 - 32 - 16 - 8 - 4 - 2 - 1 - 0 - 1 - 2 - 4 - 8 - 16 - 32 - 64
+                              Sum
+                               Mercury
+                                 Venus
+                         Earth
+                       Moon
+               Mars
+                                            Netuno
+       Urannu
+
+
+
 # Game control connections?
 
 In what scope Game should manage players?

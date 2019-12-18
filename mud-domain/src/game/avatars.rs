@@ -6,6 +6,7 @@ use crate::game::{comm, Outputs};
 use commons::{DeltaTime, PlayerId};
 use crate::game::player::Player;
 use crate::errors::{Error, Result};
+use crate::game::loader::Loader;
 
 pub fn on_player_disconnect(
     container: &mut Container,
@@ -37,7 +38,7 @@ pub fn respawn_avatar(
         assert!(mob.is_avatar);
         mob.attributes.pv.current = 1;
     })?;
-    let room_id = container.config.initial_room;
+    let room_id = container.config.initial_room.unwrap();
 
     let player_id = container.players.find_from_mob(mob_id).unwrap();
     let mob_label = container.labels.get_label(mob_id).unwrap();
@@ -51,9 +52,14 @@ pub fn respawn_avatar(
 }
 
 pub fn create_player(container: &mut Container, login: &str) -> PlayerId {
-    let room_id = container.config.initial_room;
+    let avatar_static_id = container.config.avatar_id.unwrap();
+    let room_id = container.config.initial_room.unwrap();
     let player_id = container.objects.create();
+
+    Loader::spawn_at(container, avatar_static_id, room_id);
+
     let mob_id = container.objects.create();
+
 
     let mut mob = Mob::new(mob_id);
     mob.is_avatar = true;

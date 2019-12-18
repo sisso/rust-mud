@@ -147,7 +147,7 @@ cfg {
         let cfg = data.cfg.expect("cfg field is not defined");
         assert_eq!(cfg.initial_room.as_u32(), 0);
         assert_eq!(cfg.avatar_mob.as_u32(), 1);
-        assert_eq!(cfg.initial_craft.as_u32(), 2);
+        assert_eq!(cfg.initial_craft.unwrap().as_u32(), 2);
 
         Ok(())
     }

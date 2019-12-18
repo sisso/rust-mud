@@ -1,5 +1,7 @@
 # Todo
 
+- remove surface and reimplement space by using a list of celestial systems
+
 # Design
 
 - how we can introduce a new view that will stop to receive events? Like stunned?

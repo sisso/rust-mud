@@ -1,5 +1,4 @@
 pub mod scenery_fantasy;
-pub mod scenery_space;
 mod hocon_parser;
 
 use serde::Deserialize;
@@ -21,6 +20,7 @@ use crate::game::crafts::Craft;
 use crate::errors;
 use crate::errors::Error::StaticIdNotFound;
 use crate::errors::Error;
+use crate::game::config::Config;
 
 #[derive(Deserialize, Debug)]
 pub struct RoomExitData {
@@ -91,7 +91,7 @@ pub struct ObjData {
 pub struct CfgData {
     pub initial_room: StaticId,
     pub avatar_mob: StaticId,
-    pub initial_craft: StaticId,
+    pub initial_craft: Option<StaticId>,
 }
 
 // TODO: remove HashMap, the key is probably never used
@@ -343,8 +343,12 @@ impl Loader {
         Loader::initialize_all(container, data.objects);
 
         // update configurations with references
-        if let Some(cfg) = data.cfg {
-            container.config.initial_room = ObjId(cfg.initial_room.as_u32());
+        match data.cfg {
+            Some(CfgData { initial_room, avatar_mob, initial_craft }) => {
+                container.config.initial_room = Some(ObjId(initial_room.as_u32()));
+                container.config.avatar_id = Some(avatar_mob);
+            }
+            _ => {},
         }
 
         Ok(())
