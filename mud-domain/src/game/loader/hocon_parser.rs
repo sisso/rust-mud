@@ -96,7 +96,13 @@ impl HParser {
 
         for (_key, value) in map {
             let obj: ObjData = HParser::load_obj(value)?;
-            objects.insert(StaticId(obj.id), obj);
+
+            let static_id = StaticId(obj.id);
+            if objects.contains_key(&static_id) {
+                panic!("duplicated id {:?}", static_id);
+            }
+
+            objects.insert(static_id, obj);
         }
 
         Ok(())
