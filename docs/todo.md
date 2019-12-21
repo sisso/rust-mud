@@ -1,6 +1,7 @@
 # Todo
 
 - remove surface and reimplement space by using a list of celestial systems
+- change static_id to strings
 
 # Design
 
@@ -23,6 +24,8 @@
 - serialization 
 - seller and store
 - see inside a Vehicle
+- crafting
+- casting
 - improve combat 
   - dodge
   - aggressive
@@ -53,7 +56,6 @@
 
 # Refactoring
 
-- send messages to mob_id instead player_id
 - re-organize code modules
 - split views, parsing, actions, domain methods and repository
 - use ReadRepo<T> and WriteRepo<T>
