@@ -46,6 +46,8 @@ impl TestScenery {
     }
 
     pub fn wait_for(&mut self, contains: &str) -> Vec<String> {
+        let mut buffer = vec![];
+
         for _ in 0..100 {
             let outputs = self.take_outputs();
             let found = outputs.iter().find(|msg| msg.contains(contains));
@@ -53,11 +55,12 @@ impl TestScenery {
             if found.is_some() {
                 return outputs;
             } else {
+                buffer.extend(outputs);
                 self.tick();
             }
         }
 
-        panic!(format!("timeout waiting for {:?}", contains));
+        panic!(format!("timeout waiting for {:?}, outputs received\n{}", contains, buffer.join("\n")));
     }
 
     pub fn tick(&mut self) {
@@ -106,7 +109,7 @@ fn test_sectormap() -> Result<(), ()> {
     scenery.wait_for("launch complete");
 
     scenery.send_input("sm");
-    scenery.wait_for("......");
+    scenery.wait_for("Dune");
 
     Ok(())
 }

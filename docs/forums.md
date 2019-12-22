@@ -1,3 +1,29 @@
+# Timers
+
+All non instantaneous tasks will require some timer to keep track. Currently almost every long
+operation require a check every tick by nextTime < totalTime.
+
+Event machine is easy. The main issues are:
+
+1) Track of what need to execute when trigger
+
+a) Store the closure to execute
+
+b) Run a trigger
+
+2) Serialize scheduled tasks
+
+
+## Implementation
+
+Each system can schedule tasks by (namespace_uuid) -> arguments.
+
+namespace_uuid is used to cancel, check, notify the owner that timer has trigger. 
+
+argument is used to forward variables.
+
+namespace_uuid and all arguments need to be serialize. So the timer will restrict the types.
+
 # Triggers
 
 Triggers require that a event dispatcher and subscriber. 

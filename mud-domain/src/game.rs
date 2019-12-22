@@ -44,7 +44,11 @@ pub mod tags;
 pub mod template;
 
 pub trait Outputs {
+    /// For all mobs recursive inside the location
+    fn broadcast_all(&mut self, exclude: Option<MobId>, location_id: LocationId, msg: String);
+    /// For all mobs in current location
     fn broadcast(&mut self, exclude: Option<MobId>, location_id: LocationId, msg: String);
+    /// Just to a specific mob
     fn private(&mut self, mob_id: MobId, msg: String);
 }
 
@@ -53,7 +57,6 @@ pub struct Game {
     controller: Controller,
 }
 
-// TODO: dilacerate this classe into mud-server
 impl Game {
     pub fn new(container: Container) -> Self {
         Game {

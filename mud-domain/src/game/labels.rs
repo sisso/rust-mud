@@ -52,6 +52,12 @@ impl Labels {
         self.index.insert(label.id, label);
     }
 
+    pub fn update(&mut self, label: Label) {
+        assert!(self.index.contains_key(&label.id));
+        debug!("{:?} updated", label);
+        self.index.insert(label.id, label);
+    }
+
     pub fn remove(&mut self, id: ObjId) -> Option<Label> {
         debug!("{:?} removed", id);
         self.index.remove(&id)

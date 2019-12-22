@@ -46,7 +46,7 @@ pub fn do_land_at(
     let craft_label = container.labels.get_label(craft_id).unwrap();
 
     // emit events
-    outputs.broadcast(None, craft_id, comm::space_land_complete());
+    outputs.broadcast_all(None, craft_id, comm::space_land_complete());
     outputs.broadcast(None, landing_id, comm::space_land_complete_others(craft_label));
 
     Ok(())
@@ -92,7 +92,7 @@ pub fn do_launch(
 
     // emit events
     outputs.broadcast(None, ship_id, comm::space_launch_complete());
-    outputs.broadcast(
+    outputs.broadcast_all(
         None,
         landing_pad_id,
         comm::space_launch_complete_others(craft_label),

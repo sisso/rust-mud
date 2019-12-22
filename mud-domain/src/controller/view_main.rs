@@ -217,15 +217,15 @@ fn action_examine(
     );
 
     match mobs.first().cloned() {
-        Some(mob_id) => {
-            let mob_label = container.labels.get_label_f(mob_id);
-            let mob = container.mobs.get(mob_id).unwrap();
+        Some(target_id) => {
+            let mob_label = container.labels.get_label_f(target_id);
+            let mob = container.mobs.get(target_id).unwrap();
             outputs.private(
                 mob_id,
                 comm::examine_target(
                     mob_label,
                     &mob.attributes,
-                    &inventory_to_desc(container, mob_id),
+                    &inventory_to_desc(container, target_id),
                 ),
             );
             return Ok(());

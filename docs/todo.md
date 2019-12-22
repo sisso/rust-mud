@@ -1,3 +1,7 @@
+# Fix
+
+- Pedrita enter in the Light Transport\nPedrita comes from outside
+
 # Todo
 
 - remove surface and reimplement space by using a list of celestial systems

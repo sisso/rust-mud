@@ -2,6 +2,7 @@ use super::container::Container;
 use super::domain::*;
 use super::item::*;
 use super::mob::*;
+use logs::*;
 use crate::utils::text::{plot_points, PlotCfg, PlotPoint};
 use crate::errors::{Result, AsResult};
 use commons::{TotalTime, V2, ObjId};
@@ -552,6 +553,7 @@ pub fn space_launch_complete_others(_craft_label: &str) -> String {
     "{} have launched into orbit".to_string()
 }
 
+#[derive(Debug, Clone, Copy)]
 pub enum ShowSectorTreeBodyKind {
     Planet,
     Star,
@@ -561,36 +563,13 @@ pub enum ShowSectorTreeBodyKind {
     Unknown,
 }
 
+#[derive(Debug)]
 pub struct ShowSectorTreeBody<'a> {
     pub id: ObjId,
     pub label: &'a str,
     pub orbit_id: Option<ObjId>,
     pub kind: ShowSectorTreeBodyKind,
 }
-
-//pub fn show_sectortree<'a>(bodies: &'a Vec<ShowSectorTreeBody<'a>>) -> String {
-//    let append = |orbit_id: Option<ObjId>, prefix: &str| -> Vec<String> {
-//        let list =
-//            bodies
-//                .iter()
-//                .filter(|e| e.orbit_id == orbit_id);
-//
-//        let mut buffer = vec![];
-//
-//        for body in list {
-//            buffer.push(body.label.to_string());
-//
-//            let children_buffer = append(Some(body.id), "  ");
-//            buffer.extend(children_buffer);
-//        }
-//
-//        buffer
-//    };
-//
-//    let mut buffer = append(None, "");
-//    buffer.push("\n".to_string());
-//    buffer.join("\n")
-//}
 
 pub fn show_sectortree<'a>(bodies: &'a Vec<ShowSectorTreeBody<'a>>) -> String {
     fn append<'a>(bodies: &'a Vec<ShowSectorTreeBody<'a>>, buffer: &mut Vec<String>, orbit_id: Option<ObjId>, prefix: &str) {

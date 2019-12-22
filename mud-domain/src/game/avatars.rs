@@ -21,9 +21,9 @@ pub fn on_player_login(
     container: &mut Container,
     _outputs: &mut dyn Outputs,
     login: &str,
-) -> PlayerId {
+) -> Result<PlayerId> {
     match container.players.login(login) {
-        Some(player_id) => player_id,
+        Some(player_id) => Ok(player_id),
         None => create_player(container, login),
     }
 }
@@ -50,33 +50,15 @@ pub fn respawn_avatar(
     Ok(())
 }
 
-pub fn create_player(container: &mut Container, login: &str) -> PlayerId {
+// TODO: detach avatar creation from player
+pub fn create_player(container: &mut Container, login: &str) -> Result<PlayerId> {
     let avatar_static_id = container.config.avatar_id.unwrap();
     let room_id = container.config.initial_room.unwrap();
     let player_id = container.objects.create();
 
-    Loader::spawn_at(container, avatar_static_id, room_id);
+    let mob_id = Loader::spawn_at(container, avatar_static_id, room_id)?;
 
-    let mob_id = container.objects.create();
-
-
-    let mut mob = Mob::new(mob_id);
-    mob.is_avatar = true;
-    mob.attributes = Attributes {
-        attack: 12,
-        defense: 12,
-        damage: Damage { min: 1, max: 4 },
-        pv: Pv {
-            current: 10,
-            max: 10,
-            heal_rate: DeltaTime(1.0),
-        },
-        attack_calm_down: DeltaTime(1.0),
-    };
-    container.mobs.add(mob);
-
-    container.locations.set(mob_id, room_id);
-    container.labels.set(Label {
+    container.labels.update(Label {
         id: mob_id,
         label: login.to_string(),
         code: login.to_string(),
@@ -87,13 +69,23 @@ pub fn create_player(container: &mut Container, login: &str) -> PlayerId {
     let player = container
         .players
         .create(player_id, login.to_string(), mob_id);
-    player.id
+
+    Ok(player.id)
 }
 
-pub fn find_deep_all_players_in(container: &Container, location_id: LocationId) -> Vec<PlayerId> {
+pub fn find_deep_players_in(container: &Container, location_id: LocationId) -> Vec<PlayerId> {
     let candidates = container.locations.list_deep_at(location_id);
+
     candidates
         .into_iter()
+        .flat_map(|id| container.players.find_from_mob(id))
+        .collect()
+}
+
+pub fn find_players_in(container: &Container, location_id: LocationId) -> Vec<PlayerId> {
+    let candidates = container.locations.list_at(location_id);
+
+    candidates
         .flat_map(|id| container.players.find_from_mob(id))
         .collect()
 }

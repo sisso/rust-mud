@@ -28,6 +28,8 @@ enum Output {
         exclude: Option<MobId>,
         /// RoomId or ZoneId, all children mobs will receive the message
         location_id: LocationId,
+        /// recursive search for mobs to send message
+        recursive: bool,
         msg: String,
     },
 }
@@ -48,11 +50,21 @@ impl OutputsBuffer {
 }
 
 impl Outputs for OutputsBuffer {
+    fn broadcast_all(&mut self, exclude: Option<ObjId>, location_id: ObjId, msg: String) {
+        self.list.push(Output::Broadcast {
+            exclude,
+            location_id,
+            msg,
+            recursive: true,
+        })
+    }
+
     fn broadcast(&mut self, exclude: Option<ObjId>, location_id: ObjId, msg: String) {
         self.list.push(Output::Broadcast {
             exclude,
             location_id,
-            msg
+            msg,
+            recursive: false,
         })
     }
 
@@ -129,11 +141,12 @@ impl Controller {
                 LoginResult::Login { login } => {
                     self.server_outputs
                         .push((connection_id, view_login::on_login_success(login.as_str())));
+                    // TODO: add login fail
                     let player_id = avatars::on_player_login(
                         container,
                         &mut self.outputs,
                         login.as_str(),
-                    );
+                    ).unwrap();
                     debug!("{:?} login complete for {:?}", connection_id, player_id);
                     self.set_state(ConnectionState {
                         connection_id,
@@ -216,27 +229,33 @@ impl Controller {
 
                     if let Some((player_id, connection_id)) = connection_id {
                         debug!("{:?} - {}", player_id, msg);
-                        self.server_outputs.push((connection_id, msg));
+                        self.server_outputs.push((connection_id, format!("{}\n", msg)));
                     }
                 }
 
                 Output::Broadcast {
                     exclude,
                     location_id,
+                    recursive,
                     msg
                 } => {
                     let exclude_player = exclude.and_then(|mob_id| container.players.find_from_mob(mob_id));
 
-                    let connections: Vec<(PlayerId, ConnectionId)> =
-                        avatars::find_deep_all_players_in(&container, location_id)
-                            .iter()
-                            .filter(|&&player_id| Some(player_id) != exclude)
-                            .flat_map(|&player_id| self.zip_connection_id_from_player_id(player_id))
-                            .collect();
+                    let players: Vec<PlayerId> =
+                        if recursive {
+                            avatars::find_deep_players_in(&container, location_id)
+                        } else {
+                            avatars::find_players_in(&container, location_id)
+                        };
+
+                    let connections: Vec<(PlayerId, ConnectionId)> = players.into_iter()
+                        .filter(|&player_id| Some(player_id) != exclude_player)
+                        .flat_map(|player_id| self.zip_connection_id_from_player_id(player_id))
+                        .collect();
 
                     for (player_id, connection_id) in connections {
                         debug!("{:?} - {}", player_id, msg);
-                        self.server_outputs.push((connection_id, msg.clone()))
+                        self.server_outputs.push((connection_id, format!("{}\n", msg)))
                     }
                 }
             }
