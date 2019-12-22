@@ -9,14 +9,26 @@ use commons::{PlayerId};
 use crate::game::actions_craft::{do_land_at, do_launch};
 use crate::errors::{Error, Result, AsResult};
 
+pub fn show_startree(
+    container: &Container,
+    outputs: &mut dyn Outputs,
+    mob_id: MobId,
+) -> Result<()> {
+    let (craft_id, sector_id) = get_craft_and_sector(container, outputs, mob_id)?;
+    let bodies = find_astro_bodies(container, sector_id);
+    outputs.private(mob_id, comm::show_sectortree(&bodies));
+    Ok(())
+}
+
+#[deprecated]
 pub fn show_starmap(
     container: &Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
 ) -> Result<()> {
-    let (craft_id, craft_location) = get_craft_and_location(container, outputs, mob_id)?;
-    let objects = get_objects_in_surface(container, craft_id, craft_location);
-    outputs.private(mob_id, comm::space_show_sectormap(&objects));
+    let (craft_id, sector_id) = get_craft_and_sector(container, outputs, mob_id)?;
+    let objects = get_objects_in_surface(container, craft_id, sector_id);
+    outputs.private(mob_id, comm::show_surface_map(&objects));
     Ok(())
 }
 
@@ -25,7 +37,7 @@ pub fn move_list_targets(
     outputs: &mut dyn Outputs,
     mob_id: MobId,
 ) -> Result<()> {
-    let (craft_id, craft_location) = get_craft_and_location(container, outputs, mob_id)?;
+    let (craft_id, craft_location) = get_craft_and_sector(container, outputs, mob_id)?;
     let objects = get_objects_in_surface(container, craft_id, craft_location);
     outputs.private(mob_id, comm::space_show_move_targets(&objects));
     Ok(())
@@ -37,7 +49,7 @@ pub fn move_to(
     mob_id: MobId,
     input: Vec<&str>,
 ) -> Result<()> {
-    let (craft_id, craft_location) = get_craft_and_location(container, outputs, mob_id)?;
+    let (craft_id, craft_location) = get_craft_and_sector(container, outputs, mob_id)?;
     input
         .get(1)
         .ok_or(Error::IllegalArgument)

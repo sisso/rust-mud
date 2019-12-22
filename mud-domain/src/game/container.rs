@@ -15,9 +15,9 @@ use crate::game::location::Locations;
 use crate::game::equip::Equips;
 use crate::game::tags::Tags;
 use crate::game::labels::Labels;
-use crate::game::crafts::Crafts;
+use crate::game::crafts::Ships;
 use crate::game::surfaces::Surfaces;
-use crate::game::planets::Planets;
+use crate::game::astro_bodies::AstroBodies;
 use crate::game::pos::PosRepo;
 use crate::game::surfaces_object::SurfaceObjects;
 
@@ -39,9 +39,9 @@ pub struct Container {
     pub equips: Equips,
     pub tags: Tags,
     pub labels: Labels,
-    pub crafts: Crafts,
+    pub ship: Ships,
     pub sectors: Surfaces,
-    pub planets: Planets,
+    pub astro_bodies: AstroBodies,
     pub pos: PosRepo,
     pub surface_objects: SurfaceObjects,
     pub loader: Loader,
@@ -62,9 +62,9 @@ impl Container {
             equips: Equips::new(),
             tags: Tags::new(),
             labels: Labels::new(),
-            crafts: Crafts::new(),
+            ship: Ships::new(),
             sectors: Surfaces::new(),
-            planets: Planets::new(),
+            astro_bodies: AstroBodies::new(),
             pos: PosRepo::new(),
             surface_objects: SurfaceObjects::new(),
             loader: Loader::new(),

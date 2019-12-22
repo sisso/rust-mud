@@ -1,3 +1,21 @@
+# Triggers
+
+Triggers require that a event dispatcher and subscriber. 
+
+Don't necessary means that they are callback. Triggers can be processed by a systems that iterate though all generated
+events in normal execution.
+
+In a ideal use case, the full architecture need to be model in a way that all messages become events. Triggers respond
+to events. All player messages are basically a trigger listener.
+
+## Sequential vs lazy triggers
+
+A trigger system can process any event existent in same tick. The order of systems is very important to process all
+executed.
+
+A lazy trigger will process all events generated in last tick. This is usually more stable but impossibility many
+uses cases like "send messages to users when something happens" without using a high fps.
+
 # Ownership
 
 Something like location, ownership define what owns what. This will be used to defined avatars, who owns what itens and
@@ -29,6 +47,7 @@ Sum
   - Luna (Moon)
     - Orbital (STATION)
     - Dragon (Cruiser)
+- Cargo 1 (in flight to Luna)
 - Venus
 
 $ move Orbital
@@ -51,7 +70,6 @@ Computing re-orbiting at 200km
 .
 .
 .
-
 ## Solar system structure
 
 Negative                                               Positive
@@ -65,7 +83,15 @@ Negative                                               Positive
                                             Netuno
        Urannu
 
+## Model
 
+In the end is like a space hierarchic, every object is in orbit of another object in space. While not true relevant, 
+would be interesting to keep track.
+
+SpaceObject
+
+Planet {
+}
 
 # Game control connections?
 

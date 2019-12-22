@@ -1,15 +1,15 @@
 use crate::game::comm;
 use crate::game::container::Ctx;
-use crate::game::crafts::CraftCommand;
+use crate::game::crafts::ShipCommand;
 use crate::utils::geometry;
 
 pub fn tick(ctx: &mut Ctx) {
     let mut commands_complete = vec![];
 
-    for craft in ctx.container.crafts.list_all() {
+    for craft in ctx.container.ship.list_all() {
         match craft.command {
-            CraftCommand::Idle => {}
-            CraftCommand::MoveTo { target_id } => {
+            ShipCommand::Idle => {}
+            ShipCommand::MoveTo { target_id } => {
                 let target_pos = ctx.container.pos.get_pos(target_id);
                 let self_pos = ctx.container.pos.get_pos(craft.id);
 
@@ -34,8 +34,8 @@ pub fn tick(ctx: &mut Ctx) {
 
     for (craft_id, success) in commands_complete {
         ctx.container
-            .crafts
-            .set_command(craft_id, CraftCommand::Idle)
+            .ship
+            .set_command(craft_id, ShipCommand::Idle)
             .unwrap();
 
         let msg = if success {

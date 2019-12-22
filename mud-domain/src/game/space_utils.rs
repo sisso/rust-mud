@@ -1,11 +1,12 @@
-use crate::game::comm::{ShowStarmapDescKind, SurfaceDesc};
+use crate::game::comm::{ShowStarmapDescKind, SurfaceDesc, ShowSectorTreeBody, ShowSectorTreeBodyKind};
 use crate::game::container::Container;
-use crate::game::crafts::CraftId;
+use crate::game::crafts::ShipId;
 use crate::game::location::LocationId;
 use crate::game::mob::MobId;
 use crate::game::{comm, Outputs};
 use crate::errors::{Result, Error, AsResult};
-use commons::{ObjId, PlayerId, MIN_DISTANCE};
+use commons::{ObjId, PlayerId, MIN_DISTANCE, V2};
+use crate::game::astro_bodies::AstroBody;
 
 pub fn find_surface_target(
     container: &mut Container,
@@ -34,8 +35,8 @@ pub fn get_objects_in_surface(
         .flat_map(|id| {
             let label = container.labels.get_label_f(id);
             let pos = container.pos.get_pos(id);
-            let is_craft = container.crafts.exists(id);
-            let is_planet = container.planets.exists(id);
+            let is_craft = container.ship.exists(id);
+            let is_planet = container.astro_bodies.exists(id);
 
             match pos {
                 Some(pos) if is_craft => Some(SurfaceDesc {
@@ -73,7 +74,7 @@ pub fn search_near_landing_sites(container: &Container, craft_id: ObjId) -> Vec<
                 .locations
                 .list_at(location_id)
                 .filter(|&obj_id| {
-                    if !container.planets.exists(obj_id) {
+                    if !container.astro_bodies.exists(obj_id) {
                         return false;
                     }
 
@@ -102,11 +103,11 @@ pub fn search_near_landing_sites(container: &Container, craft_id: ObjId) -> Vec<
         .unwrap_or(vec![])
 }
 
-pub fn get_craft_and_location(
+pub fn get_craft_and_sector(
     container: &Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
-) -> Result<(CraftId, ObjId)> {
+) -> Result<(ShipId, ObjId)> {
     let craft_id = match get_craft(container, mob_id) {
         Some(craft_id) => craft_id,
         None => {
@@ -124,25 +125,25 @@ pub fn get_craft_and_location(
     return Ok((craft_id, craft_location));
 }
 
-pub fn get_craft(container: &Container, mob_id: MobId) -> Option<CraftId> {
+pub fn get_craft(container: &Container, mob_id: MobId) -> Option<ShipId> {
     let room_id = container.locations.get(mob_id)?;
     if !container.rooms.exists(room_id) {
         return None;
     }
 
     let craft_id = container.locations.get(room_id)?;
-    if !container.crafts.exists(craft_id) {
+    if !container.ship.exists(craft_id) {
         return None;
     }
 
     Some(craft_id)
 }
 
-pub fn find_ships_at(container: &Container, location_id: LocationId) -> Vec<CraftId> {
+pub fn find_ships_at(container: &Container, location_id: LocationId) -> Vec<ShipId> {
     container
         .locations
         .list_at(location_id)
-        .filter(|&id| container.crafts.exists(id))
+        .filter(|&id| container.ship.exists(id))
         .collect()
 }
 
@@ -154,4 +155,45 @@ pub fn find_children_rooms_with_can_exit(container: &Container, location_id: Loc
         .filter(|room| room.can_exit)
         .map(|room| room.id)
         .collect()
+}
+
+pub fn find_astro_bodies(
+    container: &Container,
+    sector_id: ObjId,
+) -> Vec<ShowSectorTreeBody> {
+    container.locations.list_deep_at(sector_id)
+        .into_iter()
+        .flat_map(|id| to_showsectortreebody(container, id))
+        .collect()
+}
+
+fn to_showsectortreebody(container: &Container, obj_id: ObjId) -> Option<ShowSectorTreeBody> {
+    match (
+        container.astro_bodies.get(obj_id),
+        container.ship.get(obj_id)
+    ) {
+        (Some(body), None) => {
+            let body = ShowSectorTreeBody {
+                id: obj_id,
+                label: container.labels.get_label_f(obj_id),
+                orbit_id: body.orbit_id,
+                kind: ShowSectorTreeBodyKind::Unknown,
+            };
+
+            Some(body)
+        },
+        (_, Some(ship)) => {
+            let body = ShowSectorTreeBody {
+                id: obj_id,
+                label: container.labels.get_label_f(obj_id),
+                // FIXME: implement
+                orbit_id: None,
+                kind: ShowSectorTreeBodyKind::Ship,
+            };
+
+            Some(body)
+        },
+        _ => None,
+    }
+
 }

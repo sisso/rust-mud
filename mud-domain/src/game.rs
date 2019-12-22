@@ -31,7 +31,7 @@ pub mod loader;
 pub mod location;
 pub mod mob;
 pub mod obj;
-pub mod planets;
+pub mod astro_bodies;
 pub mod player;
 pub mod pos;
 pub mod room;

@@ -9,14 +9,14 @@ use crate::game::domain::Dir;
 use crate::game::labels::Label;
 use crate::game::loader::hocon_parser::HParser;
 use crate::game::mob::Mob;
-use crate::game::planets::Planet;
+use crate::game::astro_bodies::AstroBody;
 use crate::game::pos::Pos;
 use crate::game::room::Room;
 use crate::game::surfaces::Surface;
 use commons::{ObjId, V2, Either};
 use logs::*;
 use crate::game::obj::Objects;
-use crate::game::crafts::Craft;
+use crate::game::crafts::Ship;
 use crate::errors;
 use crate::errors::Error::StaticIdNotFound;
 use crate::errors::Error;
@@ -35,7 +35,10 @@ pub struct RoomData {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct PlanetData {}
+pub struct AstroBodyData {
+    pub kind: Option<String>,
+    pub orbit_id: Option<u32>,
+}
 
 #[derive(Deserialize, Debug)]
 pub struct SectorData {}
@@ -76,7 +79,7 @@ pub struct ObjData {
     pub code: Option<Vec<String>>,
     pub desc: Option<String>,
     pub room: Option<RoomData>,
-    pub planet: Option<PlanetData>,
+    pub astro_body: Option<AstroBodyData>,
     pub sector: Option<SectorData>,
     pub mob: Option<MobData>,
     pub pos: Option<PosData>,
@@ -250,12 +253,18 @@ impl Loader {
             container.pos.set(obj_id, V2::new(pos.x, pos.y));
         }
 
-        if let Some(_planet) = &data.planet {
-            container.planets.add(Planet { id: obj_id });
+        if let Some(astro_body) = &data.astro_body {
+            let mut body = AstroBody::new(obj_id);
+            body.orbit_id = if let Some(static_id) = astro_body.orbit_id {
+                Some(Loader::get_by_static_id(&container.objects, &references, StaticId(static_id))?)
+            } else {
+                None
+            };
+            container.astro_bodies.add(body);
         }
 
         if let Some(craft) = &data.craft {
-            container.crafts.add(Craft::new(obj_id));
+            container.ship.add(Ship::new(obj_id));
         }
 
         if let Some(_surfaces) = &data.sector {

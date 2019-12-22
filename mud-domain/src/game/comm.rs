@@ -4,7 +4,7 @@ use super::item::*;
 use super::mob::*;
 use crate::utils::text::{plot_points, PlotCfg, PlotPoint};
 use crate::errors::{Result, AsResult};
-use commons::{TotalTime, V2};
+use commons::{TotalTime, V2, ObjId};
 
 pub struct InventoryDesc<'a> {
     pub id: ItemId,
@@ -443,7 +443,7 @@ pub struct SurfaceDesc {
     pub label: String,
 }
 
-pub fn space_show_sectormap(desc: &Vec<SurfaceDesc>) -> String {
+pub fn show_surface_map(desc: &Vec<SurfaceDesc>) -> String {
     let cfg = PlotCfg {
         width: 10,
         height: 10,
@@ -552,6 +552,46 @@ pub fn space_launch_complete_others(_craft_label: &str) -> String {
     "{} have launched into orbit".to_string()
 }
 
+pub enum ShowSectorTreeBodyKind {
+    Planet,
+    Star,
+    Ship,
+    Asteroids,
+    Station,
+    Unknown,
+}
+
+pub struct ShowSectorTreeBody<'a> {
+    pub id: ObjId,
+    pub label: &'a str,
+    pub orbit_id: Option<ObjId>,
+    pub kind: ShowSectorTreeBodyKind,
+}
+
+pub fn show_sectortree<'a>(bodies: &'a Vec<ShowSectorTreeBody<'a>>) -> String {
+    fn append<'a>(bodies: &'a Vec<ShowSectorTreeBody<'a>>, buffer: &mut Vec<String>, orbit_id: Option<ObjId>, prefix: &str) {
+        let list = bodies.iter().filter(|e| e.orbit_id == orbit_id);
+
+        let (local_prefix, next_prefix) =
+            if orbit_id.is_none() {
+                ("", "- ".to_string())
+            } else {
+                (prefix, format!("  {}", prefix))
+            };
+
+        for body in list {
+            buffer.push(format!("{}{}", local_prefix, body.label));
+            append(bodies, buffer, Some(body.id), next_prefix.as_str());
+        }
+    }
+
+    let mut buffer = Vec::new();
+    append(bodies, &mut buffer, None, "");
+    buffer.push("".to_string());
+
+    buffer.join("\n")
+}
+
 //pub fn space_land_started() -> String {
 //    "command accepted, starting landing procedures.".to_string()
 //}
@@ -570,52 +610,6 @@ pub fn space_land_list(candidates: &Vec<&str>) -> String {
 mod tests {
     use super::*;
     use commons::V2;
-    //    use commons::{DeltaTime, ObjId};
-    //    use std::collections::HashSet;
-
-    //    fn item_0_coins() -> Item {
-    //        let mut item = Item::new(
-    //            ObjId(0),
-    //            ITEM_KIND_GOLD,
-    //            "coins".to_string()
-    //        );
-    //
-    //        item.amount = 2;
-    //
-    //        item
-    //    }
-    //
-    //    fn item_1_weapon() -> Item {
-    //        let mut item = Item::new(
-    //            ObjId(1),
-    //            ITEM_KIND_UNDEFINED,
-    //            "weapon".to_string()
-    //        );
-    //
-    //        item.weapon = Some(Weapon {
-    //            damage_min: 1,
-    //            damage_max: 2,
-    //            reload: DeltaTime(1.0)
-    //        });
-    //
-    //        item
-    //    }
-    //
-    //    fn strip_colors(input: String) -> String {
-    //        input
-    //    }
-
-    #[test]
-    fn show_inventory_test() {
-        //        let coins = item_0_coins();
-        //        let weapon = item_1_weapon();
-        //        let items = vec![&coins, &weapon];
-        //        let equip : HashSet<ItemId> = vec![weapon.id].into_iter().collect();
-        //        let string = show_inventory(&items, &equip);
-        //        assert_eq!("Inventory:\n\
-        //                    - coins (2)\n\
-        //                    - weapon*", string);
-    }
 
     #[test]
     fn help_test() {
@@ -652,8 +646,51 @@ mod tests {
             },
         ];
 
-        let string = space_show_sectormap(&objects);
+        let string = show_surface_map(&objects);
         //        assert_eq!("", string.as_str());
         assert!(string.as_str().contains("2 - @ three"));
+    }
+
+    #[test]
+    fn test_show_sectortree() {
+        let bodies = vec![
+            ShowSectorTreeBody {
+                id: ObjId(0),
+                label: "Sun",
+                orbit_id: None,
+                kind: ShowSectorTreeBodyKind::Star
+            },
+            ShowSectorTreeBody {
+                id: ObjId(1),
+                label: "Earth",
+                orbit_id: Some(ObjId(0)),
+                kind: ShowSectorTreeBodyKind::Planet
+            },
+            ShowSectorTreeBody {
+                id: ObjId(2),
+                label: "Moon",
+                orbit_id: Some(ObjId(1)),
+                kind: ShowSectorTreeBodyKind::Planet
+            },
+            ShowSectorTreeBody {
+                id: ObjId(3),
+                label: "Asteroids",
+                orbit_id: Some(ObjId(0)),
+                kind: ShowSectorTreeBodyKind::Asteroids
+            },
+            ShowSectorTreeBody {
+                id: ObjId(4),
+                label: "Ring",
+                orbit_id: Some(ObjId(2)),
+                kind: ShowSectorTreeBodyKind::Ship
+            }
+        ];
+        let result = show_sectortree(&bodies);
+        assert_eq!(result.as_str(), r##"Sun
+- Earth
+  - Moon
+    - Ring
+- Asteroids
+"##);
     }
 }

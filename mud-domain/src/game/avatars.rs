@@ -40,7 +40,6 @@ pub fn respawn_avatar(
     })?;
     let room_id = container.config.initial_room.unwrap();
 
-    let player_id = container.players.find_from_mob(mob_id).unwrap();
     let mob_label = container.labels.get_label(mob_id).unwrap();
 
     container.locations.set(mob_id, room_id);
