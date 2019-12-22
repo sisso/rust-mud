@@ -568,9 +568,35 @@ pub struct ShowSectorTreeBody<'a> {
     pub kind: ShowSectorTreeBodyKind,
 }
 
+//pub fn show_sectortree<'a>(bodies: &'a Vec<ShowSectorTreeBody<'a>>) -> String {
+//    let append = |orbit_id: Option<ObjId>, prefix: &str| -> Vec<String> {
+//        let list =
+//            bodies
+//                .iter()
+//                .filter(|e| e.orbit_id == orbit_id);
+//
+//        let mut buffer = vec![];
+//
+//        for body in list {
+//            buffer.push(body.label.to_string());
+//
+//            let children_buffer = append(Some(body.id), "  ");
+//            buffer.extend(children_buffer);
+//        }
+//
+//        buffer
+//    };
+//
+//    let mut buffer = append(None, "");
+//    buffer.push("\n".to_string());
+//    buffer.join("\n")
+//}
+
 pub fn show_sectortree<'a>(bodies: &'a Vec<ShowSectorTreeBody<'a>>) -> String {
     fn append<'a>(bodies: &'a Vec<ShowSectorTreeBody<'a>>, buffer: &mut Vec<String>, orbit_id: Option<ObjId>, prefix: &str) {
-        let list = bodies.iter().filter(|e| e.orbit_id == orbit_id);
+        let list = bodies
+            .iter()
+            .filter(|e| e.orbit_id == orbit_id);
 
         let (local_prefix, next_prefix) =
             if orbit_id.is_none() {
