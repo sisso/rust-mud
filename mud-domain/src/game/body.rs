@@ -15,12 +15,9 @@ pub fn create_body(container: &mut Container, outputs: &mut dyn Outputs, mob_id:
     let room_id = container.locations.get(mob_id).unwrap();
     let mob_label = container.labels.get_label(mob_id).unwrap();
 
-    let mut body = Item::new(
-        body_id,
-        ITEM_KIND_BODY,
-        //        format!("{} body", mob.label).to_string(),
-    );
+    let mut body = Item::new(body_id);
     body.decay = Some(container.time.total + DECAY_TIME);
+    body.flags.is_body = true;
     container.items.add(body);
 
     container.locations.set(body_id, room_id);

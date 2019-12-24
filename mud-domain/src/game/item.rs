@@ -8,114 +8,54 @@ use crate::errors::{Error, Result, AsResult};
 pub type ItemId = ObjId;
 pub type ItemPrefabId = ObjId;
 
-// TODO: re-think, it shoudl be constants? configurations? enum? omg omg
-#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
-pub struct ItemKind(pub u32);
+#[derive(Debug, Clone)]
+pub struct ItemFlags {
+    /// can hold more items
+    pub is_inventory: bool,
+    /// can not be pickup
+    pub is_stuck: bool,
+    /// someone body
+    pub is_body: bool,
+    pub is_gold: bool,
+}
 
-pub const ITEM_KIND_UNDEFINED: ItemKind = ItemKind(0);
-pub const ITEM_KIND_GOLD: ItemKind = ItemKind(1);
-pub const ITEM_KIND_BODY: ItemKind = ItemKind(2);
+impl ItemFlags {
+    pub fn new() -> Self {
+        ItemFlags {
+            is_inventory: false,
+            is_stuck: false,
+            is_body: false,
+            is_gold: false,
+        }
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct Item {
     pub id: ItemId,
-    pub kind: ItemKind,
     pub decay: Option<TotalTime>,
     pub amount: u32,
     pub item_def_id: Option<ItemPrefabId>,
     pub weapon: Option<Weapon>,
     pub armor: Option<Armor>,
-    pub is_inventory: bool,
-    pub is_stuck: bool,
+    pub flags: ItemFlags,
 }
 
 impl Item {
-    pub fn new(id: ItemId, typ: ItemKind) -> Self {
+    pub fn new(id: ItemId) -> Self {
         Item {
             id,
-            kind: typ,
             decay: None,
             amount: 1,
             item_def_id: None,
             weapon: None,
             armor: None,
-            is_inventory: false,
-            is_stuck: false,
+            flags: ItemFlags::new(),
         }
     }
 
     pub fn can_equip(&self) -> bool {
         self.weapon.is_some() || self.armor.is_some()
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct ItemPrefab {
-    pub id: ItemPrefabId,
-    pub kind: ItemKind,
-    pub label: String,
-    pub amount: u32,
-    pub weapon: Option<Weapon>,
-    pub armor: Option<Armor>,
-    pub is_inventory: bool,
-    pub is_stuck: bool,
-}
-
-impl ItemPrefab {
-    pub fn build(id: ItemPrefabId, label: String) -> ItemPrefabBuilder {
-        let prefab = ItemPrefab {
-            id,
-            kind: ITEM_KIND_UNDEFINED,
-            label,
-            amount: 1,
-            weapon: None,
-            armor: None,
-            is_inventory: false,
-            is_stuck: false,
-        };
-
-        ItemPrefabBuilder { prefab }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct ItemPrefabBuilder {
-    pub prefab: ItemPrefab,
-}
-
-impl ItemPrefabBuilder {
-    pub fn with_weapon(mut self, weapon: Weapon) -> Self {
-        self.prefab.weapon = Some(weapon);
-        self
-    }
-
-    pub fn with_armor(mut self, armor: Armor) -> Self {
-        self.prefab.armor = Some(armor);
-        self
-    }
-
-    pub fn with_kind(mut self, kind: ItemKind) -> Self {
-        self.prefab.kind = kind;
-        self
-    }
-
-    pub fn with_amount(mut self, amount: u32) -> Self {
-        self.prefab.amount = amount;
-        self
-    }
-
-    pub fn with_inventory(mut self) -> Self {
-        self.prefab.is_inventory = true;
-        self
-    }
-
-    pub fn with_stuck(mut self) -> Self {
-        self.prefab.is_stuck = true;
-        self
-    }
-
-    pub fn build(self) -> ItemPrefab {
-        self.prefab
     }
 }
 
@@ -140,14 +80,12 @@ pub struct Inventory {
 
 pub struct ItemRepository {
     index: HashMap<ItemId, Item>,
-    prefab_index: HashMap<ItemPrefabId, ItemPrefab>,
 }
 
 impl ItemRepository {
     pub fn new() -> Self {
         ItemRepository {
             index: HashMap::new(),
-            prefab_index: HashMap::new(),
         }
     }
 
@@ -174,16 +112,6 @@ impl ItemRepository {
         self.index.insert(item.id, item);
     }
 
-    pub fn add_prefab(&mut self, item_def: ItemPrefab) {
-        if self.prefab_index.contains_key(&item_def.id) {
-            panic!(format!(
-                "item prefab {:?} already exists, failed ot insert {:?}",
-                item_def.id, item_def
-            ));
-        }
-        self.prefab_index.insert(item_def.id, item_def);
-    }
-
     pub fn remove(&mut self, item_id: ItemId) -> Option<Item> {
         self.index.remove(&item_id).map(|item| {
             debug!("{:?} item removed ", item_id);
@@ -193,10 +121,6 @@ impl ItemRepository {
 
     pub fn list(&self) -> Vec<ItemId> {
         self.index.keys().map(|i| *i).collect()
-    }
-
-    pub fn get_prefab(&self, item_prefab_id: &ItemPrefabId) -> &ItemPrefab {
-        self.prefab_index.get(item_prefab_id).unwrap()
     }
 
     //    pub fn save(&self, save: &mut dyn Save) {

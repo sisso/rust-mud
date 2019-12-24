@@ -1,4 +1,4 @@
-use hocon::{Error, Hocon, HoconLoader};
+use hocon::{Hocon, HoconLoader};
 use serde::Deserialize;
 use serde_json::{Number, Value};
 use std::fs;

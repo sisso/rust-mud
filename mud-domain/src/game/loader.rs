@@ -317,7 +317,7 @@ impl Loader {
             let min = DeltaTime(spawn.time_min);
             let max = DeltaTime(spawn.time_max);
 
-            let mut spawn = Spawn::new(obj_id, spawn.prefab_id, min, max);
+            let spawn = Spawn::new(obj_id, spawn.prefab_id, min, max);
             container.spawns.add(spawn)?;
         }
 
@@ -476,7 +476,7 @@ prefabs.control_panel_command_2 {
         "#;
 
         let mut container = Container::new();
-        Loader::load_str(&mut container, buffer);
+        Loader::load_str(&mut container, buffer).unwrap();
 
         let landing_pad_id = ObjId(1);
 

@@ -13,7 +13,6 @@ pub mod actions_craft;
 pub mod actions_items;
 pub mod avatars;
 pub mod body;
-pub mod builder;
 pub mod combat;
 pub mod comm;
 pub mod config;
@@ -42,6 +41,7 @@ pub mod surfaces;
 pub mod surfaces_object;
 pub mod tags;
 pub mod template;
+pub mod builder;
 
 pub trait Outputs {
     /// For all mobs recursive inside the location
@@ -92,11 +92,11 @@ impl Game {
 
 #[cfg(test)]
 pub mod test {
-    use super::builder;
     use crate::game::container::Container;
     use crate::game::item::ItemId;
     use crate::game::mob::MobId;
     use crate::game::room::RoomId;
+    use crate::game::builder;
 
     pub struct TestScenery {
         pub container: Container,
@@ -109,14 +109,14 @@ pub mod test {
 
     pub fn setup() -> TestScenery {
         let mut container = Container::new();
-        let room_id = builder::add_room(&mut container, "test_room", "");
+        let room_id = builder::add_room(&mut container, "test_room");
 
         // TODO: remove hack when we use proper item builder
         let container_id = builder::add_item(&mut container, "container1", room_id);
         {
             let mut item = container.items.remove(container_id).unwrap();
-            item.is_stuck = true;
-            item.is_inventory = true;
+            item.flags.is_stuck = true;
+            item.flags.is_inventory = true;
             container.items.add(item);
         }
 

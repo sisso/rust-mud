@@ -93,10 +93,10 @@ fn test_sectormap() -> Result<(), ()> {
     scenery.wait_for("Light Transport");
 
     scenery.send_input("enter transport");
-    let outputs = scenery.wait_for("you enter in");
+    scenery.wait_for("you enter in");
 
     scenery.send_input("out");
-    let outputs = scenery.wait_for("Landing Pad");
+    scenery.wait_for("Landing Pad");
 
     scenery.send_input("enter transport");
     scenery.wait_for("you enter in");

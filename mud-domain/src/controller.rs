@@ -131,7 +131,7 @@ impl Controller {
         if let Some(player_id) = state.player_id {
             debug!("{:?} handling input '{}'", connection_id, input);
             let mob_id = container.players.get(player_id).mob_id;
-            view_main::handle(container, &mut self.outputs, mob_id, input);
+            let _ = view_main::handle(container, &mut self.outputs, mob_id, input);
         } else {
             debug!("{:?} handling login '{}'", connection_id, input);
             match view_login::handle(input) {
@@ -147,6 +147,7 @@ impl Controller {
                         &mut self.outputs,
                         login.as_str(),
                     ).unwrap();
+
                     debug!("{:?} login complete for {:?}", connection_id, player_id);
                     self.set_state(ConnectionState {
                         connection_id,

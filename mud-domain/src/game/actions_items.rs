@@ -20,13 +20,12 @@ pub fn do_pickup(
     item_id: ItemId,
     inventory_id: Option<ItemId>,
 ) -> std::result::Result<(), PickUpError> {
-    let _mob = container.mobs.get(mob_id).ok_or(PickUpError::Other)?;
     let item = container.items.get(item_id).ok_or(PickUpError::Other)?;
     let room_id = container.locations.get(mob_id).ok_or(PickUpError::Other)?;
     let mob_label = container.labels.get_label_f(mob_id);
     let item_label = container.labels.get_label_f(item_id);
 
-    if item.is_stuck {
+    if item.flags.is_stuck {
         outputs.private(mob_id, comm::pick_fail_item_is_stuck(item_label));
         return Err(PickUpError::Stuck);
     }
@@ -34,12 +33,12 @@ pub fn do_pickup(
     match inventory_id {
         Some(inventory_id) => {
             let inventory_label = container.labels.get_label_f(inventory_id);
-            let inventory = container
+            let inventory_item = container
                 .items
                 .get(inventory_id)
                 .ok_or(PickUpError::Other)?;
 
-            if !inventory.is_inventory {
+            if !inventory_item.flags.is_inventory {
                 outputs.private(
                     mob_id,
                     comm::pick_fail_storage_is_not_inventory(inventory_label),

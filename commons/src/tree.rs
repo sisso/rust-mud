@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 
 #[derive(Debug, Clone)]
@@ -74,7 +74,8 @@ fn test_tree() {
    assert_eq!(tree.get(&2).unwrap(), &"Moon");
    assert_eq!(tree.get(&3).unwrap(), &"Venus");
 
-   assert_eq!(tree.children(&0), vec![&1, &3]);
+   let children_set = tree.children(&0).into_iter().collect::<HashSet<&i32>>();
+   assert_eq!(children_set, vec![&1, &3].into_iter().collect());
    assert_eq!(tree.children(&1), vec![&2]);
    assert!(tree.children(&2).is_empty());
 }

@@ -1,3 +1,55 @@
+# Item type
+
+How very specifc items like GOLD?
+
+This type of items require internal logic in many different parts of the systems, so they require to be referenced by
+config files or have code flag.
+
+Options to add int he code:
+
+a) Boolean flags
+
+Simple but verbose
+
+can have issues to enforce mutual exclusivity.
+- not a really issue, since all situations we have to choose, mutual exclusivity was always abandoned
+
+b) Tags
+
+It is basically same as A, but a more flexible and less optimized 
+
+c) ItemKind
+
+Dismissed since require mutual exclusivity
+
+Conclusion:
+
+Use flags and then move to Tags 
+
+# Loot 
+
+Loot is Items children that spawn 
+
+To add random loot, we need to support some random children during spawn. 
+
+The more flexible spawn system would be a probability tree. For instance:
+
+    loot {
+        2: {
+          50: { item_id: [${reare_item_1_id}] }
+          50: { item_id: [${rare_item_2_id}] }
+        }
+        
+        28: {
+          50: { item_id: [${uncommun_item_1_id}] }
+          50: { item_id: [${uncommun_item_2_id}] }
+         }
+        
+        70: {
+          100: { item_id: [${common_item_1_id}, ${common_item_2_id}] }
+         }
+    }
+
 # Timers
 
 All non instantaneous tasks will require some timer to keep track. Currently almost every long
