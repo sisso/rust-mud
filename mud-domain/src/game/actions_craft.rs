@@ -91,7 +91,7 @@ pub fn do_launch(
     let craft_label = container.labels.get_label(ship_id).unwrap();
 
     // emit events
-    outputs.broadcast(None, ship_id, comm::space_launch_complete());
+    outputs.broadcast_all(None, ship_id, comm::space_launch_complete());
     outputs.broadcast_all(
         None,
         landing_pad_id,

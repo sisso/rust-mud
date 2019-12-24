@@ -1,7 +1,5 @@
 # Fix
 
-- Pedrita enter in the Light Transport\nPedrita comes from outside
-
 # Todo
 
 - remove surface and reimplement space by using a list of celestial systems
@@ -60,6 +58,7 @@
 
 # Refactoring
 
+- remove ItemPrefab
 - re-organize code modules
 - split views, parsing, actions, domain methods and repository
 - use ReadRepo<T> and WriteRepo<T>

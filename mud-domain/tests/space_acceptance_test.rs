@@ -75,7 +75,7 @@ fn assert_outputs_contains(outputs: &Vec<String>, msg: &str) {
         }
     }
 
-    panic!("can not find {:?} in otuputs {:?}", msg, outputs);
+    panic!("can not find {:?} in outputs {:?}", msg, outputs);
 }
 
 #[test]

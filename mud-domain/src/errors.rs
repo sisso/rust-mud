@@ -13,6 +13,7 @@ pub enum Error {
     ParserError { kind: String, value: String },
     Generic(String),
     IllegalArgument,
+    IllegalArgumentMsg { msg: String },
     InCombat,
     IsResting,
     NotFound,

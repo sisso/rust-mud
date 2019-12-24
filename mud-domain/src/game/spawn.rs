@@ -8,6 +8,8 @@ use commons::*;
 use logs::*;
 use rand::Rng;
 use std::collections::HashMap;
+use crate::game::loader::{StaticId, Loader};
+use crate::errors::{Result, Error};
 
 type SpawnId = ObjId;
 
@@ -17,15 +19,38 @@ pub struct SpawnDelay {
     pub max: DeltaTime,
 }
 
+impl SpawnDelay {
+    pub fn validate(&self) -> Result<()> {
+        // TODO: create fixed delay
+        if (self.min.as_f32() - self.max.as_f32()).abs() < 0.01 {
+            return Err(Error::IllegalArgumentMsg { msg: "Min and max time can not be so short".to_string() });
+        }
+
+        Ok(())
+    }
+}
+
 #[derive(Debug)]
 pub struct Spawn {
     pub id: SpawnId,
-    pub room_id: RoomId,
     pub max: u32,
     pub delay: SpawnDelay,
-    pub prefab_id: MobPrefabId,
-    pub next: Option<TotalTime>,
-    pub mobs_id: Vec<MobId>,
+    pub prefab_id: StaticId ,
+    next: Option<TotalTime>,
+    mobs_id: Vec<MobId>,
+}
+
+impl Spawn {
+    pub fn new(id: SpawnId, prefab_id: StaticId, min: DeltaTime, max: DeltaTime) -> Self {
+        Spawn {
+            id,
+            max: 1,
+            delay: SpawnDelay { min: min, max: max },
+            prefab_id: prefab_id,
+            next: None,
+            mobs_id: vec![]
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -40,12 +65,20 @@ impl Spawns {
         }
     }
 
-    pub fn add(&mut self, spawn: Spawn) -> Option<Spawn> {
+    pub fn add(&mut self, spawn: Spawn) -> Result<()> {
         assert!(!self.spawns.contains_key(&spawn.id));
-        self.spawns.insert(spawn.id, spawn)
+        let _ = spawn.delay.validate()?;
+        if self.spawns.contains_key(&spawn.id) {
+            Err(Error::Conflict)
+        } else {
+            debug!("{:?} spawn added {:?}", spawn.id, spawn);
+            self.spawns.insert(spawn.id, spawn);
+            Ok(())
+        }
     }
 
     pub fn remove(&mut self, id: ObjId) -> Option<Spawn> {
+        debug!("{:?} spawn removed", id);
         self.spawns.remove(&id)
     }
 
@@ -74,6 +107,7 @@ impl Spawns {
     }
 }
 
+// TODO: move to system/spawn (create systems first)
 pub fn run(ctx: &mut Ctx) {
     let total_time = ctx.container.time.total;
 
@@ -88,29 +122,41 @@ pub fn run(ctx: &mut Ctx) {
                 // when full, just schedule next spawn
                 schedule_next_spawn(total_time, spawn);
             }
+
             Some(next) if next.is_before(total_time) => {
                 schedule_next_spawn(total_time, spawn);
-                mob_spawns.push((spawn.id, spawn.room_id, spawn.prefab_id))
+
+                match ctx.container.locations.get(spawn.id) {
+                    Some(location_id) if ctx.container.rooms.exists(location_id) => {
+                        mob_spawns.push((spawn.id, location_id, spawn.prefab_id))
+                    }
+
+                    other => {
+                        warn!("Spawn {:?} parent {:?} is not a valid room.", spawn.id, other);
+                    }
+                }
             }
-            Some(_next) => {}
+
+            Some(_next) => {},
+
             None => schedule_next_spawn(total_time, spawn),
         };
     }
 
     for (spawn_id, room_id, mob_prefab_id) in mob_spawns {
-        let mob_id = match builder::add_mob_from_prefab(&mut ctx.container, mob_prefab_id, room_id)
-        {
+        let mob_id = match Loader::spawn(&mut ctx.container, mob_prefab_id) {
             Ok(mob_id) => mob_id,
-            Err(()) => {
-                warn!("spawn failed for {:?} at {:?}", mob_prefab_id, room_id);
+            Err(e) => {
+                warn!("{:?} fail to spawn a {:?}: {:?}", spawn_id, mob_prefab_id, e);
                 continue;
             }
         };
 
-        let mob_label = ctx.container.labels.get_label_f(mob_id);
+       let mob_label = ctx.container.labels.get_label_f(mob_id);
 
         debug!("{:?} spawn mob {:?} at {:?}", spawn_id, mob_id, room_id);
 
+        // TODO: move to ownership system
         let spawn_msg = comm::spawn_mob(mob_label);
 
         // update spawn
@@ -121,9 +167,11 @@ pub fn run(ctx: &mut Ctx) {
     }
 }
 
+// TODO: move to spawn
 fn schedule_next_spawn(now: TotalTime, spawn: &mut Spawn) {
     let mut rng = rand::thread_rng();
-    let next = DeltaTime(rng.gen_range(spawn.delay.min.as_f32(), spawn.delay.max.as_f32()));
+    let range = rng.gen_range(spawn.delay.min.as_f32(), spawn.delay.max.as_f32());
+    let next = DeltaTime(range);
     spawn.next = Some(now + next);
 
     debug!("{:?} scheduling spawn at {:?}", spawn.id, spawn.next);

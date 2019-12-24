@@ -76,13 +76,17 @@ fn assert_outputs_contains(outputs: &Vec<String>, msg: &str) {
 }
 
 #[test]
-fn test_fantasy() -> Result<(), ()> {
+fn test_fantasy() {
     let mut scenery = TestScenery::new();
     scenery.login();
 
     scenery.send_input("look");
     scenery.wait_for("Village");
 
-    Ok(())
+    scenery.send_input("s");
+    scenery.send_input("s");
+    scenery.wait_for("Florest");
+
+    scenery.wait_for("Wolf appears");
 }
 

@@ -64,10 +64,10 @@ impl<K: Hash + Eq, V> Tree<K, V> {
 fn test_tree() {
    let mut tree = Tree::new();
 
-   tree.insert(0, "Sun", None);
-   tree.insert(1, "Earth", Some(0));
-   tree.insert(2, "Moon", Some(1));
-   tree.insert(3, "Venus", Some(0));
+   tree.insert(0, "Sun", None).unwrap();
+   tree.insert(1, "Earth", Some(0)).unwrap();
+   tree.insert(2, "Moon", Some(1)).unwrap();
+   tree.insert(3, "Venus", Some(0)).unwrap();
 
    assert_eq!(tree.get(&0).unwrap(), &"Sun");
    assert_eq!(tree.get(&1).unwrap(), &"Earth");

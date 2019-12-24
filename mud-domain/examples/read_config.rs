@@ -10,15 +10,15 @@ fn main() {
 
     let mut m = HashMap::new();
 
-    for (_, data) in &data.objects {
-        if m.insert(data.id, (&data.label, false)).is_some() {
-            panic!("Duplicated id {:?}", data.id);
+    for (_, e) in data.objects.iter() {
+        if m.insert(e.id, (&e.label, false, e)).is_some() {
+            panic!("Duplicated id {:?}", e.id);
         }
     }
 
-    for (_, data) in &data.prefabs {
-        if m.insert(data.id, (&data.label, true)).is_some() {
-            panic!("Duplicated id {:?}", data.id);
+    for (_, e) in data.prefabs.iter() {
+        if m.insert(e.id, (&e.label, true, e)).is_some() {
+            panic!("Duplicated id {:?}", e.id);
         }
     }
 
@@ -32,11 +32,16 @@ fn main() {
             max = *key;
         }
 
-        let (label, is_prefab) = m.get(key).unwrap();
+        let (label, is_prefab, obj) = m.get(key).unwrap();
         let is_prefab_str = if *is_prefab { "*" } else { "" };
-        println!("{}) {} {}", key, label, is_prefab_str);
+        let has_parent = if obj.parent.is_some() { "" } else { "$" };
+        println!("{}) {} {}{}", key, label, is_prefab_str, has_parent);
     }
 
     println!();
     println!("next: {}", max + 1);
+    println!();
+    println!("Legend:");
+    println!("* is prefab");
+    println!("$ is root object, has no parent");
 }

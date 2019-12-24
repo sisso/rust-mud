@@ -1,4 +1,3 @@
-pub mod scenery_fantasy;
 mod hocon_parser;
 
 use serde::Deserialize;
@@ -13,7 +12,7 @@ use crate::game::astro_bodies::AstroBody;
 use crate::game::pos::Pos;
 use crate::game::room::Room;
 use crate::game::surfaces::Surface;
-use commons::{ObjId, V2, Either};
+use commons::{ObjId, V2, Either, DeltaTime};
 use logs::*;
 use crate::game::obj::Objects;
 use crate::game::crafts::Ship;
@@ -21,6 +20,7 @@ use crate::errors;
 use crate::errors::Error::StaticIdNotFound;
 use crate::errors::Error;
 use crate::game::config::Config;
+use crate::game::spawn::Spawn;
 
 #[derive(Deserialize, Debug)]
 pub struct RoomExitData {
@@ -83,6 +83,7 @@ pub struct ObjData {
     pub sector: Option<SectorData>,
     pub mob: Option<MobData>,
     pub pos: Option<PosData>,
+    pub spawn: Option<SpawnData>,
     /// Is instantiate in same context of parent, ID is mapped
     pub parent: Option<StaticId>,
     /// Are instantiate in own context, unique ID and place as children
@@ -103,6 +104,14 @@ pub struct Data {
     pub cfg: Option<CfgData>,
     pub objects: HashMap<StaticId, ObjData>,
     pub prefabs: HashMap<StaticId, ObjData>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct SpawnData {
+    pub prefab_id: StaticId,
+    pub max: u32,
+    pub time_min: f32,
+    pub time_max: f32,
 }
 
 impl Data {
@@ -165,7 +174,9 @@ impl Loader {
 
         result
     }
+}
 
+impl Loader {
     pub fn spawn_at(container: &mut Container, static_id: StaticId, parent_id: ObjId) -> errors::Result<ObjId> {
         let obj_id = Loader::spawn(container, static_id)?;
         container.locations.set(obj_id, parent_id);
@@ -302,6 +313,14 @@ impl Loader {
             container.rooms.add(room);
         }
 
+        if let Some(spawn) = &data.spawn {
+            let min = DeltaTime(spawn.time_min);
+            let max = DeltaTime(spawn.time_max);
+
+            let mut spawn = Spawn::new(obj_id, spawn.prefab_id, min, max);
+            container.spawns.add(spawn)?;
+        }
+
         if let Some(children) = data.children.clone() {
             for static_id in children.into_iter() {
                 trace!("{:?} spawn children {:?}", obj_id, static_id);
@@ -349,7 +368,7 @@ impl Loader {
         }
 
         // instantiate static data
-        Loader::initialize_all(container, data.objects);
+        Loader::initialize_all(container, data.objects)?;
 
         // update configurations with references
         match data.cfg {

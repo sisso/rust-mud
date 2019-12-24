@@ -1,7 +1,7 @@
 use crate::game::container::Container;
 use crate::game::item::{Item, ItemId, ItemPrefabId, ITEM_KIND_UNDEFINED};
 use crate::game::labels::Label;
-use crate::game::mob::{Mob, MobId, MobPrefabId};
+use crate::game::mob::{Mob, MobId};
 use crate::game::room::{Room, RoomId};
 use commons::ObjId;
 
@@ -95,30 +95,30 @@ pub fn add_item_from_prefab(
     item_id
 }
 
-pub fn add_mob_from_prefab(
-    container: &mut Container,
-    mob_prefab_id: MobPrefabId,
-    room_id: RoomId,
-) -> Result<MobId, ()> {
-    let prefab = container.mobs.get_mob_prefab(mob_prefab_id).clone();
-
-    // create mob
-    let mob_id = container.objects.create();
-
-    // add items
-    for item_prefab_id in prefab.inventory {
-        let _ = add_item_from_prefab(container, item_prefab_id, mob_id);
-    }
-
-    // instantiate
-    let mut mob = Mob::new(mob_id);
-    mob.attributes = prefab.attributes;
-    container.mobs.add(mob);
-
-    container.locations.set(mob_id, room_id);
-    container
-        .labels
-        .set(Label::new(mob_id, prefab.label.as_str()));
-
-    Ok(mob_id)
-}
+//pub fn add_mob_from_prefab(
+//    container: &mut Container,
+//    mob_prefab_id: MobPrefabId,
+//    room_id: RoomId,
+//) -> Result<MobId, ()> {
+//    let prefab = container.mobs.get_mob_prefab(mob_prefab_id).clone();
+//
+//    // create mob
+//    let mob_id = container.objects.create();
+//
+//    // add items
+//    for item_prefab_id in prefab.inventory {
+//        let _ = add_item_from_prefab(container, item_prefab_id, mob_id);
+//    }
+//
+//    // instantiate
+//    let mut mob = Mob::new(mob_id);
+//    mob.attributes = prefab.attributes;
+//    container.mobs.add(mob);
+//
+//    container.locations.set(mob_id, room_id);
+//    container
+//        .labels
+//        .set(Label::new(mob_id, prefab.label.as_str()));
+//
+//    Ok(mob_id)
+//}

@@ -47,6 +47,8 @@ uses cases like "send messages to users when something happens" without using a 
 Something like location, ownership define what owns what. This will be used to defined avatars, who owns what itens and
 what entities can be controlled by other entities,
 
+Owneship will define the spawn. And owneship of spawn can be transfer
+
 # StaticId u32 vs String
 
 Unique number are complicated to maintain for humans considering multiples modules, namespaces, files and matching 
