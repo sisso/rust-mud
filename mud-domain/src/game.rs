@@ -42,6 +42,8 @@ pub mod surfaces_object;
 pub mod tags;
 pub mod template;
 pub mod builder;
+pub mod prices;
+pub mod vendors;
 
 pub trait Outputs {
     /// For all mobs recursive inside the location

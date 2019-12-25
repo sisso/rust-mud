@@ -16,7 +16,7 @@ pub struct ItemFlags {
     pub is_stuck: bool,
     /// someone body
     pub is_corpse: bool,
-    pub is_gold: bool,
+    pub is_money: bool,
 }
 
 impl ItemFlags {
@@ -25,7 +25,7 @@ impl ItemFlags {
             is_inventory: false,
             is_stuck: false,
             is_corpse: false,
-            is_gold: false,
+            is_money: false,
         }
     }
 }
@@ -61,15 +61,10 @@ impl Item {
 
 #[derive(Debug, Clone)]
 pub struct Weapon {
-    pub damage_min: u32,
-    pub damage_max: u32,
-    pub reload: DeltaTime,
 }
 
 #[derive(Debug, Clone)]
 pub struct Armor {
-    pub rd: u32,
-    pub dp: i32,
 }
 
 #[derive(Debug, Clone)]

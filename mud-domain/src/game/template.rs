@@ -1,9 +1,16 @@
 use commons::ObjId;
 use std::collections::HashMap;
+use crate::errors::{Result, Error};
 
 #[derive(Clone, Debug)]
 pub struct Template {
     pub id: ObjId,
+}
+
+impl Template {
+    pub fn new(id: ObjId) -> Self {
+        Template { id }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -18,16 +25,23 @@ impl Templates {
         }
     }
 
-    pub fn add(&mut self, template: Template) {
-        assert!(!self.index.contains_key(&template.id));
+    pub fn add(&mut self, template: Template) -> Result<()> {
+        if self.index.contains_key(&template.id) {
+            return Err(Error::Conflict);
+        }
         self.index.insert(template.id, template);
+        Ok(())
     }
 
     pub fn remove(&mut self, id: ObjId) -> Option<Template> {
         self.index.remove(&id)
     }
 
-    pub fn get(&self, id: ObjId) -> Result<&Template, ()> {
-        self.index.get(&id).ok_or(())
+    pub fn get(&self, id: ObjId) -> Option<&Template> {
+        self.index.get(&id)
+    }
+
+    pub fn exist(&self, id: ObjId) -> bool {
+        self.index.contains_key(&id)
     }
 }

@@ -20,6 +20,8 @@ use crate::game::surfaces::Surfaces;
 use crate::game::astro_bodies::AstroBodies;
 use crate::game::pos::PosRepo;
 use crate::game::surfaces_object::SurfaceObjects;
+use crate::game::vendors::Vendors;
+use crate::game::prices::Prices;
 
 pub struct Ctx<'a> {
     pub container: &'a mut Container,
@@ -45,6 +47,8 @@ pub struct Container {
     pub pos: PosRepo,
     pub surface_objects: SurfaceObjects,
     pub loader: Loader,
+    pub vendors: Vendors,
+    pub prices: Prices,
 }
 
 impl Container {
@@ -68,9 +72,12 @@ impl Container {
             pos: PosRepo::new(),
             surface_objects: SurfaceObjects::new(),
             loader: Loader::new(),
+            vendors: Vendors::new(),
+            prices: Prices::new(),
         }
     }
 
+    // TODO: use macro trait or some more generic way to remove all references
     pub fn remove(&mut self, obj_id: ObjId) {
         self.mobs.remove(obj_id);
         self.items.remove(obj_id);
@@ -80,6 +87,9 @@ impl Container {
         self.equips.remove(obj_id);
         self.objects.remove(obj_id);
         self.labels.remove(obj_id);
+        self.pos.remove(obj_id);
+        self.vendors.remove(obj_id);
+        self.prices.remove(obj_id);
     }
 
     pub fn get_mob_ctx(&self, mob_id: MobId) -> Option<MobCtx> {

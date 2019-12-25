@@ -104,5 +104,11 @@ fn test_fantasy() {
 
     scenery.send_input("inv"); 
     scenery.wait_for("- meat");
+
+    scenery.send_input("n");
+    scenery.wait_for("Market");
+
+    scenery.send_input("look");
+    scenery.wait_for("??");
 }
 

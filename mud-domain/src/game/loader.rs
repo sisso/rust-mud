@@ -22,6 +22,8 @@ use crate::errors::Error::StaticIdNotFound;
 use crate::errors::Error;
 use crate::game::config::Config;
 use crate::game::spawn::Spawn;
+use crate::game::prices::{Price, Money};
+use crate::game::vendors::Vendor;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct RoomExitData {
@@ -67,9 +69,21 @@ pub struct ItemFlagsData {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
+pub struct ItemWeaponData {
+
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct ItemArmorData {
+
+}
+
+#[derive(Deserialize, Serialize, Debug)]
 pub struct ItemData {
     flags: Option<ItemFlagsData>,
     amount: Option<u32>,
+    weapon: Option<ItemWeaponData>,
+    armor: Option<ItemArmorData>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -85,6 +99,16 @@ impl StaticId {
     pub fn as_u32(&self) -> u32 {
         self.0
     }
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct PriceData {
+    pub buy: u32,
+    pub sell: u32,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct VendorData {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -105,6 +129,8 @@ pub struct ObjData {
     pub children: Option<Vec<StaticId>>,
     pub craft: Option<CraftData>,
     pub item: Option<ItemData>,
+    pub price: Option<PriceData>,
+    pub vendor: Option<VendorData>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -344,12 +370,22 @@ impl Loader {
 
             if let Some(flags) = &data_item.flags {
                 item.flags.is_corpse = flags.body.unwrap_or(false);
-                item.flags.is_gold = flags.gold.unwrap_or(false);
+                item.flags.is_money = flags.gold.unwrap_or(false);
                 item.flags.is_inventory = flags.inventory.unwrap_or(false);
                 item.flags.is_stuck = flags.stuck.unwrap_or(false);
             }
 
             container.items.add(item);
+        }
+
+        if let Some(data) = &data.price {
+            let price = Price::new(obj_id, Money(data.buy), Money(data.sell));
+            container.prices.add(price);
+        }
+
+        if let Some(data) = &data.vendor {
+            let vendor = Vendor::new(obj_id);
+            container.vendors.add(vendor);
         }
 
         if let Some(children) = data.children.clone() {
