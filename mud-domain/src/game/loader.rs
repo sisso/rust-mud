@@ -337,9 +337,18 @@ impl Loader {
             container.spawns.add(spawn)?;
         }
 
-        if let Some(item) = &data.item {
+        if let Some(data_item) = &data.item {
             let mut item = Item::new(obj_id);
-            // TODO: initailize amount and flags
+
+            item.amount = data_item.amount.unwrap_or(1);
+
+            if let Some(flags) = &data_item.flags {
+                item.flags.is_corpse = flags.body.unwrap_or(false);
+                item.flags.is_gold = flags.gold.unwrap_or(false);
+                item.flags.is_inventory = flags.inventory.unwrap_or(false);
+                item.flags.is_stuck = flags.stuck.unwrap_or(false);
+            }
+
             container.items.add(item);
         }
 
@@ -442,7 +451,7 @@ impl Loader {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::game::comm::item_body_appears_in_room;
+    use crate::game::comm::item_corpse_appears_in_room;
 
     #[test]
     pub fn intialize_with_spawn() {

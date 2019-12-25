@@ -170,8 +170,8 @@ pub fn kill_return_attack(mob_label: &str, aggressor_mob_label: &str) -> String 
     )
 }
 
-pub fn item_body_appears_in_room(item: &str) -> String {
-    format!("a {} appears here!", item)
+pub fn item_corpse_appears_in_room(item: &str) -> String {
+    format!("{} appears here!", item)
 }
 
 pub fn item_body_disappears(item: &str) -> String {

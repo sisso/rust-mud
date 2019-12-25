@@ -1,7 +1,7 @@
 # Main Todo
 
-- Can not pickup from BODY because is not a f!@# inventory! All is wrong now.
-- continue itme loader implemented
+- add time/tick to logs
+- continue time loader implemented
 - add invisible items. Currently is possible to see a Wolf Spawn. Logical objects are Label or Obj? 
 
 # Design

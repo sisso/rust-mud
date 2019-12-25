@@ -12,7 +12,7 @@ pub mod actions_admin;
 pub mod actions_craft;
 pub mod actions_items;
 pub mod avatars;
-pub mod body;
+pub mod corpse;
 pub mod combat;
 pub mod comm;
 pub mod config;

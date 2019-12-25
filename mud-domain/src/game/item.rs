@@ -15,7 +15,7 @@ pub struct ItemFlags {
     /// can not be pickup
     pub is_stuck: bool,
     /// someone body
-    pub is_body: bool,
+    pub is_corpse: bool,
     pub is_gold: bool,
 }
 
@@ -24,7 +24,7 @@ impl ItemFlags {
         ItemFlags {
             is_inventory: false,
             is_stuck: false,
-            is_body: false,
+            is_corpse: false,
             is_gold: false,
         }
     }

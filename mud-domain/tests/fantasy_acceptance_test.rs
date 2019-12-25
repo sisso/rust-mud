@@ -19,7 +19,7 @@ impl TestScenery {
         TestScenery {
             game: Game::new(container),
             connection_id: ConnectionId(0),
-            timeout: 100
+            timeout: 200
         }
     }
 
@@ -91,20 +91,18 @@ fn test_fantasy() {
     scenery.wait_for("Florest");
 
     scenery.send_input("look");
-    scenery.wait_for("Wolf");
+    scenery.wait_for("wolf");
 
     scenery.send_input("k wolf"); 
-    scenery.wait_for("body of Wolf");
+    scenery.wait_for("wolf corpse");
 
-    scenery.send_input("examine body"); 
-    scenery.wait_for("- Meat");
+    scenery.send_input("examine corpse");
+    scenery.wait_for("- meat");
 
-    scenery.send_input("get meat in body"); 
-    scenery.wait_for("?");
+    scenery.send_input("get meat in corpse");
+    scenery.wait_for("you pick");
 
     scenery.send_input("inv"); 
-    scenery.wait_for("meat");
-
-    panic!("fail");
+    scenery.wait_for("- meat");
 }
 

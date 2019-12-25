@@ -153,7 +153,7 @@ pub fn run(ctx: &mut Ctx) {
 
        let mob_label = ctx.container.labels.get_label_f(mob_id);
 
-        debug!("{:?} spawn mob {:?} at {:?}", spawn_id, mob_id, room_id);
+        debug!("{:?} spawn created mob {:?} at {:?}", spawn_id, mob_id, room_id);
 
         // TODO: move to ownership system
         let spawn_msg = comm::spawn_mob(mob_label);

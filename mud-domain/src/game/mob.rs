@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game::body::create_body;
+use crate::game::corpse::create_corpse;
 use commons::*;
 use logs::*;
 
@@ -345,7 +345,7 @@ pub fn kill_mob(
 ) -> Result<()> {
     info!("{:?} was killed", mob_id);
 
-    let _ = create_body(container, outputs, mob_id);
+    let _ = create_corpse(container, outputs, mob_id);
 
     // remove mob
     let mob = container.mobs.get(mob_id).unwrap();
