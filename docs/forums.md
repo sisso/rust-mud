@@ -1,3 +1,35 @@
+# Internal Items, Invisible objects
+
+b) 
+
+At current situation, is not about be invisible or internal. Spawn just should never be visible. The same would
+be apply for different objects. Some are always visible (mobs, items, furniture, etc) and some are always invisible 
+(spawn, other rooms, doors, etc), or better, is not about be visible, is non existent for player.
+
+This mean that will be easy to check case by case. Have a function that define if a entity should be visible? can be
+pick up? can be fight? etc.
+
+a) 
+
+Where it should be define? Global as object or in label?
+
+The situations where internal objects need to be filter are? Always??
+- we should never have any method that list/give to user whatever is there, we always should check what we try to show.
+- this means that look/examine/get/put/etc must always know what type of object is manipulating. 
+  - Get/Put always operate on Item
+  - Look? Mobs, Items, Carft,???
+    - not very extensible. every time we need to add a new thing, look and examine need to be changed.
+    
+What if Label only contains label for look and desc for examine?
+- ok, but we need some label to track objects. We can use code, but code is designed to user interaction.
+- only objects with description can be describe?
+  - ok, but a bit confuse
+- if we are considering to use label to define what can be seeing. Make sense to just flag in label that this
+  object is internal, can not be used with look or examine
+- still don't look good :/
+
+
+
 # Item type
 
 How very specifc items like GOLD?
@@ -85,6 +117,13 @@ events in normal execution.
 
 In a ideal use case, the full architecture need to be model in a way that all messages become events. Triggers respond
 to events. All player messages are basically a trigger listener.
+
+## Full trigger model
+
+Each input get added is a trigger. Each input convert into a command by a listener. Each command trigger actions. 
+Each action trigger stuff (move room, create body if kill). Each stuff trigger a output. Each output is write to 
+players.
+
 
 ## Sequential vs lazy triggers
 

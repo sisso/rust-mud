@@ -38,7 +38,7 @@
 
 # Features
 
-- todos in config loader
+- TODO in config checker 
 - warning all non used properties in load files, just too many cases where something was not implemented and require debug
 - serialization 
 - seller and store
@@ -52,12 +52,12 @@
 - hire companions or controlled drones
 - advanced parse commands like "examine drunk body" || examine body || examine body.2 || examine all body?
 - persistence save and load
-  - pre-requiste to define a proper load and save format
+  - pre-requists to define a proper load and save format
 - surface in planets
 
-# usuability
+# usability
 
-- get usuability by givin feedback with options when execute a get: get? get what? get what wher? get what in where?
+- get usability by giving feedback with options when execute a get: get? get what? get what wher? get what in where?
 - comm need to be defined by configuration files for localization
 - there is no server buffering to send and receive messages, if user can not read, is possible that we lose output or stuck
 

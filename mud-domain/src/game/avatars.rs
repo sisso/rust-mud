@@ -58,12 +58,7 @@ pub fn create_player(container: &mut Container, login: &str) -> Result<PlayerId>
 
     let mob_id = Loader::spawn_at(container, avatar_static_id, room_id)?;
 
-    container.labels.update(Label {
-        id: mob_id,
-        label: login.to_string(),
-        code: login.to_string(),
-        desc: login.to_string(),
-    });
+    container.labels.update(Label::new(mob_id, login));
 
     // add player to game
     let player = container

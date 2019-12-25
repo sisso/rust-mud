@@ -14,6 +14,11 @@ pub struct InventoryDesc<'a> {
     pub equipped: bool,
 }
 
+pub fn is_visible(container: &Container, obj_id: ObjId) -> bool {
+    container.mobs.exists(obj_id) ||
+    container.items.exists(obj_id)
+}
+
 pub fn help() -> String {
     let str = r#"-------------------------------------------------------------
   [Help]
@@ -62,8 +67,12 @@ pub fn look_description(container: &Container, mob_id: MobId) -> Result<String> 
             continue;
         }
 
-        let label = match container.labels.get_label(obj_id) {
-            Some(label) => label,
+        if !is_visible(container, obj_id) {
+            continue;
+        }
+
+        let label = match container.labels.get(obj_id) {
+            Some(lab) => &lab.label,
             _ => continue,
         };
 
