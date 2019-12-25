@@ -143,7 +143,7 @@ pub fn run(ctx: &mut Ctx) {
     }
 
     for (spawn_id, room_id, mob_prefab_id) in mob_spawns {
-        let mob_id = match Loader::spawn(&mut ctx.container, mob_prefab_id) {
+        let mob_id = match Loader::spawn_at(&mut ctx.container, mob_prefab_id, room_id) {
             Ok(mob_id) => mob_id,
             Err(e) => {
                 warn!("{:?} fail to spawn a {:?}: {:?}", spawn_id, mob_prefab_id, e);
@@ -180,25 +180,3 @@ fn schedule_next_spawn(now: TotalTime, spawn: &mut Spawn) {
 fn clean_up_dead_mobs(mobs: &mut MobRepository, spawn: &mut Spawn) {
     spawn.mobs_id.retain(|mob_id| mobs.exists(*mob_id));
 }
-
-//#[cfg(test)]
-//mod test {
-//    use super::*;
-//    use crate::game::container::Container;
-//    use crate::game::{loader, OutputsImpl};
-//
-//    #[test]
-//    fn test_spawn_should_work() {
-//        let mut container = Container::new();
-//        loader::load(&mut container);
-//
-//        let mut outputs = OutputsImpl::new();
-//
-//        let ctx = Ctx {
-//            container: &mut container,
-//            outputs: &mut outputs,
-//        };
-//
-//        ctx.container
-//    }
-//}

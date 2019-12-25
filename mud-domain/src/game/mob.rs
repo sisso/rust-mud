@@ -367,6 +367,6 @@ pub fn search_mobs_at(
 ) -> Vec<MobId> {
     location::search_at(labels, locations, room_id, label)
         .into_iter()
-        .filter(|mob_id| mobs.exists(*mob_id))
+        .filter(|&mob_id| mobs.exists(mob_id))
         .collect()
 }

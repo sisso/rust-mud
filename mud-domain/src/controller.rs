@@ -129,11 +129,11 @@ impl Controller {
         let state = self.get_state(connection_id);
 
         if let Some(player_id) = state.player_id {
-            debug!("{:?} handling input '{}'", connection_id, input);
+            debug!("{:?} input '{}'", connection_id, input);
             let mob_id = container.players.get(player_id).mob_id;
             let _ = view_main::handle(container, &mut self.outputs, mob_id, input);
         } else {
-            debug!("{:?} handling login '{}'", connection_id, input);
+            debug!("{:?} login input '{}'", connection_id, input);
             match view_login::handle(input) {
                 LoginResult::Msg { msg } => {
                     self.server_outputs.push((connection_id, msg));
@@ -229,7 +229,7 @@ impl Controller {
                         .and_then(|player_id| self.zip_connection_id_from_player_id(player_id));
 
                     if let Some((player_id, connection_id)) = connection_id {
-                        debug!("{:?} - {}", player_id, msg);
+                        debug!("{:?} output {:?}", connection_id, msg);
                         self.server_outputs.push((connection_id, format!("{}\n", msg)));
                     }
                 }
@@ -255,7 +255,7 @@ impl Controller {
                         .collect();
 
                     for (player_id, connection_id) in connections {
-                        debug!("{:?} - {}", player_id, msg);
+                        debug!("{:?} output {:?}", connection_id, msg);
                         self.server_outputs.push((connection_id, format!("{}\n", msg)))
                     }
                 }

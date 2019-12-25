@@ -8,6 +8,7 @@ use std::path::Path;
 pub struct TestScenery {
     pub game: Game,
     pub connection_id: ConnectionId,
+    pub timeout: u32,
 }
 
 impl TestScenery {
@@ -18,6 +19,7 @@ impl TestScenery {
         TestScenery {
             game: Game::new(container),
             connection_id: ConnectionId(0),
+            timeout: 100
         }
     }
 
@@ -46,7 +48,7 @@ impl TestScenery {
     }
 
     pub fn wait_for(&mut self, contains: &str) -> Vec<String> {
-        for _ in 0..100 {
+        for _ in 0..self.timeout {
             let outputs = self.take_outputs();
             let found = outputs.iter().find(|msg| msg.contains(contains));
 
@@ -78,6 +80,7 @@ fn assert_outputs_contains(outputs: &Vec<String>, msg: &str) {
 #[test]
 fn test_fantasy() {
     let mut scenery = TestScenery::new();
+
     scenery.login();
 
     scenery.send_input("look");
@@ -87,6 +90,21 @@ fn test_fantasy() {
     scenery.send_input("s");
     scenery.wait_for("Florest");
 
-    scenery.wait_for("Wolf appears");
+    scenery.send_input("look");
+    scenery.wait_for("Wolf");
+
+    scenery.send_input("k wolf"); 
+    scenery.wait_for("body of Wolf");
+
+    scenery.send_input("examine body"); 
+    scenery.wait_for("- Meat");
+
+    scenery.send_input("get meat in body"); 
+    scenery.wait_for("?");
+
+    scenery.send_input("inv"); 
+    scenery.wait_for("meat");
+
+    panic!("fail");
 }
 

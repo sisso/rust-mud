@@ -11,6 +11,7 @@ use crate::game::actions;
 use crate::game::comm;
 use crate::game::Outputs;
 use crate::game::domain::Dir;
+use logs::*;
 
 fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc> {
     let equip = container.equips.get(obj_id).unwrap_or(HashSet::new());
@@ -122,6 +123,7 @@ pub fn handle(
                 target,
             );
             let candidate = mobs.first();
+            debug!("Attack candidate {:?}", candidate);
 
             match candidate {
                 Some(&target_mob_id) if !container.mobs.is_avatar(target_mob_id) => {

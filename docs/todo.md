@@ -1,5 +1,8 @@
 # Main Todo
 
+- Can not pickup from BODY because is not a f!@# inventory! All is wrong now.
+- continue itme loader implemented
+- add invisible items. Currently is possible to see a Wolf Spawn. Logical objects are Label or Obj? 
 
 # Design
 
@@ -35,6 +38,8 @@
 
 # Features
 
+- todos in config loader
+- warning all non used properties in load files, just too many cases where something was not implemented and require debug
 - serialization 
 - seller and store
     - buy 
@@ -50,8 +55,9 @@
   - pre-requiste to define a proper load and save format
 - surface in planets
 
-# improvements
+# usuability
 
+- get usuability by givin feedback with options when execute a get: get? get what? get what wher? get what in where?
 - comm need to be defined by configuration files for localization
 - there is no server buffering to send and receive messages, if user can not read, is possible that we lose output or stuck
 

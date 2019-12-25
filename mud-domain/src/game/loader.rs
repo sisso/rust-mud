@@ -1,12 +1,13 @@
 mod hocon_parser;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use crate::game::container::Container;
 use crate::game::domain::Dir;
 use crate::game::labels::Label;
 use crate::game::loader::hocon_parser::HParser;
+use crate::game::item::Item;
 use crate::game::mob::Mob;
 use crate::game::astro_bodies::AstroBody;
 use crate::game::pos::Pos;
@@ -22,28 +23,28 @@ use crate::errors::Error;
 use crate::game::config::Config;
 use crate::game::spawn::Spawn;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct RoomExitData {
     pub dir: String,
     pub to: StaticId,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct RoomData {
     pub can_exit: Option<bool>,
     pub exits: Option<Vec<RoomExitData>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct AstroBodyData {
     pub kind: Option<String>,
     pub orbit_id: Option<u32>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct SectorData {}
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct MobData {
     pub attack: u32,
     pub defense: u32,
@@ -52,18 +53,32 @@ pub struct MobData {
     pub pv: u32,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct CraftData {
 
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
+pub struct ItemFlagsData {
+    gold: Option<bool>,
+    inventory: Option<bool>,
+    stuck: Option<bool>,
+    body: Option<bool>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct ItemData {
+    flags: Option<ItemFlagsData>,
+    amount: Option<u32>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
 pub struct PosData {
     pub x: f32,
     pub y: f32,
 }
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Hash, Eq, Copy)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Hash, Eq, Copy)]
 pub struct StaticId(pub u32);
 
 impl StaticId {
@@ -72,7 +87,7 @@ impl StaticId {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct ObjData {
     pub id: u32,
     pub label: String,
@@ -89,9 +104,10 @@ pub struct ObjData {
     /// Are instantiate in own context, unique ID and place as children
     pub children: Option<Vec<StaticId>>,
     pub craft: Option<CraftData>,
+    pub item: Option<ItemData>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct CfgData {
     pub initial_room: StaticId,
     pub avatar_mob: StaticId,
@@ -99,14 +115,14 @@ pub struct CfgData {
 }
 
 // TODO: remove HashMap, the key is probably never used
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Data {
     pub cfg: Option<CfgData>,
     pub objects: HashMap<StaticId, ObjData>,
     pub prefabs: HashMap<StaticId, ObjData>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct SpawnData {
     pub prefab_id: StaticId,
     pub max: u32,
@@ -319,6 +335,12 @@ impl Loader {
 
             let spawn = Spawn::new(obj_id, spawn.prefab_id, min, max);
             container.spawns.add(spawn)?;
+        }
+
+        if let Some(item) = &data.item {
+            let mut item = Item::new(obj_id);
+            // TODO: initailize amount and flags
+            container.items.add(item);
         }
 
         if let Some(children) = data.children.clone() {
