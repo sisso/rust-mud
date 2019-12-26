@@ -14,9 +14,11 @@ pub struct InventoryDesc<'a> {
     pub equipped: bool,
 }
 
+// TODO: move to a rule like system that control this semantic through
 pub fn is_visible(container: &Container, obj_id: ObjId) -> bool {
     container.mobs.exists(obj_id) ||
-    container.items.exists(obj_id)
+        container.items.exists(obj_id) ||
+        container.ship.exists(obj_id)
 }
 
 pub fn help() -> String {
@@ -45,6 +47,7 @@ pub fn help() -> String {
     str.to_string()
 }
 
+// TODO no comm file should receive container
 pub fn look_description(container: &Container, mob_id: MobId) -> Result<String> {
     let room_id = container.locations.get(mob_id).as_result()?;
     let room = container.rooms.get(room_id).as_result()?;

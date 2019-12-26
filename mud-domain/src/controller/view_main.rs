@@ -36,33 +36,28 @@ pub fn handle(
     container: &mut Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
-    input: StrInput,
+    input: &str,
 ) -> Result<()> {
-    match input.first() {
+    let input = StrInput(input);
+
+    // TODO: replace by first(), if a input want to be unique should check if there is no args
+    match input.as_str() {
         "h" | "help" => {
             outputs.private(mob_id, comm::help());
             Ok(())
         }
 
-        "l" | "look" => {
-            actions::look(container, outputs, mob_id)
-        }
+        "l" | "look" => actions::look(container, outputs, mob_id),
 
-        "n" | "s" | "e" | "w" => {
-            let dir = match input.as_ref() {
-                "n" => Dir::N,
-                "s" => Dir::S,
-                "e" => Dir::E,
-                "w" => Dir::W,
-                _ => panic!("invalid input {}", input),
-            };
+        "n" => actions::mv(container, outputs, mob_id, Dir::N),
 
-            actions::mv(container, outputs, mob_id, dir)
-        }
+        "s" => actions::mv(container, outputs, mob_id, Dir::S),
 
-        "enter" => {
-            actions::enter(container, outputs, mob_id, "")
-        }
+        "e" => actions::mv(container, outputs, mob_id, Dir::E),
+
+        "w" => actions::mv(container, outputs, mob_id, Dir::W),
+
+        "enter" => actions::enter(container, outputs, mob_id, ""),
 
         _ if input.has_commands(&["enter"]) => {
             let args = input.plain_arguments();
@@ -94,28 +89,28 @@ pub fn handle(
             Ok(())
         }
 
-        _ if input.has_commands(&["pick ", "get "])  => {
+        _ if input.has_commands(&["pick", "get"])  => {
             input_handle_items::pickup(container, outputs, mob_id, input.split())
         }
 
-        _ if input.has_commands(&["drop "]) => {
+        _ if input.has_commands(&["drop"]) => {
             input_handle_items::drop(container, outputs, mob_id, input.split())
         }
 
-        _ if input.has_commands(&["remove "]) => {
+        _ if input.has_commands(&["remove"]) => {
             input_handle_items::strip(container, outputs, mob_id, input.split())
         }
 
-        _ if input.has_commands(&["equip "]) => {
+        _ if input.has_commands(&["equip"]) => {
             input_handle_items::equip(container, outputs, mob_id, input.split())
         }
 
-        _ if input.has_commands(&["examine "]) => {
+        _ if input.has_commands(&["examine"]) => {
             action_examine(container, outputs, mob_id, input.plain_arguments())
         }
 
-        _ if input.has_commands(&["k ", "kill "]) => {
-            let target = input.split();
+        _ if input.has_commands(&["k", "kill"]) => {
+            let target = input.plain_arguments();
 
             let ctx = container.get_mob_ctx(mob_id).as_result()?;
             let mobs = mob::search_mobs_at(
@@ -148,7 +143,7 @@ pub fn handle(
             actions::say(container, outputs, mob_id, msg)
         }
 
-        _ if input.starts_with("admin ") => {
+        _ if input.has_command("admin") => {
             let arguments = input.split();
             if arguments.len() != 2 {
                 outputs.private(mob_id, comm::admin_invalid_command());
@@ -179,7 +174,7 @@ pub fn handle(
 
         "move" => input_handle_space::move_list_targets(container, outputs, mob_id),
 
-        _ if input.starts_with("move ") => input_handle_space::move_to(
+        _ if input.has_command("move") => input_handle_space::move_to(
             container,
             outputs,
             mob_id,
@@ -188,7 +183,7 @@ pub fn handle(
 
         "land" => input_handle_space::land_list(container, outputs, mob_id),
 
-        _ if input.starts_with("land ") => input_handle_space::land_at(
+        _ if input.has_command("land") => input_handle_space::land_at(
             container,
             outputs,
             mob_id,
