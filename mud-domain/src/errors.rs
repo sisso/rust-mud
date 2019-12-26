@@ -12,6 +12,7 @@ pub enum Error {
     IO(std::io::ErrorKind),
     ParserError { kind: String, value: String },
     Generic(String),
+    IllegalState,
     IllegalArgument,
     IllegalArgumentMsg { msg: String },
     InCombat,

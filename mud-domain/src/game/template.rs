@@ -2,6 +2,8 @@ use commons::ObjId;
 use std::collections::HashMap;
 use crate::errors::{Result, Error};
 
+/// should use live template
+///
 #[derive(Clone, Debug)]
 pub struct Template {
     pub id: ObjId,
@@ -43,5 +45,9 @@ impl Templates {
 
     pub fn exist(&self, id: ObjId) -> bool {
         self.index.contains_key(&id)
+    }
+
+    pub fn list<'a>(&'a self) -> impl Iterator<Item = &ObjId> + 'a {
+        self.index.keys()
     }
 }

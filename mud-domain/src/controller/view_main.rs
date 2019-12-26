@@ -5,7 +5,7 @@ use commons::{ObjId, PlayerId};
 use crate::errors::{AsResult, Error, Result};
 use crate::game::{actions_admin, input_handle_items, input_handle_space, inventory, mob};
 use crate::game::comm::InventoryDesc;
-use crate::game::container::Container;
+use crate::game::container::{Container, Ctx};
 use crate::game::mob::MobId;
 use crate::game::actions;
 use crate::game::comm;
@@ -32,6 +32,7 @@ fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc>
         .collect()
 }
 
+// TODO: normalize use o ctx
 pub fn handle(
     container: &mut Container,
     outputs: &mut dyn Outputs,
@@ -192,11 +193,11 @@ pub fn handle(
 
         "launch" => input_handle_space::launch(container, outputs, mob_id),
 
-        _ if input.has_command("list") => input_handle_vendors::list(container, mob_id, input),
+        _ if input.has_command("list") => input_handle_vendors::list(container, outputs, mob_id, input),
 
-        _ if input.has_command("buy") => input_handle_vendors::buy(container, mob_id, input),
+        _ if input.has_command("buy") => input_handle_vendors::buy(container, outputs, mob_id, input),
 
-        _ if input.has_command("sell") => input_handle_vendors::sell(container, mob_id, input),
+        _ if input.has_command("sell") => input_handle_vendors::sell(container, outputs, mob_id, input),
 
         _ => {
             outputs.private(mob_id, comm::unknown_input(input.as_str()));

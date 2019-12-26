@@ -56,6 +56,10 @@ impl Objects {
     pub fn exists(&self, obj_id: ObjId) -> bool {
         return self.objects.contains_key(&obj_id)
     }
+
+    pub fn list<'a>(&'a mut self) -> impl Iterator<Item = &ObjId> + 'a {
+        self.objects.keys()
+    }
 }
 
 // TODO: use or remove?

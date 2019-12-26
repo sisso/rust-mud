@@ -52,4 +52,8 @@ impl Prices {
     pub fn exist(&self, id: ObjId) -> bool {
         self.index.contains_key(&id)
     }
+
+    pub fn list<'a>(&'a self) -> impl Iterator<Item = &Price> + 'a {
+        self.index.values()
+    }
 }

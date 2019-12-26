@@ -1,3 +1,22 @@
+# Ctx or merge Outputs into container?
+
+c) 
+
+Considering that only few places are using Ctx (systems). Keep it or remove it is the lower effort to change for
+now and if we decide otherwise. 
+
+b)
+
+Still CTX make sense, only with CTx we can move dyn references around without hardcode into container. Considering we
+want to move container to hold just Repository. How will keep all references for services? If we decide to 
+create a service holder?
+
+a)
+
+increase usage of CTX, or maybe just merge? In the long run outputs will be replaced 
+by events. Events will belong to container. The Event -> string will be implemented
+in another location. There is no point to ind
+
 # Should handler receive target or full argument?
 
 If I want to send full arguments I would use just the main handle. If I decide to use a input handly directly is because

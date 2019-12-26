@@ -6,6 +6,7 @@ use logs::*;
 use crate::utils::text::{plot_points, PlotCfg, PlotPoint};
 use crate::errors::{Result, AsResult};
 use commons::{TotalTime, V2, ObjId};
+use crate::game::prices::Money;
 
 pub struct InventoryDesc<'a> {
     pub id: ItemId,
@@ -621,6 +622,36 @@ pub fn space_land_list(candidates: &Vec<&str>) -> String {
         buffer.push(format!("- {}", label))
     }
     buffer.join("\n")
+}
+
+pub struct VendorListItem<'a> {
+    pub label: &'a str,
+    pub buy: Money,
+    pub sell: Money,
+}
+
+pub fn vendor_operation_fail() -> String {
+    "you have no vendor to interact, go away".to_string()
+}
+
+// TODO: use column based display
+pub fn vendor_list(list: Vec<VendorListItem>) -> String {
+    let mut buffer = String::new();
+    buffer.push_str("List\n");
+    buffer.push_str("name buy sell\n");
+
+    list.into_iter()
+        .for_each(|item| {
+            buffer.push_str("-");
+            buffer.push_str(item.label);
+            buffer.push_str(" ");
+            buffer.push_str(&item.buy.as_u32().to_string());
+            buffer.push_str(" ");
+            buffer.push_str(&item.sell.as_u32().to_string());
+            buffer.push_str("\n");
+        });
+
+    buffer
 }
 
 #[cfg(test)]

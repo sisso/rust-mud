@@ -1,9 +1,5 @@
 # Main Todo
 
-- add time/tick to logs
-- continue time loader implemented
-- add invisible items. Currently is possible to see a Wolf Spawn. Logical objects are Label or Obj? 
-
 # Design
 
 - how we can introduce a new view that will stop to receive events? Like stunned?
@@ -52,7 +48,7 @@
 - hire companions or controlled drones
 - advanced parse commands like "examine drunk body" || examine body || examine body.2 || examine all body?
 - persistence save and load
-  - pre-requists to define a proper load and save format
+  - pre-requits to define a proper load and save format
 - surface in planets
 
 # usability
@@ -63,6 +59,9 @@
 
 # Refactoring
 
+- add time/tick to logs
+- move outputs to Container, use container Buffer to remove the reference
+- normalize StrInput
 - change static_id to strings
 - re-organize code modules
   - better layering between view commands, game logic, container, etc.

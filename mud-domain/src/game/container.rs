@@ -23,6 +23,8 @@ use crate::game::surfaces_object::SurfaceObjects;
 use crate::game::vendors::Vendors;
 use crate::game::prices::Prices;
 
+/// Until standardize it or remove is not defined, should be used only in System, not in
+/// command handling
 pub struct Ctx<'a> {
     pub container: &'a mut Container,
     pub outputs: &'a mut dyn Outputs,
