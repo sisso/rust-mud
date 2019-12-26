@@ -81,13 +81,13 @@ impl Container {
 
     // TODO: use macro trait or some more generic way to remove all references
     pub fn remove(&mut self, obj_id: ObjId) {
+        self.objects.remove(obj_id);
         self.mobs.remove(obj_id);
         self.items.remove(obj_id);
         self.locations.remove(obj_id);
         // self.rooms.remove(obj_id);
         // self.spanws.remove(obj_id);
         self.equips.remove(obj_id);
-        self.objects.remove(obj_id);
         self.labels.remove(obj_id);
         self.pos.remove(obj_id);
         self.vendors.remove(obj_id);

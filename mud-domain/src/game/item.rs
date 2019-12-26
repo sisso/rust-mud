@@ -92,6 +92,10 @@ impl ItemRepository {
         self.index.get(&item_id)
     }
 
+    pub fn get_mut(&mut self, item_id: ItemId) -> Option<&mut Item> {
+        self.index.get_mut(&item_id)
+    }
+
     pub fn add(&mut self, item: Item) {
         if self.index.contains_key(&item.id) {
             panic!()

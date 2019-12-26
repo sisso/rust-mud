@@ -42,7 +42,7 @@ pub fn search_one(
     location_id: ObjId,
     label: &str,
 ) -> Option<ItemId> {
-    let mut list = search(labels, locations, items, location_id, label);
-    // TODO: how to pop first element?
-    list.pop()
+    search(labels, locations, items, location_id, label)
+        .into_iter()
+        .next()
 }

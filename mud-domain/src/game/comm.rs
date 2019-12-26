@@ -634,6 +634,14 @@ pub fn vendor_operation_fail() -> String {
     "you have no vendor to interact, go away".to_string()
 }
 
+pub fn vendor_sell_item_not_found(label: &str) -> String {
+    format!("you don't have a '{}' to sell", label)
+}
+
+pub fn vendor_can_not_sell(label: &str) -> String {
+    format!("'{}' can not be sell", label)
+}
+
 // TODO: use column based display
 pub fn vendor_list(list: Vec<VendorListItem>) -> String {
     let mut buffer = String::new();
@@ -642,7 +650,7 @@ pub fn vendor_list(list: Vec<VendorListItem>) -> String {
 
     list.into_iter()
         .for_each(|item| {
-            buffer.push_str("-");
+            buffer.push_str("- ");
             buffer.push_str(item.label);
             buffer.push_str(" ");
             buffer.push_str(&item.buy.as_u32().to_string());

@@ -113,7 +113,7 @@ pub struct VendorData {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ObjData {
-    pub id: u32,
+    pub id: StaticId,
     pub label: String,
     pub code: Option<Vec<String>>,
     pub desc: Option<String>,
@@ -215,6 +215,18 @@ impl Loader {
         }
 
         result
+    }
+
+    // TODO: just use config, this is insane!!!!!!!!!!!!1
+    pub fn find_money_static_id(&self) -> Option<StaticId> {
+        self.index.values().find(|data| {
+            let is_gold = data.item.as_ref()
+                .and_then(|item_data| item_data.flags.as_ref())
+                .and_then(|flags| flags.gold)
+                .unwrap_or(false);
+
+            is_gold
+        }).map(|data| data.id)
     }
 }
 
@@ -454,13 +466,13 @@ impl Loader {
 
         for (_static_id, data) in data.objects.iter() {
             if !ids.insert(data.id) {
-                return Err(format!("duplicate object id {}", data.id).into());
+                return Err(format!("duplicate object id {:?}", data.id).into());
             }
         }
 
         for (_static_id, data) in data.prefabs.iter() {
            if !ids.insert(data.id) {
-               return Err(format!("duplicate prefab id {}", data.id).into());
+               return Err(format!("duplicate prefab id {:?}", data.id).into());
            }
         }
 

@@ -1,3 +1,22 @@
+# Bussines logic
+
+Currently mostly of logic is spread throuh handle inputs, execute commands and extra other operations. Put extra 
+functions in the package is not a good idea because we want to reduce dependency from Repositories and Container. 
+
+The idea is to split Component/Repository from bussines logic. This mean we need
+
+1) create a new _bussines classes lilke
+
+mob_service 
+mob
+
+2) move current model and repository into a new class and use the main one for business
+
+mob
+mob_repository
+
+The option 2) will require more work, but adapt easy to logic that don't belong to any component or repository.
+
 # Ctx or merge Outputs into container?
 
 c) 

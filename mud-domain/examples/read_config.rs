@@ -44,13 +44,13 @@ fn main() {
     let mut m = HashMap::new();
 
     for (_, e) in data.objects.iter() {
-        if m.insert(e.id, (&e.label, false, e)).is_some() {
+        if m.insert(e.id.as_u32(), (&e.label, false, e)).is_some() {
             panic!("Duplicated id {:?}", e.id);
         }
     }
 
     for (_, e) in data.prefabs.iter() {
-        if m.insert(e.id, (&e.label, true, e)).is_some() {
+        if m.insert(e.id.as_u32(), (&e.label, true, e)).is_some() {
             panic!("Duplicated id {:?}", e.id);
         }
     }

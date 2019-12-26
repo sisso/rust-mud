@@ -122,6 +122,6 @@ fn test_fantasy() {
     scenery.wait_for("receive");
 
     scenery.send_input("inv"); 
-    scenery.wait_for("- meat");
+    scenery.wait_for("- gold");
 }
 

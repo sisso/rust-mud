@@ -14,11 +14,10 @@ pub enum ParseItemError {
     ItemNotFound { label: String },
 }
 
+// TODO: use argument index 0 and update all users to use StrInput arguments instead split
 pub fn parser_owned_item(
-    labels: &Labels,
-    locations: &Locations,
-    items: &ItemRepository,
-    item_location: ObjId,
+    container: &Container,
+    owner_id: ObjId,
     args: Vec<&str>,
 ) -> std::result::Result<ItemId, ParseItemError> {
     let item_label = match args.get(1) {
@@ -26,7 +25,7 @@ pub fn parser_owned_item(
         None => return Err(ParseItemError::ItemNotProvided),
     };
 
-    let founds = inventory::search(&labels, &locations, &items, item_location, item_label);
+    let founds = inventory::search(&container.labels, &container.locations, &container.items, owner_id, item_label);
     match founds.first().cloned() {
         Some(item_id) => Ok(item_id),
         None => Err(ParseItemError::ItemNotFound {
@@ -115,9 +114,7 @@ pub fn equip(
     args: Vec<&str>,
 ) -> Result<()> {
     match parser_owned_item(
-        &container.labels,
-        &container.locations,
-        &container.items,
+        &container,
         mob_id,
         args,
     ) {
@@ -140,9 +137,7 @@ pub fn drop(
     args: Vec<&str>,
 ) -> Result<()> {
     parser_owned_item(
-        &container.labels,
-        &container.locations,
-        &container.items,
+        &container,
         mob_id,
         args,
     )
@@ -170,9 +165,7 @@ pub fn strip(
     args: Vec<&str>,
 ) -> Result<()> {
     parser_owned_item(
-        &container.labels,
-        &container.locations,
-        &container.items,
+        &container,
         mob_id,
         args,
     )
