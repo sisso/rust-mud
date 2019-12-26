@@ -18,11 +18,12 @@ pub fn look(
     Ok(())
 }
 
+// TODO: do not allow to say empty
 pub fn say(
     container: &mut Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
-    msg: String,
+    msg: &str,
 ) -> Result<()> {
     let room_id = container.locations.get(mob_id).as_result()?;
     let mob_label = container.labels.get(mob_id).as_result()?;

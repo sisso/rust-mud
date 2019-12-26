@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap};
 use std::hash::Hash;
 
 #[derive(Debug, Clone)]
@@ -62,6 +62,7 @@ impl<K: Hash + Eq, V> Tree<K, V> {
 
 #[test]
 fn test_tree() {
+   use std::collections::{HashSet};
    let mut tree = Tree::new();
 
    tree.insert(0, "Sun", None).unwrap();
@@ -74,7 +75,7 @@ fn test_tree() {
    assert_eq!(tree.get(&2).unwrap(), &"Moon");
    assert_eq!(tree.get(&3).unwrap(), &"Venus");
 
-   let children_set = tree.children(&0).into_iter().collect::<HashSet<&i32>>();
+   let children_set: HashSet<&i32> = tree.children(&0).into_iter().collect();
    assert_eq!(children_set, vec![&1, &3].into_iter().collect());
    assert_eq!(tree.children(&1), vec![&2]);
    assert!(tree.children(&2).is_empty());

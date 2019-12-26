@@ -83,9 +83,11 @@ fn test_fantasy() {
 
     scenery.login();
 
+    // check start in village
     scenery.send_input("look");
     scenery.wait_for("Village");
 
+    // move to florest
     scenery.send_input("s");
     scenery.send_input("s");
     scenery.wait_for("Florest");
@@ -93,12 +95,14 @@ fn test_fantasy() {
     scenery.send_input("look");
     scenery.wait_for("wolf");
 
+    // kill a wolf
     scenery.send_input("k wolf"); 
     scenery.wait_for("wolf corpse");
 
     scenery.send_input("examine corpse");
     scenery.wait_for("- meat");
 
+    // collect loot 
     scenery.send_input("get meat in corpse");
     scenery.wait_for("you pick");
 
@@ -109,6 +113,15 @@ fn test_fantasy() {
     scenery.wait_for("Market");
 
     scenery.send_input("look");
-    scenery.wait_for("??");
+    scenery.wait_for("- vendor");
+
+    scenery.send_input("list");
+    scenery.wait_for("- meat");
+
+    scenery.send_input("sell meat");
+    scenery.wait_for("receive");
+
+    scenery.send_input("inv"); 
+    scenery.wait_for("- meat");
 }
 

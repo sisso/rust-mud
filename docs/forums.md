@@ -1,3 +1,34 @@
+# Should handler receive target or full argument?
+
+If I want to send full arguments I would use just the main handle. If I decide to use a input handly directly is because
+I already know what I want, I don't want to keep repeating.
+
+# Long naming
+
+Some entities can have long names like "John der Kleiner' or "Light Transport". Normally each entity will have a list of
+code that can be used to reference. 
+
+One idea was to accept long names when issue commands, like "pick john head from small pot". This mean that  mostly of
+command needs to deal with some advanced parser instead accept just a Vec<&str>
+
+Probably will just easy to wrap the input in some new type like Input.
+
+    struct <'a> Input(pub &'a str)
+
+    impl Input {
+    }
+
+    input.has_command(input, "enter") -> bool
+    input.has_commands(input, &["enter", "e"]) -> bool
+    let say_msg = input.plain_arguments()
+    let list_ids = input.argumetns_pieces()
+    let (from, to) = input.parse_two_arguments("from")
+    
+
+Required functions to operate with long naming:
+
+
+
 # Internal Items, Invisible objects
 
 b) 

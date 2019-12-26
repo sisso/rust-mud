@@ -11,7 +11,9 @@ use crate::game::actions;
 use crate::game::comm;
 use crate::game::Outputs;
 use crate::game::domain::Dir;
+use crate::game::input_handle_vendors;
 use logs::*;
+use crate::utils::strinput::StrInput;
 
 fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc> {
     let equip = container.equips.get(obj_id).unwrap_or(HashSet::new());
@@ -34,9 +36,9 @@ pub fn handle(
     container: &mut Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
-    input: &str,
+    input: StrInput,
 ) -> Result<()> {
-    match input {
+    match input.first() {
         "h" | "help" => {
             outputs.private(mob_id, comm::help());
             Ok(())
@@ -62,8 +64,8 @@ pub fn handle(
             actions::enter(container, outputs, mob_id, "")
         }
 
-        _ if has_command(input, &["enter "]) => {
-            let args= parse_command(input, &["enter "]);
+        _ if input.has_commands(&["enter"]) => {
+            let args = input.plain_arguments();
             actions::enter(container, outputs, mob_id, args)
         }
 
@@ -92,28 +94,29 @@ pub fn handle(
             Ok(())
         }
 
-        _ if has_command(input, &["pick ", "get "])  => {
-            input_handle_items::pickup(container, outputs, mob_id, parse_arguments(input))
+        _ if input.has_commands(&["pick ", "get "])  => {
+            input_handle_items::pickup(container, outputs, mob_id, input.split())
         }
 
-        _ if has_command(input, &["drop "]) => {
-            input_handle_items::drop(container, outputs, mob_id, parse_arguments(input))
+        _ if input.has_commands(&["drop "]) => {
+            input_handle_items::drop(container, outputs, mob_id, input.split())
         }
 
-        _ if has_command(input, &["remove "]) => {
-            input_handle_items::strip(container, outputs, mob_id, parse_arguments(input))
+        _ if input.has_commands(&["remove "]) => {
+            input_handle_items::strip(container, outputs, mob_id, input.split())
         }
 
-        _ if has_command(input, &["equip "]) => {
-            input_handle_items::equip(container, outputs, mob_id, parse_arguments(input))
+        _ if input.has_commands(&["equip "]) => {
+            input_handle_items::equip(container, outputs, mob_id, input.split())
         }
 
-        _ if has_command(input, &["examine "]) => {
-            action_examine(container, outputs, mob_id, input)
+        _ if input.has_commands(&["examine "]) => {
+            action_examine(container, outputs, mob_id, input.plain_arguments())
         }
 
-        _ if has_command(input, &["k ", "kill "]) => {
-            let target = parse_command(input, &["k ", "kill "]);
+        _ if input.has_commands(&["k ", "kill "]) => {
+            let target = input.split();
+
             let ctx = container.get_mob_ctx(mob_id).as_result()?;
             let mobs = mob::search_mobs_at(
                 &container.labels,
@@ -123,7 +126,6 @@ pub fn handle(
                 target,
             );
             let candidate = mobs.first();
-            debug!("Attack candidate {:?}", candidate);
 
             match candidate {
                 Some(&target_mob_id) if !container.mobs.is_avatar(target_mob_id) => {
@@ -141,13 +143,13 @@ pub fn handle(
             }
         }
 
-        _ if input.starts_with("say ") => {
-            let msg = input["say ".len()..].to_string();
+        _ if input.has_command("say") => {
+            let msg = input.plain_arguments();
             actions::say(container, outputs, mob_id, msg)
         }
 
         _ if input.starts_with("admin ") => {
-            let arguments = parse_arguments(input);
+            let arguments = input.split();
             if arguments.len() != 2 {
                 outputs.private(mob_id, comm::admin_invalid_command());
                 return Err(Error::IllegalArgument);
@@ -181,7 +183,7 @@ pub fn handle(
             container,
             outputs,
             mob_id,
-            parse_arguments(input),
+            input.split(),
         ),
 
         "land" => input_handle_space::land_list(container, outputs, mob_id),
@@ -190,15 +192,21 @@ pub fn handle(
             container,
             outputs,
             mob_id,
-            parse_arguments(input),
+            input.split(),
         ),
 
         "launch" => input_handle_space::launch(container, outputs, mob_id),
 
+        _ if input.has_command("list") => input_handle_vendors::list(container, mob_id, input),
+
+        _ if input.has_command("buy") => input_handle_vendors::buy(container, mob_id, input),
+
+        _ if input.has_command("sell") => input_handle_vendors::sell(container, mob_id, input),
+
         _ => {
-            outputs.private(mob_id, comm::unknown_input(input));
+            outputs.private(mob_id, comm::unknown_input(input.as_str()));
             Err(Error::IllegalArgument)
-        }
+        },
     }
 }
 
@@ -206,9 +214,8 @@ fn action_examine(
     container: &Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
-    input: &str,
+    target_label: &str,
 ) -> Result<()> {
-    let target_label = parse_command(input, &["examine "]);
     let room_id = container.locations.get(mob_id).as_result()?;
     let mobs = mob::search_mobs_at(
         &container.labels,
@@ -259,27 +266,3 @@ fn action_examine(
     Err(Error::IllegalArgument)
 }
 
-fn has_command(input: &str, commands: &[&str]) -> bool {
-    for c in commands {
-        if input.starts_with(c) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-fn parse_command<'a>(input: &'a str, commands: &[&str]) -> &'a str {
-    for c in commands {
-        if input.starts_with(c) {
-            return &input[c.len()..];
-        }
-    }
-
-    panic!("unable to parse!");
-}
-
-// TODO: drop first argument
-fn parse_arguments(input: &str) -> Vec<&str> {
-    input.split_ascii_whitespace().into_iter().collect()
-}

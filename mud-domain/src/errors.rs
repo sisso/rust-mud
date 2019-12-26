@@ -17,7 +17,8 @@ pub enum Error {
     InCombat,
     IsResting,
     NotFound,
-    CanNotBeEquipped
+    CanNotBeEquipped,
+		NotImplemented,
 }
 
 impl From<&str> for Error {
