@@ -42,14 +42,15 @@ pub fn sell(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId,
             err
         })?;
 
+    // label must be collect before remove of item
+    let item_label = container.labels.get_label_f(item_id).to_string();
+
     container.remove(item_id);
 
     let mob_label = container.labels.get_label_f(mob_id);
-    let item_label = container.labels.get_label_f(item_id);
-
     let location_id = container.locations.get(mob_id).unwrap();
-    outputs.private(mob_id, comm::vendor_sell_item(item_label, sell_price));
-    outputs.broadcast(Some(mob_id), location_id, comm::vendor_sell_item_for_others(mob_label, item_label));
+    outputs.private(mob_id, comm::vendor_sell_item(item_label.as_str(), sell_price));
+    outputs.broadcast(Some(mob_id), location_id, comm::vendor_sell_item_for_others(mob_label, item_label.as_str()));
 
     Ok(())
 }

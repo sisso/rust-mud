@@ -48,11 +48,14 @@ impl TestScenery {
     }
 
     pub fn wait_for(&mut self, contains: &str) -> Vec<String> {
+        self.wait_until(vec![contains], vec![])
+    }
+
+    pub fn wait_until(&mut self, contains: Vec<&str>, exclude: Vec<&str>) -> Vec<String> {
         for _ in 0..self.timeout {
             let outputs = self.take_outputs();
-            let found = outputs.iter().find(|msg| msg.contains(contains));
 
-            if found.is_some() {
+            if check_output(&outputs, &contains, &exclude) {
                 return outputs;
             } else {
                 self.tick();
@@ -67,61 +70,79 @@ impl TestScenery {
     }
 }
 
-fn assert_outputs_contains(outputs: &Vec<String>, msg: &str) {
-    for i in outputs {
-        if i.contains(msg) {
-            return;
+/// should have all contains, and if contain, should have no exclude
+fn check_output(outputs: &Vec<String>, contains: &Vec<&str>, exclude: &Vec<&str>) -> bool {
+    for expected in contains {
+        match outputs.iter().find(|s| s.contains(expected)) {
+            Some(line) => {
+                for not_expected in exclude {
+                    if line.contains(not_expected) {
+                        return false;
+                    }
+                }
+            },
+            None => return false,
         }
     }
 
-    panic!("can not find {:?} in otuputs {:?}", msg, outputs);
+    true
 }
 
-#[test]
+    #[test]
 fn test_fantasy() {
     let mut scenery = TestScenery::new();
-
     scenery.login();
+    from_village_to_market(&mut scenery);
+    // run the following lines multiple times can cause have multiple bodies
+    from_market_to_florest(&mut scenery);
+    kill_wolf_and_loot(&mut scenery);
+    from_florest_to_market(&mut scenery);
+    sell_meat(&mut scenery);
+}
 
-    // check start in village
-    scenery.send_input("look");
-    scenery.wait_for("Village");
-
-    // move to florest
-    scenery.send_input("s");
-    scenery.send_input("s");
-    scenery.wait_for("Florest");
-
-    scenery.send_input("look");
-    scenery.wait_for("wolf");
-
-    // kill a wolf
-    scenery.send_input("k wolf"); 
-    scenery.wait_for("wolf corpse");
-
-    scenery.send_input("examine corpse");
-    scenery.wait_for("- meat");
-
-    // collect loot 
-    scenery.send_input("get meat in corpse");
-    scenery.wait_for("you pick");
-
-    scenery.send_input("inv"); 
-    scenery.wait_for("- meat");
-
-    scenery.send_input("n");
-    scenery.wait_for("Market");
-
+fn sell_meat(scenery: &mut TestScenery) {
     scenery.send_input("look");
     scenery.wait_for("- vendor");
-
     scenery.send_input("list");
     scenery.wait_for("- meat");
-
     scenery.send_input("sell meat");
     scenery.wait_for("receive");
-
-    scenery.send_input("inv"); 
+    scenery.send_input("inv");
     scenery.wait_for("- gold");
+}
+
+fn from_florest_to_market(scenery: &mut TestScenery) {
+    scenery.send_input("n");
+    scenery.wait_for("Market");
+}
+
+fn kill_wolf_and_loot(scenery: &mut TestScenery) {
+    scenery.send_input("look");
+    scenery.wait_until(vec!["wolf"], vec!["corpse"]);
+
+// kill a wolf
+    scenery.send_input("k wolf");
+    scenery.wait_for("wolf corpse");
+    scenery.send_input("examine corpse");
+    scenery.wait_for("- meat");
+// collect loot
+    scenery.send_input("get meat in corpse");
+    scenery.wait_for("you pick");
+    scenery.send_input("inv");
+    scenery.wait_for("- meat");
+}
+
+fn from_village_to_market(scenery: &mut TestScenery) {
+    scenery.send_input("look");
+    scenery.wait_for("Village");
+    scenery.send_input("s");
+    scenery.wait_for("Market");
+}
+
+fn from_market_to_florest(scenery: &mut TestScenery) {
+    scenery.send_input("look");
+    scenery.wait_for("Market");
+    scenery.send_input("s");
+    scenery.wait_for("Florest");
 }
 
