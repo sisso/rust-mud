@@ -44,6 +44,13 @@ pub fn sell(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId,
 
     container.remove(item_id);
 
+    let mob_label = container.labels.get_label_f(mob_id);
+    let item_label = container.labels.get_label_f(item_id);
+
+    let location_id = container.locations.get(mob_id).unwrap();
+    outputs.private(mob_id, comm::vendor_sell_item(item_label, sell_price));
+    outputs.broadcast(Some(mob_id), location_id, comm::vendor_sell_item_for_others(mob_label, item_label));
+
     Ok(())
 }
 
@@ -63,7 +70,7 @@ fn add_money(container: &mut Container, obj_id: ObjId, amount: Money) -> Result<
             Ok(())
         },
         None => {
-            let static_id = container.loader.find_money_static_id().expect("No money found");
+            let static_id = container.config.money_id.expect("money_id not defined");
             let item_id = Loader::spawn_at(container, static_id, obj_id)?;
             let item = container.items.get_mut(item_id).expect("Money was created but is not a item");
             item.amount = amount.as_u32();

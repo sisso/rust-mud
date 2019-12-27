@@ -138,6 +138,7 @@ pub struct CfgData {
     pub initial_room: StaticId,
     pub avatar_mob: StaticId,
     pub initial_craft: Option<StaticId>,
+    pub money_id: Option<StaticId>,
 }
 
 // TODO: remove HashMap, the key is probably never used
@@ -215,18 +216,6 @@ impl Loader {
         }
 
         result
-    }
-
-    // TODO: just use config, this is insane!!!!!!!!!!!!1
-    pub fn find_money_static_id(&self) -> Option<StaticId> {
-        self.index.values().find(|data| {
-            let is_gold = data.item.as_ref()
-                .and_then(|item_data| item_data.flags.as_ref())
-                .and_then(|flags| flags.gold)
-                .unwrap_or(false);
-
-            is_gold
-        }).map(|data| data.id)
     }
 }
 
@@ -451,9 +440,10 @@ impl Loader {
 
         // update configurations with references
         match data.cfg {
-            Some(CfgData { initial_room, avatar_mob, initial_craft }) => {
+            Some(CfgData { initial_room, avatar_mob, initial_craft, money_id }) => {
                 container.config.initial_room = Some(ObjId(initial_room.as_u32()));
                 container.config.avatar_id = Some(avatar_mob);
+                container.config.money_id = money_id;
             }
             _ => {},
         }

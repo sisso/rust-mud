@@ -638,6 +638,14 @@ pub fn vendor_sell_item_not_found(label: &str) -> String {
     format!("you don't have a '{}' to sell", label)
 }
 
+pub fn vendor_sell_item(label: &str, value: Money) -> String {
+    format!("you sell {} and receive {}", label, value.as_u32())
+}
+
+pub fn vendor_sell_item_for_others(mob: &str, label: &str) -> String {
+    format!("{} sell a {}", mob, label)
+}
+
 pub fn vendor_can_not_sell(label: &str) -> String {
     format!("'{}' can not be sell", label)
 }
