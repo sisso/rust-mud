@@ -62,10 +62,21 @@ pub struct CraftData {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ItemFlagsData {
-    gold: Option<bool>,
-    inventory: Option<bool>,
-    stuck: Option<bool>,
-    body: Option<bool>,
+    pub money: Option<bool>,
+    pub inventory: Option<bool>,
+    pub stuck: Option<bool>,
+    pub body: Option<bool>,
+}
+
+impl ItemFlagsData {
+    pub fn new() -> Self {
+        ItemFlagsData {
+            money: None,
+            inventory: None,
+            stuck: None,
+            body: None
+        }
+    }
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -80,10 +91,21 @@ pub struct ItemArmorData {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ItemData {
-    flags: Option<ItemFlagsData>,
-    amount: Option<u32>,
-    weapon: Option<ItemWeaponData>,
-    armor: Option<ItemArmorData>,
+    pub flags: Option<ItemFlagsData>,
+    pub amount: Option<u32>,
+    pub weapon: Option<ItemWeaponData>,
+    pub armor: Option<ItemArmorData>,
+}
+
+impl ItemData {
+    pub fn new() -> Self {
+        ItemData {
+            flags: None,
+            amount: None,
+            weapon: None,
+            armor: None
+        }
+    }
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -133,6 +155,29 @@ pub struct ObjData {
     pub vendor: Option<VendorData>,
 }
 
+impl ObjData {
+    pub fn new(id: StaticId) -> Self {
+        ObjData {
+            id,
+            label: "".to_string(),
+            code: None,
+            desc: None,
+            room: None,
+            astro_body: None,
+            sector: None,
+            mob: None,
+            pos: None,
+            spawn: None,
+            parent: None,
+            children: None,
+            craft: None,
+            item: None,
+            price: None,
+            vendor: None
+        }
+    }
+}
+
 #[derive(Deserialize, Serialize, Debug)]
 pub struct CfgData {
     pub initial_room: StaticId,
@@ -176,10 +221,10 @@ impl Loader {
         }
     }
 
-    pub fn add_prefab(&mut self, id: StaticId, data: ObjData) {
-        assert!(!self.index.contains_key(&id));
-        debug!("{:?} adding prefab {:?}", id, data);
-        self.index.insert(id, data);
+    pub fn add_prefab(&mut self, data: ObjData) {
+        assert!(!self.index.contains_key(&data.id));
+        debug!("{:?} adding prefab {:?}", data.id, data);
+        self.index.insert(data.id, data);
     }
 
     pub fn get_prefab(&self, id: StaticId) -> Option<&ObjData> {
@@ -279,6 +324,8 @@ impl Loader {
 
         debug!("{:?} apply prefab {:?}", obj_id, data.id);
 
+        container.objects.set_static_id(obj_id, data.id)?;
+
         if let Some(parent) = &data.parent {
             let parent_id = Loader::get_by_static_id(&container.objects, &references, *parent)?;
             container.locations.set(obj_id, parent_id)
@@ -371,7 +418,7 @@ impl Loader {
 
             if let Some(flags) = &data_item.flags {
                 item.flags.is_corpse = flags.body.unwrap_or(false);
-                item.flags.is_money = flags.gold.unwrap_or(false);
+                item.flags.is_money = flags.money.unwrap_or(false);
                 item.flags.is_inventory = flags.inventory.unwrap_or(false);
                 item.flags.is_stuck = flags.stuck.unwrap_or(false);
             }
@@ -432,7 +479,7 @@ impl Loader {
 
         // add prefabs
         for (k, v) in data.prefabs {
-            container.loader.add_prefab(k, v);
+            container.loader.add_prefab(v);
         }
 
         // instantiate static data

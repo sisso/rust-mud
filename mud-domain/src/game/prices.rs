@@ -11,6 +11,12 @@ impl Money {
     }
 }
 
+impl From<u32> for Money {
+    fn from(value: u32) -> Self {
+        Money(value)
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Price {
     pub id: ObjId,

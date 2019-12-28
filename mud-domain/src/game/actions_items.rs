@@ -1,7 +1,7 @@
 use super::container::Container;
 use super::item::*;
 use super::mob::*;
-use crate::game::comm;
+use crate::game::{comm, inventory};
 use crate::game::Outputs;
 use commons::PlayerId;
 use crate::errors::{Error, Result, AsResult};
@@ -66,9 +66,16 @@ pub fn do_pickup(
         }
     }
 
-    container.locations.set(item_id, mob_id);
+    inventory::add(container, item_id, mob_id).map_err(|error| {
+        let item_label = container.labels.get_label_f(item_id);
 
-    Ok(())
+        outputs.private(
+            mob_id,
+            comm::pick_fail_storage_is_not_inventory(item_label),
+        );
+
+        PickUpError::Other
+    })
 }
 
 /// As a humanoid entity in mud, try to equip a item

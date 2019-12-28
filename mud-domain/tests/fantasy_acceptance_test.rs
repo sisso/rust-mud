@@ -124,9 +124,15 @@ fn test_fantasy_collect_money_should_be_merged() {
     let mut scenery = TestScenery::new();
     scenery.login();
     from_village_to_temple(&mut scenery);
+
     pick_money_from_chest(&mut scenery);
+    assert_money(&mut scenery, 1);
+
     pick_money_from_chest(&mut scenery);
-    assert_money_gt_0(&mut scenery);
+    assert_money(&mut scenery, 2);
+
+    pick_money_from_chest(&mut scenery);
+    assert_money(&mut scenery, 3);
 }
 
 #[test]
@@ -194,15 +200,9 @@ fn from_village_to_temple(scenery: &mut TestScenery) {
 }
 
 fn pick_money_from_chest(scenery: &mut TestScenery) {
-    // pick up 3 gold coins
-    for _ in 0..3 {
-        scenery.repeat_command_until("examine chest", "gold");
-        scenery.send_input("get gold in chest");
-        scenery.wait_for("pick");
-    }
-
-    scenery.send_input("inv");
-    scenery.wait_for("gold x3");
+    scenery.repeat_command_until("examine chest", "gold");
+    scenery.send_input("get gold in chest");
+    scenery.wait_for("pick");
 }
 
 fn from_temple_to_market(scenery: &mut TestScenery) {
@@ -217,6 +217,11 @@ fn equip_sword(scenery: &mut TestScenery) {
     unimplemented!()
 }
 
-fn assert_money_gt_0(scenery: &mut TestScenery) {
-    unimplemented!()
+fn assert_money(scenery: &mut TestScenery, expected: u32) {
+    scenery.send_input("inv");
+    if expected == 1 {
+        scenery.wait_for("gold");
+    } else {
+        scenery.wait_for(&format!("gold x{}", expected));
+    }
 }

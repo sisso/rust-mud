@@ -246,10 +246,10 @@ fn print_item(item: &str, amount: u32, equipped: bool) -> String {
     let mut equip_str = "";
     let mut amount_str = "".to_string();
     if equipped {
-        equip_str = "*";
+        equip_str = "(equipped)";
     }
     if amount > 1 {
-        amount_str = format!("({})", amount);
+        amount_str = format!(" x{}", amount);
     }
     format!("{}{}{}", item, equip_str, amount_str)
 }

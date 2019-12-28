@@ -36,7 +36,7 @@ pub fn sell(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId,
         })?
         .sell;
 
-    add_money(container, mob_id, sell_price)
+    inventory::add_money(container, mob_id, sell_price)
         .map_err(|err| {
             outputs.private(mob_id, comm::vendor_operation_fail());
             err
@@ -55,27 +55,3 @@ pub fn sell(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId,
     Ok(())
 }
 
-fn add_money(container: &mut Container, obj_id: ObjId, amount: Money) -> Result<()> {
-    // check if already have any money item and append, otherwise find one in loader and spawn
-
-    let item_id = inventory::get_inventory_list(&container.locations, &container.items, obj_id)
-        .into_iter()
-        .filter(|item| item.flags.is_money)
-        .map(|item| item.id)
-        .next();
-
-    match item_id {
-        Some(item_id) => {
-            let item = container.items.get_mut(item_id).expect("Money was created but is not a item");
-            item.amount += amount.as_u32();
-            Ok(())
-        },
-        None => {
-            let static_id = container.config.money_id.expect("money_id not defined");
-            let item_id = Loader::spawn_at(container, static_id, obj_id)?;
-            let item = container.items.get_mut(item_id).expect("Money was created but is not a item");
-            item.amount = amount.as_u32();
-            Ok(())
-        }
-    }
-}
