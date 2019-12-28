@@ -68,6 +68,25 @@ impl TestScenery {
     pub fn tick(&mut self) {
         self.game.tick(DeltaTime(0.5));
     }
+
+    pub fn repeat_command_until(&mut self, command: &str, expected: &str) -> Vec<String> {
+        for _ in 0..self.timeout {
+            self.send_input(command);
+            self.tick();
+
+            let outputs = self.take_outputs();
+            if check_output(&outputs, &vec![expected], &vec![]) {
+                return outputs;
+            } else {
+                // wait some seconds
+                for _ in 0..10 {
+                    self.tick();
+                }
+            }
+        }
+
+        panic!(format!("timeout waiting for {:?}", expected));
+    }
 }
 
 /// should have all contains, and if contain, should have no exclude
@@ -88,8 +107,8 @@ fn check_output(outputs: &Vec<String>, contains: &Vec<&str>, exclude: &Vec<&str>
     true
 }
 
-    #[test]
-fn test_fantasy() {
+#[test]
+fn test_fantasy_kill_wolf_and_sell_meat() {
     let mut scenery = TestScenery::new();
     scenery.login();
     from_village_to_market(&mut scenery);
@@ -98,6 +117,27 @@ fn test_fantasy() {
     kill_wolf_and_loot(&mut scenery);
     from_florest_to_market(&mut scenery);
     sell_meat(&mut scenery);
+}
+
+#[test]
+fn test_fantasy_collect_money_should_be_merged() {
+    let mut scenery = TestScenery::new();
+    scenery.login();
+    from_village_to_temple(&mut scenery);
+    pick_money_from_chest(&mut scenery);
+    pick_money_from_chest(&mut scenery);
+    assert_money_gt_0(&mut scenery);
+}
+
+#[test]
+fn test_fantasy_steal_temple_and_buy_weapon() {
+    let mut scenery = TestScenery::new();
+    scenery.login();
+    from_village_to_temple(&mut scenery);
+    pick_money_from_chest(&mut scenery);
+    from_temple_to_market(&mut scenery);
+    buy_sword(&mut scenery);
+    equip_sword(&mut scenery);
 }
 
 fn sell_meat(scenery: &mut TestScenery) {
@@ -120,12 +160,12 @@ fn kill_wolf_and_loot(scenery: &mut TestScenery) {
     scenery.send_input("look");
     scenery.wait_until(vec!["wolf"], vec!["corpse"]);
 
-// kill a wolf
+    // kill a wolf
     scenery.send_input("k wolf");
     scenery.wait_for("wolf corpse");
     scenery.send_input("examine corpse");
     scenery.wait_for("- meat");
-// collect loot
+    // collect loot
     scenery.send_input("get meat in corpse");
     scenery.wait_for("you pick");
     scenery.send_input("inv");
@@ -146,3 +186,37 @@ fn from_market_to_florest(scenery: &mut TestScenery) {
     scenery.wait_for("Florest");
 }
 
+fn from_village_to_temple(scenery: &mut TestScenery) {
+    scenery.send_input("look");
+    scenery.wait_for("Village");
+    scenery.send_input("w");
+    scenery.wait_for("Temple");
+}
+
+fn pick_money_from_chest(scenery: &mut TestScenery) {
+    // pick up 3 gold coins
+    for _ in 0..3 {
+        scenery.repeat_command_until("examine chest", "gold");
+        scenery.send_input("get gold in chest");
+        scenery.wait_for("pick");
+    }
+
+    scenery.send_input("inv");
+    scenery.wait_for("gold x3");
+}
+
+fn from_temple_to_market(scenery: &mut TestScenery) {
+    unimplemented!()
+}
+
+fn buy_sword(scenery: &mut TestScenery) {
+    unimplemented!()
+}
+
+fn equip_sword(scenery: &mut TestScenery) {
+    unimplemented!()
+}
+
+fn assert_money_gt_0(scenery: &mut TestScenery) {
+    unimplemented!()
+}

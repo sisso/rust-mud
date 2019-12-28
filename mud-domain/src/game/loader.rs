@@ -227,19 +227,19 @@ impl Loader {
     }
 
     pub fn spawn(container: &mut Container, static_id: StaticId) -> errors::Result<ObjId> {
-        debug!("spawn {:?}", static_id);
+        debug!("spawn prefab {:?}", static_id);
 
         let mut references = HashMap::new();
 
         // create objects
         let obj_id = container.objects.create();
-        trace!("spawn {:?} with id {:?}", static_id, obj_id);
+        trace!("spawning prefab {:?} with id {:?}", static_id, obj_id);
         references.insert(static_id, obj_id);
 
         let children_prefabs = container.loader.find_deep_prefabs_by_parents(static_id);
         for child_static_id in children_prefabs {
             let child_id = container.objects.create();
-            trace!("spawn {:?} child {:?} with id {:?}", static_id, child_static_id, child_id);
+            trace!("spawning prefab {:?} child {:?} with id {:?}", static_id, child_static_id, child_id);
             references.insert(child_static_id, child_id);
         }
 

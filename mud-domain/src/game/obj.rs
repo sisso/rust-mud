@@ -4,12 +4,23 @@ use logs::*;
 use std::collections::HashMap;
 use crate::errors::{self, Error};
 use crate::errors::Error::Conflict;
+use crate::game::loader::StaticId;
 
 pub const NAMESPACE_RESERVED: u32 = 100000;
 
 #[derive(Clone, Debug)]
 pub struct Obj {
     id: ObjId,
+    static_id: Option<StaticId>,
+}
+
+impl Obj {
+    pub fn new(id: ObjId) -> Self {
+        Obj {
+            id,
+            static_id: None
+        }
+    }
 }
 
 pub struct Objects {
@@ -28,7 +39,7 @@ impl Objects {
     pub fn create(&mut self) -> ObjId {
         let id = ObjId(self.next_id.next());
         debug!("{:?} created", id);
-        self.objects.insert(id, Obj { id });
+        self.objects.insert(id, Obj::new(id));
         id
     }
 
@@ -39,8 +50,23 @@ impl Objects {
 
         debug!("{:?} obj insert", id);
         self.next_id.set_max(id.as_u32());
-        self.objects.insert(id, Obj { id });
+        self.objects.insert(id, Obj::new(id));
         Ok(())
+    }
+
+    pub fn set_static_id(&mut self, id: ObjId, static_id: StaticId) -> errors::Result<()> {
+        if let Some(obj) = self.objects.get_mut(&id) {
+            obj.static_id = Some(static_id);
+            debug!("{:?} obj update static_id to {:?}", id, static_id);
+            Ok(())
+        } else {
+            Err(Error::NotFound)
+        }
+    }
+
+    pub fn get_static_id(&mut self, id: ObjId) -> Option<StaticId> {
+        self.objects.get(&id)
+            .and_then(|obj| obj.static_id)
     }
 
     /// Make sure you remove from everything else first

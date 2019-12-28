@@ -34,12 +34,15 @@
 
 # Features
 
-- TODO in config checker 
-- warning all non used properties in load files, just too many cases where something was not implemented and require debug
-- serialization 
+- collect and merge money
+- spawn track items life cycle
 - seller and store
     - buy 
     - sell
+- merge objects
+- TODO in config checker 
+- warning all non used properties in load files, just too many cases where something was not implemented and require debug
+- serialization 
 - crafting
 - remove room_id from spawn (we could want ot have spawn per multiples rooms, zones? regions?)
 - level up

@@ -125,15 +125,22 @@ pub fn run(ctx: &mut Ctx) {
             Some(next) if next.is_before(total_time) => {
                 schedule_next_spawn(total_time, spawn);
 
-                match ctx.container.locations.get(spawn.id) {
-                    Some(location_id) if ctx.container.rooms.exists(location_id) => {
-                        mob_spawns.push((spawn.id, location_id, spawn.prefab_id))
-                    }
+                let candidate_location = ctx.container.locations.get(spawn.id);
+                match candidate_location {
+                    Some(location_id) => {
+                        let valid =
+                            ctx.container.rooms.exists(location_id) ||
+                            ctx.container.items.exists(location_id);
 
-                    other => {
-                        warn!("Spawn {:?} parent {:?} is not a valid room.", spawn.id, other);
-                    }
-                }
+                        if valid {
+                            mob_spawns.push((spawn.id, location_id, spawn.prefab_id));
+                        } else {
+                            warn!("Spawn {:?} parent {:?} is not a valid room or item.", spawn.id, location_id);
+                        }
+                    },
+                    None =>
+                        warn!("Spawn {:?} has no parent", spawn.id),
+                };
             }
 
             Some(_next) => {},
@@ -153,7 +160,7 @@ pub fn run(ctx: &mut Ctx) {
 
        let mob_label = ctx.container.labels.get_label_f(mob_id);
 
-        debug!("{:?} spawn created mob {:?} at {:?}", spawn_id, mob_id, room_id);
+        debug!("{:?} spawn created {:?} at {:?}", spawn_id, mob_id, room_id);
 
         // TODO: move to ownership system
         let spawn_msg = comm::spawn_mob(mob_label);

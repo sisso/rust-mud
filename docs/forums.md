@@ -1,3 +1,36 @@
+# Spawn ownership
+
+Currently to force spawn to lose ownership is require to destroy the object. It work good for mobs but not for 
+items. If player has a item, it can happens to be merged and the old item deleted. 
+
+A final solution will be to track through triggers.
+
+For now we are just ignoring it.
+
+# Group money
+
+Until a merge object is implemented, how to with collecting gold? 
+- It could receive a especial treatment exactly how we are already dealing in vendor sell
+
+# Merge objects
+
+How do we deal with situation of merge objects? Like 10 gold coins, 2 swords,
+1000 tons of Iron?
+
+Can it be gui only?
+- take iron.10 from 1000 iron is insane?
+- can cause performance overhead
+
+What should be attribute used to group it?
+- label, or code?
+  - since code is a array, we need to define priority and use the first one. Could work for ["sword", "broad"] and ["sword", "long"], but not for ["key","transport"], ["key", "house"].  Honestly, none of then look good.
+    - only if use all codes
+  - label could be used, but this mean that how I can distinguish two label if they code are the same? bringing back that it should be code.
+ 
+Sometime dont't make sense to merge objects that re equals, same code, same label and same original prefab, it can contain different attributes like "use", "num of kills" or magic.
+- real grouping should only happens for identical objects
+  - not easy to solve in current multi component system
+
 # Bussines logic
 
 Currently mostly of logic is spread throuh handle inputs, execute commands and extra other operations. Put extra 
