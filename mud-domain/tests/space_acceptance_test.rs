@@ -60,7 +60,11 @@ impl TestScenery {
             }
         }
 
-        panic!(format!("timeout waiting for {:?}, outputs received\n{}", contains, buffer.join("\n")));
+        panic!(format!(
+            "timeout waiting for {:?}, outputs received\n{}",
+            contains,
+            buffer.join("\n")
+        ));
     }
 
     pub fn tick(&mut self) {
@@ -113,4 +117,3 @@ fn test_sectormap() -> Result<(), ()> {
 
     Ok(())
 }
-

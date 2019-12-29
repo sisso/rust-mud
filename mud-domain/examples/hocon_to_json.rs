@@ -35,7 +35,9 @@ fn main() {
     for file in fs::read_dir(base_path.as_str()).unwrap() {
         let os_string = file.unwrap().file_name();
         let filename = os_string.to_str().unwrap();
-        loader = loader.load_file(format!("{}/{}", base_path, filename).as_str()).unwrap();
+        loader = loader
+            .load_file(format!("{}/{}", base_path, filename).as_str())
+            .unwrap();
     }
 
     let doc = loader.hocon().unwrap();

@@ -4,8 +4,8 @@ use super::comm;
 use super::container::*;
 use super::mob::*;
 use super::Outputs;
-use crate::game::mob;
 use crate::errors::{AsResult, Error, Result};
+use crate::game::mob;
 
 pub fn tick_attack(
     container: &mut Container,

@@ -1,8 +1,8 @@
 use super::domain::Dir;
-use commons::{ObjId};
+use crate::errors::{Error, Result};
+use commons::ObjId;
 use logs::*;
 use std::collections::HashMap;
-use crate::errors::{Result, Error};
 
 pub type RoomId = ObjId;
 
@@ -94,9 +94,11 @@ impl RoomRepository {
     }
 
     pub fn update<F>(&mut self, room_id: RoomId, f: F) -> Result<()>
-    where F: FnOnce(&mut Room),
+    where
+        F: FnOnce(&mut Room),
     {
-        self.index.get_mut(&room_id)
+        self.index
+            .get_mut(&room_id)
             .ok_or(Error::NotFound)
             .map(|room| {
                 f(room);

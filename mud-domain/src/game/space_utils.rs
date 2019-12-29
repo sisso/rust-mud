@@ -1,12 +1,14 @@
-use crate::game::comm::{ShowStarmapDescKind, SurfaceDesc, ShowSectorTreeBody, ShowSectorTreeBodyKind};
+use crate::errors::{AsResult, Error, Result};
+use crate::game::astro_bodies::AstroBody;
+use crate::game::comm::{
+    ShowSectorTreeBody, ShowSectorTreeBodyKind, ShowStarmapDescKind, SurfaceDesc,
+};
 use crate::game::container::Container;
 use crate::game::crafts::ShipId;
 use crate::game::location::LocationId;
 use crate::game::mob::MobId;
 use crate::game::{comm, Outputs};
-use crate::errors::{Result, Error, AsResult};
 use commons::{ObjId, PlayerId, MIN_DISTANCE, V2};
-use crate::game::astro_bodies::AstroBody;
 
 pub fn find_surface_target(
     container: &mut Container,
@@ -19,9 +21,7 @@ pub fn find_surface_target(
         .collect::<Vec<_>>();
 
     let founds = container.labels.search_codes(&candidates, label);
-    founds.first()
-        .cloned()
-        .ok_or(Error::NotFound)
+    founds.first().cloned().ok_or(Error::NotFound)
 }
 
 pub fn get_objects_in_surface(
@@ -147,7 +147,10 @@ pub fn find_ships_at(container: &Container, location_id: LocationId) -> Vec<Ship
         .collect()
 }
 
-pub fn find_children_rooms_with_can_exit(container: &Container, location_id: LocationId) -> Vec<LocationId> {
+pub fn find_children_rooms_with_can_exit(
+    container: &Container,
+    location_id: LocationId,
+) -> Vec<LocationId> {
     container
         .locations
         .list_at(location_id)
@@ -157,11 +160,10 @@ pub fn find_children_rooms_with_can_exit(container: &Container, location_id: Loc
         .collect()
 }
 
-pub fn find_astro_bodies(
-    container: &Container,
-    sector_id: ObjId,
-) -> Vec<ShowSectorTreeBody> {
-    container.locations.list_deep_at(sector_id)
+pub fn find_astro_bodies(container: &Container, sector_id: ObjId) -> Vec<ShowSectorTreeBody> {
+    container
+        .locations
+        .list_deep_at(sector_id)
         .into_iter()
         .flat_map(|id| to_showsectortreebody(container, id))
         .collect()
@@ -170,7 +172,7 @@ pub fn find_astro_bodies(
 fn to_showsectortreebody(container: &Container, obj_id: ObjId) -> Option<ShowSectorTreeBody> {
     match (
         container.astro_bodies.get(obj_id),
-        container.ship.get(obj_id)
+        container.ship.get(obj_id),
     ) {
         (Some(body), None) => {
             let body = ShowSectorTreeBody {
@@ -181,7 +183,7 @@ fn to_showsectortreebody(container: &Container, obj_id: ObjId) -> Option<ShowSec
             };
 
             Some(body)
-        },
+        }
         (_, Some(ship)) => {
             let body = ShowSectorTreeBody {
                 id: obj_id,
@@ -192,8 +194,7 @@ fn to_showsectortreebody(container: &Container, obj_id: ObjId) -> Option<ShowSec
             };
 
             Some(body)
-        },
+        }
         _ => None,
     }
-
 }

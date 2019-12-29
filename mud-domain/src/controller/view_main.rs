@@ -3,17 +3,17 @@ use std::collections::HashSet;
 use commons::{ObjId, PlayerId};
 
 use crate::errors::{AsResult, Error, Result};
-use crate::game::{actions_admin, input_handle_items, input_handle_space, inventory, mob};
-use crate::game::comm::InventoryDesc;
-use crate::game::container::{Container, Ctx};
-use crate::game::mob::MobId;
 use crate::game::actions;
 use crate::game::comm;
-use crate::game::Outputs;
+use crate::game::comm::InventoryDesc;
+use crate::game::container::{Container, Ctx};
 use crate::game::domain::Dir;
 use crate::game::input_handle_vendors;
-use logs::*;
+use crate::game::mob::MobId;
+use crate::game::Outputs;
+use crate::game::{actions_admin, input_handle_items, input_handle_space, inventory, mob};
 use crate::utils::strinput::StrInput;
+use logs::*;
 
 fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc> {
     let equip = container.equips.get(obj_id).unwrap_or(HashSet::new());
@@ -65,9 +65,7 @@ pub fn handle(
             actions::enter(container, outputs, mob_id, args)
         }
 
-        "exit" | "out" => {
-            actions::out(container, outputs, mob_id)
-        }
+        "exit" | "out" => actions::out(container, outputs, mob_id),
 
         "uptime" => {
             outputs.private(mob_id, comm::uptime(container.time.total));
@@ -90,7 +88,7 @@ pub fn handle(
             Ok(())
         }
 
-        _ if input.has_commands(&["pick", "get"])  => {
+        _ if input.has_commands(&["pick", "get"]) => {
             input_handle_items::pickup(container, outputs, mob_id, input.split())
         }
 
@@ -157,11 +155,7 @@ pub fn handle(
                     let target_mob_id = pctx.mob.id;
                     let mob_label = container.labels.get_label_f(target_mob_id);
                     outputs.private(mob_id, comm::admin_suicide());
-                    outputs.broadcast(
-                        None,
-                        pctx.room.id,
-                        comm::admin_suicide_others(mob_label),
-                    );
+                    outputs.broadcast(None, pctx.room.id, comm::admin_suicide_others(mob_label));
                     actions_admin::kill(container, outputs, target_mob_id)
                 }
                 _other => {
@@ -175,34 +169,34 @@ pub fn handle(
 
         "move" => input_handle_space::move_list_targets(container, outputs, mob_id),
 
-        _ if input.has_command("move") => input_handle_space::move_to(
-            container,
-            outputs,
-            mob_id,
-            input.split(),
-        ),
+        _ if input.has_command("move") => {
+            input_handle_space::move_to(container, outputs, mob_id, input.split())
+        }
 
         "land" => input_handle_space::land_list(container, outputs, mob_id),
 
-        _ if input.has_command("land") => input_handle_space::land_at(
-            container,
-            outputs,
-            mob_id,
-            input.split(),
-        ),
+        _ if input.has_command("land") => {
+            input_handle_space::land_at(container, outputs, mob_id, input.split())
+        }
 
         "launch" => input_handle_space::launch(container, outputs, mob_id),
 
-        _ if input.has_command("list") => input_handle_vendors::list(container, outputs, mob_id, input),
+        _ if input.has_command("list") => {
+            input_handle_vendors::list(container, outputs, mob_id, input)
+        }
 
-        _ if input.has_command("buy") => input_handle_vendors::buy(container, outputs, mob_id, input),
+        _ if input.has_command("buy") => {
+            input_handle_vendors::buy(container, outputs, mob_id, input)
+        }
 
-        _ if input.has_command("sell") => input_handle_vendors::sell(container, outputs, mob_id, input),
+        _ if input.has_command("sell") => {
+            input_handle_vendors::sell(container, outputs, mob_id, input)
+        }
 
         _ => {
             outputs.private(mob_id, comm::unknown_input(input.as_str()));
             Err(Error::IllegalArgument)
-        },
+        }
     }
 }
 
@@ -261,4 +255,3 @@ fn action_examine(
     outputs.private(mob_id, comm::examine_target_not_found(target_label));
     Err(Error::IllegalArgument)
 }
-

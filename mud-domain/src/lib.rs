@@ -5,7 +5,7 @@ extern crate hocon;
 extern crate rand;
 extern crate serde_json;
 
+pub mod controller;
+pub mod errors;
 pub mod game;
 pub mod utils;
-pub mod errors;
-pub mod controller;

@@ -1,5 +1,5 @@
 use crate::game::container::Container;
-use crate::game::item::{Item, ItemId, ItemFlags};
+use crate::game::item::{Item, ItemFlags, ItemId};
 use crate::game::labels::Label;
 use crate::game::mob::{Mob, MobId};
 use crate::game::room::{Room, RoomId};

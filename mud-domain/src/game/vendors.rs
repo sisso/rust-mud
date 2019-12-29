@@ -24,12 +24,12 @@ impl Vendors {
         }
     }
 
-    pub fn add(&mut self, vendor: Vendor ) {
+    pub fn add(&mut self, vendor: Vendor) {
         assert!(!self.index.contains_key(&vendor.id));
         self.index.insert(vendor.id, vendor);
     }
 
-    pub fn remove(&mut self, id: ObjId) -> Option<Vendor > {
+    pub fn remove(&mut self, id: ObjId) -> Option<Vendor> {
         self.index.remove(&id)
     }
 

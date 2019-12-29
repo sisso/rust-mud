@@ -51,23 +51,23 @@ impl PlayerRepository {
     }
 
     pub fn find_from_mob(&self, mob_id: MobId) -> Option<PlayerId> {
-        self.index.iter()
+        self.index
+            .iter()
             .find(|(_, p)| p.mob_id == mob_id)
             .map(|(&player_id, _)| player_id)
     }
 
     // TODO: to Option<>
     pub fn get(&self, id: PlayerId) -> &Player {
-        self.index .iter()
+        self.index
+            .iter()
             .find(|(pid, _)| **pid == id)
             .map(|(_, p)| p)
             .expect(format!("player with id {:?} not found", id).as_str())
     }
 
     pub fn get_mob(&self, player_id: PlayerId) -> Option<MobId> {
-        self.index
-            .get(&player_id)
-            .map(|player| player.mob_id)
+        self.index.get(&player_id).map(|player| player.mob_id)
     }
 
     //    pub fn save(&self, save: &mut dyn Save) {

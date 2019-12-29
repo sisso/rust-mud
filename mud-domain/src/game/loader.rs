@@ -1,29 +1,29 @@
 mod hocon_parser;
 
+use crate::errors;
+use crate::errors::Error;
+use crate::errors::Error::StaticIdNotFound;
+use crate::game::astro_bodies::AstroBody;
+use crate::game::config::Config;
+use crate::game::container::Container;
+use crate::game::crafts::Ship;
+use crate::game::domain::Dir;
+use crate::game::item::{Armor, Item, Weapon};
+use crate::game::labels::Label;
+use crate::game::loader::hocon_parser::HParser;
+use crate::game::mob::Mob;
+use crate::game::obj::Objects;
+use crate::game::pos::Pos;
+use crate::game::prices::{Money, Price};
+use crate::game::room::Room;
+use crate::game::spawn::Spawn;
+use crate::game::surfaces::Surface;
+use crate::game::vendors::Vendor;
+use commons::{DeltaTime, Either, ObjId, V2};
+use logs::*;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
-use crate::game::container::Container;
-use crate::game::domain::Dir;
-use crate::game::labels::Label;
-use crate::game::loader::hocon_parser::HParser;
-use crate::game::item::{Item, Armor, Weapon};
-use crate::game::mob::Mob;
-use crate::game::astro_bodies::AstroBody;
-use crate::game::pos::Pos;
-use crate::game::room::Room;
-use crate::game::surfaces::Surface;
-use commons::{ObjId, V2, Either, DeltaTime};
-use logs::*;
-use crate::game::obj::Objects;
-use crate::game::crafts::Ship;
-use crate::errors;
-use crate::errors::Error::StaticIdNotFound;
-use crate::errors::Error;
-use crate::game::config::Config;
-use crate::game::spawn::Spawn;
-use crate::game::prices::{Price, Money};
-use crate::game::vendors::Vendor;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct RoomExitData {
@@ -56,9 +56,7 @@ pub struct MobData {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct CraftData {
-
-}
+pub struct CraftData {}
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ItemFlagsData {
@@ -74,20 +72,16 @@ impl ItemFlagsData {
             money: None,
             inventory: None,
             stuck: None,
-            body: None
+            body: None,
         }
     }
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct ItemWeaponData {
-
-}
+pub struct ItemWeaponData {}
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct ItemArmorData {
-
-}
+pub struct ItemArmorData {}
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ItemData {
@@ -103,7 +97,7 @@ impl ItemData {
             flags: None,
             amount: None,
             weapon: None,
-            armor: None
+            armor: None,
         }
     }
 }
@@ -130,8 +124,7 @@ pub struct PriceData {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct VendorData {
-}
+pub struct VendorData {}
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ObjData {
@@ -173,7 +166,7 @@ impl ObjData {
             craft: None,
             item: None,
             price: None,
-            vendor: None
+            vendor: None,
         }
     }
 }
@@ -205,7 +198,9 @@ pub struct SpawnData {
 impl Data {
     pub fn new() -> Self {
         Data {
-            cfg: None, objects: Default::default(), prefabs: Default::default()
+            cfg: None,
+            objects: Default::default(),
+            prefabs: Default::default(),
         }
     }
 }
@@ -232,7 +227,8 @@ impl Loader {
     }
 
     pub fn find_prefabs_by_parent(&self, id: StaticId) -> Vec<StaticId> {
-        self.index.iter()
+        self.index
+            .iter()
             .filter(|(_, data)| {
                 data.parent
                     .map(|parent_id| parent_id == id)
@@ -252,7 +248,10 @@ impl Loader {
             let current = queue.pop().unwrap();
             for child_id in self.find_prefabs_by_parent(current) {
                 if result.contains(&child_id) {
-                    panic!("recursive reference found on {:?} when searching for {:?}", child_id, static_id);
+                    panic!(
+                        "recursive reference found on {:?} when searching for {:?}",
+                        child_id, static_id
+                    );
                 }
 
                 result.push(child_id);
@@ -270,7 +269,11 @@ impl Loader {
 
 /// static fields
 impl Loader {
-    pub fn spawn_at(container: &mut Container, static_id: StaticId, parent_id: ObjId) -> errors::Result<ObjId> {
+    pub fn spawn_at(
+        container: &mut Container,
+        static_id: StaticId,
+        parent_id: ObjId,
+    ) -> errors::Result<ObjId> {
         let obj_id = Loader::spawn(container, static_id)?;
         container.locations.set(obj_id, parent_id);
         Ok(obj_id)
@@ -289,7 +292,12 @@ impl Loader {
         let children_prefabs = container.loader.find_deep_prefabs_by_parents(static_id);
         for child_static_id in children_prefabs {
             let child_id = container.objects.create();
-            trace!("spawning prefab {:?} child {:?} with id {:?}", static_id, child_static_id, child_id);
+            trace!(
+                "spawning prefab {:?} child {:?} with id {:?}",
+                static_id,
+                child_static_id,
+                child_id
+            );
             references.insert(child_static_id, child_id);
         }
 
@@ -302,9 +310,14 @@ impl Loader {
     }
 
     /// Resolve the static id to a ObjId by first searching in reference_map and then in container
-    fn get_by_static_id(objects: &Objects, ref_map: &HashMap<StaticId, ObjId>, static_id: StaticId) -> errors::Result<ObjId> {
+    fn get_by_static_id(
+        objects: &Objects,
+        ref_map: &HashMap<StaticId, ObjId>,
+        static_id: StaticId,
+    ) -> errors::Result<ObjId> {
         // search from map and fallback to real ObjId
-        ref_map.get(&static_id)
+        ref_map
+            .get(&static_id)
             .cloned()
             .or_else(|| {
                 let id = ObjId(static_id.as_u32());
@@ -313,19 +326,24 @@ impl Loader {
                 } else {
                     None
                 }
-            }).ok_or_else(|| StaticIdNotFound(static_id.as_u32()))
+            })
+            .ok_or_else(|| StaticIdNotFound(static_id.as_u32()))
     }
 
     // TODO: make it atomic: success and change or no change
-    fn apply_prefab(container: &mut Container, obj_id: ObjId, data: Either<&ObjData, StaticId>, references: &HashMap<StaticId, ObjId>) -> errors::Result<()> {
-        let data: &ObjData =
-            match data {
-                Either::Left(data) => data,
-                Either::Right(static_id) => {
-                    container.loader.get_prefab(static_id)
-                        .ok_or(StaticIdNotFound(static_id.as_u32()))?
-                },
-            };
+    fn apply_prefab(
+        container: &mut Container,
+        obj_id: ObjId,
+        data: Either<&ObjData, StaticId>,
+        references: &HashMap<StaticId, ObjId>,
+    ) -> errors::Result<()> {
+        let data: &ObjData = match data {
+            Either::Left(data) => data,
+            Either::Right(static_id) => container
+                .loader
+                .get_prefab(static_id)
+                .ok_or(StaticIdNotFound(static_id.as_u32()))?,
+        };
 
         debug!("{:?} apply prefab {:?}", obj_id, data.id);
 
@@ -362,7 +380,11 @@ impl Loader {
         if let Some(astro_body) = &data.astro_body {
             let mut body = AstroBody::new(obj_id);
             body.orbit_id = if let Some(static_id) = astro_body.orbit_id {
-                Some(Loader::get_by_static_id(&container.objects, &references, StaticId(static_id))?)
+                Some(Loader::get_by_static_id(
+                    &container.objects,
+                    &references,
+                    StaticId(static_id),
+                )?)
             } else {
                 None
             };
@@ -460,12 +482,11 @@ impl Loader {
     }
 
     pub fn load_str(container: &mut Container, buffer: &str) -> errors::Result<()> {
-       let data: errors::Result<Data> = HParser::load_from_str(buffer)
-           .map_err(|e| format!("{:?}", e).into());
+        let data: errors::Result<Data> =
+            HParser::load_from_str(buffer).map_err(|e| format!("{:?}", e).into());
 
         Loader::load_data(container, data?)
     }
-
 
     /// Algorithm
     ///
@@ -483,8 +504,7 @@ impl Loader {
             return Err("module folder do not exists".into());
         }
 
-        HParser::load_from_folder(folder)
-            .map_err(|e| format!("{:?}", e).into())
+        HParser::load_from_folder(folder).map_err(|e| format!("{:?}", e).into())
     }
 
     fn load_data(container: &mut Container, data: Data) -> errors::Result<()> {
@@ -500,12 +520,17 @@ impl Loader {
 
         // update configurations with references
         match data.cfg {
-            Some(CfgData { initial_room, avatar_mob, initial_craft, money_id }) => {
+            Some(CfgData {
+                initial_room,
+                avatar_mob,
+                initial_craft,
+                money_id,
+            }) => {
                 container.config.initial_room = Some(ObjId(initial_room.as_u32()));
                 container.config.avatar_id = Some(avatar_mob);
                 container.config.money_id = money_id;
             }
-            _ => {},
+            _ => {}
         }
 
         Ok(())
@@ -521,9 +546,9 @@ impl Loader {
         }
 
         for (_static_id, data) in data.prefabs.iter() {
-           if !ids.insert(data.id) {
-               return Err(format!("duplicate prefab id {:?}", data.id).into());
-           }
+            if !ids.insert(data.id) {
+                return Err(format!("duplicate prefab id {:?}", data.id).into());
+            }
         }
 
         Ok(())
@@ -539,7 +564,12 @@ impl Loader {
 
         for (id, data) in &objects {
             let mut empty_references = Default::default();
-            Loader::apply_prefab(container, ObjId(id.as_u32()), Either::Left(data), &mut empty_references)?;
+            Loader::apply_prefab(
+                container,
+                ObjId(id.as_u32()),
+                Either::Left(data),
+                &mut empty_references,
+            )?;
         }
 
         Ok(())
@@ -612,14 +642,20 @@ prefabs.control_panel_command_2 {
         let landing_pad = container.rooms.get(landing_pad_id).unwrap();
         assert_eq!(ObjId(0), landing_pad.exits.first().unwrap().1);
 
-        let at_landing_pad = container.locations.list_at(landing_pad_id).collect::<Vec<_>>();
+        let at_landing_pad = container
+            .locations
+            .list_at(landing_pad_id)
+            .collect::<Vec<_>>();
         assert_eq!(1, at_landing_pad.len());
 
         let control_panel_id = *at_landing_pad.first().unwrap();
         let panel_str = container.labels.get_label_f(control_panel_id);
         assert_eq!("Control Panel", panel_str);
 
-        let at_control_panel = container.locations.list_at(control_panel_id).collect::<Vec<_>>();
+        let at_control_panel = container
+            .locations
+            .list_at(control_panel_id)
+            .collect::<Vec<_>>();
         assert_eq!(2, at_control_panel.len());
 
         let mut command1_id = None;

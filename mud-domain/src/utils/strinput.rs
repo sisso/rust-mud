@@ -5,7 +5,7 @@ pub struct StrInput<'a>(pub &'a str);
 
 impl<'a> StrInput<'a> {
     pub fn as_str(self) -> &'a str {
-       self.0
+        self.0
     }
 
     pub fn first(self) -> &'a str {
@@ -21,7 +21,8 @@ impl<'a> StrInput<'a> {
     }
 
     pub fn has_commands(self, commands: &[&str]) -> bool {
-        commands.iter()
+        commands
+            .iter()
             .find(|command| self.has_command(command))
             .is_some()
     }

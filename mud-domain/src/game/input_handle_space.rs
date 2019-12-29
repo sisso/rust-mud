@@ -4,10 +4,10 @@ use crate::game::mob::MobId;
 use crate::game::space_utils::*;
 use crate::game::{comm, Outputs};
 use crate::utils::text;
-use commons::{PlayerId};
+use commons::PlayerId;
 
+use crate::errors::{AsResult, Error, Result};
 use crate::game::actions_craft::{do_land_at, do_launch};
-use crate::errors::{Error, Result, AsResult};
 
 pub fn show_startree(
     container: &Container,
@@ -21,11 +21,7 @@ pub fn show_startree(
 }
 
 #[deprecated]
-pub fn show_starmap(
-    container: &Container,
-    outputs: &mut dyn Outputs,
-    mob_id: MobId,
-) -> Result<()> {
+pub fn show_starmap(container: &Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<()> {
     let (craft_id, sector_id) = get_craft_and_sector(container, outputs, mob_id)?;
     let objects = get_objects_in_surface(container, craft_id, sector_id);
     outputs.private(mob_id, comm::show_surface_map(&objects));
@@ -63,11 +59,7 @@ pub fn move_to(
         })
 }
 
-pub fn land_list(
-    container: &Container,
-    outputs: &mut dyn Outputs,
-    mob_id: MobId,
-) -> Result<()> {
+pub fn land_list(container: &Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<()> {
     get_craft(container, mob_id)
         .map(|craft_id| {
             let labels = search_near_landing_sites(container, craft_id)
@@ -111,18 +103,12 @@ pub fn land_at(
     })
 }
 
-pub fn launch(
-    container: &mut Container,
-    outputs: &mut dyn Outputs,
-    mob_id: MobId,
-) -> Result<()> {
+pub fn launch(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<()> {
     get_craft(container, mob_id)
         .as_result()
         .map_err(|e| {
             outputs.private(mob_id, comm::space_invalid_not_in_craft());
             e
         })
-        .and_then(|craft_id| {
-            do_launch(container, outputs, mob_id, craft_id)
-        })
+        .and_then(|craft_id| do_launch(container, outputs, mob_id, craft_id))
 }

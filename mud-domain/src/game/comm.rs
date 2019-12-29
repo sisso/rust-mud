@@ -2,11 +2,11 @@ use super::container::Container;
 use super::domain::*;
 use super::item::*;
 use super::mob::*;
-use logs::*;
-use crate::utils::text::{plot_points, PlotCfg, PlotPoint};
-use crate::errors::{Result, AsResult};
-use commons::{TotalTime, V2, ObjId};
+use crate::errors::{AsResult, Result};
 use crate::game::prices::Money;
+use crate::utils::text::{plot_points, PlotCfg, PlotPoint};
+use commons::{ObjId, TotalTime, V2};
+use logs::*;
 
 pub struct InventoryDesc<'a> {
     pub id: ItemId,
@@ -17,9 +17,7 @@ pub struct InventoryDesc<'a> {
 
 // TODO: move to a rule like system that control this semantic through
 pub fn is_visible(container: &Container, obj_id: ObjId) -> bool {
-    container.mobs.exists(obj_id) ||
-        container.items.exists(obj_id) ||
-        container.ship.exists(obj_id)
+    container.mobs.exists(obj_id) || container.items.exists(obj_id) || container.ship.exists(obj_id)
 }
 
 pub fn help() -> String {
@@ -418,7 +416,11 @@ pub fn enter_others_other_side(mob: &str) -> String {
 }
 
 pub fn enter_invalid(label: &str, candidates: &Vec<&str>) -> String {
-    format!("can not enter at [{}], candidates: [{:?}]", label, candidates.join(", "))
+    format!(
+        "can not enter at [{}], candidates: [{:?}]",
+        label,
+        candidates.join(", ")
+    )
 }
 
 pub fn enter_list(candidates: &Vec<&str>) -> String {
@@ -585,17 +587,19 @@ pub struct ShowSectorTreeBody<'a> {
 }
 
 pub fn show_sectortree<'a>(bodies: &'a Vec<ShowSectorTreeBody<'a>>) -> String {
-    fn append<'a>(bodies: &'a Vec<ShowSectorTreeBody<'a>>, buffer: &mut Vec<String>, orbit_id: Option<ObjId>, prefix: &str) {
-        let list = bodies
-            .iter()
-            .filter(|e| e.orbit_id == orbit_id);
+    fn append<'a>(
+        bodies: &'a Vec<ShowSectorTreeBody<'a>>,
+        buffer: &mut Vec<String>,
+        orbit_id: Option<ObjId>,
+        prefix: &str,
+    ) {
+        let list = bodies.iter().filter(|e| e.orbit_id == orbit_id);
 
-        let (local_prefix, next_prefix) =
-            if orbit_id.is_none() {
-                ("", "- ".to_string())
-            } else {
-                (prefix, format!("  {}", prefix))
-            };
+        let (local_prefix, next_prefix) = if orbit_id.is_none() {
+            ("", "- ".to_string())
+        } else {
+            (prefix, format!("  {}", prefix))
+        };
 
         for body in list {
             buffer.push(format!("{}{}", local_prefix, body.label));
@@ -656,16 +660,15 @@ pub fn vendor_list(list: Vec<VendorListItem>) -> String {
     buffer.push_str("List\n");
     buffer.push_str("name buy sell\n");
 
-    list.into_iter()
-        .for_each(|item| {
-            buffer.push_str("- ");
-            buffer.push_str(item.label);
-            buffer.push_str(" ");
-            buffer.push_str(&item.buy.as_u32().to_string());
-            buffer.push_str(" ");
-            buffer.push_str(&item.sell.as_u32().to_string());
-            buffer.push_str("\n");
-        });
+    list.into_iter().for_each(|item| {
+        buffer.push_str("- ");
+        buffer.push_str(item.label);
+        buffer.push_str(" ");
+        buffer.push_str(&item.buy.as_u32().to_string());
+        buffer.push_str(" ");
+        buffer.push_str(&item.sell.as_u32().to_string());
+        buffer.push_str("\n");
+    });
 
     buffer
 }
@@ -679,11 +682,20 @@ pub fn vendor_buy_item_not_found(label: &str) -> String {
 }
 
 pub fn vendor_buy_you_have_not_enough_money(money: Money, price: Money) -> String {
-    format!("not enough money, it cost {} and you have only {}", price.as_u32(), money.as_u32())
+    format!(
+        "not enough money, it cost {} and you have only {}",
+        price.as_u32(),
+        money.as_u32()
+    )
 }
 
 pub fn vendor_buy_success(item: &str, price: Money, new_money: Money) -> String {
-    format!("you bought a {} for {}, you have now {} of money", item, price.as_u32(), new_money.as_u32())
+    format!(
+        "you bought a {} for {}, you have now {} of money",
+        item,
+        price.as_u32(),
+        new_money.as_u32()
+    )
 }
 
 pub fn vendor_buy_success_others(mob_label: &str, item_label: &str) -> String {
@@ -742,39 +754,42 @@ mod tests {
                 id: ObjId(0),
                 label: "Sun",
                 orbit_id: None,
-                kind: ShowSectorTreeBodyKind::Star
+                kind: ShowSectorTreeBodyKind::Star,
             },
             ShowSectorTreeBody {
                 id: ObjId(1),
                 label: "Earth",
                 orbit_id: Some(ObjId(0)),
-                kind: ShowSectorTreeBodyKind::Planet
+                kind: ShowSectorTreeBodyKind::Planet,
             },
             ShowSectorTreeBody {
                 id: ObjId(2),
                 label: "Moon",
                 orbit_id: Some(ObjId(1)),
-                kind: ShowSectorTreeBodyKind::Planet
+                kind: ShowSectorTreeBodyKind::Planet,
             },
             ShowSectorTreeBody {
                 id: ObjId(3),
                 label: "Asteroids",
                 orbit_id: Some(ObjId(0)),
-                kind: ShowSectorTreeBodyKind::Asteroids
+                kind: ShowSectorTreeBodyKind::Asteroids,
             },
             ShowSectorTreeBody {
                 id: ObjId(4),
                 label: "Ring",
                 orbit_id: Some(ObjId(2)),
-                kind: ShowSectorTreeBodyKind::Ship
-            }
+                kind: ShowSectorTreeBodyKind::Ship,
+            },
         ];
         let result = show_sectortree(&bodies);
-        assert_eq!(result.as_str(), r##"Sun
+        assert_eq!(
+            result.as_str(),
+            r##"Sun
 - Earth
   - Moon
     - Ring
 - Asteroids
-"##);
+"##
+        );
     }
 }

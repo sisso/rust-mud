@@ -161,7 +161,6 @@ impl std::ops::Sub<DeltaTime> for DeltaTime {
     }
 }
 
-
 /// @see Trigger::check
 ///
 #[derive(Clone, Debug)]
@@ -228,9 +227,9 @@ where
     }
 }
 
-pub enum Either<A,B> {
+pub enum Either<A, B> {
     Left(A),
-    Right(B)
+    Right(B),
 }
 
 #[cfg(test)]

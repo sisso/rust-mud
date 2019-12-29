@@ -1,16 +1,14 @@
-use std::env;
 use mud_domain::game::loader::Loader;
-use std::path::Path;
-use std::collections::HashMap;
-use serde::{Serialize};
+use serde::Serialize;
 use serde_json;
+use std::collections::HashMap;
+use std::env;
+use std::path::Path;
 
-
-// TODO: refactory everything, it got ugly, 
+// TODO: refactory everything, it got ugly,
 // TODO: support commands
 // TODO: dump ID should be able to pipe to jq
 // TODO: show hierarchic as tree
-
 
 fn usage() {
     println!("");
@@ -27,17 +25,14 @@ fn main() {
     }
 
     let path = env::args().nth(1).unwrap_or("data/space".to_string());
-    let dump_id: Option<u32> = env::args().nth(2)
-        .map(|s| { 
-            match s.parse() {
-                Ok(id) => id,
-                _ => { 
-                    eprintln!("Invalid id {:?}", s);
-                    usage();
-                    std::process::exit(1);
-                }
-            }
-        });
+    let dump_id: Option<u32> = env::args().nth(2).map(|s| match s.parse() {
+        Ok(id) => id,
+        _ => {
+            eprintln!("Invalid id {:?}", s);
+            usage();
+            std::process::exit(1);
+        }
+    });
 
     let data = Loader::read_folder(Path::new(path.as_str())).unwrap();
 

@@ -1,7 +1,7 @@
+use crate::errors::{Error, Result};
 use commons::{ObjId, V2};
 use logs::*;
 use std::collections::HashMap;
-use crate::errors::{Result, Error};
 
 #[derive(Clone, Debug)]
 pub struct Pos {

@@ -1,6 +1,6 @@
+use crate::game::loader::StaticId;
 use crate::game::room::RoomId;
 use commons::ObjId;
-use crate::game::loader::StaticId;
 
 pub struct Config {
     pub initial_room: Option<RoomId>,
@@ -13,9 +13,7 @@ impl Config {
         Config {
             initial_room: None,
             avatar_id: None,
-            money_id: None
+            money_id: None,
         }
     }
 }
-
-

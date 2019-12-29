@@ -2,9 +2,9 @@ extern crate mud_domain;
 
 use commons::{ConnectionId, DeltaTime};
 use mud_domain::game::container::Container;
-use mud_domain::game::{loader, Game, inventory};
-use std::path::Path;
 use mud_domain::game::mob::MobId;
+use mud_domain::game::{inventory, loader, Game};
+use std::path::Path;
 
 pub struct TestScenery {
     pub game: Game,
@@ -20,7 +20,7 @@ impl TestScenery {
         TestScenery {
             game: Game::new(container),
             connection_id: ConnectionId(0),
-            timeout: 200
+            timeout: 200,
         }
     }
 
@@ -105,7 +105,7 @@ fn check_output(outputs: &Vec<String>, contains: &Vec<&str>, exclude: &Vec<&str>
                         return false;
                     }
                 }
-            },
+            }
             None => return false,
         }
     }
@@ -234,4 +234,3 @@ fn assert_money(scenery: &mut TestScenery, expected: u32) {
         scenery.wait_for(&format!("gold x{}", expected));
     }
 }
-

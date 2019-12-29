@@ -1,10 +1,10 @@
+use crate::errors::Error::Conflict;
+use crate::errors::{self, Error};
 use crate::game::domain::NextId;
+use crate::game::loader::StaticId;
 use commons::ObjId;
 use logs::*;
 use std::collections::HashMap;
-use crate::errors::{self, Error};
-use crate::errors::Error::Conflict;
-use crate::game::loader::StaticId;
 
 pub const NAMESPACE_RESERVED: u32 = 100000;
 
@@ -18,7 +18,7 @@ impl Obj {
     pub fn new(id: ObjId) -> Self {
         Obj {
             id,
-            static_id: None
+            static_id: None,
         }
     }
 }
@@ -65,8 +65,7 @@ impl Objects {
     }
 
     pub fn get_static_id(&self, id: ObjId) -> Option<StaticId> {
-        self.objects.get(&id)
-            .and_then(|obj| obj.static_id)
+        self.objects.get(&id).and_then(|obj| obj.static_id)
     }
 
     /// Make sure you remove from everything else first
@@ -80,7 +79,7 @@ impl Objects {
     }
 
     pub fn exists(&self, obj_id: ObjId) -> bool {
-        return self.objects.contains_key(&obj_id)
+        return self.objects.contains_key(&obj_id);
     }
 
     pub fn list<'a>(&'a mut self) -> impl Iterator<Item = &ObjId> + 'a {

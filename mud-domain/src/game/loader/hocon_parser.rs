@@ -1,5 +1,6 @@
 use super::super::*;
 use crate::game::domain::Dir;
+use crate::game::loader::{CfgData, Data, ObjData, StaticId};
 use crate::game::obj::Obj;
 use hocon::{Error as HError, *};
 use logs::*;
@@ -7,7 +8,6 @@ use std::collections::HashMap;
 use std::fs::ReadDir;
 use std::io::Error as IError;
 use std::path::Path;
-use crate::game::loader::{Data, CfgData, StaticId, ObjData};
 
 #[derive(Debug)]
 pub enum Error {
@@ -222,7 +222,9 @@ objects {
         assert!(data.prefabs.is_empty());
         assert_eq!(5, data.objects.len());
 
-        let (_id, obj_3) = data.objects.iter()
+        let (_id, obj_3) = data
+            .objects
+            .iter()
             .find(|(id, _data)| id.as_u32() == 3)
             .unwrap();
 

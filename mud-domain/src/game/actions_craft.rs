@@ -1,12 +1,12 @@
+use crate::errors::{Error, Result};
 use crate::game::container::Container;
 use crate::game::crafts::{ShipCommand, ShipId};
 use crate::game::domain::Dir;
+use crate::game::mob::MobId;
 use crate::game::room::RoomId;
 use crate::game::{comm, space_utils, Outputs};
 use commons::{ObjId, PlayerId};
 use logs::*;
-use crate::game::mob::MobId;
-use crate::errors::{Result, Error};
 
 pub fn move_to(
     container: &mut Container,
@@ -47,7 +47,11 @@ pub fn do_land_at(
 
     // emit events
     outputs.broadcast_all(None, craft_id, comm::space_land_complete());
-    outputs.broadcast(None, landing_id, comm::space_land_complete_others(craft_label));
+    outputs.broadcast(
+        None,
+        landing_id,
+        comm::space_land_complete_others(craft_label),
+    );
 
     Ok(())
 }
@@ -65,7 +69,10 @@ pub fn do_launch(
     let sector_index = match parents.iter().position(|&id| container.sectors.exists(id)) {
         Some(index) => index,
         None => {
-            warn!("{:?} launch {:?} but no sector found, list of parents are {:?}", mob_id, ship_id, parents);
+            warn!(
+                "{:?} launch {:?} but no sector found, list of parents are {:?}",
+                mob_id, ship_id, parents
+            );
             outputs.private(mob_id, comm::space_launch_failed());
             return Err(Error::IllegalArgument);
         }
@@ -77,7 +84,10 @@ pub fn do_launch(
     let pos = match container.pos.get_pos(satellite_id) {
         Some(pos) => pos,
         None => {
-            warn!("{:?} launch {:?} but no position for the satellite {:?}", mob_id, ship_id, satellite_id);
+            warn!(
+                "{:?} launch {:?} but no position for the satellite {:?}",
+                mob_id, ship_id, satellite_id
+            );
             outputs.private(mob_id, comm::space_launch_failed());
             return Err(Error::IllegalArgument);
         }

@@ -1,11 +1,11 @@
+use crate::controller::view_login::LoginResult;
+use crate::game::container::Container;
+use crate::game::location::LocationId;
+use crate::game::mob::MobId;
+use crate::game::{avatars, Outputs};
 use commons::*;
 use logs::*;
 use std::collections::{HashMap, HashSet};
-use crate::game::location::LocationId;
-use crate::game::mob::MobId;
-use crate::game::{Outputs, avatars};
-use crate::game::container::Container;
-use crate::controller::view_login::LoginResult;
 
 pub mod view_login;
 pub mod view_main;
@@ -69,10 +69,7 @@ impl Outputs for OutputsBuffer {
     }
 
     fn private(&mut self, mob_id: MobId, msg: String) {
-        self.list.push(Output::Private{
-            mob_id,
-            msg
-        })
+        self.list.push(Output::Private { mob_id, msg })
     }
 }
 
@@ -123,7 +120,12 @@ impl Controller {
         self.connections.remove(&connection_id);
     }
 
-    pub fn handle_input(&mut self, container: &mut Container, connection_id: ConnectionId, input: &str) {
+    pub fn handle_input(
+        &mut self,
+        container: &mut Container,
+        connection_id: ConnectionId,
+        input: &str,
+    ) {
         self.connections_with_input.insert(connection_id);
 
         let state = self.get_state(connection_id);
@@ -142,11 +144,9 @@ impl Controller {
                     self.server_outputs
                         .push((connection_id, view_login::on_login_success(login.as_str())));
                     // TODO: add login fail
-                    let player_id = avatars::on_player_login(
-                        container,
-                        &mut self.outputs,
-                        login.as_str(),
-                    ).unwrap();
+                    let player_id =
+                        avatars::on_player_login(container, &mut self.outputs, login.as_str())
+                            .unwrap();
 
                     debug!("{:?} login complete for {:?}", connection_id, player_id);
                     self.set_state(ConnectionState {
@@ -158,12 +158,11 @@ impl Controller {
         }
     }
 
+    pub fn get_outputs(&mut self) -> &mut dyn Outputs {
+        &mut self.outputs
+    }
 
-   pub fn get_outputs(&mut self) -> &mut dyn Outputs {
-       &mut self.outputs
-   }
-
-   pub fn flush_outputs(&mut self, container: &Container) -> Vec<(ConnectionId, String)> {
+    pub fn flush_outputs(&mut self, container: &Container) -> Vec<(ConnectionId, String)> {
         self.convert_to_connections_output(container);
         self.normalize_connection_outputs(container);
 
@@ -225,12 +224,15 @@ impl Controller {
         for game_output in outputs {
             match game_output {
                 Output::Private { mob_id, msg } => {
-                    let connection_id = container.players.find_from_mob(mob_id)
+                    let connection_id = container
+                        .players
+                        .find_from_mob(mob_id)
                         .and_then(|player_id| self.zip_connection_id_from_player_id(player_id));
 
                     if let Some((player_id, connection_id)) = connection_id {
                         debug!("{:?} output {:?}", connection_id, msg);
-                        self.server_outputs.push((connection_id, format!("{}\n", msg)));
+                        self.server_outputs
+                            .push((connection_id, format!("{}\n", msg)));
                     }
                 }
 
@@ -238,35 +240,39 @@ impl Controller {
                     exclude,
                     location_id,
                     recursive,
-                    msg
+                    msg,
                 } => {
-                    let exclude_player = exclude.and_then(|mob_id| container.players.find_from_mob(mob_id));
+                    let exclude_player =
+                        exclude.and_then(|mob_id| container.players.find_from_mob(mob_id));
 
-                    let players: Vec<PlayerId> =
-                        if recursive {
-                            avatars::find_deep_players_in(&container, location_id)
-                        } else {
-                            avatars::find_players_in(&container, location_id)
-                        };
+                    let players: Vec<PlayerId> = if recursive {
+                        avatars::find_deep_players_in(&container, location_id)
+                    } else {
+                        avatars::find_players_in(&container, location_id)
+                    };
 
-                    let connections: Vec<(PlayerId, ConnectionId)> = players.into_iter()
+                    let connections: Vec<(PlayerId, ConnectionId)> = players
+                        .into_iter()
                         .filter(|&player_id| Some(player_id) != exclude_player)
                         .flat_map(|player_id| self.zip_connection_id_from_player_id(player_id))
                         .collect();
 
                     for (player_id, connection_id) in connections {
                         debug!("{:?} output {:?}", connection_id, msg);
-                        self.server_outputs.push((connection_id, format!("{}\n", msg)))
+                        self.server_outputs
+                            .push((connection_id, format!("{}\n", msg)))
                     }
                 }
             }
         }
     }
 
-    fn zip_connection_id_from_player_id(&self, player_id: PlayerId) -> Option<(PlayerId, ConnectionId)> {
-        self.connection_id_from_player_id(player_id).map(|connection_id| {
-            (player_id, connection_id)
-        })
+    fn zip_connection_id_from_player_id(
+        &self,
+        player_id: PlayerId,
+    ) -> Option<(PlayerId, ConnectionId)> {
+        self.connection_id_from_player_id(player_id)
+            .map(|connection_id| (player_id, connection_id))
     }
 
     fn connection_id_from_player_id(&self, player_id: PlayerId) -> Option<ConnectionId> {

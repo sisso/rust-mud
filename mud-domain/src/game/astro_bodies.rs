@@ -12,10 +12,7 @@ pub struct AstroBody {
 
 impl AstroBody {
     pub fn new(id: AstroBodyId) -> Self {
-        AstroBody {
-            id,
-            orbit_id: None
-        }
+        AstroBody { id, orbit_id: None }
     }
 }
 

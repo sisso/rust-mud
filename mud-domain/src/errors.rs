@@ -1,5 +1,5 @@
-use std::any::Any;
 use serde::export::Formatter;
+use std::any::Any;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -11,17 +11,22 @@ pub enum Error {
     StaticIdNotFound(u32),
     Conflict,
     IO(std::io::ErrorKind),
-    ParserError { kind: String, value: String },
+    ParserError {
+        kind: String,
+        value: String,
+    },
     Generic(String),
     IllegalState,
     IllegalArgument,
-    IllegalArgumentMsg { msg: String },
+    IllegalArgumentMsg {
+        msg: String,
+    },
     InCombat,
     IsResting,
     NotFound,
     NotProvided,
     CanNotBeEquipped,
-	NotImplemented,
+    NotImplemented,
     /// not possible to execute this operation
     NotPossible,
 }
@@ -63,4 +68,3 @@ impl<T> AsResult<T> for Option<T> {
 //        }
 //    }
 //}
-

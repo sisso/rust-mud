@@ -1,10 +1,10 @@
 use super::mob::*;
 use super::player::*;
 use super::room::*;
-use commons::{DeltaTime, Tick, TotalTime};
-use serde::Deserialize;
 use crate::errors;
 use crate::errors::Error::ParserError;
+use commons::{DeltaTime, Tick, TotalTime};
+use serde::Deserialize;
 
 #[derive(Clone, Copy, Debug)]
 pub struct GameTime {

@@ -2,13 +2,13 @@ use super::comm;
 use super::mob::*;
 use super::room::RoomId;
 use super::Outputs;
+use crate::errors::{Error, Result};
+use crate::game::container::Ctx;
+use crate::game::loader::{Loader, StaticId};
 use commons::*;
 use logs::*;
 use rand::Rng;
 use std::collections::HashMap;
-use crate::game::loader::{StaticId, Loader};
-use crate::errors::{Result, Error};
-use crate::game::container::Ctx;
 
 type SpawnId = ObjId;
 
@@ -22,7 +22,9 @@ impl SpawnDelay {
     pub fn validate(&self) -> Result<()> {
         // TODO: create fixed delay
         if (self.min.as_f32() - self.max.as_f32()).abs() < 0.01 {
-            return Err(Error::IllegalArgumentMsg { msg: "Min and max time can not be so short".to_string() });
+            return Err(Error::IllegalArgumentMsg {
+                msg: "Min and max time can not be so short".to_string(),
+            });
         }
 
         Ok(())
@@ -34,7 +36,7 @@ pub struct Spawn {
     pub id: SpawnId,
     pub max: u32,
     pub delay: SpawnDelay,
-    pub prefab_id: StaticId ,
+    pub prefab_id: StaticId,
     next: Option<TotalTime>,
     mobs_id: Vec<MobId>,
 }
@@ -47,7 +49,7 @@ impl Spawn {
             delay: SpawnDelay { min: min, max: max },
             prefab_id: prefab_id,
             next: None,
-            mobs_id: vec![]
+            mobs_id: vec![],
         }
     }
 }
@@ -127,22 +129,23 @@ pub fn run(ctx: &mut Ctx) {
                 let candidate_location = ctx.container.locations.get(spawn.id);
                 match candidate_location {
                     Some(location_id) => {
-                        let valid =
-                            ctx.container.rooms.exists(location_id) ||
-                            ctx.container.items.exists(location_id);
+                        let valid = ctx.container.rooms.exists(location_id)
+                            || ctx.container.items.exists(location_id);
 
                         if valid {
                             mob_spawns.push((spawn.id, location_id, spawn.prefab_id));
                         } else {
-                            warn!("Spawn {:?} parent {:?} is not a valid room or item.", spawn.id, location_id);
+                            warn!(
+                                "Spawn {:?} parent {:?} is not a valid room or item.",
+                                spawn.id, location_id
+                            );
                         }
-                    },
-                    None =>
-                        warn!("Spawn {:?} has no parent", spawn.id),
+                    }
+                    None => warn!("Spawn {:?} has no parent", spawn.id),
                 };
             }
 
-            Some(_next) => {},
+            Some(_next) => {}
 
             None => schedule_next_spawn(total_time, spawn),
         };
@@ -152,12 +155,15 @@ pub fn run(ctx: &mut Ctx) {
         let mob_id = match Loader::spawn_at(&mut ctx.container, mob_prefab_id, room_id) {
             Ok(mob_id) => mob_id,
             Err(e) => {
-                warn!("{:?} fail to spawn a {:?}: {:?}", spawn_id, mob_prefab_id, e);
+                warn!(
+                    "{:?} fail to spawn a {:?}: {:?}",
+                    spawn_id, mob_prefab_id, e
+                );
                 continue;
             }
         };
 
-       let mob_label = ctx.container.labels.get_label_f(mob_id);
+        let mob_label = ctx.container.labels.get_label_f(mob_id);
 
         debug!("{:?} spawn created {:?} at {:?}", spawn_id, mob_id, room_id);
 

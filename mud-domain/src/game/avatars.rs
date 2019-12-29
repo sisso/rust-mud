@@ -1,12 +1,12 @@
+use crate::errors::{Error, Result};
 use crate::game::container::Container;
 use crate::game::labels::Label;
+use crate::game::loader::Loader;
 use crate::game::location::LocationId;
 use crate::game::mob::{Attributes, Damage, Mob, MobId, Pv};
+use crate::game::player::Player;
 use crate::game::{comm, Outputs};
 use commons::{DeltaTime, PlayerId};
-use crate::game::player::Player;
-use crate::errors::{Error, Result};
-use crate::game::loader::Loader;
 
 pub fn on_player_disconnect(
     container: &mut Container,
@@ -84,4 +84,3 @@ pub fn find_players_in(container: &Container, location_id: LocationId) -> Vec<Pl
         .flat_map(|id| container.players.find_from_mob(id))
         .collect()
 }
-

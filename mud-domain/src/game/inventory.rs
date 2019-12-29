@@ -1,12 +1,12 @@
+use crate::errors::*;
+use crate::game::container::Container;
 use crate::game::item::{Item, ItemId, ItemRepository};
 use crate::game::labels::Labels;
-use crate::game::location;
-use crate::game::location::{Locations, LocationId};
-use commons::ObjId;
-use crate::game::container::Container;
-use crate::errors::*;
 use crate::game::loader::Loader;
+use crate::game::location;
+use crate::game::location::{LocationId, Locations};
 use crate::game::prices::Money;
+use commons::ObjId;
 
 // TODO: Merge common code related with money
 
@@ -16,7 +16,12 @@ pub fn add(container: &mut Container, item_id: ItemId, location_id: LocationId) 
     let is_money = container.objects.get_static_id(item_id) == container.config.money_id;
 
     if is_money {
-        let amount = container.items.get(item_id).ok_or(Error::NotFound)?.amount.into();
+        let amount = container
+            .items
+            .get(item_id)
+            .ok_or(Error::NotFound)?
+            .amount
+            .into();
         add_money_with_item(container, location_id, amount, Some(item_id))
     } else {
         container.locations.set(item_id, location_id);
@@ -35,17 +40,23 @@ pub fn get_money(container: &Container, obj_id: ObjId) -> Result<Money> {
         None => return Ok(Money(0)),
     };
 
-    let item = container.items.get(item_id).expect("mob money is not a item");
+    let item = container
+        .items
+        .get(item_id)
+        .expect("mob money is not a item");
     Ok(item.amount.into())
 }
 
 pub fn get_money_id(container: &Container, obj_id: ObjId) -> Option<ItemId> {
-    let money_static_id = container.config.money_id.expect("money_id is not define in configuration");
+    let money_static_id = container
+        .config
+        .money_id
+        .expect("money_id is not define in configuration");
 
-    container.locations.list_at(obj_id)
-        .filter(|&id| {
-            container.objects.get_static_id(id) == Some(money_static_id)
-        })
+    container
+        .locations
+        .list_at(obj_id)
+        .filter(|&id| container.objects.get_static_id(id) == Some(money_static_id))
         .next()
 }
 
@@ -56,10 +67,13 @@ pub fn remove_money(container: &mut Container, obj_id: ObjId, amount: Money) -> 
         None => return Err(Error::NotPossible),
     };
 
-    let item = container.items.get_mut(item_id).expect("mob money is not a item");
+    let item = container
+        .items
+        .get_mut(item_id)
+        .expect("mob money is not a item");
 
     if item.amount < amount.as_u32() {
-        return Err(Error::NotPossible)
+        return Err(Error::NotPossible);
     }
 
     if item.amount == amount.as_u32() {
@@ -71,36 +85,51 @@ pub fn remove_money(container: &mut Container, obj_id: ObjId, amount: Money) -> 
     }
 }
 
-fn add_money_with_item(container: &mut Container, inventory_id: ObjId, amount: Money, provided_item_id: Option<ItemId>) -> Result<()> {
-    let inventory_item_id = get_inventory_list(&container.locations, &container.items, inventory_id)
-        .into_iter()
-        .filter(|item| item.flags.is_money)
-        .map(|item| item.id)
-        .next();
+fn add_money_with_item(
+    container: &mut Container,
+    inventory_id: ObjId,
+    amount: Money,
+    provided_item_id: Option<ItemId>,
+) -> Result<()> {
+    let inventory_item_id =
+        get_inventory_list(&container.locations, &container.items, inventory_id)
+            .into_iter()
+            .filter(|item| item.flags.is_money)
+            .map(|item| item.id)
+            .next();
 
     match (inventory_item_id, provided_item_id) {
         (Some(item_id), Some(provided_item_id)) => {
-            let item = container.items.get_mut(item_id).expect("Money was created but is not a item");
+            let item = container
+                .items
+                .get_mut(item_id)
+                .expect("Money was created but is not a item");
             item.amount += amount.as_u32();
 
             // since we add to a already existent item, we don't need this anymore
             container.remove(provided_item_id);
 
             Ok(())
-        },
+        }
         (Some(item_id), None) => {
-            let item = container.items.get_mut(item_id).expect("Money was created but is not a item");
+            let item = container
+                .items
+                .get_mut(item_id)
+                .expect("Money was created but is not a item");
             item.amount += amount.as_u32();
             Ok(())
-        },
+        }
         (None, Some(item_id)) => {
             container.locations.set(item_id, inventory_id);
             Ok(())
-        },
+        }
         (None, None) => {
             let static_id = container.config.money_id.expect("money_id not defined");
             let item_id = Loader::spawn_at(container, static_id, inventory_id)?;
-            let item = container.items.get_mut(item_id).expect("Money was created but is not a item");
+            let item = container
+                .items
+                .get_mut(item_id)
+                .expect("Money was created but is not a item");
             item.amount = amount.as_u32();
             Ok(())
         }
@@ -153,54 +182,54 @@ pub fn search_one(
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::game::loader::{ItemData, ItemFlagsData, ObjData, StaticId};
     use crate::game::obj::Obj;
-    use crate::game::loader::{StaticId, ObjData, ItemData, ItemFlagsData};
 
     // not require, bug was foudn
-//    #[test]
-//    fn test_inventory_add() {
-//        let mut container = Container::new();
-//        let money_prefab = add_money_prefab(&mut container, 0);
-//        let inventory_id = add_inventory(&mut container);
-//        let money_1_id = spawn(&mut container, money_prefab);
-//        let money_2_id = spawn(&mut container, money_prefab);
-//        let money_3_id = spawn(&mut container, money_prefab);
-//
-//        super::add(&mut container, money_1_id, inventory_id).unwrap();
-//        check_money_amount(&container, inventory_id, 1);
-//
-//        super::add(&mut container, money_2_id, inventory_id).unwrap();
-//        check_money_amount(&container, inventory_id, 2);
-//
-//        super::add(&mut container, money_3_id, inventory_id).unwrap();
-//        check_money_amount(&container, inventory_id, 3);
-//    }
-//
-//    fn add_money_prefab(container: &mut Container, id: u32) -> StaticId {
-//        let mut item_flags_data = ItemFlagsData::new();
-//        item_flags_data.money = Some(true);
-//
-//        let mut item_data = ItemData::new();
-//        item_data.amount = Some(1);
-//        item_data.flags = Some(item_flags_data);
-//
-//
-//        let mut data = ObjData::new(StaticId(id));
-//        data.item = Some(item_data);
-//        container.loader.add_prefab(data);
-//
-//        StaticId(id)
-//    }
-//
-//    fn add_inventory(container: &mut Container) -> ObjId {
-//        unimplemented!()
-//    }
-//
-//    fn spawn(container: &mut Container, static_id: StaticId) -> ObjId {
-//        unimplemented!()
-//    }
-//
-//    fn check_money_amount(container: &Container, inventory_id: ObjId, amount: u32) -> ObjId {
-//        unimplemented!()
-//    }
+    //    #[test]
+    //    fn test_inventory_add() {
+    //        let mut container = Container::new();
+    //        let money_prefab = add_money_prefab(&mut container, 0);
+    //        let inventory_id = add_inventory(&mut container);
+    //        let money_1_id = spawn(&mut container, money_prefab);
+    //        let money_2_id = spawn(&mut container, money_prefab);
+    //        let money_3_id = spawn(&mut container, money_prefab);
+    //
+    //        super::add(&mut container, money_1_id, inventory_id).unwrap();
+    //        check_money_amount(&container, inventory_id, 1);
+    //
+    //        super::add(&mut container, money_2_id, inventory_id).unwrap();
+    //        check_money_amount(&container, inventory_id, 2);
+    //
+    //        super::add(&mut container, money_3_id, inventory_id).unwrap();
+    //        check_money_amount(&container, inventory_id, 3);
+    //    }
+    //
+    //    fn add_money_prefab(container: &mut Container, id: u32) -> StaticId {
+    //        let mut item_flags_data = ItemFlagsData::new();
+    //        item_flags_data.money = Some(true);
+    //
+    //        let mut item_data = ItemData::new();
+    //        item_data.amount = Some(1);
+    //        item_data.flags = Some(item_flags_data);
+    //
+    //
+    //        let mut data = ObjData::new(StaticId(id));
+    //        data.item = Some(item_data);
+    //        container.loader.add_prefab(data);
+    //
+    //        StaticId(id)
+    //    }
+    //
+    //    fn add_inventory(container: &mut Container) -> ObjId {
+    //        unimplemented!()
+    //    }
+    //
+    //    fn spawn(container: &mut Container, static_id: StaticId) -> ObjId {
+    //        unimplemented!()
+    //    }
+    //
+    //    fn check_money_amount(container: &Container, inventory_id: ObjId, amount: u32) -> ObjId {
+    //        unimplemented!()
+    //    }
 }

@@ -13,8 +13,12 @@ pub struct ServerRunner {
 }
 
 impl ServerRunner {
-    pub fn new(server: Box<dyn Server>, container: Container, save: Option<(String, DeltaTime)>) -> Self {
-       ServerRunner {
+    pub fn new(
+        server: Box<dyn Server>,
+        container: Container,
+        save: Option<(String, DeltaTime)>,
+    ) -> Self {
+        ServerRunner {
             server,
             game: Game::new(container),
             save: save.map(|(file, seconds)| (file, TimeTrigger::new(seconds, TotalTime(0.0)))),

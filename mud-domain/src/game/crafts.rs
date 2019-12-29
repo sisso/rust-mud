@@ -1,8 +1,8 @@
-use logs::*;
-use std::collections::HashMap;
+use crate::errors::{Error, Result};
 use crate::game::container::Container;
 use commons::ObjId;
-use crate::errors::{Result, Error};
+use logs::*;
+use std::collections::HashMap;
 
 pub type ShipId = ObjId;
 
@@ -85,7 +85,7 @@ impl Ships {
         self.index.keys().cloned().collect()
     }
 
-    pub fn list_all<'a>(&'a self) -> impl Iterator<Item=&'a Ship> + 'a {
+    pub fn list_all<'a>(&'a self) -> impl Iterator<Item = &'a Ship> + 'a {
         self.index.values()
     }
 }

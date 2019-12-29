@@ -5,15 +5,15 @@ use commons::*;
 use logs::*;
 
 use super::container::Container;
-use crate::game::{avatars, combat, comm};
+use crate::errors::{Error, Result};
 use crate::game::container::Ctx;
+use crate::game::item::ItemPrefabId;
 use crate::game::labels::Labels;
 use crate::game::location;
 use crate::game::location::Locations;
 use crate::game::room::RoomId;
 use crate::game::Outputs;
-use crate::errors::{Result, Error};
-use crate::game::item::ItemPrefabId;
+use crate::game::{avatars, combat, comm};
 
 pub type MobId = ObjId;
 
@@ -338,11 +338,7 @@ pub fn run_tick(ctx: &mut Ctx) {
 
 // TODO: move game rules with output outside of mobs module
 // TODO: become a trigger?
-pub fn kill_mob(
-    container: &mut Container,
-    outputs: &mut dyn Outputs,
-    mob_id: MobId,
-) -> Result<()> {
+pub fn kill_mob(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<()> {
     info!("{:?} was killed", mob_id);
 
     let _ = create_corpse(container, outputs, mob_id);

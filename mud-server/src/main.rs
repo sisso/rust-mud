@@ -7,7 +7,8 @@ pub mod game_server;
 
 fn main() {
     let arguments: Vec<String> = std::env::args().collect();
-    let module = arguments.get(1)
+    let module = arguments
+        .get(1)
         .map(|i| i.as_str())
         .unwrap_or("./data/space");
 

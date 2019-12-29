@@ -1,10 +1,10 @@
 use super::container::Container;
 use super::item::*;
 use super::mob::*;
-use crate::game::{comm, inventory};
+use crate::errors::{AsResult, Error, Result};
 use crate::game::Outputs;
+use crate::game::{comm, inventory};
 use commons::PlayerId;
-use crate::errors::{Error, Result, AsResult};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum PickUpError {
@@ -46,10 +46,7 @@ pub fn do_pickup(
                 return Err(PickUpError::NotInventory);
             }
 
-            outputs.private(
-                mob_id,
-                comm::pick_player_from(inventory_label, item_label),
-            );
+            outputs.private(mob_id, comm::pick_player_from(inventory_label, item_label));
             outputs.broadcast(
                 Some(mob_id),
                 room_id,
@@ -69,10 +66,7 @@ pub fn do_pickup(
     inventory::add(container, item_id, mob_id).map_err(|error| {
         let item_label = container.labels.get_label_f(item_id);
 
-        outputs.private(
-            mob_id,
-            comm::pick_fail_storage_is_not_inventory(item_label),
-        );
+        outputs.private(mob_id, comm::pick_fail_storage_is_not_inventory(item_label));
 
         PickUpError::Other
     })
@@ -173,8 +167,8 @@ pub fn do_drop(
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::game::test::setup;
     use crate::controller::OutputsBuffer;
+    use crate::game::test::setup;
 
     #[test]
     pub fn test_do_pickup_should_fail_if_inventory_is_not_inventory() {

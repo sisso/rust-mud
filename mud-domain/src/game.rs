@@ -1,7 +1,7 @@
-use crate::game::location::LocationId;
-use crate::game::room::RoomId;
-use crate::game::mob::MobId;
 use crate::controller::Controller;
+use crate::game::location::LocationId;
+use crate::game::mob::MobId;
+use crate::game::room::RoomId;
 use commons::*;
 use container::Container;
 use logs::*;
@@ -11,18 +11,22 @@ pub mod actions;
 pub mod actions_admin;
 pub mod actions_craft;
 pub mod actions_items;
+pub mod actions_vendor;
+pub mod astro_bodies;
 pub mod avatars;
-pub mod corpse;
+pub mod builder;
 pub mod combat;
 pub mod comm;
 pub mod config;
 pub mod container;
+pub mod corpse;
 pub mod crafts;
 pub mod crafts_system;
 pub mod domain;
 pub mod equip;
 pub mod input_handle_items;
 pub mod input_handle_space;
+pub mod input_handle_vendors;
 pub mod inventory;
 pub mod item;
 pub mod labels;
@@ -30,9 +34,9 @@ pub mod loader;
 pub mod location;
 pub mod mob;
 pub mod obj;
-pub mod astro_bodies;
 pub mod player;
 pub mod pos;
+pub mod prices;
 pub mod room;
 pub mod space_utils;
 pub mod spawn;
@@ -41,11 +45,7 @@ pub mod surfaces;
 pub mod surfaces_object;
 pub mod tags;
 pub mod template;
-pub mod builder;
-pub mod prices;
 pub mod vendors;
-pub mod actions_vendor;
-pub mod input_handle_vendors;
 
 pub trait Outputs {
     /// For all mobs recursive inside the location
@@ -74,19 +74,23 @@ impl Game {
     }
 
     pub fn add_connection(&mut self, connection_id: ConnectionId) {
-        self.controller.add_connection(&mut self.container, connection_id);
-   }
+        self.controller
+            .add_connection(&mut self.container, connection_id);
+    }
 
     pub fn disconnect(&mut self, connection_id: ConnectionId) {
-        self.controller.disconnect(&mut self.container, connection_id);
-   }
+        self.controller
+            .disconnect(&mut self.container, connection_id);
+    }
 
     pub fn handle_input(&mut self, connection_id: ConnectionId, input: &str) {
-        self.controller.handle_input(&mut self.container, connection_id, input);
+        self.controller
+            .handle_input(&mut self.container, connection_id, input);
     }
 
     pub fn tick(&mut self, delta_time: DeltaTime) {
-        self.container.tick(self.controller.get_outputs(), delta_time);
+        self.container
+            .tick(self.controller.get_outputs(), delta_time);
     }
 
     pub fn flush_outputs(&mut self) -> Vec<(ConnectionId, String)> {
@@ -96,11 +100,11 @@ impl Game {
 
 #[cfg(test)]
 pub mod test {
+    use crate::game::builder;
     use crate::game::container::Container;
     use crate::game::item::ItemId;
     use crate::game::mob::MobId;
     use crate::game::room::RoomId;
-    use crate::game::builder;
 
     pub struct TestScenery {
         pub container: Container,

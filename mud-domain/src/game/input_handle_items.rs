@@ -1,13 +1,13 @@
+use crate::errors::{AsResult, Error, Result};
 use crate::game::actions_items::*;
 use crate::game::container::Container;
 use crate::game::item::{ItemId, ItemRepository};
 use crate::game::labels::Labels;
 use crate::game::location::Locations;
-use crate::game::{comm, inventory, Outputs};
-use commons::{ObjId, PlayerId};
 use crate::game::mob::MobId;
-use crate::errors::{Error, Result, AsResult};
+use crate::game::{comm, inventory, Outputs};
 use crate::utils::strinput::StrInput;
+use commons::{ObjId, PlayerId};
 
 #[derive(Debug)]
 pub enum ParseItemError {
@@ -26,7 +26,13 @@ pub fn parser_owned_item(
         None => return Err(ParseItemError::ItemNotProvided),
     };
 
-    let founds = inventory::search(&container.labels, &container.locations, &container.items, owner_id, item_label);
+    let founds = inventory::search(
+        &container.labels,
+        &container.locations,
+        &container.items,
+        owner_id,
+        item_label,
+    );
     match founds.first().cloned() {
         Some(item_id) => Ok(item_id),
         None => Err(ParseItemError::ItemNotFound {
@@ -91,13 +97,7 @@ pub fn pickup(
         args,
     ) {
         Ok((item_id, maybe_container)) => {
-            let _ = do_pickup(
-                container,
-                outputs,
-                mob_id,
-                item_id,
-                maybe_container,
-            );
+            let _ = do_pickup(container, outputs, mob_id, item_id, maybe_container);
         }
         Err(ParseItemError::ItemNotProvided) => outputs.private(mob_id, comm::pick_what()),
         Err(ParseItemError::ItemNotFound { label }) => {
@@ -114,11 +114,7 @@ pub fn equip(
     mob_id: MobId,
     args: Vec<&str>,
 ) -> Result<()> {
-    match parser_owned_item(
-        &container,
-        mob_id,
-        args,
-    ) {
+    match parser_owned_item(&container, mob_id, args) {
         Ok(item_id) => do_equip(container, outputs, mob_id, item_id),
         Err(ParseItemError::ItemNotProvided) => {
             outputs.private(mob_id, comm::equip_what());
@@ -137,26 +133,20 @@ pub fn drop(
     mob_id: MobId,
     args: Vec<&str>,
 ) -> Result<()> {
-    parser_owned_item(
-        &container,
-        mob_id,
-        args,
-    )
-    .map_err(|err| {
-        match err {
-            ParseItemError::ItemNotProvided => {
-                outputs.private(mob_id, comm::drop_item_no_target())
-            }
-            ParseItemError::ItemNotFound { label } => {
-                outputs.private(mob_id, comm::drop_item_not_found(label.as_str()))
-            }
-        };
+    parser_owned_item(&container, mob_id, args)
+        .map_err(|err| {
+            match err {
+                ParseItemError::ItemNotProvided => {
+                    outputs.private(mob_id, comm::drop_item_no_target())
+                }
+                ParseItemError::ItemNotFound { label } => {
+                    outputs.private(mob_id, comm::drop_item_not_found(label.as_str()))
+                }
+            };
 
-        Error::IllegalArgument
-    })
-    .and_then(|item_id| {
-        do_drop(container, outputs, mob_id, item_id)
-    })
+            Error::IllegalArgument
+        })
+        .and_then(|item_id| do_drop(container, outputs, mob_id, item_id))
 }
 
 pub fn strip(
@@ -165,22 +155,18 @@ pub fn strip(
     mob_id: MobId,
     args: Vec<&str>,
 ) -> Result<()> {
-    parser_owned_item(
-        &container,
-        mob_id,
-        args,
-    )
-    .map_err(|err| {
-        match err {
-            ParseItemError::ItemNotProvided => outputs.private(mob_id, comm::strip_what()),
-            ParseItemError::ItemNotFound { label } => {
-                outputs.private(mob_id, comm::strip_item_not_found(label.as_str()))
-            }
-        };
+    parser_owned_item(&container, mob_id, args)
+        .map_err(|err| {
+            match err {
+                ParseItemError::ItemNotProvided => outputs.private(mob_id, comm::strip_what()),
+                ParseItemError::ItemNotFound { label } => {
+                    outputs.private(mob_id, comm::strip_item_not_found(label.as_str()))
+                }
+            };
 
-        Error::IllegalArgument
-    })
-    .and_then(|item_id| do_strip(container, outputs, mob_id, item_id))
+            Error::IllegalArgument
+        })
+        .and_then(|item_id| do_strip(container, outputs, mob_id, item_id))
 }
 
 #[cfg(test)]

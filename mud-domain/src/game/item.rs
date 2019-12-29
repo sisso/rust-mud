@@ -1,9 +1,9 @@
 use super::comm;
+use crate::errors::{AsResult, Error, Result};
 use crate::game::container::Ctx;
 use commons::*;
 use logs::*;
 use std::collections::HashMap;
-use crate::errors::{Error, Result, AsResult};
 
 pub type ItemId = ObjId;
 pub type ItemPrefabId = ObjId;
@@ -61,8 +61,7 @@ impl Item {
 }
 
 #[derive(Debug, Clone)]
-pub struct Weapon {
-}
+pub struct Weapon {}
 
 impl Weapon {
     pub fn new() -> Self {
@@ -71,8 +70,7 @@ impl Weapon {
 }
 
 #[derive(Debug, Clone)]
-pub struct Armor {
-}
+pub struct Armor {}
 
 impl Armor {
     pub fn new() -> Self {

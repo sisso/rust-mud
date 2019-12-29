@@ -1,4 +1,4 @@
-use std::collections::{HashMap};
+use std::collections::HashMap;
 use std::hash::Hash;
 
 // TODO: replace by 2 hashmap key -> value, key -> parent_key
