@@ -64,7 +64,7 @@ impl Objects {
         }
     }
 
-    pub fn get_static_id(&mut self, id: ObjId) -> Option<StaticId> {
+    pub fn get_static_id(&self, id: ObjId) -> Option<StaticId> {
         self.objects.get(&id)
             .and_then(|obj| obj.static_id)
     }

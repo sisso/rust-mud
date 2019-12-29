@@ -8,6 +8,8 @@ use crate::errors::*;
 use crate::game::loader::Loader;
 use crate::game::prices::Money;
 
+// TODO: Merge common code related with money
+
 /// Money items can cause to be merge if target inventory already contain it, this means that
 /// previous item can get deleted
 pub fn add(container: &mut Container, item_id: ItemId, location_id: LocationId) -> Result<()> {
@@ -25,6 +27,48 @@ pub fn add(container: &mut Container, item_id: ItemId, location_id: LocationId) 
 pub fn add_money(container: &mut Container, obj_id: ObjId, amount: Money) -> Result<()> {
     // check if already have any money item and append, otherwise find one in loader and spawn
     add_money_with_item(container, obj_id, amount, None)
+}
+
+pub fn get_money(container: &Container, obj_id: ObjId) -> Result<Money> {
+    let item_id = match get_money_id(container, obj_id) {
+        Some(item_id) => item_id,
+        None => return Ok(Money(0)),
+    };
+
+    let item = container.items.get(item_id).expect("mob money is not a item");
+    Ok(item.amount.into())
+}
+
+pub fn get_money_id(container: &Container, obj_id: ObjId) -> Option<ItemId> {
+    let money_static_id = container.config.money_id.expect("money_id is not define in configuration");
+
+    container.locations.list_at(obj_id)
+        .filter(|&id| {
+            container.objects.get_static_id(id) == Some(money_static_id)
+        })
+        .next()
+}
+
+/// return the new money amount
+pub fn remove_money(container: &mut Container, obj_id: ObjId, amount: Money) -> Result<Money> {
+    let item_id = match get_money_id(container, obj_id) {
+        Some(item_id) => item_id,
+        None => return Err(Error::NotPossible),
+    };
+
+    let item = container.items.get_mut(item_id).expect("mob money is not a item");
+
+    if item.amount < amount.as_u32() {
+        return Err(Error::NotPossible)
+    }
+
+    if item.amount == amount.as_u32() {
+        container.remove(item_id);
+        Ok(Money(0))
+    } else {
+        item.amount -= amount.as_u32();
+        Ok(item.amount.into())
+    }
 }
 
 fn add_money_with_item(container: &mut Container, inventory_id: ObjId, amount: Money, provided_item_id: Option<ItemId>) -> Result<()> {

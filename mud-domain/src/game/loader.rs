@@ -7,7 +7,7 @@ use crate::game::container::Container;
 use crate::game::domain::Dir;
 use crate::game::labels::Label;
 use crate::game::loader::hocon_parser::HParser;
-use crate::game::item::Item;
+use crate::game::item::{Item, Armor, Weapon};
 use crate::game::mob::Mob;
 use crate::game::astro_bodies::AstroBody;
 use crate::game::pos::Pos;
@@ -262,8 +262,13 @@ impl Loader {
 
         result
     }
+
+    pub fn list_prefabs<'a>(&'a self) -> impl Iterator<Item = &ObjData> + 'a {
+        self.index.values()
+    }
 }
 
+/// static fields
 impl Loader {
     pub fn spawn_at(container: &mut Container, static_id: StaticId, parent_id: ObjId) -> errors::Result<ObjId> {
         let obj_id = Loader::spawn(container, static_id)?;
@@ -421,6 +426,14 @@ impl Loader {
                 item.flags.is_money = flags.money.unwrap_or(false);
                 item.flags.is_inventory = flags.inventory.unwrap_or(false);
                 item.flags.is_stuck = flags.stuck.unwrap_or(false);
+            }
+
+            if let Some(armor) = &data_item.armor {
+                item.armor = Some(Armor::new());
+            }
+
+            if let Some(weapon) = &data_item.weapon {
+                item.weapon = Some(Weapon::new());
             }
 
             container.items.add(item);

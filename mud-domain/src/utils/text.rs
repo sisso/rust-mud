@@ -100,13 +100,17 @@ pub fn search_label(input: &str, labels: &Vec<&str>) -> Vec<usize> {
         .iter()
         .enumerate()
         .filter_map(|(i, s)| {
-            if s.eq_ignore_ascii_case(input) {
+            if is_valid_search(s, input) {
                 Some(i)
             } else {
                 None
             }
         })
         .collect()
+}
+
+pub fn is_valid_search(label: &str, input: &str) -> bool {
+    label.eq_ignore_ascii_case(input)
 }
 
 #[cfg(test)]

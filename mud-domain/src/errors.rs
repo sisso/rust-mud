@@ -3,8 +3,9 @@ use serde::export::Formatter;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
+// TODO: split errors into categories like expected errors, warnings and real errors
 /// Project centralized error structure.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Error {
     ObjIdNotFound(u32),
     StaticIdNotFound(u32),
@@ -18,8 +19,11 @@ pub enum Error {
     InCombat,
     IsResting,
     NotFound,
+    NotProvided,
     CanNotBeEquipped,
-		NotImplemented,
+	NotImplemented,
+    /// not possible to execute this operation
+    NotPossible,
 }
 
 impl From<&str> for Error {

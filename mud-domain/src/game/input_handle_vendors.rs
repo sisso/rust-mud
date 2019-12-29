@@ -6,10 +6,11 @@ use crate::game::{actions_vendor, Outputs, comm, input_handle_items};
 use commons::ObjId;
 use crate::game::prices::Money;
 use crate::game::inventory;
-use crate::game::loader::Loader;
+use crate::game::loader::{Loader, StaticId};
 use crate::game::input_handle_items::ParseItemError;
 use crate::game::item::ItemId;
 use crate::game::actions::out;
+use crate::utils::text;
 
 pub fn list(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, input: StrInput) -> Result<()> {
     let vendor_id = find_vendor_at_mob_location(container, outputs, mob_id)?;
@@ -17,12 +18,29 @@ pub fn list(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId,
 }
 
 pub fn buy(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, input: StrInput) -> Result<()> {
-    unimplemented!();
+    let vendor_id = find_vendor_at_mob_location(container, outputs, mob_id)?;
+
+    let plain_arguments = input.plain_arguments();
+    if plain_arguments.is_empty() {
+        outputs.private(mob_id, comm::vendor_buy_item_not_found(plain_arguments));
+        return Err(Error::NotFound);
+    }
+
+    let static_id = match parse_vendor_item(container, vendor_id, plain_arguments) {
+        Some(static_id) => static_id,
+        None => {
+            outputs.private(mob_id, comm::vendor_buy_item_not_found(plain_arguments));
+            return Err(Error::NotFound);
+        },
+    };
+
+    actions_vendor::buy(container, outputs, mob_id, vendor_id, static_id).map(|_| ())
 }
 
 pub fn sell(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId, input: StrInput) -> Result<()> {
     let _ = find_vendor_at_mob_location(container, outputs, mob_id)?;
-    let item_id = find_vendor_item(outputs, mob_id,input_handle_items::parser_owned_item(container, mob_id, input.split()))?;
+    let item = input_handle_items::parser_owned_item(container, mob_id, input.split());
+    let item_id = find_vendor_sell_item(outputs, mob_id, item)?;
 
     actions_vendor::sell(container, outputs, mob_id, item_id)
 }
@@ -47,7 +65,8 @@ fn find_vendor_at_mob_location(container: &mut Container, outputs: &mut dyn Outp
 }
 
 // TODO: move to a logic place
-fn find_vendor_item(outputs: &mut dyn Outputs, mob_id: MobId, result: std::result::Result<ItemId, ParseItemError>) -> Result<ItemId> {
+// TODO: is used in a single place, why is not defined there?
+fn find_vendor_sell_item(outputs: &mut dyn Outputs, mob_id: MobId, result: std::result::Result<ItemId, ParseItemError>) -> Result<ItemId> {
     result.map_err(|err| {
         match err {
             ParseItemError::ItemNotFound { label } => {
@@ -60,5 +79,18 @@ fn find_vendor_item(outputs: &mut dyn Outputs, mob_id: MobId, result: std::resul
             }
         }
     })
+}
+
+pub fn parse_vendor_item(
+    container: &Container,
+    vendor_id: ObjId,
+    input: &str,
+) -> Option<StaticId> {
+    container.loader
+        .list_prefabs()
+        .filter(|data| data.price.is_some())
+        .filter(|data| text::is_valid_search(data.label.as_str(), input))
+        .map(|data| data.id)
+        .next()
 }
 

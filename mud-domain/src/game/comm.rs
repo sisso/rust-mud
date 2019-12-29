@@ -670,6 +670,26 @@ pub fn vendor_list(list: Vec<VendorListItem>) -> String {
     buffer
 }
 
+pub fn vendor_buy_fail() -> String {
+    format!("buy item fail")
+}
+
+pub fn vendor_buy_item_not_found(label: &str) -> String {
+    format!("seller don't have a '{}'", label)
+}
+
+pub fn vendor_buy_you_have_not_enough_money(money: Money, price: Money) -> String {
+    format!("not enough money, it cost {} and you have only {}", price.as_u32(), money.as_u32())
+}
+
+pub fn vendor_buy_success(item: &str, price: Money, new_money: Money) -> String {
+    format!("you bought a {} for {}, you have now {} of money", item, price.as_u32(), new_money.as_u32())
+}
+
+pub fn vendor_buy_success_others(mob_label: &str, item_label: &str) -> String {
+    format!("{} bought a {}", mob_label, item_label)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

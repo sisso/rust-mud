@@ -7,6 +7,7 @@ use crate::game::{comm, inventory, Outputs};
 use commons::{ObjId, PlayerId};
 use crate::game::mob::MobId;
 use crate::errors::{Error, Result, AsResult};
+use crate::utils::strinput::StrInput;
 
 #[derive(Debug)]
 pub enum ParseItemError {

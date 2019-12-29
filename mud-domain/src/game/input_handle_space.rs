@@ -14,7 +14,7 @@ pub fn show_startree(
     outputs: &mut dyn Outputs,
     mob_id: MobId,
 ) -> Result<()> {
-    let (craft_id, sector_id) = get_craft_and_sector(container, outputs, mob_id)?;
+    let (ship_id, sector_id) = get_craft_and_sector(container, outputs, mob_id)?;
     let bodies = find_astro_bodies(container, sector_id);
     outputs.private(mob_id, comm::show_sectortree(&bodies));
     Ok(())

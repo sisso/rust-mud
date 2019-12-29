@@ -2,8 +2,9 @@ extern crate mud_domain;
 
 use commons::{ConnectionId, DeltaTime};
 use mud_domain::game::container::Container;
-use mud_domain::game::{loader, Game};
+use mud_domain::game::{loader, Game, inventory};
 use std::path::Path;
+use mud_domain::game::mob::MobId;
 
 pub struct TestScenery {
     pub game: Game,
@@ -29,8 +30,13 @@ impl TestScenery {
         self.wait_for("welcome back");
     }
 
-    pub fn send_input(&mut self, s: &str) {
+    pub fn input(&mut self, s: &str) {
         self.game.handle_input(self.connection_id, s);
+    }
+
+    pub fn input_and_wait(&mut self, input: &str, expected: &str) {
+        self.input(input);
+        self.wait_for(expected);
     }
 
     pub fn take_outputs(&mut self) -> Vec<String> {
@@ -71,7 +77,7 @@ impl TestScenery {
 
     pub fn repeat_command_until(&mut self, command: &str, expected: &str) -> Vec<String> {
         for _ in 0..self.timeout {
-            self.send_input(command);
+            self.input(command);
             self.tick();
 
             let outputs = self.take_outputs();
@@ -140,88 +146,92 @@ fn test_fantasy_steal_temple_and_buy_weapon() {
     let mut scenery = TestScenery::new();
     scenery.login();
     from_village_to_temple(&mut scenery);
-    pick_money_from_chest(&mut scenery);
+    for _ in 0..5 {
+        pick_money_from_chest(&mut scenery);
+    }
     from_temple_to_market(&mut scenery);
     buy_sword(&mut scenery);
     equip_sword(&mut scenery);
 }
 
 fn sell_meat(scenery: &mut TestScenery) {
-    scenery.send_input("look");
+    scenery.input("look");
     scenery.wait_for("- vendor");
-    scenery.send_input("list");
+    scenery.input("list");
     scenery.wait_for("- meat");
-    scenery.send_input("sell meat");
+    scenery.input("sell meat");
     scenery.wait_for("receive");
-    scenery.send_input("inv");
+    scenery.input("inv");
     scenery.wait_for("- gold");
 }
 
 fn from_florest_to_market(scenery: &mut TestScenery) {
-    scenery.send_input("n");
+    scenery.input("n");
     scenery.wait_for("Market");
 }
 
 fn kill_wolf_and_loot(scenery: &mut TestScenery) {
-    scenery.send_input("look");
+    scenery.input("look");
     scenery.wait_until(vec!["wolf"], vec!["corpse"]);
 
     // kill a wolf
-    scenery.send_input("k wolf");
+    scenery.input("k wolf");
     scenery.wait_for("wolf corpse");
-    scenery.send_input("examine corpse");
+    scenery.input("examine corpse");
     scenery.wait_for("- meat");
     // collect loot
-    scenery.send_input("get meat in corpse");
+    scenery.input("get meat in corpse");
     scenery.wait_for("you pick");
-    scenery.send_input("inv");
+    scenery.input("inv");
     scenery.wait_for("- meat");
 }
 
 fn from_village_to_market(scenery: &mut TestScenery) {
-    scenery.send_input("look");
+    scenery.input("look");
     scenery.wait_for("Village");
-    scenery.send_input("s");
+    scenery.input("s");
     scenery.wait_for("Market");
 }
 
 fn from_market_to_florest(scenery: &mut TestScenery) {
-    scenery.send_input("look");
+    scenery.input("look");
     scenery.wait_for("Market");
-    scenery.send_input("s");
+    scenery.input("s");
     scenery.wait_for("Florest");
 }
 
 fn from_village_to_temple(scenery: &mut TestScenery) {
-    scenery.send_input("look");
+    scenery.input("look");
     scenery.wait_for("Village");
-    scenery.send_input("w");
+    scenery.input("w");
     scenery.wait_for("Temple");
 }
 
 fn pick_money_from_chest(scenery: &mut TestScenery) {
     scenery.repeat_command_until("examine chest", "gold");
-    scenery.send_input("get gold in chest");
+    scenery.input("get gold in chest");
     scenery.wait_for("pick");
 }
 
 fn from_temple_to_market(scenery: &mut TestScenery) {
-    unimplemented!()
+    scenery.input_and_wait("e", "Village");
+    scenery.input_and_wait("s", "Market");
 }
 
 fn buy_sword(scenery: &mut TestScenery) {
-    unimplemented!()
+    scenery.input_and_wait("buy sword", "bought");
 }
 
 fn equip_sword(scenery: &mut TestScenery) {
-    unimplemented!()
+    scenery.input_and_wait("equip sword", "you equip");
 }
 
 fn assert_money(scenery: &mut TestScenery, expected: u32) {
-    scenery.send_input("inv");
+    scenery.input("inv");
     if expected == 1 {
         scenery.wait_for("gold");
     } else {
         scenery.wait_for(&format!("gold x{}", expected));
     }
 }
+

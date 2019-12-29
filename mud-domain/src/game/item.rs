@@ -16,6 +16,7 @@ pub struct ItemFlags {
     pub is_stuck: bool,
     /// someone body
     pub is_corpse: bool,
+    // TODO: should really exists? Normalize use cases
     pub is_money: bool,
 }
 
@@ -63,8 +64,20 @@ impl Item {
 pub struct Weapon {
 }
 
+impl Weapon {
+    pub fn new() -> Self {
+        Weapon {}
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Armor {
+}
+
+impl Armor {
+    pub fn new() -> Self {
+        Armor {}
+    }
 }
 
 #[derive(Debug, Clone)]

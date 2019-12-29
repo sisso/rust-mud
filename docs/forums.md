@@ -1,3 +1,11 @@
+# Tags
+
+Probably the best way to handle cases like Vendor sell and buy. Even better that using a category.
+
+Tags are numeric, the "string" are managed by just configuration files in custom conf file.
+
+This will not be a issue when dealing with Modules? Is not exactly the same situation of StaticId in small scale?
+
 # Spawn ownership
 
 Currently to force spawn to lose ownership is require to destroy the object. It work good for mobs but not for 
@@ -252,6 +260,10 @@ static_id.
 
 Numeric with tools make almost impossible to manage mods. Any numeric namespace like (mod_id * 1000 + id), create many
 unnecessary limitations and remove any expected optimization using indexed arrays.
+
+## Tags
+
+This same issue don't apply to tags? And looks like is good there 
 
 # Surface deprecation
 
