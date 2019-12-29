@@ -65,7 +65,6 @@ impl Spawns {
     }
 
     pub fn add(&mut self, spawn: Spawn) -> Result<()> {
-        assert!(!self.spawns.contains_key(&spawn.id));
         let _ = spawn.delay.validate()?;
         if self.spawns.contains_key(&spawn.id) {
             Err(Error::Conflict)

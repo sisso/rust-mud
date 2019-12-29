@@ -370,8 +370,51 @@ Vendors should contain a list of ID to sell, or should items have a tag that ven
 
 # Error Codes
 
-As first implementation is already showing, a centralized Error can get chaotic very shortly. A clear structure need
-to be defined, that can be easily recognize and only hold useful values. 
+Lets just use generic: String
+
+Argument - you send wrong stuff
+Invalid  - something is not what should be, maybe just using the wrong argument
+Warning  - something is not what was expected to be, something is wrong and need to be verify
+Error    - something is failing miserably
+
+For each of those categories, when require, we could create custom exceptions to be catch.
+
+ParserArgument { cause: ParseArgumentCause } 
+
+---
+
+In general we really don't care about the error, we just want to easy return from the block and the caller decide 
+if want to deal or not with the issue.
+
+Sometimes we generate warn logs
+
+Sometimes we use to give different messages
+
+---
+
+Categories
+
+complete failures, like fail to write file
+unexpected failures, like a expected reference is invalid
+illegal argument, you provide illegal argument
+
+
+|command                        | type|
+|-------------------------------|-----|
+|fail to write save game        | IOError    |
+|expected configuration or id don't exists | NotFoundError |
+|'get' without argument                    | InvalidArgument|
+|'get xxx' where xxx dont exists                       | NotFoundArgument |
+|'get item', item was found but Item type don't exists | InvalidState |
+|'get item', but item is stuck | InvalidArgument |
+|'get item', but character is in limbo| InvalidState |
+| can not attack because is resting ||
+| item can not be used as weapon ||
+
+
+----
+
+As first implementation is already showing, a centralized Error can get chaotic very shortly. A clear structure needto be defined, that can be easily recognize and only hold useful values. 
 
 Most errors we want to propagate and exploded with meaningful error message. This case we will just use Generic. 
 - and how it improves by simple unwrap? At least panic contains a full stack trace.
@@ -380,7 +423,7 @@ General policy:
 - panic for unexpected errors
 - any other case that can expected to have a success/failure we return a error code
 - error codes need to be obvious, a Conflict(u32) moved 3 layers out where it was produced will not bring any useful
-  information. If objects.instert will return a Conflict, it will need to be map to Generic(String) to be propagated
+  information. If objects insert will return a Conflict, it will need to be map to Generic(String) to be propagated
 
 # Craft vs Ship
 
