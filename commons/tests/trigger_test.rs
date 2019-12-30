@@ -1,4 +1,4 @@
-use std::collections::{VecDeque, HashMap};
+use std::collections::HashMap;
 
 pub struct Listener {
     id: u32,
@@ -80,10 +80,7 @@ impl <T> Trigger<T> {
         for (kind, min_index) in min_index_per_kind {
             // update events
             let events = self.events.get_mut(&kind).unwrap();
-            // TODO: serious? can not make it worse?
-            for _ in 0..min_index {
-                events.remove(0);
-            }
+            events.drain(0..min_index);
 
             // update indexes
             self.listeners_per_kind.get_mut(&kind)
