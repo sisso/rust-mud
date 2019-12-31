@@ -75,7 +75,7 @@ pub fn test_timer() {
     assert_eq!("C", result.remove(0));
 
     // no new element
-    let mut result = timer.check(6.0);
+    let result = timer.check(6.0);
     assert_eq!(result.len(), 0);
 
     // huge jump
@@ -84,7 +84,7 @@ pub fn test_timer() {
     assert_eq!("D", result.remove(0));
 
     // no new element
-    let mut result = timer.check(10000.0);
+    let result = timer.check(10000.0);
     assert_eq!(result.len(), 0);
 }
 

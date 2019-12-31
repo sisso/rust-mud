@@ -2,12 +2,7 @@ use std::collections::HashMap;
 use std::hash::Hash;
 
 #[derive(Debug, Clone)]
-pub enum Error {
-   IndexConflict,
-   ParentNotFound,
-}
-
-pub struct Tree<K> {
+pub struct Tree<K: Hash + Eq + Copy + Clone> {
    parents: HashMap<K, K>,
 }
 
@@ -30,11 +25,10 @@ impl<K: Hash + Eq + Copy + Clone> Tree<K> {
       self.parents.get(&key).cloned()
    }
 
-   pub fn children(&self, root: K) -> Vec<K> {
+   pub fn children<'a>(&'a self, root: K) -> impl Iterator<Item = K> + 'a {
       self.parents.iter()
-          .filter(|(key, &value)| value == root)
+          .filter(move |(_, &value)| value == root)
           .map(|(&key, _)| key)
-          .collect()
    }
 
    pub fn children_deep(&self, root: K) -> Vec<K> {
@@ -71,7 +65,6 @@ impl<K: Hash + Eq + Copy + Clone> Tree<K> {
 #[cfg(test)]
 mod test {
    use super::*;
-   use std::collections::{HashSet};
 
    fn sample_tree() -> Tree<i32> {
       let mut tree = Tree::new();
@@ -104,11 +97,11 @@ mod test {
       assert_eq!(tree.get(2), Some(1));
       assert_eq!(tree.get(3), Some(0));
 
-      let mut children = tree.children(0);
+      let mut children: Vec<_> = tree.children(0).collect();
       children.sort();
       assert_eq!(children, vec![1, 3]);
-      assert_eq!(tree.children(4), vec![7]);
-      assert!(tree.children(7).is_empty());
+      assert_eq!(tree.children(4).collect::<Vec<_>>(), vec![7]);
+      assert!(tree.children(7).next().is_none());
    }
 
    #[test]

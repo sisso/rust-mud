@@ -26,7 +26,7 @@ impl <T> Trigger<T> {
         let next = self.next_listener;
         self.next_listener += 1;
 
-        let mut listeners = self.listeners_per_kind.entry(event_kind)
+        let listeners = self.listeners_per_kind.entry(event_kind)
             .or_default();
 
         listeners.insert(next, 0);
@@ -38,7 +38,7 @@ impl <T> Trigger<T> {
     }
 
     pub fn push(&mut self, event_kind: u32, event: T) {
-        let mut events = self.events.entry(event_kind)
+        let events = self.events.entry(event_kind)
             .or_default();
 
         events.push(event);

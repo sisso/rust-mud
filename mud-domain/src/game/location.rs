@@ -2,19 +2,19 @@ use crate::game::labels::Labels;
 use commons::ObjId;
 use logs::*;
 use std::collections::HashMap;
+use commons::tree::Tree;
 
 pub type LocationId = ObjId;
 
 #[derive(Clone, Debug)]
 pub struct Locations {
-    // TODO: add inverse index
-    index: HashMap<ObjId, ObjId>,
+    index: Tree<ObjId>
 }
 
 impl Locations {
     pub fn new() -> Self {
         Locations {
-            index: HashMap::new(),
+            index: Tree::new(),
         }
     }
 
@@ -25,51 +25,23 @@ impl Locations {
 
     pub fn remove(&mut self, obj_id: ObjId) {
         info!("{:?} remove location", obj_id);
-        self.index.remove(&obj_id);
+        self.index.remove(obj_id);
     }
 
     pub fn get(&self, obj_id: ObjId) -> Option<ObjId> {
-        self.index.get(&obj_id).cloned()
+        self.index.get(obj_id)
     }
 
     pub fn list_at<'a>(&'a self, location_id: ObjId) -> impl Iterator<Item = ObjId> + 'a {
-        self.index.iter().filter_map(move |(obj_id, loc_id)| {
-            if location_id == *loc_id {
-                Some(*obj_id)
-            } else {
-                None
-            }
-        })
+        self.index.children(location_id)
     }
 
-    /// return list of children from a giving object, non inclusive
     pub fn list_deep_at(&self, location_id: LocationId) -> Vec<ObjId> {
-        let mut result = vec![];
-
-        for id in self.list_at(location_id) {
-            result.push(id);
-            let children = self.list_deep_at(id);
-            result.extend(children);
-        }
-
-        result
+        self.index.children_deep(location_id)
     }
 
-    /// return list of parents from a giving object, non inclusive
     pub fn list_parents(&self, obj_id: ObjId) -> Vec<LocationId> {
-        let mut result = vec![];
-        let mut current = obj_id;
-        loop {
-            let parent = self.get(current);
-            match parent {
-                Some(location_id) => {
-                    result.push(location_id);
-                    current = location_id;
-                }
-                None => break,
-            }
-        }
-        result
+        self.index.parents(obj_id)
     }
 }
 
