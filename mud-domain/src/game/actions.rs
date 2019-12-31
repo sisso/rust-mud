@@ -8,6 +8,36 @@ use crate::game::space_utils;
 use commons::{ObjId, PlayerId};
 use logs::*;
 use std::process::id;
+use crate::game::loader::StaticId;
+use crate::game::item::ItemId;
+
+#[derive(Debug, Clone)]
+pub enum Action {
+    Look,
+    Examine { target: ObjId },
+    MoveDir { dir: Dir },
+    Enter { target: ObjId },
+    Exit,
+    Rest,
+    Stand,
+    Equip { item: ItemId },
+    Remove { item: ItemId },
+    Pick { target: ObjId },
+    Kill { target: MobId },
+    Say { msg: String },
+    Move { target: ObjId },
+    Land { target: ObjId },
+    Launch,
+    Buy { target: StaticId },
+    Sell { target: ObjId },
+}
+
+// TODO: conflict with mob.MobAction
+#[derive(Debug, Clone)]
+pub struct MobAction_2 {
+    pub mob_id: MobId,
+    pub action: Action,
+}
 
 pub fn look(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<()> {
     outputs.private(mob_id, comm::look_description(container, mob_id)?);

@@ -1,11 +1,13 @@
+use std::collections::{HashMap, HashSet};
+
+use commons::*;
+use container::Container;
+use logs::*;
+
 use crate::controller::Controller;
 use crate::game::location::LocationId;
 use crate::game::mob::MobId;
 use crate::game::room::RoomId;
-use commons::*;
-use container::Container;
-use logs::*;
-use std::collections::{HashMap, HashSet};
 
 pub mod actions;
 pub mod actions_admin;
@@ -34,6 +36,7 @@ pub mod loader;
 pub mod location;
 pub mod mob;
 pub mod obj;
+pub mod outputs;
 pub mod player;
 pub mod pos;
 pub mod prices;
@@ -96,6 +99,11 @@ impl Game {
     pub fn flush_outputs(&mut self) -> Vec<(ConnectionId, String)> {
         self.controller.flush_outputs(&self.container)
     }
+
+//    pub fn run(&mut self, delta_time: DeltaTime, new_connections, disconnects, inputs) -> Vec<(ConnectionId, String)>{
+//        self.add_time(delta_time);
+//
+//    }
 }
 
 #[cfg(test)]

@@ -81,6 +81,7 @@ pub struct Controller {
     connections_with_input: HashSet<ConnectionId>,
 }
 
+/// Manage connectivity and messages to players through a socket
 impl Controller {
     pub fn new() -> Self {
         Controller {
@@ -120,6 +121,7 @@ impl Controller {
         self.connections.remove(&connection_id);
     }
 
+    // TODO: should not trigger changes in container, but just append inputs
     pub fn handle_input(
         &mut self,
         container: &mut Container,

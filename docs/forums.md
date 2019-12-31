@@ -1,3 +1,47 @@
+# Modules
+
+controller
+- input and output
+game
+- model and repositories
+logic
+
+## Why
+
+Things like timer and trigger will only work well if some structed is well defined. Currently send_input is triggering
+direct changes into the game model.
+
+## Notes
+
+- logic modules a independent code or traits added into that receive continaer or specific services in arguments
+
+## Flow
+
+- read incoming messages from server
+- controller process incoming messages into inputs or outputs
+- game process inputs
+- game process tick
+- game process timer
+- game process triggers
+- controller.generated outputs from triggers
+- send outputs to server
+
+## How to achieve it:
+
+- split logic from repository and moving to new module
+- create in messages, inputs, outputs and triggers
+
+## It was before?
+
+This was exactly what we have before. The idea was break the big method into a small and more concise functions.
+
+We can keep the same by just buffering events until tick is run
+
+## Only actions
+
+What about look? Examine? Enter <list candidates?>
+
+
 # Tags
 
 Probably the best way to handle cases like Vendor sell and buy. Even better that using a category.
