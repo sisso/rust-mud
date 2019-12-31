@@ -11,9 +11,14 @@ This will not be a issue when dealing with Modules? Is not exactly the same situ
 Currently to force spawn to lose ownership is require to destroy the object. It work good for mobs but not for 
 items. If player has a item, it can happens to be merged and the old item deleted. 
 
-A final solution will be to track through triggers.
-
-For now we are just ignoring it.
+it can be solved by just checking if the spawn area still contain the object with same prefab_id, or using ownership
+model.
+- looks like a good solution in mostly of cases, but since it can be solved by ownership that will need to happens
+  at some time, is lost effort.
+  - not if ownership show not useful
+    - a door need a key, a key you need to have
+    - control drone I need a key?
+    - control orc I need a key? or loyality?
 
 # Group money
 

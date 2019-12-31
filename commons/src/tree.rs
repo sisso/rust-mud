@@ -1,83 +1,156 @@
 use std::collections::HashMap;
 use std::hash::Hash;
 
-// TODO: replace by 2 hashmap key -> value, key -> parent_key
-//#[derive(Debug, Clone)]
-//pub enum Error {
-//   IndexConflict,
-//   ParentNotFound,
-//}
-//
-//struct TreeNode<K, V> {
-//   parent: Option<K>,
-//   value: V,
-//}
-//
-//pub struct Tree<K, V> {
-//   index: HashMap<K, TreeNode<K, V>>,
-//}
-//
-//impl<K: Hash + Eq, V> Tree<K, V> {
-//   pub fn new() -> Self {
-//      Tree {
-//         index: HashMap::new(),
-//      }
-//   }
-//
-//   pub fn insert(&mut self, key: K, value: V, parent: Option<K>) -> Result<(), Error> {
-//      if let Some(parent_id) = &parent {
-//         if !self.index.contains_key(parent_id) {
-//            return Err(Error::ParentNotFound);
-//         }
-//      }
-//
-//      let node = TreeNode {
-//         parent,
-//         value,
-//      };
-//
-//      match self.index.insert(key, node) {
-//         Some(_) => Err(Error::IndexConflict),
-//         None => Ok(()),
-//      }
-//   }
-//
-//   pub fn get(&self, key: &K) -> Option<&V> {
-//      self.index.get(key)
-//          .map(|i| &i.value)
-//   }
-//
-//   pub fn children(&self, key: &K) -> Vec<&K> {
-//       self.index.iter()
-//           .filter(|(_, value)| {
-//              value.parent
-//                  .as_ref()
-//                  .map(|parent_id| parent_id == key)
-//                  .unwrap_or(false)
-//           })
-//           .map(|(id, _)| id)
-//           .collect()
-//   }
-//}
-//
-//
-//#[test]
-//fn test_tree() {
-//   use std::collections::{HashSet};
-//   let mut tree = Tree::new();
-//
-//   tree.insert(0, "Sun", None).unwrap();
-//   tree.insert(1, "Earth", Some(0)).unwrap();
-//   tree.insert(2, "Moon", Some(1)).unwrap();
-//   tree.insert(3, "Venus", Some(0)).unwrap();
-//
-//   assert_eq!(tree.get(&0).unwrap(), &"Sun");
-//   assert_eq!(tree.get(&1).unwrap(), &"Earth");
-//   assert_eq!(tree.get(&2).unwrap(), &"Moon");
-//   assert_eq!(tree.get(&3).unwrap(), &"Venus");
-//
-//   let children_set: HashSet<&i32> = tree.children(&0).into_iter().collect();
-//   assert_eq!(children_set, vec![&1, &3].into_iter().collect());
-//   assert_eq!(tree.children(&1), vec![&2]);
-//   assert!(tree.children(&2).is_empty());
-//}
+#[derive(Debug, Clone)]
+pub enum Error {
+   IndexConflict,
+   ParentNotFound,
+}
+
+pub struct Tree<K> {
+   parents: HashMap<K, K>,
+}
+
+impl<K: Hash + Eq + Copy + Clone> Tree<K> {
+   pub fn new() -> Self {
+      Tree {
+         parents: HashMap::new(),
+      }
+   }
+
+   pub fn insert(&mut self, key: K, parent: K) -> Option<K> {
+      self.parents.insert(key, parent)
+   }
+
+   pub fn remove(&mut self, key: K) -> Option<K> {
+       self.parents.remove(&key)
+   }
+
+   pub fn get(&self, key: K) -> Option<K> {
+      self.parents.get(&key).cloned()
+   }
+
+   pub fn children(&self, root: K) -> Vec<K> {
+      self.parents.iter()
+          .filter(|(key, &value)| value == root)
+          .map(|(&key, _)| key)
+          .collect()
+   }
+
+   pub fn children_deep(&self, root: K) -> Vec<K> {
+      let mut buffer = Vec::new();
+
+      for i in self.children(root) {
+         buffer.push(i);
+
+         let childrens = self.children_deep(i);
+         buffer.extend(childrens);
+      }
+
+      buffer
+   }
+
+   pub fn parents(&self, from: K) -> Vec<K> {
+      let mut buffer = vec![];
+      let mut current = from;
+      loop {
+         let parent = self.get(current);
+         match parent {
+            Some(location_id) => {
+               buffer.push(location_id);
+               current = location_id;
+            }
+            None => break,
+         }
+      }
+      buffer
+
+   }
+}
+
+#[cfg(test)]
+mod test {
+   use super::*;
+   use std::collections::{HashSet};
+
+   fn sample_tree() -> Tree<i32> {
+      let mut tree = Tree::new();
+      /*
+               0
+               +1
+               |+2
+               ||+5
+               | |+6
+               |+4
+               ||+7
+               +3
+            */
+      tree.insert(1, 0);
+      tree.insert(2, 1);
+      tree.insert(3, 0);
+      tree.insert(4, 1);
+      tree.insert(5, 2);
+      tree.insert(6, 5);
+      tree.insert(7, 4);
+      tree
+   }
+
+   #[test]
+   fn test_tree_children() {
+      let tree = sample_tree();
+
+      assert_eq!(tree.get(0), None);
+      assert_eq!(tree.get(1), Some(0));
+      assert_eq!(tree.get(2), Some(1));
+      assert_eq!(tree.get(3), Some(0));
+
+      let mut children = tree.children(0);
+      children.sort();
+      assert_eq!(children, vec![1, 3]);
+      assert_eq!(tree.children(4), vec![7]);
+      assert!(tree.children(7).is_empty());
+   }
+
+   #[test]
+   fn test_tree_children_deep() {
+      let tree = sample_tree();
+
+      let tests = vec![
+         (0, vec![1, 2, 3, 4, 5, 6, 7]),
+         (1, vec![2, 4, 5, 6, 7]),
+         (2, vec![5, 6]),
+         (3, vec![]),
+         (4, vec![7]),
+         (5, vec![6]),
+         (6, vec![]),
+         (7, vec![]),
+      ];
+
+      for (index, expected) in tests {
+         let mut children = tree.children_deep(index);
+         children.sort();
+         assert_eq!(children, expected);
+      }
+   }
+
+   #[test]
+   fn test_tree_parents() {
+      let mut tree = sample_tree();
+
+      let tests = vec![
+         (0, vec![]),
+         (1, vec![0]),
+         (2, vec![1, 0]),
+         (3, vec![0]),
+         (4, vec![1, 0]),
+         (5, vec![2, 1 ,0]),
+         (6, vec![5, 2, 1, 0]),
+         (7, vec![4, 1, 0]),
+      ];
+
+      for (index, expected) in tests {
+         let children = tree.parents(index);
+         assert_eq!(children, expected);
+      }
+   }
+}

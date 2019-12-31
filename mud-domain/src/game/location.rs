@@ -42,6 +42,7 @@ impl Locations {
         })
     }
 
+    /// return list of children from a giving object, non inclusive
     pub fn list_deep_at(&self, location_id: LocationId) -> Vec<ObjId> {
         let mut result = vec![];
 
@@ -87,6 +88,7 @@ mod test {
     use crate::game::location::Locations;
     use commons::ObjId;
     use std::collections::HashSet;
+
 
     #[test]
     fn test_list_deep_at() {
