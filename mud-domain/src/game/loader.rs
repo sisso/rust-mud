@@ -7,11 +7,11 @@ use crate::game::astro_bodies::AstroBody;
 use crate::game::config::Config;
 use crate::game::container::Container;
 use crate::game::crafts::Ship;
-use crate::game::domain::Dir;
+use crate::game::domain::{Dir, Modifier};
 use crate::game::item::{Armor, Item, Weapon};
 use crate::game::labels::Label;
 use crate::game::loader::hocon_parser::HParser;
-use crate::game::mob::Mob;
+use crate::game::mob::{Mob, Damage};
 use crate::game::obj::Objects;
 use crate::game::pos::Pos;
 use crate::game::prices::{Money, Price};
@@ -78,10 +78,18 @@ impl ItemFlagsData {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct ItemWeaponData {}
+pub struct ItemWeaponData {
+    min: u32,
+    max: u32,
+    calm_down: f32,
+    attack: i32,
+}
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct ItemArmorData {}
+pub struct ItemArmorData {
+    defense: i32,
+    rd: u32
+}
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ItemData {
@@ -451,11 +459,21 @@ impl Loader {
             }
 
             if let Some(armor) = &data_item.armor {
-                item.armor = Some(Armor::new());
+                let mut value = Armor::new();
+                value.defense = Modifier(armor.defense);
+                value.rd = armor.rd;
+                item.armor = Some(value);
             }
 
             if let Some(weapon) = &data_item.weapon {
-                item.weapon = Some(Weapon::new());
+                let mut value = Weapon::new();
+                value.attack = Modifier(weapon.attack);
+                value.calm_down = DeltaTime(weapon.calm_down);
+                value.damage = Damage {
+                    min: weapon.min,
+                    max: weapon.max,
+                };
+                item.weapon = Some(value);
             }
 
             container.items.add(item);

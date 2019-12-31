@@ -53,11 +53,11 @@ impl Equips {
         }
     }
 
-    pub fn get(&self, id: MobId) -> Result<HashSet<ItemId>, ()> {
+    pub fn get(&self, id: MobId) -> HashSet<ItemId> {
         self.index
             .get(&id)
             .map(|equip| equip.equipments.clone())
-            .ok_or(())
+            .unwrap_or(HashSet::new())
     }
 
     pub fn remove(&mut self, id: ObjId) -> Result<(), ()> {

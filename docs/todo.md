@@ -21,8 +21,6 @@
 # Fantasy specific
 
 - casting
-- weapon
-- equipment affect stats 
 - equip
 - armor
 - experience

@@ -4,6 +4,8 @@ use crate::game::container::Ctx;
 use commons::*;
 use logs::*;
 use std::collections::HashMap;
+use crate::game::mob::Damage;
+use crate::game::domain::{Modifier, Rd};
 
 pub type ItemId = ObjId;
 pub type ItemPrefabId = ObjId;
@@ -61,20 +63,34 @@ impl Item {
 }
 
 #[derive(Debug, Clone)]
-pub struct Weapon {}
+pub struct Weapon {
+    pub damage: Damage,
+    pub calm_down: DeltaTime,
+    pub attack: Modifier,
+}
 
 impl Weapon {
     pub fn new() -> Self {
-        Weapon {}
+        Weapon {
+            damage: Damage {
+                min: 1,
+                max: 1
+            },
+            calm_down: DeltaTime(1.0),
+            attack: Modifier(0),
+        }
     }
 }
 
 #[derive(Debug, Clone)]
-pub struct Armor {}
+pub struct Armor {
+    pub defense: Modifier,
+    pub rd: Rd,
+}
 
 impl Armor {
     pub fn new() -> Self {
-        Armor {}
+        Armor { defense: Modifier(0), rd: 0 }
     }
 }
 

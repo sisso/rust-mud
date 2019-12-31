@@ -61,24 +61,27 @@ fn cancel_attack(
 }
 
 // TODO: fix multiples get from get two mutable
+// TODO: log errors, like can not get attribute?
 fn execute_attack(
     container: &mut Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
     target_id: MobId,
 ) -> Result<()> {
-    let attacker = container.mobs.get(mob_id).as_result()?;
+    let attacker_attributes = mob::get_attributes(container, mob_id)?;
     let attacker_room_id = container.locations.get(mob_id).as_result()?;
     let attacker_label = container.labels.get_label_f(mob_id);
 
-    let defender = container.mobs.get(target_id).as_result()?;
+    let defender_attributes = mob::get_attributes(container, mob_id)?;
     let defender_label = container.labels.get_label_f(target_id);
 
     let attack_result = roll_attack(
-        &attacker.attributes.attack,
-        &attacker.attributes.damage,
-        &defender.attributes.defense,
+        attacker_attributes.attack,
+        &attacker_attributes.damage,
+        defender_attributes.defense,
+        defender_attributes.rd
     );
+
     let room_attack_msg =
         comm::kill_mob_execute_attack(attacker_label, defender_label, &attack_result);
 
@@ -90,7 +93,7 @@ fn execute_attack(
         // deduct pv
         let mut dead = false;
         container.mobs.update(target_id, |mob| {
-            mob.attributes.pv.current -= attack_result.damage as i32;
+            mob.attributes.pv.current -= attack_result.damage_deliver as i32;
             dead = mob.attributes.pv.current < 0;
         })?;
 
@@ -123,27 +126,22 @@ fn execute_attack_killed(
     mob::kill_mob(container, outputs, target_id)
 }
 
-fn roll_attack(attack: &u32, damage: &Damage, defense: &u32) -> AttackResult {
-    let attack_dice = roll_dice() + *attack;
-    let defense_dice = roll_dice() + *defense;
+fn roll_attack(attack: u32, damage: &Damage, defense: u32, rd: u32) -> AttackResult {
+    let mut result = AttackResult::new(
+        attack,
+        defense,
+        rd
+    );
 
-    if attack_dice < defense_dice {
-        return AttackResult {
-            success: false,
-            damage: 0,
-            attack_dice,
-            defense_dice,
-        };
+    result.attack_dice = roll_dice() + attack;
+    result.defense_dice = roll_dice() + defense;
+    result.success = result.attack_dice >= result.defense_dice;
+    if result.success {
+        result.damage_total = roll_damage(damage);
+        result.damage_deliver = result.damage_total - rd;
     }
 
-    let damage = roll_damage(damage);
-
-    AttackResult {
-        success: true,
-        damage,
-        attack_dice,
-        defense_dice,
-    }
+    result
 }
 
 fn roll_dice() -> u32 {

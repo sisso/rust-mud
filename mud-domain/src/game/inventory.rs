@@ -144,14 +144,13 @@ pub fn move_all(locations: &mut Locations, from: ObjId, to: ObjId) {
 }
 
 pub fn get_inventory_list<'a>(
-    locations: &Locations,
+    locations: &'a Locations,
     items: &'a ItemRepository,
     obj_id: ObjId,
-) -> Vec<&'a Item> {
+) -> impl Iterator<Item = &'a Item> + 'a {
     locations
         .list_at(obj_id)
-        .flat_map(|id| items.get(id))
-        .collect()
+        .flat_map(move |id| items.get(id))
 }
 
 pub fn search(

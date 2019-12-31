@@ -6,6 +6,18 @@ use crate::errors::Error::ParserError;
 use commons::{DeltaTime, Tick, TotalTime};
 use serde::Deserialize;
 
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+pub struct Modifier(pub i32);
+
+impl Modifier {
+    pub fn apply(&self, value: Attribute) -> Attribute{
+        0.min(value as i32 + self.0) as u32
+    }
+}
+
+pub type Attribute = u32;
+pub type Rd = u32;
+
 #[derive(Clone, Copy, Debug)]
 pub struct GameTime {
     pub tick: Tick,

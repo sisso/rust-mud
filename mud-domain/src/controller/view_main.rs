@@ -16,7 +16,8 @@ use crate::utils::strinput::StrInput;
 use logs::*;
 
 fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc> {
-    let equip = container.equips.get(obj_id).unwrap_or(HashSet::new());
+    let equip = container.equips.get(obj_id);
+
     inventory::get_inventory_list(&container.locations, &container.items, obj_id)
         .into_iter()
         .map(|item| {

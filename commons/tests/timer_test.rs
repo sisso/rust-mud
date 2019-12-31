@@ -60,7 +60,7 @@ pub fn test_timer() {
     assert_eq!("Z", result.remove(0));
 
     // no new element
-    let mut result = timer.check(1.0);
+    let result = timer.check(1.0);
     assert_eq!(result.len(), 0);
 
     // normal case

@@ -128,7 +128,7 @@ mod test {
 
    #[test]
    fn test_tree_parents() {
-      let mut tree = sample_tree();
+      let tree = sample_tree();
 
       let tests = vec![
          (0, vec![]),

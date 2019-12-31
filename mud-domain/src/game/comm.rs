@@ -147,8 +147,10 @@ pub fn kill_cancel(mob: &str, target: &str) -> String {
 pub fn kill_player_execute_attack(target: &str, attack_result: &AttackResult) -> String {
     if attack_result.success {
         format!(
-            "you attack {} and hit, causing {} damage!",
-            target, attack_result.damage
+            "you attack {} and hit, causing {}/{} damage!",
+            target,
+            attack_result.damage_deliver,
+            attack_result.damage_total
         )
     } else {
         format!("you attack {} and miss!", target)
@@ -158,8 +160,8 @@ pub fn kill_player_execute_attack(target: &str, attack_result: &AttackResult) ->
 pub fn kill_mob_execute_attack(mob: &str, target: &str, attack_result: &AttackResult) -> String {
     if attack_result.success {
         format!(
-            "{} execute a attack and hit {} causing {} damage!",
-            mob, target, attack_result.damage
+            "{} execute a attack and hit {} causing {}/{} damage!",
+            mob, target, attack_result.damage_deliver, attack_result.damage_total
         )
     } else {
         format!("{} execute a attack {} and miss!", mob, target)

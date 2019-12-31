@@ -14,6 +14,8 @@ use crate::game::location::Locations;
 use crate::game::room::RoomId;
 use crate::game::Outputs;
 use crate::game::{avatars, combat, comm};
+use crate::game::inventory;
+use crate::game::domain::{Rd, Attribute};
 
 pub type MobId = ObjId;
 
@@ -62,11 +64,12 @@ impl Pv {
 
 #[derive(Clone, Debug)]
 pub struct Attributes {
-    pub attack: u32,
-    pub defense: u32,
+    pub attack: Attribute,
+    pub defense: Attribute,
     pub damage: Damage,
     pub pv: Pv,
     pub attack_calm_down: DeltaTime,
+    pub rd: Rd,
 }
 
 impl Attributes {
@@ -81,6 +84,7 @@ impl Attributes {
                 heal_rate: DeltaTime(60.0),
             },
             attack_calm_down: DeltaTime(1.0),
+            rd: 0,
         }
     }
 }
@@ -107,9 +111,29 @@ impl MobState {
 #[derive(Clone, Debug)]
 pub struct AttackResult {
     pub success: bool,
-    pub damage: u32,
+    pub damage_total: u32,
+    /// how much damage was really caused
+    pub damage_deliver: u32,
+    pub attack_value: u32,
+    pub defense_value: u32,
     pub attack_dice: u32,
     pub defense_dice: u32,
+    pub defense_rd: u32,
+}
+
+impl AttackResult {
+    pub fn new(attack: u32, defense: u32, rd: u32) -> Self {
+        AttackResult {
+            success: false,
+            damage_total: 0,
+            damage_deliver: 0,
+            attack_value: attack,
+            defense_value: defense,
+            attack_dice: 0,
+            defense_dice: 0,
+            defense_rd: rd,
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -365,4 +389,29 @@ pub fn search_mobs_at(
         .into_iter()
         .filter(|&mob_id| mobs.exists(mob_id))
         .collect()
+}
+
+/// get mob attributes summing items
+pub fn get_attributes(container: &Container, mob_id: MobId) -> Result<Attributes> {
+    let mut attributes= container.mobs.get(mob_id)
+        .ok_or(Error::NotFound)
+        .map(|mob| mob.attributes.clone())?;
+
+    let equipped_items = container.equips.get(mob_id)
+        .into_iter()
+        .map(|item_id| container.items.get(item_id).unwrap())
+        .for_each(|item| {
+            if let Some(armor) = item.armor.as_ref() {
+                attributes.rd += armor.rd;
+                attributes.defense = armor.defense.apply(attributes.defense);
+            }
+
+            if let Some(weapon) = item.weapon.as_ref() {
+                attributes.attack = weapon.attack.apply(attributes.attack);
+                attributes.damage = weapon.damage.clone();
+                attributes.attack_calm_down = weapon.calm_down;
+            }
+        });
+
+    Ok(attributes)
 }
