@@ -121,8 +121,8 @@ pub fn handle(
                 ctx.room.id,
                 target,
             );
-            let candidate = mobs.first();
 
+            let candidate = mobs.first();
             match candidate {
                 Some(&target_mob_id) if !container.mobs.is_avatar(target_mob_id) => {
                     let _ = actions::attack(container, outputs, mob_id, target_mob_id);
@@ -130,11 +130,11 @@ pub fn handle(
                 }
                 Some(_) => {
                     outputs.private(mob_id, comm::kill_can_not_kill_players(&target));
-                    Err(Error::IllegalArgument)
+                    Err(Error::InvalidArgumentFailure)
                 }
                 None => {
                     outputs.private(mob_id, comm::kill_target_not_found(&target));
-                    Err(Error::IllegalArgument)
+                    Err(Error::InvalidArgumentFailure)
                 }
             }
         }
@@ -148,7 +148,7 @@ pub fn handle(
             let arguments = input.split();
             if arguments.len() != 2 {
                 outputs.private(mob_id, comm::admin_invalid_command());
-                return Err(Error::IllegalArgument);
+                return Err(Error::InvalidArgumentFailure);
             }
 
             match arguments.get(1).unwrap().as_ref() {
@@ -160,9 +160,9 @@ pub fn handle(
                     outputs.broadcast(None, pctx.room.id, comm::admin_suicide_others(mob_label));
                     actions_admin::kill(container, outputs, target_mob_id)
                 }
-                _other => {
+                _ => {
                     outputs.private(mob_id, comm::admin_invalid_command());
-                    Err(Error::IllegalArgument)
+                    Err(Error::InvalidArgumentFailure)
                 }
             }
         }
@@ -197,7 +197,7 @@ pub fn handle(
 
         _ => {
             outputs.private(mob_id, comm::unknown_input(input.as_str()));
-            Err(Error::IllegalArgument)
+            Err(Error::InvalidArgumentFailure)
         }
     }
 }
@@ -256,5 +256,5 @@ fn action_examine(
 
     // else
     outputs.private(mob_id, comm::examine_target_not_found(target_label));
-    Err(Error::IllegalArgument)
+    Err(Error::InvalidArgumentFailure)
 }

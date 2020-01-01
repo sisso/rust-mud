@@ -11,33 +11,33 @@ use std::process::id;
 use crate::game::loader::StaticId;
 use crate::game::item::ItemId;
 
-#[derive(Debug, Clone)]
-pub enum Action {
-    Look,
-    Examine { target: ObjId },
-    MoveDir { dir: Dir },
-    Enter { target: ObjId },
-    Exit,
-    Rest,
-    Stand,
-    Equip { item: ItemId },
-    Remove { item: ItemId },
-    Pick { target: ObjId },
-    Kill { target: MobId },
-    Say { msg: String },
-    Move { target: ObjId },
-    Land { target: ObjId },
-    Launch,
-    Buy { target: StaticId },
-    Sell { target: ObjId },
-}
-
-// TODO: conflict with mob.MobAction
-#[derive(Debug, Clone)]
-pub struct MobAction_2 {
-    pub mob_id: MobId,
-    pub action: Action,
-}
+//#[derive(Debug, Clone)]
+//pub enum Action {
+//    Look,
+//    Examine { target: ObjId },
+//    MoveDir { dir: Dir },
+//    Enter { target: ObjId },
+//    Exit,
+//    Rest,
+//    Stand,
+//    Equip { item: ItemId },
+//    Remove { item: ItemId },
+//    Pick { target: ObjId },
+//    Kill { target: MobId },
+//    Say { msg: String },
+//    Move { target: ObjId },
+//    Land { target: ObjId },
+//    Launch,
+//    Buy { target: StaticId },
+//    Sell { target: ObjId },
+//}
+//
+//// TODO: conflict with mob.MobAction
+//#[derive(Debug, Clone)]
+//pub struct MobAction_2 {
+//    pub mob_id: MobId,
+//    pub action: Action,
+//}
 
 pub fn look(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<()> {
     outputs.private(mob_id, comm::look_description(container, mob_id)?);
@@ -94,7 +94,7 @@ pub fn mv(
         }
         None => {
             outputs.private(mob_id, comm::move_not_possible(&dir));
-            Err(Error::IllegalArgument)
+            Err(Error::InvalidArgumentFailure)
         }
     }
 }
@@ -131,7 +131,7 @@ pub fn rest(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId)
 
     if mob.is_combat() {
         outputs.private(mob_id, comm::rest_fail_in_combat());
-        return Err(Error::InCombat);
+        return Err(Error::InvalidStateFailure);
     }
 
     let mob_label = container.labels.get_label(mob_id).unwrap();
@@ -152,7 +152,7 @@ pub fn stand(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId
 
     if ctx.mob.is_resting() {
         outputs.private(mob_id, comm::stand_fail_not_resting());
-        return Err(Error::IsResting);
+        return Err(Error::InvalidStateFailure);
     }
 
     let mob_label = container.labels.get_label(mob_id).unwrap();
@@ -194,13 +194,13 @@ pub fn enter(
         None if arguments.is_empty() => {
             let codes = container.labels.resolve_codes(&candidates);
             outputs.private(mob_id, comm::enter_list(&codes));
-            Err(Error::IllegalArgument)
+            Err(Error::InvalidArgumentFailure)
         }
 
         None => {
             let codes = container.labels.resolve_codes(&candidates);
             outputs.private(mob_id, comm::enter_invalid(arguments, &codes));
-            Err(Error::IllegalArgument)
+            Err(Error::InvalidArgumentFailure)
         }
     }
 }
@@ -245,7 +245,7 @@ pub fn enter_do(
 
         None => {
             outputs.private(mob_id, comm::enter_fail());
-            Err(Error::IllegalArgument)
+            Err(Error::InvalidArgumentFailure)
         }
     }
 }
@@ -257,7 +257,7 @@ pub fn out(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) 
 
     if !can_exit {
         outputs.private(mob_id, comm::out_fail());
-        return Err(Error::IllegalArgument);
+        return Err(Error::InvalidArgumentFailure);
     }
 
     let parents = container.locations.list_parents(location_id);
@@ -288,6 +288,6 @@ pub fn out(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) 
         Ok(())
     } else {
         outputs.private(mob_id, comm::out_fail_bad_outside());
-        Err(Error::IllegalArgument)
+        Err(Error::InvalidArgumentFailure)
     }
 }

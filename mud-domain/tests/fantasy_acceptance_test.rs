@@ -2,7 +2,6 @@ extern crate mud_domain;
 
 use commons::{ConnectionId, DeltaTime};
 use mud_domain::game::container::Container;
-use mud_domain::game::mob::MobId;
 use mud_domain::game::{inventory, loader, Game};
 use std::path::Path;
 

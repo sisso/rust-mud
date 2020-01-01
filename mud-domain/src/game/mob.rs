@@ -249,7 +249,7 @@ impl MobRepository {
             debug!("{:?} updated", mob);
             Ok(())
         } else {
-            Err(Error::IllegalArgument)
+            Err(Error::InvalidArgumentFailure)
         }
     }
 
@@ -397,7 +397,7 @@ pub fn search_mobs_at(
 /// get mob attributes summing items
 pub fn get_attributes(container: &Container, mob_id: MobId) -> Result<Attributes> {
     let mut attributes= container.mobs.get(mob_id)
-        .ok_or(Error::NotFound)
+        .ok_or(Error::NotFoundFailure)
         .map(|mob| mob.attributes.clone())?;
 
     let equipped_items = container.equips.get(mob_id)

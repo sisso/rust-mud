@@ -93,7 +93,7 @@ pub fn do_equip(
 
     if !has_item || item.is_none() {
         outputs.private(mob_id, comm::equip_what());
-        return Err(Error::NotFound);
+        return Err(Error::NotFoundFailure);
     }
 
     // check if can be equipped
@@ -102,7 +102,7 @@ pub fn do_equip(
 
     if !can_be_equipped {
         outputs.private(mob_id, comm::equip_item_invalid(item_label));
-        return Err(Error::CanNotBeEquipped);
+        return Err(Error::InvalidArgumentFailure);
     }
 
     // TODO: remove old equip in same place?

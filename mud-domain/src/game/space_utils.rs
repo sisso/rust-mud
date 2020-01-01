@@ -21,7 +21,7 @@ pub fn find_surface_target(
         .collect::<Vec<_>>();
 
     let founds = container.labels.search_codes(&candidates, label);
-    founds.first().cloned().ok_or(Error::NotFound)
+    founds.first().cloned().ok_or(Error::NotFoundFailure)
 }
 
 pub fn get_objects_in_surface(
@@ -112,14 +112,14 @@ pub fn get_craft_and_sector(
         Some(craft_id) => craft_id,
         None => {
             outputs.private(mob_id, comm::space_not_in_craft());
-            return Err(Error::NotFound);
+            return Err(Error::NotFoundFailure);
         }
     };
 
     let craft_location = container.locations.get(craft_id).as_result()?;
     if !container.sectors.exists(craft_location) {
         outputs.private(mob_id, comm::space_not_in_craft());
-        return Err(Error::NotFound);
+        return Err(Error::NotFoundFailure);
     }
 
     return Ok((craft_id, craft_location));

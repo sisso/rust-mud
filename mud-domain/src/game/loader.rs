@@ -2,7 +2,6 @@ mod hocon_parser;
 
 use crate::errors;
 use crate::errors::Error;
-use crate::errors::Error::StaticIdNotFound;
 use crate::game::astro_bodies::AstroBody;
 use crate::game::config::Config;
 use crate::game::container::Container;
@@ -336,7 +335,7 @@ impl Loader {
                     None
                 }
             })
-            .ok_or_else(|| StaticIdNotFound(static_id.as_u32()))
+            .ok_or_else(|| Error::NotFoundFailure)
     }
 
     // TODO: make it atomic: success and change or no change
@@ -351,7 +350,7 @@ impl Loader {
             Either::Right(static_id) => container
                 .loader
                 .get_prefab(static_id)
-                .ok_or(StaticIdNotFound(static_id.as_u32()))?,
+                .ok_or(Error::NotFoundFailure)?,
         };
 
         debug!("{:?} apply prefab {:?}", obj_id, data.id);
@@ -430,7 +429,7 @@ impl Loader {
 
             if let Some(exists) = &room_data.exits {
                 for i in exists {
-                    let dir = Dir::parse(i.dir.as_str())?;
+                    let dir = Dir::parse(i.dir.as_str()).unwrap();
                     let to_id = Loader::get_by_static_id(&container.objects, &references, i.to)?;
 
                     room.exits.push((dir, to_id));
@@ -503,7 +502,10 @@ impl Loader {
 
     pub fn load_str(container: &mut Container, buffer: &str) -> errors::Result<()> {
         let data: errors::Result<Data> =
-            HParser::load_from_str(buffer).map_err(|e| format!("{:?}", e).into());
+            HParser::load_from_str(buffer).map_err(|e| {
+                let msg = format!("{:?}", e);
+                errors::Error::Error(msg)
+            });
 
         Loader::load_data(container, data?)
     }
@@ -521,10 +523,10 @@ impl Loader {
 
     pub fn read_folder(folder: &Path) -> errors::Result<Data> {
         if !folder.exists() {
-            return Err("module folder do not exists".into());
+            return Err(Error::Error("configuration folder do not exists".to_string()));
         }
 
-        HParser::load_from_folder(folder).map_err(|e| format!("{:?}", e).into())
+        HParser::load_from_folder(folder).map_err(|e| Error::Error(format!("{:?}", e)))
     }
 
     fn load_data(container: &mut Container, data: Data) -> errors::Result<()> {
@@ -561,13 +563,13 @@ impl Loader {
 
         for (_static_id, data) in data.objects.iter() {
             if !ids.insert(data.id) {
-                return Err(format!("duplicate object id {:?}", data.id).into());
+                return Err(Error::Error(format!("duplicate object id {:?}", data.id)));
             }
         }
 
         for (_static_id, data) in data.prefabs.iter() {
             if !ids.insert(data.id) {
-                return Err(format!("duplicate prefab id {:?}", data.id).into());
+                return Err(Error::Error(format!("duplicate prefab id {:?}", data.id)));
             }
         }
 

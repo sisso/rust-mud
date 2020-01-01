@@ -2,9 +2,9 @@ use super::mob::*;
 use super::player::*;
 use super::room::*;
 use crate::errors;
-use crate::errors::Error::ParserError;
 use commons::{DeltaTime, Tick, TotalTime};
 use serde::Deserialize;
+use crate::errors::Error;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Modifier(pub i32);
@@ -74,10 +74,7 @@ impl Dir {
             "s" => Ok(Dir::S),
             "e" => Ok(Dir::E),
             "w" => Ok(Dir::W),
-            _ => Err(ParserError {
-                kind: "Dir".to_string(),
-                value: value.to_string(),
-            }),
+            _ => Err(Error::InvalidArgumentFailure),
         }
     }
 }

@@ -13,7 +13,7 @@ pub fn tick_attack(
     mob_id: MobId,
     target_mob_id: MobId,
 ) -> Result<()> {
-    let attacker = container.mobs.get(mob_id).ok_or(Error::NotFound)?;
+    let attacker = container.mobs.get(mob_id).ok_or(Error::NotFoundFailure)?;
     let defender = container.mobs.get(target_mob_id);
 
     if let Some(defender) = defender {
@@ -22,7 +22,7 @@ pub fn tick_attack(
 
         if attacker_room_id != defender_room_id {
             cancel_attack(container, outputs, mob_id, Some(&target_mob_id));
-            return Err(Error::IllegalArgument);
+            return Err(Error::InvalidArgumentFailure);
         }
 
         if attacker.is_read_to_attack(container.time.total) {

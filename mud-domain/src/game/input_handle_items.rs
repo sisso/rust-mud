@@ -118,11 +118,11 @@ pub fn equip(
         Ok(item_id) => do_equip(container, outputs, mob_id, item_id),
         Err(ParseItemError::ItemNotProvided) => {
             outputs.private(mob_id, comm::equip_what());
-            Err(Error::IllegalArgument)
+            Err(Error::InvalidArgumentFailure)
         }
         Err(ParseItemError::ItemNotFound { label }) => {
             outputs.private(mob_id, comm::equip_item_not_found(label.as_str()));
-            Err(Error::IllegalArgument)
+            Err(Error::InvalidArgumentFailure)
         }
     }
 }
@@ -144,7 +144,7 @@ pub fn drop(
                 }
             };
 
-            Error::IllegalArgument
+            Error::InvalidArgumentFailure
         })
         .and_then(|item_id| do_drop(container, outputs, mob_id, item_id))
 }
@@ -164,7 +164,7 @@ pub fn strip(
                 }
             };
 
-            Error::IllegalArgument
+            Error::InvalidArgumentFailure
         })
         .and_then(|item_id| do_strip(container, outputs, mob_id, item_id))
 }

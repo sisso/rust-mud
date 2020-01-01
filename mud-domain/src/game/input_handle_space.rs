@@ -48,14 +48,14 @@ pub fn move_to(
     let (craft_id, craft_location) = get_craft_and_sector(container, outputs, mob_id)?;
     input
         .get(1)
-        .ok_or(Error::IllegalArgument)
+        .ok_or(Error::InvalidArgumentFailure)
         .and_then(|label| find_surface_target(container, craft_location, label))
         .and_then(|target_id| {
             actions_craft::move_to(container, outputs, mob_id, craft_id, target_id)
         })
         .map_err(|_| {
             outputs.private(mob_id, comm::space_move_invalid());
-            Error::IllegalArgument
+            Error::InvalidArgumentFailure
         })
 }
 
@@ -71,7 +71,7 @@ pub fn land_list(container: &Container, outputs: &mut dyn Outputs, mob_id: MobId
         })
         .ok_or_else(|| {
             outputs.private(mob_id, comm::space_land_invalid());
-            Error::IllegalArgument
+            Error::InvalidArgumentFailure
         })
 }
 
@@ -91,10 +91,10 @@ pub fn land_at(
                     let landing_room = sites[index];
                     do_land_at(container, outputs, craft_id, landing_room)
                 }
-                None => Err(Error::IllegalArgument),
+                None => Err(Error::InvalidArgumentFailure),
             }
         }
-        _ => Err(Error::IllegalArgument),
+        _ => Err(Error::InvalidArgumentFailure),
     };
 
     result.map_err(|e| {

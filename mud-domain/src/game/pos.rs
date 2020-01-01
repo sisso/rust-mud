@@ -42,6 +42,6 @@ impl PosRepo {
                 i.pos = new_pos;
                 ()
             })
-            .ok_or(Error::NotFound)
+            .ok_or(Error::NotFoundFailure)
     }
 }

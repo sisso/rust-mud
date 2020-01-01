@@ -44,7 +44,7 @@ impl Room {
             .map(|position| {
                 self.exits.remove(position);
             })
-            .ok_or(Error::NotFound)
+            .ok_or(Error::NotFoundFailure)
     }
 }
 
@@ -99,7 +99,7 @@ impl RoomRepository {
     {
         self.index
             .get_mut(&room_id)
-            .ok_or(Error::NotFound)
+            .ok_or(Error::NotFoundFailure)
             .map(|room| {
                 f(room);
                 debug!("{:?} updated", room);
@@ -109,7 +109,7 @@ impl RoomRepository {
     pub fn remove_portal(&mut self, room1_id: RoomId, room2_id: RoomId, dir: Dir) -> Result<()> {
         self.index
             .get_mut(&room1_id)
-            .ok_or(Error::NotFound)
+            .ok_or(Error::NotFoundFailure)
             .and_then(|room| room.remove_exit(room2_id, dir))?;
 
         debug!(
@@ -119,7 +119,7 @@ impl RoomRepository {
 
         self.index
             .get_mut(&room2_id)
-            .ok_or(Error::NotFound)
+            .ok_or(Error::NotFoundFailure)
             .and_then(|room| room.remove_exit(room1_id, dir.inv()))?;
 
         debug!(

@@ -60,13 +60,11 @@ impl Equips {
             .unwrap_or(HashSet::new())
     }
 
-    pub fn remove(&mut self, id: ObjId) -> Result<(), ()> {
+    pub fn remove(&mut self, id: ObjId) {
         self.index.iter_mut().for_each(|(_owner_id, equip)| {
             if equip.equipments.remove(&id) {
                 debug!("{:?} remove equip", id);
             }
         });
-
-        Ok(())
     }
 }

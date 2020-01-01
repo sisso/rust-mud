@@ -45,13 +45,13 @@ pub fn buy(
     let location_id = container.locations.get(mob_id).ok_or_else(|| {
         warn!("{:?} player has no location", mob_id);
         outputs.private(mob_id, comm::vendor_buy_fail());
-        Error::NotFound
+        Error::InvalidStateFailure
     })?;
 
     let data = container.loader.get_prefab(item_static_id).ok_or_else(|| {
         warn!("static id {:?} not found", item_static_id);
         outputs.private(mob_id, comm::vendor_buy_fail());
-        Error::NotFound
+        Error::NotFoundException
     })?;
 
     let buy_price: Money = data
@@ -60,7 +60,7 @@ pub fn buy(
         .ok_or_else(|| {
             warn!("{:?} has no price to be bought", item_static_id);
             outputs.private(mob_id, comm::vendor_buy_fail());
-            Error::IllegalState
+            Error::InvalidStateFailure
         })?
         .buy
         .into();
@@ -76,7 +76,7 @@ pub fn buy(
             mob_id,
             comm::vendor_buy_you_have_not_enough_money(mob_money, buy_price),
         );
-        return Err(Error::IllegalState);
+        return Err(Error::InvalidArgumentFailure);
     }
 
     let new_mob_money = inventory::remove_money(container, mob_id, buy_price).map_err(|err| {
@@ -119,7 +119,7 @@ pub fn sell(
     let sell_price = container
         .prices
         .get(item_id)
-        .ok_or(Error::NotFound)
+        .ok_or(Error::NotFoundFailure)
         .map_err(|err| {
             let label = container.labels.get_label_f(item_id);
             outputs.private(mob_id, comm::vendor_sell_item_not_found(label));

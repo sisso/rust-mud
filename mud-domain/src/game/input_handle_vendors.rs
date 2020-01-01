@@ -33,14 +33,14 @@ pub fn buy(
     let plain_arguments = input.plain_arguments();
     if plain_arguments.is_empty() {
         outputs.private(mob_id, comm::vendor_buy_item_not_found(plain_arguments));
-        return Err(Error::NotFound);
+        return Err(Error::InvalidArgumentFailure);
     }
 
     let static_id = match parse_vendor_item(container, vendor_id, plain_arguments) {
         Some(static_id) => static_id,
         None => {
             outputs.private(mob_id, comm::vendor_buy_item_not_found(plain_arguments));
-            return Err(Error::NotFound);
+            return Err(Error::InvalidArgumentFailure);
         }
     };
 
@@ -69,7 +69,7 @@ fn find_vendor_at_mob_location(
         Some(location_id) => location_id,
         None => {
             outputs.private(mob_id, comm::vendor_operation_fail());
-            return Err(Error::IllegalState);
+            return Err(Error::InvalidStateFailure);
         }
     };
 
@@ -81,7 +81,7 @@ fn find_vendor_at_mob_location(
         .next()
         .ok_or_else(|| {
             outputs.private(mob_id, comm::vendor_operation_fail());
-            Error::NotFound
+            Error::InvalidArgumentFailure
         })
 }
 
@@ -95,11 +95,11 @@ fn find_vendor_sell_item(
     result.map_err(|err| match err {
         ParseItemError::ItemNotFound { label } => {
             outputs.private(mob_id, comm::vendor_sell_item_not_found(label.as_str()));
-            Error::NotFound
+            Error::InvalidArgumentFailure
         }
         ParseItemError::ItemNotProvided => {
             outputs.private(mob_id, comm::vendor_sell_item_not_found(""));
-            Error::NotFound
+            Error::InvalidArgumentFailure
         }
     })
 }

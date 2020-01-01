@@ -22,9 +22,7 @@ impl SpawnDelay {
     pub fn validate(&self) -> Result<()> {
         // TODO: create fixed delay
         if (self.min.as_f32() - self.max.as_f32()).abs() < 0.01 {
-            return Err(Error::IllegalArgumentMsg {
-                msg: "Min and max time can not be so short".to_string(),
-            });
+            return Err(Error::Error("Min and max time can not be so short".to_string()));
         }
 
         Ok(())
@@ -69,7 +67,7 @@ impl Spawns {
     pub fn add(&mut self, spawn: Spawn) -> Result<()> {
         let _ = spawn.delay.validate()?;
         if self.spawns.contains_key(&spawn.id) {
-            Err(Error::Conflict)
+            Err(Error::ConflictException)
         } else {
             debug!("{:?} spawn added {:?}", spawn.id, spawn);
             self.spawns.insert(spawn.id, spawn);

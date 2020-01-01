@@ -74,7 +74,7 @@ pub fn do_launch(
                 mob_id, ship_id, parents
             );
             outputs.private(mob_id, comm::space_launch_failed());
-            return Err(Error::IllegalArgument);
+            return Err(Error::InvalidArgumentFailure);
         }
     };
 
@@ -89,7 +89,7 @@ pub fn do_launch(
                 mob_id, ship_id, satellite_id
             );
             outputs.private(mob_id, comm::space_launch_failed());
-            return Err(Error::IllegalArgument);
+            return Err(Error::InvalidArgumentFailure);
         }
     };
 

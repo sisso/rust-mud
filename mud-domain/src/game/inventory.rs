@@ -19,7 +19,7 @@ pub fn add(container: &mut Container, item_id: ItemId, location_id: LocationId) 
         let amount = container
             .items
             .get(item_id)
-            .ok_or(Error::NotFound)?
+            .ok_or(Error::NotFoundFailure)?
             .amount
             .into();
         add_money_with_item(container, location_id, amount, Some(item_id))
@@ -64,16 +64,16 @@ pub fn get_money_id(container: &Container, obj_id: ObjId) -> Option<ItemId> {
 pub fn remove_money(container: &mut Container, obj_id: ObjId, amount: Money) -> Result<Money> {
     let item_id = match get_money_id(container, obj_id) {
         Some(item_id) => item_id,
-        None => return Err(Error::NotPossible),
+        None => return Err(Error::InvalidArgumentFailure),
     };
 
     let item = container
         .items
         .get_mut(item_id)
-        .expect("mob money is not a item");
+        .ok_or(Error::InvalidStateException)?;
 
     if item.amount < amount.as_u32() {
-        return Err(Error::NotPossible);
+        return Err(Error::InvalidArgumentFailure);
     }
 
     if item.amount == amount.as_u32() {

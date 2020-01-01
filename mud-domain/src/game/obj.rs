@@ -1,4 +1,3 @@
-use crate::errors::Error::Conflict;
 use crate::errors::{self, Error};
 use crate::game::domain::NextId;
 use crate::game::loader::StaticId;
@@ -45,7 +44,7 @@ impl Objects {
 
     pub fn insert(&mut self, id: ObjId) -> errors::Result<()> {
         if self.objects.contains_key(&id) {
-            return Err(Conflict);
+            return Err(Error::ConflictException);
         }
 
         debug!("{:?} obj insert", id);
@@ -60,7 +59,7 @@ impl Objects {
             debug!("{:?} obj update static_id to {:?}", id, static_id);
             Ok(())
         } else {
-            Err(Error::NotFound)
+            Err(Error::NotFoundFailure)
         }
     }
 

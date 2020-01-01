@@ -29,7 +29,7 @@ impl Templates {
 
     pub fn add(&mut self, template: Template) -> Result<()> {
         if self.index.contains_key(&template.id) {
-            return Err(Error::Conflict);
+            return Err(Error::ConflictException);
         }
         self.index.insert(template.id, template);
         Ok(())

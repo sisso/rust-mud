@@ -73,7 +73,7 @@ impl Ships {
             craft.command = command;
             Ok(())
         } else {
-            Err(Error::IllegalArgument)
+            Err(Error::InvalidArgumentFailure)
         }
     }
 
