@@ -135,7 +135,11 @@ impl Controller {
         if let Some(player_id) = state.player_id {
             debug!("{:?} input '{}'", connection_id, input);
             let mob_id = container.players.get(player_id).mob_id;
-            let _ = view_main::handle(container, &mut self.outputs, mob_id, input);
+            match view_main::handle(container, &mut self.outputs, mob_id, input) {
+                Err(ref err) if !err.is_failure() =>
+                    warn!("{:?} exception handling input {:?}: {:?}", connection_id, input, err),
+                _ => {},
+            }
         } else {
             debug!("{:?} login input '{}'", connection_id, input);
             match view_login::handle(input) {

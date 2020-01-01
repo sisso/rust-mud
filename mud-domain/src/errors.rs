@@ -34,25 +34,29 @@ impl Error {
         }
     }
 
+    pub fn is_failure(&self) -> bool {
+        !(self.is_fatal() || self.is_exception())
+    }
+
     pub fn is_fatal(&self) -> bool {
-       match self {
-           Error::Error(_) |  Error::IOError(_) => true,
-           _ => false,
-       }
+        match self {
+            Error::Error(_) | Error::IOError(_) => true,
+            _ => false,
+        }
+    }
+
+    fn as_failure(self) -> Self {
+        if self.is_fatal() {
+            panic!("fatal at {:?}", self);
+        }
+
+        if self.is_exception() {
+            panic!("exception at {:?}", self);
+        }
+
+        self
     }
 }
-
-//impl From<&str> for Error {
-//    fn from(s: &str) -> Self {
-//        Error::Generic(s.to_string())
-//    }
-//}
-//
-//impl From<String> for Error {
-//    fn from(string: String) -> Self {
-//        Error::Generic(string)
-//    }
-//}
 
 pub trait AsResult<T> {
     fn as_result(self) -> Result<T>;
@@ -63,19 +67,3 @@ impl<T> AsResult<T> for Option<T> {
         self.ok_or(Error::NotFoundFailure)
     }
 }
-
-//trait ResultExtra<T> {
-//    fn when_err<O: FnOnce<Error>>(self, f: O) -> Result<T>;
-//}
-//
-//impl<T, 'a> ResultExtra<&T> for Result<T> {
-//    fn when_err<O: FnOnce<&'a Error>>(&'a self, f: O) -> Result<T> {
-//        match self {
-//            ok @ Ok(_)  => ok,
-//            er@ Err(ref e) => {
-//                f(e);
-//                er
-//            }
-//        }
-//    }
-//}
