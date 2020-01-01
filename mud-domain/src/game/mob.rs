@@ -18,6 +18,7 @@ use crate::game::inventory;
 use crate::game::domain::{Rd, Attribute};
 
 pub type MobId = ObjId;
+pub type Xp = u32;
 
 /// What mob should be doing
 #[derive(Clone, Debug, Copy)]
@@ -142,6 +143,7 @@ pub struct Mob {
     pub is_avatar: bool,
     pub command: MobCommand,
     pub attributes: Attributes,
+    pub xp: Xp,
     state: MobState,
 }
 
@@ -152,6 +154,7 @@ impl Mob {
             is_avatar: false,
             command: MobCommand::None,
             attributes: Attributes::new(),
+            xp: 0,
             state: MobState::new(),
         }
     }

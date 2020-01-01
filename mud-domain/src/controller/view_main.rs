@@ -82,6 +82,7 @@ pub fn handle(
             outputs.private(
                 mob_id,
                 comm::stats(
+                    ctx.mob.xp,
                     &ctx.mob.attributes,
                     &inventory_to_desc(container, ctx.mob.id),
                 ),
@@ -219,12 +220,13 @@ fn action_examine(
     match mobs.first().cloned() {
         Some(target_id) => {
             let mob_label = container.labels.get_label_f(target_id);
-            let mob = container.mobs.get(target_id).unwrap();
+            let target_mob = container.mobs.get(target_id).unwrap();
             outputs.private(
                 mob_id,
                 comm::examine_target(
                     mob_label,
-                    &mob.attributes,
+                    target_mob.xp,
+                    &target_mob.attributes,
                     &inventory_to_desc(container, target_id),
                 ),
             );

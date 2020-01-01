@@ -168,8 +168,8 @@ pub fn kill_mob_execute_attack(mob: &str, target: &str, attack_result: &AttackRe
     }
 }
 
-pub fn killed_by_player(mob: &str) -> String {
-    format!("you killed {}.", mob)
+pub fn killed_by_player(mob: &str, xp: Xp) -> String {
+    format!("you killed {} and receive {} XP", mob, xp)
 }
 
 pub fn killed(mob: &str) -> String {
@@ -191,7 +191,7 @@ pub fn item_body_disappears(item: &str) -> String {
     format!("a {} disappear.", item)
 }
 
-pub fn stats(attributes: &Attributes, inventory: &Vec<InventoryDesc>) -> String {
+pub fn stats(xp: Xp, attributes: &Attributes, inventory: &Vec<InventoryDesc>) -> String {
     let inventory_str = show_inventory(inventory);
 
     format!(
@@ -200,6 +200,7 @@ pub fn stats(attributes: &Attributes, inventory: &Vec<InventoryDesc>) -> String 
          defense: {}\n\
          damage:  {}-{}\n\
          pv:      {}-{}\n\
+         xp:      {}\n\
          {}\n",
         attributes.attack,
         attributes.defense,
@@ -207,6 +208,7 @@ pub fn stats(attributes: &Attributes, inventory: &Vec<InventoryDesc>) -> String 
         attributes.damage.max,
         attributes.pv.current,
         attributes.pv.max,
+        xp,
         inventory_str
     )
 }
@@ -217,13 +219,14 @@ pub fn examine_target_not_found(target: &str) -> String {
 
 pub fn examine_target(
     mob_label: &str,
+    xp: Xp,
     attributes: &Attributes,
     inventory: &Vec<InventoryDesc>,
 ) -> String {
     format!(
         "you examine {}!\n{}",
         mob_label,
-        stats(attributes, inventory)
+        stats(xp, attributes, inventory)
     )
 }
 

@@ -98,7 +98,13 @@ fn execute_attack(
         })?;
 
         if dead {
-            execute_attack_killed(container, outputs, mob_id, target_id);
+            let defender_xp = container.mobs.get(target_id).unwrap().xp;
+
+            container.mobs.update(mob_id, |mob| {
+                mob.xp += defender_xp;
+            })?;
+
+            execute_attack_killed(container, outputs, mob_id, target_id, defender_xp);
         }
     }
 
@@ -116,11 +122,12 @@ fn execute_attack_killed(
     outputs: &mut dyn Outputs,
     mob_id: MobId,
     target_id: MobId,
+    xp: Xp,
 ) -> Result<()> {
     let room_id = container.locations.get(mob_id).as_result()?;
     let defender_label = container.labels.get_label_f(target_id);
 
-    outputs.private(mob_id, comm::killed_by_player(defender_label));
+    outputs.private(mob_id, comm::killed_by_player(defender_label, xp));
     outputs.broadcast(Some(mob_id), room_id, comm::killed(defender_label));
 
     mob::kill_mob(container, outputs, target_id)

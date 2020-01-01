@@ -53,6 +53,7 @@ pub struct MobData {
     pub damage_min: u32,
     pub damage_max: u32,
     pub pv: u32,
+    pub xp: u32,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -419,6 +420,7 @@ impl Loader {
             mob.attributes.pv.max = mob_data.pv;
             mob.attributes.damage.max = mob_data.damage_max;
             mob.attributes.damage.min = mob_data.damage_min;
+            mob.xp = mob_data.xp;
             container.mobs.add(mob);
         }
 
@@ -438,11 +440,11 @@ impl Loader {
             container.rooms.add(room);
         }
 
-        if let Some(spawn) = &data.spawn {
-            let min = DeltaTime(spawn.time_min);
-            let max = DeltaTime(spawn.time_max);
+        if let Some(spawn_data) = &data.spawn {
+            let min = DeltaTime(spawn_data.time_min);
+            let max = DeltaTime(spawn_data.time_max);
 
-            let spawn = Spawn::new(obj_id, spawn.prefab_id, min, max);
+            let spawn = Spawn::new(obj_id, spawn_data.prefab_id, min, max);
             container.spawns.add(spawn)?;
         }
 
@@ -458,22 +460,22 @@ impl Loader {
                 item.flags.is_stuck = flags.stuck.unwrap_or(false);
             }
 
-            if let Some(armor) = &data_item.armor {
-                let mut value = Armor::new();
-                value.defense = Modifier(armor.defense);
-                value.rd = armor.rd;
-                item.armor = Some(value);
+            if let Some(armor_data) = &data_item.armor {
+                let mut armor = Armor::new();
+                armor.defense = Modifier(armor_data.defense);
+                armor.rd = armor_data.rd;
+                item.armor = Some(armor);
             }
 
-            if let Some(weapon) = &data_item.weapon {
-                let mut value = Weapon::new();
-                value.attack = Modifier(weapon.attack);
-                value.calm_down = DeltaTime(weapon.calm_down);
-                value.damage = Damage {
-                    min: weapon.min,
-                    max: weapon.max,
+            if let Some(weapon_data) = &data_item.weapon {
+                let mut weapon = Weapon::new();
+                weapon.attack = Modifier(weapon_data.attack);
+                weapon.calm_down = DeltaTime(weapon_data.calm_down);
+                weapon.damage = Damage {
+                    min: weapon_data.min,
+                    max: weapon_data.max,
                 };
-                item.weapon = Some(value);
+                item.weapon = Some(weapon);
             }
 
             container.items.add(item);
