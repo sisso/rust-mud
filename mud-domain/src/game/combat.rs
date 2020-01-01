@@ -95,7 +95,7 @@ fn execute_attack(
         container.mobs.update(target_id, |mob| {
             mob.attributes.pv.current -= attack_result.damage_deliver as i32;
             dead = mob.attributes.pv.current < 0;
-        })?;
+        }).unwrap();
 
         if dead {
             let defender_xp = container.mobs.get(target_id).unwrap().xp;

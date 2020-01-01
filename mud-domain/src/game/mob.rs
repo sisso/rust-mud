@@ -338,7 +338,7 @@ pub fn run_tick(ctx: &mut Ctx) {
         match mob.command {
             MobCommand::None => {}
             MobCommand::Kill { target } => {
-                let _ = combat::tick_attack(ctx.container, ctx.outputs, mob_id, target);
+                combat::tick_attack(ctx.container, ctx.outputs, mob_id, target).unwrap();
             }
         }
 
