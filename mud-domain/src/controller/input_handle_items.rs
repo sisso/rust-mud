@@ -15,16 +15,12 @@ pub enum ParseItemError {
     ItemNotFound { label: String },
 }
 
-// TODO: use argument index 0 and update all users to use StrInput arguments instead split
 pub fn parser_owned_item(
     container: &Container,
     owner_id: ObjId,
-    args: Vec<&str>,
+    args: StrInput,
 ) -> std::result::Result<ItemId, ParseItemError> {
-    let item_label = match args.get(1) {
-        Some(str) => str,
-        None => return Err(ParseItemError::ItemNotProvided),
-    };
+    let item_label = args.plain_arguments();
 
     let founds = inventory::search(
         &container.labels,
@@ -46,11 +42,12 @@ pub fn parse_not_owned_item(
     locations: &Locations,
     items: &ItemRepository,
     item_location: ObjId,
-    args: Vec<&str>,
+    args: StrInput,
 ) -> std::result::Result<(ItemId, Option<ItemId>), ParseItemError> {
     let is_preposition = { |s: &str| s.eq("in") || s.eq("at") || s.eq("from") };
 
-    match (args.get(1), args.get(2), args.get(3)) {
+    let args = args.parse_arguments();
+    match (args.get(0), args.get(1), args.get(2)) {
         (Some(item_label), None, None) => {
             let found =
                 inventory::search_one(&labels, &locations, &items, item_location, item_label)
@@ -85,7 +82,7 @@ pub fn pickup(
     container: &mut Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
-    args: Vec<&str>,
+    args: StrInput,
 ) -> Result<()> {
     let room_id = container.locations.get(mob_id).as_result()?;
 
@@ -112,7 +109,7 @@ pub fn equip(
     container: &mut Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
-    args: Vec<&str>,
+    args: StrInput,
 ) -> Result<()> {
     match parser_owned_item(&container, mob_id, args) {
         Ok(item_id) => do_equip(container, outputs, mob_id, item_id),
@@ -131,7 +128,7 @@ pub fn drop(
     container: &mut Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
-    args: Vec<&str>,
+    args: StrInput,
 ) -> Result<()> {
     parser_owned_item(&container, mob_id, args)
         .map_err(|err| {
@@ -153,7 +150,7 @@ pub fn strip(
     container: &mut Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
-    args: Vec<&str>,
+    args: StrInput,
 ) -> Result<()> {
     parser_owned_item(&container, mob_id, args)
         .map_err(|err| {
@@ -181,7 +178,7 @@ mod test {
             &scenery.container.locations,
             &scenery.container.items,
             scenery.room_id,
-            vec!["get", "item3"],
+            StrInput("get item3"),
         );
         match result {
             Err(ParseItemError::ItemNotFound { label }) => {
@@ -199,7 +196,7 @@ mod test {
             &scenery.container.locations,
             &scenery.container.items,
             scenery.room_id,
-            vec!["get", "item1"],
+            StrInput("get item1"),
         );
         match result {
             Ok((item_id, None)) => assert_eq!(item_id, scenery.item1_id),
@@ -215,7 +212,7 @@ mod test {
             &scenery.container.locations,
             &scenery.container.items,
             scenery.room_id,
-            vec!["get", "item1", "in", "container1"],
+            StrInput("get item1 in container1"),
         );
         match result {
             Err(ParseItemError::ItemNotFound { label }) => {
@@ -233,7 +230,7 @@ mod test {
             &scenery.container.locations,
             &scenery.container.items,
             scenery.room_id,
-            vec!["get", "item2", "in", "container1"],
+            StrInput("get item2 in container1"),
         );
         match result {
             Ok((item_id, Some(container_id))) => {

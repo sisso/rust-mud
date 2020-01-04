@@ -1,14 +1,14 @@
 use std::iter::Iterator;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct StrInput<'a>(pub &'a str);
 
 impl<'a> StrInput<'a> {
-    pub fn as_str(self) -> &'a str {
+    pub fn as_str(&self) -> &'a str {
         self.0
     }
 
-    pub fn first(self) -> &'a str {
+    pub fn first(&self) -> &'a str {
         let first_space = self.0.find(' ');
         match first_space {
             Some(position) => &self.0[..position],
@@ -16,22 +16,22 @@ impl<'a> StrInput<'a> {
         }
     }
 
-    pub fn has_command(self, command: &str) -> bool {
+    pub fn has_command(&self, command: &str) -> bool {
         self.0 == command || self.0.starts_with(&format!("{} ", command))
     }
 
-    pub fn has_commands(self, commands: &[&str]) -> bool {
+    pub fn has_commands(&self, commands: &[&str]) -> bool {
         commands
             .iter()
             .find(|command| self.has_command(command))
             .is_some()
     }
 
-    pub fn split(self) -> Vec<&'a str> {
+    pub fn split(&self) -> Vec<&'a str> {
         self.0.split_ascii_whitespace().collect()
     }
 
-    pub fn parse_arguments(self) -> Vec<&'a str> {
+    pub fn parse_arguments(&self) -> Vec<&'a str> {
         let mut parts = self.0.split_ascii_whitespace();
         // drop command
         parts.next();
@@ -39,7 +39,7 @@ impl<'a> StrInput<'a> {
     }
 
     /// returns empty string if have no extra arguments
-    pub fn plain_arguments(self) -> &'a str {
+    pub fn plain_arguments(&self) -> &'a str {
         let first_space = self.0.find(' ');
         match first_space {
             Some(position) => &self.0[position + 1..],

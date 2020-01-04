@@ -55,7 +55,7 @@ pub fn sell(
     input: StrInput,
 ) -> Result<()> {
     let _ = find_vendor_at_mob_location(container, outputs, mob_id)?;
-    let item = input_handle_items::parser_owned_item(container, mob_id, input.split());
+    let item = input_handle_items::parser_owned_item(container, mob_id, input);
     let item_id = find_vendor_sell_item(outputs, mob_id, item)?;
 
     actions_vendor::sell(container, outputs, mob_id, item_id)

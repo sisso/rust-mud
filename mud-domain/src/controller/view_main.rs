@@ -91,19 +91,19 @@ pub fn handle(
         }
 
         _ if input.has_commands(&["pick", "get"]) => {
-            input_handle_items::pickup(container, outputs, mob_id, input.split())
+            input_handle_items::pickup(container, outputs, mob_id, input)
         }
 
         _ if input.has_commands(&["drop"]) => {
-            input_handle_items::drop(container, outputs, mob_id, input.split())
+            input_handle_items::drop(container, outputs, mob_id, input)
         }
 
         _ if input.has_commands(&["remove"]) => {
-            input_handle_items::strip(container, outputs, mob_id, input.split())
+            input_handle_items::strip(container, outputs, mob_id, input)
         }
 
         _ if input.has_commands(&["equip"]) => {
-            input_handle_items::equip(container, outputs, mob_id, input.split())
+            input_handle_items::equip(container, outputs, mob_id, input)
         }
 
         _ if input.has_commands(&["examine"]) => {
