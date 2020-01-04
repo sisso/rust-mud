@@ -7,8 +7,11 @@ use commons::*;
 use logs::*;
 use std::collections::{HashMap, HashSet};
 
-pub mod view_login;
-pub mod view_main;
+mod view_login;
+mod view_main;
+mod input_handle_items;
+mod input_handle_space;
+mod input_handle_vendors;
 
 #[derive(Debug)]
 struct ConnectionState {
@@ -73,6 +76,7 @@ impl Outputs for OutputsBuffer {
     }
 }
 
+/// Manage connectivity and messages to players through a socket.
 pub struct Controller {
     connections: HashMap<ConnectionId, ConnectionState>,
     connection_id_by_player_id: HashMap<PlayerId, ConnectionId>,
@@ -81,7 +85,6 @@ pub struct Controller {
     connections_with_input: HashSet<ConnectionId>,
 }
 
-/// Manage connectivity and messages to players through a socket
 impl Controller {
     pub fn new() -> Self {
         Controller {

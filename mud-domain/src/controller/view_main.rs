@@ -8,12 +8,12 @@ use crate::game::comm;
 use crate::game::comm::InventoryDesc;
 use crate::game::container::{Container, Ctx};
 use crate::game::domain::Dir;
-use crate::game::input_handle_vendors;
 use crate::game::mob::MobId;
 use crate::game::Outputs;
-use crate::game::{actions_admin, input_handle_items, input_handle_space, inventory, mob};
+use crate::game::{actions_admin, inventory, mob};
 use crate::utils::strinput::StrInput;
 use logs::*;
+use super::{input_handle_items, input_handle_space, input_handle_vendors};
 
 fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc> {
     let equip = container.equips.get(obj_id);

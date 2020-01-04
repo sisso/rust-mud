@@ -26,9 +26,6 @@ pub mod crafts;
 pub mod crafts_system;
 pub mod domain;
 pub mod equip;
-pub mod input_handle_items;
-pub mod input_handle_space;
-pub mod input_handle_vendors;
 pub mod inventory;
 pub mod item;
 pub mod labels;
@@ -59,6 +56,7 @@ pub trait Outputs {
     fn private(&mut self, mob_id: MobId, msg: String);
 }
 
+/// Hold container and interface logic
 pub struct Game {
     container: Container,
     controller: Controller,
