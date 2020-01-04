@@ -109,11 +109,11 @@ impl HParser {
     pub fn load_from_str(input: &str) -> Result<Data, Error> {
         let loader = HoconLoader::new().strict().no_system();
         let loader = loader.load_str(input).map_err(|error| {
-            Error::HoconError { error, hint: format!("input '{:?}'", input) }
+            Error::HoconError { error, hint: format!("loader for {:?}", input) }
         })?;
 
         let raw = loader.hocon().map_err(|error| {
-            Error::HoconError { error, hint: format!("input '{:?}'", input) }
+            Error::HoconError { error, hint: format!("converting to hocon for {:?}", input) }
         })?;
 
         HParser::parse(raw)
@@ -164,13 +164,11 @@ mod test {
 
     #[test]
     fn test_load_config() {
-        let sample = r##"
-cfg {
+        let sample = r##"cfg {
     initial_room: 0
     avatar_mob: 1
     initial_craft: 2
-}
-        "##;
+}"##;
 
         let data = HParser::load_from_str(sample).unwrap();
         let cfg = data.cfg.expect("cfg field is not defined");
@@ -181,8 +179,7 @@ cfg {
 
     #[test]
     pub fn test_load_objects() {
-        let sample = r##"
-objects {
+        let sample = r##"objects {
   sector_1 {
     id: 0
     label: "Sector 1"
@@ -236,8 +233,7 @@ objects {
     }
     parent: ${objects.dune.id}
   }
-}
-        "##;
+}"##;
 
         let data = HParser::load_from_str(sample).unwrap();
         assert!(data.prefabs.is_empty());
@@ -255,8 +251,7 @@ objects {
 
     #[test]
     pub fn test_load_prefabs() {
-        let sample = r##"
-prefabs {
+        let sample = r##"prefabs {
   shuttle: {
     id: 0
     label: "Shuttle"
@@ -272,8 +267,7 @@ prefabs {
     }
     parent: 0
   }
-}
-          "##;
+}"##;
 
         let data = HParser::load_from_str(sample).unwrap();
         assert!(data.objects.is_empty());

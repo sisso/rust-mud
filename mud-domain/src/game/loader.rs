@@ -604,9 +604,8 @@ mod test {
     use crate::game::comm::item_corpse_appears_in_room;
 
     #[test]
-    pub fn intialize_with_spawn() {
-        let buffer = r#"
-objects.sector_1_dune_palace {
+    pub fn initialize_with_spawn() {
+        let buffer = r#"objects.sector_1_dune_palace {
     id: 0,
     label: "Palace"
     desc: "The greate Palace of Dune"
@@ -615,7 +614,6 @@ objects.sector_1_dune_palace {
         {dir: "s", to: ${objects.sector_1_dune_landing_pad.id} }
       ]
     }
-    parent: ${objects.sector_1_dune.id}
 }
 
 objects.sector_1_dune_landing_pad {
@@ -628,7 +626,6 @@ objects.sector_1_dune_landing_pad {
         {dir: "n", to: ${objects.sector_1_dune_palace.id} }
       ]
     }
-    parent: ${objects.sector_1_dune.id}
     children: [2]
 }
 
@@ -653,8 +650,7 @@ prefabs.control_panel_command_2 {
     room: {
         exits: [ {dir: "n", to: 3  } ]
     }
-}
-        "#;
+}"#;
 
         let mut container = Container::new();
         Loader::load_str(&mut container, buffer).unwrap();
