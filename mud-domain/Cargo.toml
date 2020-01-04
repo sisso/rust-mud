@@ -14,4 +14,3 @@ logs = { version = "*", path = "../logs" }
 commons = { version = "*", path = "../commons" }
 hocon = { version = "0.3.*", default-features = false, features=["serde-support"] }
 serde = { version = "1.0", features = ["derive"] }
-

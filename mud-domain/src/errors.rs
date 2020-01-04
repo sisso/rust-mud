@@ -58,6 +58,16 @@ impl Error {
     }
 }
 
+pub trait ResultError<T> {
+    fn as_failure(self) -> Result<T>;
+}
+
+impl <T> ResultError<T> for Result<T> {
+    fn as_failure(self) -> Result<T> {
+        self.map_err(|error| error.as_failure())
+    }
+}
+
 pub trait AsResult<T> {
     fn as_result(self) -> Result<T>;
 }

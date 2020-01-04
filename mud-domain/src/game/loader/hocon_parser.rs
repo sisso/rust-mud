@@ -11,15 +11,9 @@ use std::path::Path;
 
 #[derive(Debug)]
 pub enum Error {
-    HoconError { error: HError },
+    HoconError { error: HError, hint: String },
     NotObject,
     IOError { error: IError },
-}
-
-impl From<HError> for Error {
-    fn from(error: HError) -> Self {
-        Error::HoconError { error }
-    }
 }
 
 impl From<IError> for Error {
@@ -44,7 +38,7 @@ impl HoconExtra for Hocon {
 pub struct HParser;
 
 impl HParser {
-    pub fn load(hocon: Hocon) -> Result<Data, Error> {
+    pub fn parse(hocon: Hocon) -> Result<Data, Error> {
         let mut cfg = None;
         let mut objects = HashMap::new();
         let mut prefabs = HashMap::new();
@@ -81,11 +75,15 @@ impl HParser {
     }
 
     fn load_cfg(hocon: Hocon) -> Result<CfgData, Error> {
-        hocon.resolve().map_err(|e| e.into())
+        hocon.clone().resolve().map_err(|error| {
+            Error::HoconError { error, hint: format!("hocon '{:?}'", hocon) }
+        })
     }
 
     fn load_obj(hocon: Hocon) -> Result<ObjData, Error> {
-        hocon.resolve().map_err(|e| e.into())
+        hocon.clone().resolve().map_err(|error| {
+            Error::HoconError { error, hint: format!("hocon '{:?}'", hocon) }
+        })
     }
 
     fn load_all(hocon: Hocon, objects: &mut HashMap<StaticId, ObjData>) -> Result<(), Error> {
@@ -109,38 +107,63 @@ impl HParser {
     }
 
     pub fn load_from_str(input: &str) -> Result<Data, Error> {
-        let loader = HoconLoader::new().no_system();
-        let loader = loader.load_str(input)?;
-        HParser::load(loader.hocon()?)
+        let loader = HoconLoader::new().strict().no_system();
+        let loader = loader.load_str(input).map_err(|error| {
+            Error::HoconError { error, hint: format!("input '{:?}'", input) }
+        })?;
+
+        let raw = loader.hocon().map_err(|error| {
+            Error::HoconError { error, hint: format!("input '{:?}'", input) }
+        })?;
+
+        HParser::parse(raw)
     }
 
-    pub fn load_from_folder(path: &Path) -> Result<Data, Error> {
-        let mut loader = HoconLoader::new().no_system();
-        let list: ReadDir = std::fs::read_dir(path)?;
+    pub fn load_from_folder(root_path: &Path) -> Result<Data, Error> {
+        let mut loader = HoconLoader::new().strict().no_system();
+        let list: ReadDir = std::fs::read_dir(root_path)?;
         for entry in list {
             let path = entry?.path();
             info!("loading configuration file {:?}", path);
-            loader = loader.load_file(path.to_str().unwrap())?;
+            loader = loader.load_file(path.to_str().unwrap()).map_err(|error| {
+                Error::HoconError { error, hint: format!("path '{:?}'", path) }
+            })?;
         }
 
-        HParser::load(loader.hocon()?)
+        let raw = loader.hocon().map_err(|error| {
+            Error::HoconError { error, hint: format!("root_path'{:?}'", root_path) }
+        })?;
+
+        HParser::parse(raw)
     }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use std::fs;
 
     #[test]
-    fn test_load_folder() {
-        let path = Path::new("../data/space");
+    fn test_data_folders() {
+        let mut founds = 0u32;
 
-        let data = HParser::load_from_folder(path).unwrap();
-        assert!(!data.objects.is_empty());
+        let path = Path::new("../data");
+        for file in fs::read_dir(path).unwrap() {
+            let file = file.unwrap();
+            println!("{:?}", file.path());
+            if file.metadata().unwrap().is_dir() {
+                founds += 1;
+
+                let data = HParser::load_from_folder(&file.path()).unwrap();
+                assert!(!data.objects.is_empty());
+            }
+        }
+
+        assert!(founds > 0);
     }
 
     #[test]
-    fn test_load_config() -> Result<(), Error> {
+    fn test_load_config() {
         let sample = r##"
 cfg {
     initial_room: 0
@@ -154,12 +177,10 @@ cfg {
         assert_eq!(cfg.initial_room.as_u32(), 0);
         assert_eq!(cfg.avatar_mob.as_u32(), 1);
         assert_eq!(cfg.initial_craft.unwrap().as_u32(), 2);
-
-        Ok(())
     }
 
     #[test]
-    pub fn test_load_objects() -> Result<(), Error> {
+    pub fn test_load_objects() {
         let sample = r##"
 objects {
   sector_1 {
@@ -168,7 +189,7 @@ objects {
     code: ["sector1"]
     sector: {}
   }
-
+//
   dune: {
     id: 1
     label: "Dune"
@@ -230,12 +251,10 @@ objects {
 
         let obj_3_children = obj_3.children.clone().unwrap();
         assert_eq!(obj_3_children, vec![StaticId(1001), StaticId(1002)]);
-
-        Ok(())
     }
 
     #[test]
-    pub fn test_load_prefabs() -> Result<(), Error> {
+    pub fn test_load_prefabs() {
         let sample = r##"
 prefabs {
   shuttle: {
@@ -259,6 +278,5 @@ prefabs {
         let data = HParser::load_from_str(sample).unwrap();
         assert!(data.objects.is_empty());
         assert_eq!(2, data.prefabs.len());
-        Ok(())
     }
 }

@@ -138,11 +138,10 @@ pub fn rest(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId)
 
     outputs.private(mob_id, comm::rest_start());
     outputs.broadcast(Some(mob_id), room_id, comm::rest_start_others(mob_label));
+
     container.mobs.update(mob_id, |mob| {
         mob.set_action(MobAction::Resting, total_time);
-    });
-
-    Ok(())
+    })
 }
 
 // optional PlayerId

@@ -5,7 +5,7 @@ use commons::*;
 use logs::*;
 
 use super::container::Container;
-use crate::errors::{Error, Result};
+use crate::errors::{Error, Result, ResultError};
 use crate::game::container::Ctx;
 use crate::game::item::ItemPrefabId;
 use crate::game::labels::Labels;
@@ -338,7 +338,13 @@ pub fn run_tick(ctx: &mut Ctx) {
         match mob.command {
             MobCommand::None => {}
             MobCommand::Kill { target } => {
-                combat::tick_attack(ctx.container, ctx.outputs, mob_id, target).unwrap();
+                combat::tick_attack(ctx.container, ctx.outputs, mob_id, target)
+                    .as_failure()
+                    .err()
+                    .iter()
+                    .for_each(|error| {
+                        warn!("{:?} fail to execute kill: {:?}", mob_id, error);
+                    });
             }
         }
 

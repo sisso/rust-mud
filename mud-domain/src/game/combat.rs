@@ -26,15 +26,14 @@ pub fn tick_attack(
         }
 
         if attacker.is_read_to_attack(container.time.total) {
-            execute_attack(container, outputs, mob_id, target_mob_id);
+            execute_attack(container, outputs, mob_id, target_mob_id)?;
         }
 
-        check_return_attack(container, outputs, target_mob_id, mob_id);
+        check_return_attack(container, outputs, target_mob_id, mob_id)
     } else {
         cancel_attack(container, outputs, mob_id, None);
+        Ok(())
     }
-
-    Ok(())
 }
 
 fn cancel_attack(
@@ -104,7 +103,7 @@ fn execute_attack(
                 mob.xp += defender_xp;
             })?;
 
-            execute_attack_killed(container, outputs, mob_id, target_id, defender_xp);
+            execute_attack_killed(container, outputs, mob_id, target_id, defender_xp)?;
         }
     }
 
@@ -112,7 +111,7 @@ fn execute_attack(
 
     container.mobs.update(mob_id, |mob| {
         mob.add_attack_calm_time(total_time);
-    });
+    })?;
 
     Ok(())
 }

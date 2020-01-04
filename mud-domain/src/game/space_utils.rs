@@ -184,7 +184,7 @@ fn to_showsectortreebody(container: &Container, obj_id: ObjId) -> Option<ShowSec
 
             Some(body)
         }
-        (_, Some(ship)) => {
+        (_, Some(_ship)) => {
             let body = ShowSectorTreeBody {
                 id: obj_id,
                 label: container.labels.get_label_f(obj_id),
