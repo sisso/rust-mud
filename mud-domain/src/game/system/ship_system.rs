@@ -1,9 +1,9 @@
 use crate::game::comm;
-use crate::game::container::Ctx;
 use crate::game::crafts::ShipCommand;
 use crate::utils::geometry;
+use crate::game::system::SystemCtx;
 
-pub fn tick(ctx: &mut Ctx) {
+pub fn tick(ctx: &mut SystemCtx) {
     let mut commands_complete = vec![];
 
     for craft in ctx.container.ship.list_all() {

@@ -23,7 +23,6 @@ pub mod config;
 pub mod container;
 pub mod corpse;
 pub mod crafts;
-pub mod crafts_system;
 pub mod domain;
 pub mod equip;
 pub mod inventory;
@@ -46,6 +45,7 @@ pub mod surfaces_object;
 pub mod tags;
 pub mod template;
 pub mod vendors;
+pub mod system;
 
 pub trait Outputs {
     /// For all mobs recursive inside the location

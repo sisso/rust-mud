@@ -6,7 +6,7 @@ use crate::errors::{AsResult, Error, Result};
 use crate::game::actions;
 use crate::game::comm;
 use crate::game::comm::InventoryDesc;
-use crate::game::container::{Container, Ctx};
+use crate::game::container::{Container};
 use crate::game::domain::Dir;
 use crate::game::mob::MobId;
 use crate::game::Outputs;

@@ -1,11 +1,11 @@
 use super::comm;
 use crate::errors::{AsResult, Error, Result};
-use crate::game::container::Ctx;
 use commons::*;
 use logs::*;
 use std::collections::HashMap;
 use crate::game::mob::Damage;
 use crate::game::domain::{Modifier, Rd};
+use crate::game::system::SystemCtx;
 
 pub type ItemId = ObjId;
 pub type ItemPrefabId = ObjId;
@@ -182,29 +182,3 @@ impl ItemRepository {
     //    }
 }
 
-pub fn run_tick(ctx: &mut Ctx) {
-    ctx.container.items.list().into_iter().for_each(|i| {
-        let _ = run_for(ctx, i);
-    });
-}
-
-fn run_for(ctx: &mut Ctx, item_id: ItemId) -> Result<()> {
-    let item = ctx.container.items.get(item_id).as_result()?;
-
-    if let Some(decay) = item.decay {
-        // TODO: Only decay items on ground?
-        let location_id = ctx.container.locations.get(item.id).as_result()?;
-        if ctx.container.rooms.exists(location_id) && decay.is_before(ctx.container.time.total) {
-            info!("{:?} removed by decay", item.id);
-
-            let label = ctx.container.labels.get_label_f(item.id);
-
-            let msg = comm::item_body_disappears(label);
-            ctx.outputs.broadcast(None, location_id, msg);
-            ctx.container.remove(item_id);
-            ctx.container.items.remove(item_id);
-        }
-    }
-
-    Ok(())
-}

@@ -6,7 +6,6 @@ use logs::*;
 
 use super::container::Container;
 use crate::errors::{Error, Result, ResultError};
-use crate::game::container::Ctx;
 use crate::game::item::ItemPrefabId;
 use crate::game::labels::Labels;
 use crate::game::location;
@@ -16,6 +15,7 @@ use crate::game::Outputs;
 use crate::game::{avatars, combat, comm};
 use crate::game::inventory;
 use crate::game::domain::{Rd, Attribute};
+use crate::game::system::SystemCtx;
 
 pub type MobId = ObjId;
 pub type Xp = u32;
@@ -91,12 +91,12 @@ impl Attributes {
 }
 
 #[derive(Clone, Debug)]
-struct MobState {
+pub struct MobState {
     // after this total time can attack
-    attack_calm_down: TotalTime,
+    pub attack_calm_down: TotalTime,
     // after this total time can heal
-    heal_calm_down: TotalTime,
-    action: MobAction,
+    pub heal_calm_down: TotalTime,
+    pub action: MobAction,
 }
 
 impl MobState {
@@ -144,7 +144,7 @@ pub struct Mob {
     pub command: MobCommand,
     pub attributes: Attributes,
     pub xp: Xp,
-    state: MobState,
+    pub state: MobState,
 }
 
 impl Mob {
@@ -185,25 +185,6 @@ impl Mob {
                 self.state.heal_calm_down = TimeTrigger::next(self.attributes.pv.heal_rate, total);
             }
             _ => {}
-        }
-    }
-
-    pub fn update_resting(&mut self, total: TotalTime) -> bool {
-        if !self.attributes.pv.is_damaged() {
-            return false;
-        }
-
-        match TimeTrigger::check_trigger(
-            self.attributes.pv.heal_rate,
-            self.state.heal_calm_down,
-            total,
-        ) {
-            Some(next) => {
-                self.state.heal_calm_down = next;
-                self.attributes.pv.current += 1;
-                true
-            }
-            None => false,
         }
     }
 }
@@ -261,6 +242,10 @@ impl MobRepository {
 
     pub fn get(&self, id: MobId) -> Option<&Mob> {
         self.index.get(&id)
+    }
+
+    pub fn get_mut(&mut self, id: MobId) -> Option<&mut Mob> {
+        self.index.get_mut(&id)
     }
 
     pub fn exists(&self, id: MobId) -> bool {
@@ -323,50 +308,6 @@ impl MobRepository {
     //            save.add(id.0, "mob", obj_json);
     //        }
     //    }
-}
-
-// TODO: move game rules with output outside of mobs module
-pub fn run_tick(ctx: &mut Ctx) {
-    for mob_id in ctx.container.mobs.list() {
-        let mob = match ctx.container.mobs.get(mob_id) {
-            Some(mob) => mob,
-            _ => continue,
-        };
-
-        let is_resting = mob.is_resting();
-
-        match mob.command {
-            MobCommand::None => {}
-            MobCommand::Kill { target } => {
-                combat::tick_attack(ctx.container, ctx.outputs, mob_id, target)
-                    .as_failure()
-                    .err()
-                    .iter()
-                    .for_each(|error| {
-                        warn!("{:?} fail to execute kill: {:?}", mob_id, error);
-                    });
-            }
-        }
-
-        if is_resting {
-            let total_time = ctx.container.time.total;
-            let player_id = ctx.container.players.find_from_mob(mob_id).unwrap();
-
-            let mobs = &mut ctx.container.mobs;
-            let outputs = &mut ctx.outputs;
-
-            let _ = mobs.update(mob_id, |mob| {
-                if mob.update_resting(total_time) {
-                    if mob.attributes.pv.is_damaged() {
-                        let msg = comm::rest_healing(mob.attributes.pv.current);
-                        outputs.private(mob_id, msg);
-                    } else {
-                        outputs.private(mob_id, comm::rest_healed());
-                    }
-                }
-            });
-        }
-    }
 }
 
 // TODO: move game rules with output outside of mobs module

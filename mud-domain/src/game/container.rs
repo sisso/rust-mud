@@ -1,4 +1,3 @@
-use crate::errors::Result;
 use crate::game::astro_bodies::AstroBodies;
 use crate::game::config::Config;
 use crate::game::crafts::Ships;
@@ -19,16 +18,11 @@ use crate::game::surfaces::Surfaces;
 use crate::game::surfaces_object::SurfaceObjects;
 use crate::game::tags::Tags;
 use crate::game::vendors::Vendors;
-use crate::game::{crafts_system, item, mob, spawn, Outputs};
+use crate::game::{item, mob, spawn, Outputs, system};
 use commons::{DeltaTime, ObjId, PlayerId};
 use logs::*;
-
-/// Until standardize it or remove is not defined, should be used only in System, not in
-/// command handling
-pub struct Ctx<'a> {
-    pub container: &'a mut Container,
-    pub outputs: &'a mut dyn Outputs,
-}
+use crate::errors::*;
+use crate::game::system::{SystemCtx, ship_system, spawn_system, combat_system, rest_system, item_system};
 
 pub struct Container {
     pub config: Config,
@@ -118,15 +112,12 @@ impl Container {
             debug!("tick {:?}", self.time);
         }
 
-        let mut ctx = Ctx {
+        let mut ctx = SystemCtx {
             container: self,
             outputs,
         };
 
-        spawn::run(&mut ctx);
-        mob::run_tick(&mut ctx);
-        item::run_tick(&mut ctx);
-        crafts_system::tick(&mut ctx);
+        system::run(&mut ctx);
     }
 
     //    pub fn save(&self, save: &mut dyn Save) {
@@ -135,3 +126,4 @@ impl Container {
     //        self.items.save(save);
     //    }
 }
+

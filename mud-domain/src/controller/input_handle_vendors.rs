@@ -1,6 +1,6 @@
 use crate::errors::*;
 use crate::game::actions::out;
-use crate::game::container::{Container, Ctx};
+use crate::game::container::{Container};
 use crate::game::inventory;
 use crate::game::item::ItemId;
 use crate::game::loader::{Loader, StaticId};
