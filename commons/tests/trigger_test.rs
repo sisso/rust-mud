@@ -38,8 +38,14 @@ impl <T> Trigger<T> {
     }
 
     pub fn push(&mut self, event_kind: u32, event: T) {
-        let events = self.events.entry(event_kind)
-            .or_default();
+        let events = match self.events.get_mut(&event_kind) {
+            Some(events) => events,
+            None if self.listeners_per_kind.contains_key(&event_kind) => {
+                self.events.insert(event_kind, Vec::new());
+                self.events.get_mut(&event_kind).unwrap()
+            },
+            None => return,
+        };
 
         events.push(event);
     }
@@ -137,7 +143,7 @@ fn test_listeners() {
 }
 
 #[test]
-pub fn test_events_garbage_collect() {
+fn test_events_garbage_collect() {
     let mut trigger = Trigger::new();
 
     let listener_0 = trigger.register(0);
@@ -168,5 +174,16 @@ pub fn test_events_garbage_collect() {
     assert_eq!(10, result.len());
 
     trigger.gc();
+    assert_eq!(0, trigger.len(0));
+}
+
+#[test]
+fn test_trigger_should_not_store_events_without_listener() {
+    let mut trigger = Trigger::new();
+
+    for i in 0..100 {
+        trigger.push(0, i);
+    }
+
     assert_eq!(0, trigger.len(0));
 }

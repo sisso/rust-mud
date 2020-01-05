@@ -34,18 +34,18 @@
 
 - spawn track items life cycle
 - TODO in config checker 
-- warning all non used properties in load files, just too many cases where something was not implemented and require debug
 - serialization 
 - crafting
 - remove room_id from spawn (we could want ot have spawn per multiples rooms, zones? regions?)
 - level up
+    - separate XP that give on kill from accumulated
 - add exit type
+- add room size
 - add put item at
 - hire companions or controlled drones
 - advanced parse commands like "examine drunk body" || examine body || examine body.2 || examine all body?
 - persistence save and load
-  - pre-requits to define a proper load and save format
-- surface in planets
+  - pre-requets to define a proper load and save format
 
 # usability
 
@@ -55,9 +55,8 @@
 
 # Refactoring
 
-- refactory errors
 - add time/tick to logs
-- move outputs to Container, use container Buffer to remove the reference
+- move outputs to Container, use container Buffer to remove the reference. Maybe not, we could just have events there
 - normalize StrInput
 - change static_id to strings
 - re-organize code modules
