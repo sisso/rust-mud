@@ -1,32 +1,84 @@
-use std::collections::{LinkedList, VecDeque, BinaryHeap};
+use std::collections::{VecDeque, BinaryHeap};
 use std::cmp::Reverse;
+use std::cmp::Ordering;
 
+#[derive(Debug, Clone, Hash, PartialOrd, PartialEq, Eq)]
+struct CapTime(u64);
+
+impl CapTime {
+    fn new(time: f64) -> Self {
+        CapTime(total_time_to_cap_time(time))
+    }
+
+    fn as_f64(&self) -> f64 {
+        cap_time_to_total_time(self.0)
+    }
+
+    fn as_u64(&self) -> u64 {
+        self.0        
+    }
+}
+
+#[derive(Debug, Clone)]
 struct Entry<T> {
-    time: f64,
+    id: u64,
+    time: CapTime,
     value: T,
 }
 
+impl <T> Eq for Entry<T> {}
+
+impl <T> PartialEq for Entry<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
+impl <T> PartialOrd for Entry<T> {
+    fn partial_cmp(&self, other: &Entry<T>) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl <T> Ord for Entry<T> {
+    fn cmp(&self, other: &Entry<T>) -> Ordering {
+        // inverse to binarz map return inverse
+        other.time.as_u64().cmp(&self.time.as_u64())
+    }
+}
+
 struct Timer<T> {
+    index: u64,
     current: f64,
     events: Vec<Entry<T>>,
 }
 
 impl <T> Timer<T> {
     pub fn new() -> Self {
-        Timer { 
+        Timer {
+            index: 0,
             current: 0.0, 
             events: Default::default(),
          }
     }
 
     pub fn schedule(&mut self, value: T, time: f64) {
-        self.events.push(Entry { time, value: value } );
+        let next_index = self.index;
+        self.index += 1;
+
+        self.events.push(Entry { 
+            id: next_index,
+            time: CapTime::new(time),
+            value: value,
+        });
     }
 
     pub fn check(&mut self, total_time: f64) -> Vec<T> {
         assert!(self.current <= total_time);
 
         self.current = total_time;
+
+        let total_time = CapTime::new(total_time);
 
         let mut indexes = VecDeque::new();
         for (i, e) in self.events.iter().enumerate() {
@@ -116,6 +168,27 @@ fn test_timer_peek_should_return_next_trigger() {
 
     let _ = timer.check(20.0);
     assert!(timer.peek().is_none());
+}
+
+#[test]
+fn test_xxx() {
+    let mut list = BinaryHeap::new();
+    list.push(Entry {
+        id: 0,
+        time: CapTime::new(1.0),
+        value: 0,
+    });
+
+    list.push(Entry {
+        id: 1,
+        time: CapTime::new(0.5),
+        value: 1,
+    });
+
+
+    println!("{:?}", list.peek());
+
+    panic!();
 }
 
 #[test]
