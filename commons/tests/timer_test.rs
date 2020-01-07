@@ -1,70 +1,72 @@
-use std::collections::{VecDeque, BTreeMap};
+use std::collections::{BinaryHeap, HashMap};
 use std::cmp::Reverse;
-use std::cmp::Ordering;
 
-type EntryKey = (u64, u64);
-
-#[derive(Debug, Clone)]
-struct Entry<T> {
-    id: u64,
-    time: f64,
-    value: T,
-}
+type Index = u64;
+type Time = u64;
+type EntryKey = (Reverse<Time>, Index);
 
 struct Timer<T> {
-    index: u64,
-    current: f64,
-    events: BTreeMap<EntryKey, Entry<T>>,
+    next_index: Index,
+    current: Time,
+    queue: BinaryHeap<EntryKey>,
+    entries: HashMap<Index, T>,
 }
 
 impl <T> Timer<T> {
     pub fn new() -> Self {
         Timer {
-            index: 0,
-            current: 0.0, 
-            events: Default::default(),
+            next_index: 0,
+            current: 0,
+            queue: Default::default(),
+            entries: Default::default(),
          }
     }
 
-    pub fn schedule(&mut self, value: T, time: f64) {
-        let next_index = self.index;
-        self.index += 1;
-        
-        let key = (total_time_to_cap_time(time), next_index);
-        self.events.insert(key, Entry { 
-            id: next_index,
-            time: time,
-            value: value,
-        });
+    pub fn schedule(&mut self, value: T, total_time: f64) {
+        let entry_index = self.next_index;
+        self.next_index += 1;
+
+        self.entries.insert(entry_index, value);
+
+        let time = time_f64_to_time_u64(total_time);
+        self.queue.push((Reverse(time), entry_index));
     }
 
     pub fn check(&mut self, total_time: f64) -> Vec<T> {
+        let total_time = time_f64_to_time_u64(total_time);
         assert!(self.current <= total_time);
-
         self.current = total_time;
 
-        let mut indexes = VecDeque::new();
-        for (k, v) in self.events.iter() {
-            if v.time <= total_time {
-                indexes.push_front(k.clone());
+        let mut result = Vec::new();
+        loop {
+            match self.queue.peek() {
+                Some((Reverse(time), id)) if time <= &total_time => {
+                    let obj = self.entries.remove(id).unwrap();
+                    result.push(obj);
+                    self.queue.pop();
+                },
+                _ => break,
             }
         }
 
-        let mut buffer = VecDeque::new();
-        for i in indexes {
-            let e = self.events.remove(&i).unwrap();
-            buffer.push_front(e.value);
-        }
-
-        buffer.into()
+        result
    }
 
     pub fn peek(&self) -> Option<f64> {
-        self.events.keys().next().map(|(cap_time, _)| {
-            cap_time_to_total_time(*cap_time)
+        self.queue.peek().iter().next().map(|(reversed_time, _)| {
+            time_u64_to_time_f64(reversed_time.0)
         })
     }
 }
+
+fn time_u64_to_time_f64(cap_time: u64) -> f64 {
+    (cap_time as f64) / 100.0
+}
+
+fn time_f64_to_time_u64(total_time: f64) -> u64 {
+    (total_time * 100.0) as u64
+}
+
 
 #[test]
 fn test_timer() {
@@ -135,26 +137,17 @@ fn test_timer_peek_should_return_next_trigger() {
     assert!(timer.peek().is_none());
 }
 
-fn cap_time_to_total_time(cap_time: u64) -> f64 {
-    (cap_time as f64) / 100.0
-}
-
-fn total_time_to_cap_time(total_time: f64) -> u64 {
-    (total_time * 100.0) as u64
-}
-
 #[test]
 fn test_to_cap_time() {
-    assert_eq!(total_time_to_cap_time(0.0), 0);
-    assert_eq!(total_time_to_cap_time(1.1), 110);
-    assert_eq!(total_time_to_cap_time(2.22), 222);
-    assert_eq!(total_time_to_cap_time(3.333), 333);
-    assert_eq!(total_time_to_cap_time(444444.4444), 44444444);
+    assert_eq!(time_f64_to_time_u64(0.0), 0);
+    assert_eq!(time_f64_to_time_u64(1.1), 110);
+    assert_eq!(time_f64_to_time_u64(2.22), 222);
+    assert_eq!(time_f64_to_time_u64(3.333), 333);
+    assert_eq!(time_f64_to_time_u64(444444.4444), 44444444);
 }
 
 #[test]
 fn test_from_cap_time() {
-    assert_eq!(cap_time_to_total_time(0), 0.0);
-    assert_eq!(cap_time_to_total_time(110), 1.10);
+    assert_eq!(time_u64_to_time_f64(0), 0.0);
+    assert_eq!(time_u64_to_time_f64(110), 1.10);
 }
-
