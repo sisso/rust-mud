@@ -1,16 +1,15 @@
 use std::collections::HashMap;
 
-pub struct Listener {
-    id: u32,
-    kind: u32,
-}
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct Listener(pub u32);
+pub type Kind = u32;
+type Position = usize;
 
 pub struct Trigger<T> {
     next_listener: u32,
-    /// index is even type, key is listener id, value is position in events queue
-    listeners_per_kind: HashMap<u32, HashMap<u32, usize>>,
-    /// index is event type, value is published events
-    events: HashMap<u32, Vec<T>>,
+    listeners_per_kind: HashMap<Kind, HashMap<Listener, Position>>,
+    events: HashMap<Kind, Vec<T>>,
+    kind_by_listener_id: HashMap<Listener, Kind>,
 }
 
 impl <T> Trigger<T> {
@@ -19,25 +18,24 @@ impl <T> Trigger<T> {
             next_listener: 0,
             listeners_per_kind: HashMap::new(),
             events: HashMap::new(),
+            kind_by_listener_id: Default::default(),
         }
     }
 
-    pub fn register(&mut self, event_kind: u32) -> Listener {
-        let next = self.next_listener;
+    pub fn register(&mut self, event_kind: Kind) -> Listener {
+        let next = Listener(self.next_listener);
         self.next_listener += 1;
+
+        self.kind_by_listener_id.insert(next, event_kind);
 
         let listeners = self.listeners_per_kind.entry(event_kind)
             .or_default();
-
         listeners.insert(next, 0);
 
-        Listener {
-            id: next,
-            kind: event_kind,
-        }
+        next
     }
 
-    pub fn push(&mut self, event_kind: u32, event: T) {
+    pub fn push(&mut self, event_kind: Kind, event: T) {
         let events = match self.events.get_mut(&event_kind) {
             Some(events) => events,
             None if self.listeners_per_kind.contains_key(&event_kind) => {
@@ -50,13 +48,15 @@ impl <T> Trigger<T> {
         events.push(event);
     }
 
-    pub fn take(&mut self, listener: &Listener) -> Vec<&T> {
-        let index = self.listeners_per_kind.get_mut(&listener.kind)
+    pub fn take(&mut self, listener: Listener) -> Vec<&T> {
+        let kind = self.kind_by_listener_id.get(&listener).unwrap();
+
+        let index = self.listeners_per_kind.get_mut(&kind)
             .unwrap()
-            .get_mut(&listener.id)
+            .get_mut(&listener)
             .unwrap();
 
-        match self.events.get(&listener.kind) {
+        match self.events.get(&kind) {
             Some(vec) => {
                 let current = *index;
                 *index = vec.len();
@@ -66,7 +66,7 @@ impl <T> Trigger<T> {
         }
     }
 
-    pub fn len(&self, event_kind: u32) -> usize {
+    pub fn len(&self, event_kind: Kind) -> usize {
         self.events.get(&event_kind)
             .map(|vec| vec.len())
             .unwrap_or(0)

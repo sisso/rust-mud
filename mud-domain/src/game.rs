@@ -44,6 +44,8 @@ pub mod surfaces;
 pub mod surfaces_object;
 pub mod tags;
 pub mod template;
+pub mod timer;
+pub mod trigger;
 pub mod vendors;
 pub mod system;
 

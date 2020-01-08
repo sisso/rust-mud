@@ -5,7 +5,7 @@ type Index = u64;
 type Time = u64;
 type EntryKey = (Reverse<Time>, Index);
 
-struct Timer<T> {
+pub struct Timer<T> {
     next_index: Index,
     current: Time,
     queue: BinaryHeap<EntryKey>,

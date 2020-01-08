@@ -19,6 +19,8 @@ use crate::game::surfaces_object::SurfaceObjects;
 use crate::game::tags::Tags;
 use crate::game::vendors::Vendors;
 use crate::game::{item, mob, spawn, Outputs, system};
+use crate::game::timer::*;
+use crate::game::trigger::*;
 use commons::{DeltaTime, ObjId, PlayerId};
 use logs::*;
 use crate::errors::*;
@@ -45,6 +47,8 @@ pub struct Container {
     pub loader: Loader,
     pub vendors: Vendors,
     pub prices: Prices,
+    pub timer: Timer,
+    pub trigger: Trigger,
 }
 
 impl Container {
@@ -70,6 +74,8 @@ impl Container {
             loader: Loader::new(),
             vendors: Vendors::new(),
             prices: Prices::new(),
+            timer: Timer::new(),
+            trigger: Trigger::new(),
         }
     }
 
