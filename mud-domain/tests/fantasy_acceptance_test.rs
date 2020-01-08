@@ -169,6 +169,7 @@ fn from_florest_to_market(scenery: &mut TestScenery) {
     scenery.wait_for("Market");
 }
 
+// TODO: test can be flacky when player is killed by the wolf, bad player
 fn kill_wolf_and_loot(scenery: &mut TestScenery) {
     scenery.input("look");
     scenery.wait_until(vec!["wolf"], vec!["corpse"]);
