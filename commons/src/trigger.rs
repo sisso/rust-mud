@@ -111,33 +111,33 @@ fn test_listeners() {
     trigger.push(0, 1);
 
     // take first events
-    let result = trigger.take(&listener_0);
+    let result = trigger.take(listener_0);
     assert_eq!(2, result.len());
     assert_eq!(0, *result[0]);
     assert_eq!(1, *result[1]);
 
-    let result = trigger.take(&listener_1);
+    let result = trigger.take(listener_1);
     assert_eq!(2, result.len());
     assert_eq!(0, *result[0]);
     assert_eq!(1, *result[1]);
 
-    let result = trigger.take(&listener_2);
+    let result = trigger.take(listener_2);
     assert_eq!(0, result.len());
 
     // second time is empty
-    let result = trigger.take(&listener_0);
+    let result = trigger.take(listener_0);
     assert_eq!(0, result.len());
 
     // noch einmal
     trigger.push(1, 2);
 
-    let result = trigger.take(&listener_0);
+    let result = trigger.take(listener_0);
     assert_eq!(0, result.len());
 
-    let result = trigger.take(&listener_1);
+    let result = trigger.take(listener_1);
     assert_eq!(0, result.len());
 
-    let result = trigger.take(&listener_2);
+    let result = trigger.take(listener_2);
     assert_eq!(1, result.len());
     assert_eq!(2, *result[0]);
 }
@@ -153,24 +153,24 @@ fn test_events_garbage_collect() {
         trigger.push(0, i);
     }
 
-    let result = trigger.take(&listener_0);
+    let result = trigger.take(listener_0);
     assert_eq!(100, result.len());
 
-    let result = trigger.take(&listener_1);
+    let result = trigger.take(listener_1);
     assert_eq!(100, result.len());
 
     for i in 0..10 {
-        trigger.push(0, i);
+        trigger.push(0, i)
     }
     assert_eq!(110, trigger.len(0));
 
     trigger.gc();
     assert_eq!(10, trigger.len(0));
 
-    let result = trigger.take(&listener_0);
+    let result = trigger.take(listener_0);
     assert_eq!(10, result.len());
 
-    let result = trigger.take(&listener_1);
+    let result = trigger.take(listener_1);
     assert_eq!(10, result.len());
 
     trigger.gc();

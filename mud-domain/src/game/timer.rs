@@ -17,6 +17,6 @@ impl Timer {
     }
 }
 
-pub fn run(total_time: TotalTime, timer: &mut Timer, trigger: &mut Trigger) -> Result<()> {
-
-}
+//pub fn run(total_time: TotalTime, timer: &mut Timer, trigger: &mut Trigger) -> Result<()> {
+//
+//}
