@@ -20,7 +20,7 @@ use crate::game::tags::Tags;
 use crate::game::vendors::Vendors;
 use crate::game::{item, mob, spawn, Outputs, system};
 use crate::game::timer::*;
-use crate::game::trigger::*;
+use crate::game::triggers::*;
 use commons::{DeltaTime, ObjId, PlayerId};
 use logs::*;
 use crate::errors::*;
@@ -109,21 +109,6 @@ impl Container {
         let room = self.rooms.get(room_id)?;
 
         Some(PlayerCtx { player, mob, room })
-    }
-
-    pub fn tick(&mut self, outputs: &mut dyn Outputs, delta_time: DeltaTime) {
-        self.time.add(delta_time);
-
-        if self.time.tick.as_u32() % 100 == 0 {
-            debug!("tick {:?}", self.time);
-        }
-
-        let mut ctx = SystemCtx {
-            container: self,
-            outputs,
-        };
-
-        system::run(&mut ctx);
     }
 
     //    pub fn save(&self, save: &mut dyn Save) {

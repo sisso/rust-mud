@@ -8,6 +8,7 @@ use crate::controller::Controller;
 use crate::game::location::LocationId;
 use crate::game::mob::MobId;
 use crate::game::room::RoomId;
+use crate::game::system::{Systems, SystemCtx};
 
 pub mod actions;
 pub mod actions_admin;
@@ -45,7 +46,7 @@ pub mod surfaces_object;
 pub mod tags;
 pub mod template;
 pub mod timer;
-pub mod trigger;
+pub mod triggers;
 pub mod vendors;
 pub mod system;
 
@@ -62,13 +63,17 @@ pub trait Outputs {
 pub struct Game {
     container: Container,
     controller: Controller,
+    systems: Systems,
 }
 
 impl Game {
-    pub fn new(container: Container) -> Self {
+    pub fn new(mut container: Container) -> Self {
+        let systems = Systems::new(&mut container);
+
         Game {
             container,
             controller: Controller::new(),
+            systems,
         }
     }
 
@@ -92,8 +97,21 @@ impl Game {
     }
 
     pub fn tick(&mut self, delta_time: DeltaTime) {
-        self.container
-            .tick(self.controller.get_outputs(), delta_time);
+        self.container.time.add(delta_time);
+
+        if self.container.time.tick.as_u32() % 100 == 0 {
+            debug!("tick {:?}", self.container.time);
+        }
+
+        let mut ctx = SystemCtx {
+            container: &mut self.container,
+            outputs: self.controller.get_outputs(),
+        };
+
+        // TODO: inputs
+        system::run(&mut ctx);
+        // TODO: after rum? trigger?
+        // TODO: outputs
     }
 
     pub fn flush_outputs(&mut self) -> Vec<(ConnectionId, String)> {

@@ -2,11 +2,11 @@ use commons::{
     TotalTime,
     timer::{Timer as CTimer}
 };
-use super::trigger::TriggerEvent;
 use logs::*;
+use crate::game::triggers::{Event, Triggers};
 
 pub struct Timer {
-    index: CTimer<TriggerEvent>
+    index: CTimer<Event>
 }
 
 impl Timer {
@@ -16,11 +16,15 @@ impl Timer {
         }
     }
 
-    pub fn schedule(&mut self, time: TotalTime, trigger: TriggerEvent) {
-       unimplemented!();
+    pub fn schedule(&mut self, time: TotalTime, trigger: Event) {
+        self.index.schedule(trigger, time.as_f64());
+    }
+
+    pub fn tick(&mut self, total_time: TotalTime, triggers: &mut Triggers) {
+        let events = self.index.check(total_time.as_f64());
+        for event in events {
+            triggers.emit(event);
+        }
     }
 }
 
-//pub fn run(total_time: TotalTime, timer: &mut Timer, trigger: &mut Trigger) -> Result<()> {
-//
-//}

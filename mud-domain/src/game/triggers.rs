@@ -2,7 +2,9 @@ use commons::{
     ObjId,
     trigger::Trigger as CTrigger
 };
+use commons::trigger::Listener;
 
+#[derive(Clone, Debug, Copy, PartialEq)]
 pub enum Kind {
     Spawn,
     Rest, 
@@ -10,10 +12,20 @@ pub enum Kind {
     Decay,
 }
 
+#[derive(Debug, Clone)]
 pub enum Event {
     Obj { 
-        kind: Kind, 
-        obj_id: ObjId 
+        kind: Kind,
+        obj_id: ObjId
+    }
+}
+
+impl Event {
+    pub fn get_kind(&self) -> Kind {
+        match self {
+            Event::Obj { kind, .. } => *kind,
+            other => panic!("unexpected")
+        }
     }
 }
 
@@ -28,12 +40,12 @@ impl Triggers {
         }
     }
 
-    pub fn registrer(&mut self, kind: TriggerKind) -> Listener {
-        unimplemented!();
+    pub fn registre(&mut self, kind: Kind) -> Listener {
+        self.index.register(kind as u32)
     }
 
     pub fn emit(&mut self, event: Event) {
-        self.index.push(event.kind, event);
+        self.index.push(event.get_kind() as u32, event);
     }
 
     pub fn take(&mut self, listener: Listener) -> Vec<&Event> {
