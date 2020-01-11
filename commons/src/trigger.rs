@@ -38,11 +38,10 @@ impl <T> Trigger<T> {
     pub fn push(&mut self, event_kind: Kind, event: T) {
         let events = match self.events.get_mut(&event_kind) {
             Some(events) => events,
-            None if self.listeners_per_kind.contains_key(&event_kind) => {
+            None => {
                 self.events.insert(event_kind, Vec::new());
                 self.events.get_mut(&event_kind).unwrap()
             },
-            None => return,
         };
 
         events.push(event);
@@ -73,34 +72,32 @@ impl <T> Trigger<T> {
     }
 
     pub fn gc(&mut self) {
-        let min_index_per_kind = self.listeners_per_kind.iter()
-            .map(|(&kind, listeners)| {
-                let min = listeners.iter()
-                    .map(|(_, &pos)| pos)
-                    .min()
-                    .unwrap_or(0);
-
-                (kind, min)
-            }).collect::<Vec<_>>();
-
-        for (kind, min_index) in min_index_per_kind {
-            // update events
-            let events = self.events.get_mut(&kind).unwrap();
-            events.drain(0..min_index);
-
-            // update indexes
-            self.listeners_per_kind.get_mut(&kind)
-                .unwrap()
-                .iter_mut()
-                .for_each(|(_, pos)| {
-                    *pos -= min_index;
-                })
+        for (kind, events) in self.events.iter_mut() {
+            // search min index from all listeners, or just remove all events
+            match self.listeners_per_kind.get_mut(kind) {
+                Some(listeners) => {
+                    // find min index from all listeners
+                    let min = listeners.iter()
+                        .map(|(_, &pos)| pos)
+                        .min()
+                        .unwrap_or(0);
+                   
+                    // clean up events
+                    events.drain(0..min);
+                    
+                    // update indexes
+                    for (_, pos) in listeners.iter_mut() {
+                        *pos -= min;
+                    }
+                },
+                None => events.clear(),
+            }
         }
     }
 }
 
 #[test]
-fn test_listeners() {
+fn test_trigger_listeners() {
     let mut trigger = Trigger::new();
 
     let listener_0 = trigger.register(0);
@@ -143,7 +140,7 @@ fn test_listeners() {
 }
 
 #[test]
-fn test_events_garbage_collect() {
+fn test_trigger_events_garbage_collect() {
     let mut trigger = Trigger::new();
 
     let listener_0 = trigger.register(0);
@@ -178,12 +175,15 @@ fn test_events_garbage_collect() {
 }
 
 #[test]
-fn test_trigger_should_not_store_events_without_listener() {
+fn test_trigger_should_store_events_without_listener() {
     let mut trigger = Trigger::new();
 
     for i in 0..100 {
         trigger.push(0, i);
     }
 
+    assert_eq!(100, trigger.len(0));
+
+    trigger.gc();
     assert_eq!(0, trigger.len(0));
 }

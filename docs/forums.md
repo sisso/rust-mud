@@ -1,3 +1,28 @@
+# Trigger refactoring
+
+Current model you can have multiples listeners per event. It is a flexible implementation but it require that all 
+listeners need to keep handlers to access.
+
+In our use case we are just interested to receive all trigger messages since last tick, this means that a simple
+buffer would be enough. Everything else is just over engineering.
+
+Anyways, it is ok, or even expected, that each system would have some state at some point. Conver the plain functions into a struct that hold state, cache or temporary state that don't depend of any entity was expected.
+
+## How can we have a non handle trigger?
+
+How to use trigger without require a state. 
+
+We can just list all avaialble events of a kind.
+
+How to cliean events?
+- as normal algorithm, clean all already read events, if not listener, clean everything
+
+## TODO
+
+Triggers should be stored even if have no listeners.
+
+
+
 # Modules
 
 controller
