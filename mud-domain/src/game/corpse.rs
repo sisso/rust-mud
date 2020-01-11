@@ -5,6 +5,7 @@ use super::mob::*;
 use super::Outputs;
 use crate::game::inventory;
 use crate::game::labels::Label;
+use crate::game::trigger::*;
 use commons::DeltaTime;
 use logs::*;
 
@@ -16,7 +17,6 @@ pub fn create_corpse(container: &mut Container, outputs: &mut dyn Outputs, mob_i
     let mob_label = container.labels.get_label(mob_id).unwrap();
 
     let mut corpse = Item::new(corpse_id);
-    corpse.decay = Some(container.time.total + DECAY_TIME);
     corpse.flags.is_corpse = true;
     corpse.flags.is_inventory = true;
     container.items.add(corpse);
@@ -33,6 +33,8 @@ pub fn create_corpse(container: &mut Container, outputs: &mut dyn Outputs, mob_i
         desc: corpse_desc.to_string(),
     });
     inventory::move_all(&mut container.locations, mob_id, corpse_id);
+
+    container.timer.schedule(container.time.total + DECAY_TIME, TriggerEvent::Decay { obj_id: corpse_id });
 
     debug!(
         "{:?} corpse of {:?} created at {:?}",

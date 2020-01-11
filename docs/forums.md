@@ -17,10 +17,21 @@ We can just list all avaialble events of a kind.
 How to cliean events?
 - as normal algorithm, clean all already read events, if not listener, clean everything
 
-## TODO
+To work the game loop should be:
 
-Triggers should be stored even if have no listeners.
+inputs
+process
+systems
+process triggers
+clean up
 
+a) depending of sequence of systems, one system can generate a trigger that need to consumed by previous system. Automatic clean up  do not work.
+
+The easy solution is just have listeners everywhere
+
+## Event kind in listenrs
+
+As listener I can manage many different listeners, normally, I need to know what listener belog to each kind, so maybe make more sense to just have attached to the listner
 
 
 # Modules

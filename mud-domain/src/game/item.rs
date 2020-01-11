@@ -36,7 +36,6 @@ impl ItemFlags {
 #[derive(Debug, Clone)]
 pub struct Item {
     pub id: ItemId,
-    pub decay: Option<TotalTime>,
     pub amount: u32,
     pub item_def_id: Option<ItemPrefabId>,
     pub weapon: Option<Weapon>,
@@ -48,7 +47,6 @@ impl Item {
     pub fn new(id: ItemId) -> Self {
         Item {
             id,
-            decay: None,
             amount: 1,
             item_def_id: None,
             weapon: None,

@@ -48,7 +48,7 @@ pub struct Container {
     pub vendors: Vendors,
     pub prices: Prices,
     pub timer: Timer,
-    pub trigger: Trigger,
+    pub triggers: Triggers,
 }
 
 impl Container {
@@ -75,7 +75,7 @@ impl Container {
             vendors: Vendors::new(),
             prices: Prices::new(),
             timer: Timer::new(),
-            trigger: Trigger::new(),
+            triggers: Triggers::new(),
         }
     }
 

@@ -3,21 +3,40 @@ use commons::{
     trigger::Trigger as CTrigger
 };
 
-pub enum TriggerEvent {
-    Spawn { obj_id: ObjId },
-    Rest { obj_id: ObjId },
-    Combat { obj_id: ObjId },
-    Decay { obj_id: ObjId },
+pub enum Kind {
+    Spawn,
+    Rest, 
+    Combat,
+    Decay,
 }
 
-pub struct Trigger {
-    index: CTrigger<TriggerEvent>,
+pub enum Event {
+    Obj { 
+        kind: Kind, 
+        obj_id: ObjId 
+    }
 }
 
-impl Trigger {
+pub struct Triggers {
+    index: CTrigger<Event>,
+}
+
+impl Triggers {
     pub fn new() -> Self {
-        Trigger {
+        Triggers {
             index: CTrigger::new(),
         }
+    }
+
+    pub fn registrer(&mut self, kind: TriggerKind) -> Listener {
+        unimplemented!();
+    }
+
+    pub fn emit(&mut self, event: Event) {
+        self.index.push(event.kind, event);
+    }
+
+    pub fn take(&mut self, listener: Listener) -> Vec<&Event> {
+        self.take(listener)
     }
 }
