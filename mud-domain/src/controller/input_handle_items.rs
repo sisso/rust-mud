@@ -166,13 +166,15 @@ pub fn strip(
         .and_then(|item_id| do_strip(container, outputs, mob_id, item_id))
 }
 
+
 #[cfg(test)]
-mod test {
+pub mod test {
     use super::*;
+    use crate::game::actions_items::test::setup;
 
     #[test]
     fn test_parse_not_owned_item_not_found_in_room() {
-        let scenery = crate::game::test::setup();
+        let scenery = setup();
         let result = parse_not_owned_item(
             &scenery.container.labels,
             &scenery.container.locations,
@@ -190,7 +192,7 @@ mod test {
 
     #[test]
     fn test_parse_not_owned_item_should_find_item_in_the_floor() {
-        let scenery = crate::game::test::setup();
+        let scenery = setup();
         let result = parse_not_owned_item(
             &scenery.container.labels,
             &scenery.container.locations,
@@ -206,7 +208,7 @@ mod test {
 
     #[test]
     fn test_parse_not_owned_item_not_found_in_container() {
-        let scenery = crate::game::test::setup();
+        let scenery = setup();
         let result = parse_not_owned_item(
             &scenery.container.labels,
             &scenery.container.locations,
@@ -224,7 +226,7 @@ mod test {
 
     #[test]
     fn test_parse_not_owned_item_should_find_item_in_the_container() {
-        let scenery = crate::game::test::setup();
+        let scenery = setup();
         let result = parse_not_owned_item(
             &scenery.container.labels,
             &scenery.container.locations,

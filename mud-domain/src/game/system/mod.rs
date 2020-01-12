@@ -23,9 +23,9 @@ pub struct Systems {
 }
 
 impl Systems {
-    pub fn new(containers: &mut Container) -> Self {
+    pub fn new(container: &mut Container) -> Self {
         Systems {
-            decay_system: DecaySystem::new(&mut containers.triggers),
+            decay_system: DecaySystem::new(&mut container.triggers),
         }
     }
 

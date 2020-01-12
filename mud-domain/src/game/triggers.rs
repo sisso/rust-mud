@@ -51,4 +51,8 @@ impl Triggers {
     pub fn take(&mut self, listener: Listener) -> Vec<&Event> {
         self.take(listener)
     }
+
+    pub fn gc(&mut self) {
+        self.index.gc();
+    }
 }

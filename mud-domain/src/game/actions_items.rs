@@ -165,10 +165,51 @@ pub fn do_drop(
 }
 
 #[cfg(test)]
-mod test {
+pub mod test {
     use super::*;
     use crate::controller::OutputsBuffer;
-    use crate::game::test::setup;
+    use crate::game::builder;
+    use crate::game::container::Container;
+    use crate::game::item::ItemId;
+    use crate::game::mob::MobId;
+    use crate::game::room::RoomId;
+
+    pub struct TestScenery {
+        pub container: Container,
+        pub room_id: RoomId,
+        pub container_id: ItemId,
+        pub item1_id: ItemId,
+        pub item2_id: ItemId,
+        pub mob_id: MobId,
+    }
+
+    pub fn setup() -> TestScenery {
+        let mut container = Container::new();
+        let room_id = builder::add_room(&mut container, "test_room");
+
+        // TODO: remove hack when we use proper item builder
+        let container_id = builder::add_item(&mut container, "container1", room_id);
+        {
+            let mut item = container.items.remove(container_id).unwrap();
+            item.flags.is_stuck = true;
+            item.flags.is_inventory = true;
+            container.items.add(item);
+        }
+
+        let item1_id = builder::add_item(&mut container, "item1", room_id);
+        let item2_id = builder::add_item(&mut container, "item2", container_id);
+
+        let mob_id = builder::add_mob(&mut container, "mob", room_id);
+
+        TestScenery {
+            container,
+            room_id,
+            container_id,
+            item1_id,
+            item2_id,
+            mob_id,
+        }
+    }
 
     #[test]
     pub fn test_do_pickup_should_fail_if_inventory_is_not_inventory() {

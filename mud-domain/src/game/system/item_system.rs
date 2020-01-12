@@ -49,3 +49,21 @@ impl System for DecaySystem {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::game::container::Container;
+    use crate::game::system::Systems;
+    use crate::game::builder;
+
+    #[test]
+    pub fn test_decay() {
+        let mut container = Container::new();
+        let mut systems = Systems::new(&mut container);
+
+        let room_id = builder::add_room(&mut container, "roomt1");
+        let item_id = builder::add_item(&mut container, "item1", room_id);
+    }
+}
+

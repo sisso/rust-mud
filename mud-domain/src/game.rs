@@ -49,7 +49,9 @@ pub mod timer;
 pub mod triggers;
 pub mod vendors;
 pub mod system;
+pub mod main_loop;
 
+/// TODO: replace by buffer? looks a like of extra work keep this abstraction as reference
 pub trait Outputs {
     /// For all mobs recursive inside the location
     fn broadcast_all(&mut self, exclude: Option<MobId>, location_id: LocationId, msg: String);
@@ -97,75 +99,10 @@ impl Game {
     }
 
     pub fn tick(&mut self, delta_time: DeltaTime) {
-        self.container.time.add(delta_time);
-
-        if self.container.time.tick.as_u32() % 100 == 0 {
-            debug!("tick {:?}", self.container.time);
-        }
-
-        let mut ctx = SystemCtx {
-            container: &mut self.container,
-            outputs: self.controller.get_outputs(),
-        };
-
-        // TODO: inputs
-        system::run(&mut ctx);
-        // TODO: after rum? trigger?
-        // TODO: outputs
+        crate::game::main_loop::tick(delta_time, &mut self.container, &mut self.systems, self.controller.get_outputs());
     }
 
     pub fn flush_outputs(&mut self) -> Vec<(ConnectionId, String)> {
         self.controller.flush_outputs(&self.container)
-    }
-
-//    pub fn run(&mut self, delta_time: DeltaTime, new_connections, disconnects, inputs) -> Vec<(ConnectionId, String)>{
-//        self.add_time(delta_time);
-//
-//    }
-}
-
-#[cfg(test)]
-pub mod test {
-    use crate::game::builder;
-    use crate::game::container::Container;
-    use crate::game::item::ItemId;
-    use crate::game::mob::MobId;
-    use crate::game::room::RoomId;
-
-    pub struct TestScenery {
-        pub container: Container,
-        pub room_id: RoomId,
-        pub container_id: ItemId,
-        pub item1_id: ItemId,
-        pub item2_id: ItemId,
-        pub mob_id: MobId,
-    }
-
-    pub fn setup() -> TestScenery {
-        let mut container = Container::new();
-        let room_id = builder::add_room(&mut container, "test_room");
-
-        // TODO: remove hack when we use proper item builder
-        let container_id = builder::add_item(&mut container, "container1", room_id);
-        {
-            let mut item = container.items.remove(container_id).unwrap();
-            item.flags.is_stuck = true;
-            item.flags.is_inventory = true;
-            container.items.add(item);
-        }
-
-        let item1_id = builder::add_item(&mut container, "item1", room_id);
-        let item2_id = builder::add_item(&mut container, "item2", container_id);
-
-        let mob_id = builder::add_mob(&mut container, "mob", room_id);
-
-        TestScenery {
-            container,
-            room_id,
-            container_id,
-            item1_id,
-            item2_id,
-            mob_id,
-        }
     }
 }

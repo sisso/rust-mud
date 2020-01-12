@@ -65,10 +65,17 @@ impl <T> Trigger<T> {
         }
     }
 
-    pub fn len(&self, event_kind: Kind) -> usize {
+    pub fn len_by_kind(&self, event_kind: Kind) -> usize {
         self.events.get(&event_kind)
             .map(|vec| vec.len())
             .unwrap_or(0)
+    }
+
+    pub fn len(&self) -> usize {
+        self.events
+            .iter()
+            .map(|(_, vec)| vec.len())
+            .sum()
     }
 
     pub fn gc(&mut self) {
@@ -149,6 +156,7 @@ fn test_trigger_events_garbage_collect() {
     for i in 0..100 {
         trigger.push(0, i);
     }
+    assert_eq!(100, trigger.len());
 
     let result = trigger.take(listener_0);
     assert_eq!(100, result.len());
@@ -159,10 +167,10 @@ fn test_trigger_events_garbage_collect() {
     for i in 0..10 {
         trigger.push(0, i)
     }
-    assert_eq!(110, trigger.len(0));
+    assert_eq!(110, trigger.len_by_kind(0));
 
     trigger.gc();
-    assert_eq!(10, trigger.len(0));
+    assert_eq!(10, trigger.len_by_kind(0));
 
     let result = trigger.take(listener_0);
     assert_eq!(10, result.len());
@@ -171,7 +179,8 @@ fn test_trigger_events_garbage_collect() {
     assert_eq!(10, result.len());
 
     trigger.gc();
-    assert_eq!(0, trigger.len(0));
+    assert_eq!(0, trigger.len());
+    assert_eq!(0, trigger.len_by_kind(0));
 }
 
 #[test]
@@ -182,8 +191,8 @@ fn test_trigger_should_store_events_without_listener() {
         trigger.push(0, i);
     }
 
-    assert_eq!(100, trigger.len(0));
+    assert_eq!(100, trigger.len_by_kind(0));
 
     trigger.gc();
-    assert_eq!(0, trigger.len(0));
+    assert_eq!(0, trigger.len_by_kind(0));
 }

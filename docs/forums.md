@@ -1,3 +1,18 @@
+# Test layres
+
+Containers, allow to test actions
+
+Game allow to test commands, login, loader, etc
+
+What layer should be used to test containers + serivces? 
+
+Looks like is missing the right abstraction to contain all game logic.
+
+Game
+- controller
+- services
+- repository
+
 # Trigger refactoring
 
 Current model you can have multiples listeners per event. It is a flexible implementation but it require that all 
