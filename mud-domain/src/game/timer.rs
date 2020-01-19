@@ -23,7 +23,7 @@ impl Timer {
     pub fn tick(&mut self, total_time: TotalTime, triggers: &mut Triggers) {
         let events = self.index.check(total_time.as_f64());
         for event in events {
-            triggers.emit(event);
+            triggers.push(event);
         }
     }
 }

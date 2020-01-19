@@ -53,8 +53,9 @@
 - comm need to be defined by configuration files for localization
 - there is no server buffering to send and receive messages, if user can not read, is possible that we lose output or stuck
 
-# Refactoring
+# refactoring
 
+- actions should not trigger instantatnius changes
 - add time/tick to logs
 - move outputs to Container, use container Buffer to remove the reference. Maybe not, we could just have events there
 - normalize StrInput

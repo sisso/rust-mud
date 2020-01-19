@@ -25,19 +25,20 @@ pub struct Systems {
 impl Systems {
     pub fn new(container: &mut Container) -> Self {
         Systems {
-            decay_system: DecaySystem::new(&mut container.triggers),
+            decay_system: DecaySystem::new(),
         }
     }
 
     pub fn tick(&mut self, ctx: &mut SystemCtx) {
+        // update time
+        // trigger all scheduled tasks
+        ctx.container.timer.tick(ctx.container.time.total, &mut ctx.container.triggers);
         self.decay_system.tick(ctx);
+        spawn_system::run(ctx);
+        combat_system::run(ctx);
+        rest_system::run(ctx);
+        ship_system::tick(ctx);
+        ctx.container.triggers.clear();
     }
-}
-
-pub fn run(ctx: &mut SystemCtx) {
-    spawn_system::run(ctx);
-    combat_system::run(ctx);
-    rest_system::run(ctx);
-    ship_system::tick(ctx);
 }
 

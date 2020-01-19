@@ -15,9 +15,8 @@ pub fn tick(delta_time: DeltaTime, container: &mut Container, systems: &mut Syst
     let mut ctx = SystemCtx { container, outputs, };
 
     // TODO: inputs
-    system::run(&mut ctx);
     systems.tick(&mut ctx);
     // TODO: after rum? trigger?
     // TODO: outputs
-    container.triggers.gc();
+    container.triggers.clear();
 }

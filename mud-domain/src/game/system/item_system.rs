@@ -4,27 +4,21 @@ use crate::game::comm;
 use crate::game::triggers::*;
 use crate::errors::*;
 use logs::*;
-use commons::trigger::Listener;
 use commons::ObjId;
 
 pub struct DecaySystem {
-    decay_listener: Listener,
 }
 
 impl DecaySystem {
-    pub fn new(triggers: &mut Triggers) -> Self {
-        let listener = triggers.registre(Kind::Decay);
-
+    pub fn new() -> Self {
         DecaySystem {
-            decay_listener: listener
         }
     }
 }
 
 impl System for DecaySystem {
     fn tick<'a>(&mut self, ctx: &mut SystemCtx<'a>) -> Result<()> {
-        let to_remove: Vec<ObjId> = ctx.container.triggers.take(self.decay_listener)
-            .into_iter()
+        let to_remove: Vec<ObjId> = ctx.container.triggers.list(Kind::Decay)
             .map(|event| {
                 match event {
                     Event::Obj { obj_id, .. } => *obj_id,

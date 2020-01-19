@@ -1,3 +1,77 @@
+# Event format
+
+It is ququire to have a at least two collections to represent a Trigger. 
+
+impl Trigger {
+    fn schedule(event: Event);
+    fn query(kind: Kind) -> Vec<Event>; 
+}
+
+
+Since rust dont give TypeId for Enum, it is not possible to use static code to map the type. 
+
+The possible representations are:
+
+a) 
+
+const DecayKind: Kind = 0;
+struct Decay {
+    obj_id: u32,
+}
+
+b) 
+
+enum Kind { Decay };
+struct Decay { obj_id: u32  }
+
+c)
+
+enum EventKind { Decay };
+enum Events {
+    Decay { obj_id: u32 },
+}
+
+If mostly of cases Event will be just a obj_id, why I can not just use Event { kind: Kind, obj_id }
+
+
+
+# Game receive independent commands v Input -> Output
+
+A common flow simplify how things works. For instance, you don't need one advanced listener/trigger if we know that all messages are always processed later.
+
+To create a commons flow, we should back to previous implementation where tick is Input -> Output. In previous impl Input contains new connections, inputs, time elapsed, everything. Output contains diconnects, commands and outputs.
+
+Some operations like receive inputs and collect outputs are more user friendly by have direct commands, like connect()
+
+Game can have some utilities mehtods, but controler, servvices and game loop should repsect the flow.
+
+System should only run if there is a time updade.
+
+## Multithread
+
+Does this method will be still useful if we do multithread?
+
+Yes, it will create a central point of control that will know how to split into parallel tasks. Anyway, receive random input anytime during gaming process will require locking
+
+## Sequence
+
+- disconnects
+- connections
+- inputs
+- pre-system
+- systems
+- pos-system
+- outputs
+
+## Actions
+
+Current actions are trigger direct from input like Pickup or Move. 
+
+Ideally we should brake it int 2 steps, parsing and scheduling the action, a second flow to run the action.
+
+Considering that any task will require time, everything will need to run into system anyways. 
+- Need to be easy to schedule actions 
+
 # Test layres
 
 Containers, allow to test actions
