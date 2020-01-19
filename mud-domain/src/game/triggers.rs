@@ -1,4 +1,5 @@
 use commons::{ ObjId };
+use logs::*;
 
 /// Numeric identifier of event type, used for query
 #[derive(Clone, Debug, Copy, PartialEq)]
@@ -49,13 +50,14 @@ impl Triggers {
     }
 
     pub fn push(&mut self, event: Event) {
+        debug!("push {:?}", event);
         self.index.get_mut(event.get_kind() as usize)
             .expect("wrong events initalization")
             .push(event);
     }
 
     pub fn list<'a>(&'a self, kind: Kind) -> impl Iterator<Item = &Event> + 'a {
-        self.index.get(kind as usize) 
+        self.index.get(kind as usize)
             .expect("wrong events initalization")
             .iter()
     }

@@ -17,6 +17,7 @@ impl Timer {
     }
 
     pub fn schedule(&mut self, time: TotalTime, trigger: Event) {
+        debug!("schedule {:?} at {:?}", trigger, time);
         self.index.schedule(trigger, time.as_f64());
     }
 
