@@ -106,3 +106,36 @@ impl Game {
         self.controller.flush_outputs(&self.container)
     }
 }
+
+#[cfg(test)]
+pub mod test {
+    use crate::game::container::Container;
+    use crate::game::system::Systems;
+    use crate::game::{builder, main_loop};
+    use commons::{TotalTime, DeltaTime};
+    use crate::controller::OutputsBuffer;
+
+    pub struct TestScenery {
+        pub container: Container,
+        pub systems: Systems,
+        pub outputs: OutputsBuffer,
+    }
+
+    impl TestScenery {
+        pub fn tick(&mut self, delta: f32) {
+            main_loop::tick(DeltaTime(delta), &mut self.container, &mut self.systems, &mut self.outputs);
+        }
+    }
+
+    pub fn scenery() -> TestScenery {
+        let mut container = Container::new();
+        let mut systems = Systems::new(&mut container);
+        let mut outputs = OutputsBuffer::new();
+
+        TestScenery {
+            container,
+            systems,
+            outputs
+        }
+    }
+}

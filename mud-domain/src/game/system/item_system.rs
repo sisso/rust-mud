@@ -49,15 +49,24 @@ mod test {
     use super::*;
     use crate::game::container::Container;
     use crate::game::system::Systems;
-    use crate::game::builder;
+    use crate::game::{builder, main_loop};
+    use commons::{TotalTime, DeltaTime};
+    use crate::controller::OutputsBuffer;
 
     #[test]
     pub fn test_decay() {
-        let mut container = Container::new();
-        let mut systems = Systems::new(&mut container);
+        let mut scenery = crate::game::test::scenery();
 
-        let room_id = builder::add_room(&mut container, "roomt1");
-        let item_id = builder::add_item(&mut container, "item1", room_id);
+        let room_id = builder::add_room(&mut scenery.container, "roomt1");
+        let item_id = builder::add_item(&mut scenery.container, "item1", room_id);
+
+        scenery.container.timer.schedule(TotalTime(1.0), Event::Obj { kind: Kind::Decay, obj_id: item_id });
+
+        scenery.tick(0.1);
+        assert!(scenery.container.objects.exists(item_id));
+
+        scenery.tick(0.91);
+        assert!(!scenery.container.objects.exists(item_id));
     }
 }
 
