@@ -3,7 +3,7 @@ use logs::*;
 
 /// Numeric identifier of event type, used for query
 #[derive(Clone, Debug, Copy, PartialEq)]
-pub enum Kind {
+pub enum EventKind {
     Spawn,
     Rest, 
     Combat,
@@ -15,16 +15,23 @@ pub enum Kind {
 #[derive(Debug, Clone)]
 pub enum Event {
     Obj { 
-        kind: Kind,
+        kind: EventKind,
         obj_id: ObjId
     },
 }
 
 impl Event {
-    pub fn get_kind(&self) -> Kind {
+    pub fn get_kind(&self) -> EventKind {
         match self {
             Event::Obj { kind, .. } => *kind,
-            other => panic!("unexpected"),
+            other => panic!("unexpected kind {:?}", other),
+        }
+    }
+
+    pub fn get_obj_id(&self) -> ObjId {
+        match self {
+            Event::Obj { obj_id, .. } => *obj_id,
+            other => panic!("unexpected kind {:?}", other),
         }
     }
 }
@@ -40,7 +47,7 @@ impl Triggers {
     pub fn new() -> Self {
         let mut index = Vec::new();
         
-        for i in 0..Kind::Unknown as u32 {
+        for i in 0..EventKind::Unknown as u32 {
             index.push(Vec::new());
         }
 
@@ -56,7 +63,7 @@ impl Triggers {
             .push(event);
     }
 
-    pub fn list<'a>(&'a self, kind: Kind) -> impl Iterator<Item = &Event> + 'a {
+    pub fn list<'a>(&'a self, kind: EventKind) -> impl Iterator<Item = &Event> + 'a {
         self.index.get(kind as usize)
             .expect("wrong events initalization")
             .iter()

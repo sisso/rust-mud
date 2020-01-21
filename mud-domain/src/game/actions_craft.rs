@@ -95,7 +95,7 @@ pub fn do_launch(
 
     // put ship in position
     container.locations.set(ship_id, sector_id);
-    container.pos.update(ship_id, pos);
+    container.pos.set(ship_id, pos);
 
     // collect labels
     let craft_label = container.labels.get_label(ship_id).unwrap();

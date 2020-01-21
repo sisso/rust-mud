@@ -9,6 +9,7 @@ pub mod combat_system;
 pub mod rest_system;
 pub mod item_system;
 
+// TODO: since contains only mutable references, we can send it by value
 pub struct SystemCtx<'a> {
     pub container: &'a mut Container,
     pub outputs: &'a mut dyn Outputs,
@@ -30,10 +31,10 @@ impl Systems {
     }
 
     pub fn tick(&mut self, ctx: &mut SystemCtx) {
-        // update time
         // trigger all scheduled tasks
         ctx.container.timer.tick(ctx.container.time.total, &mut ctx.container.triggers);
-        self.decay_system.tick(ctx);
+        // execute jobs
+        self.decay_system.tick(ctx).unwrap();
         spawn_system::run(ctx);
         combat_system::run(ctx);
         rest_system::run(ctx);

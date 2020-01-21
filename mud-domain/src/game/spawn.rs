@@ -55,12 +55,14 @@ impl Spawn {
 #[derive(Debug)]
 pub struct Spawns {
     spawns: HashMap<SpawnId, Spawn>,
+    added: Vec<SpawnId>,
 }
 
 impl Spawns {
     pub fn new() -> Self {
         Spawns {
             spawns: HashMap::new(),
+            added: vec![],
         }
     }
 
@@ -70,7 +72,9 @@ impl Spawns {
             Err(Error::ConflictException)
         } else {
             debug!("{:?} spawn added {:?}", spawn.id, spawn);
-            self.spawns.insert(spawn.id, spawn);
+            let spawn_id = spawn.id;
+            self.spawns.insert(spawn_id, spawn);
+            self.added.push(spawn_id);
             Ok(())
         }
     }
@@ -84,9 +88,9 @@ impl Spawns {
         self.spawns.get(&id)
     }
 
-    //    pub fn list(&self) -> Vec<&Spawn> {
-    //        unimplemented!()
-    //    }
+    pub fn take_added(&mut self) -> Vec<SpawnId> {
+        std::mem::replace(&mut self.added, vec![])
+    }
 
     pub fn list_entries_mut<'a>(&'a mut self) -> impl Iterator<Item = (&ObjId, &mut Spawn)> + 'a {
         self.spawns.iter_mut()
@@ -96,7 +100,7 @@ impl Spawns {
         self.spawns.values_mut()
     }
 
-    fn get_mut(&mut self, id: ObjId) -> Option<&mut Spawn> {
+    pub fn get_mut(&mut self, id: ObjId) -> Option<&mut Spawn> {
         self.spawns.get_mut(&id)
     }
 

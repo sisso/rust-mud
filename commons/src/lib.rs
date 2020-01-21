@@ -4,6 +4,17 @@ pub mod tree;
 pub mod trigger;
 pub mod timer;
 
+#[macro_export]
+macro_rules! unwrap_or_continue {
+    ($res:expr) => {
+        match $res {
+            Some(value) => value,
+            None => continue,
+        }
+    }
+}
+
+// TODO: probably don't belongs here anymore
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ConnectionId(pub u32);
 

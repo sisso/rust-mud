@@ -18,7 +18,7 @@ impl DecaySystem {
 
 impl System for DecaySystem {
     fn tick<'a>(&mut self, ctx: &mut SystemCtx<'a>) -> Result<()> {
-        let to_remove: Vec<ObjId> = ctx.container.triggers.list(Kind::Decay)
+        let to_remove: Vec<ObjId> = ctx.container.triggers.list(EventKind::Decay)
             .map(|event| {
                 match event {
                     Event::Obj { obj_id, .. } => *obj_id,
@@ -57,10 +57,10 @@ mod test {
     pub fn test_decay() {
         let mut scenery = crate::game::test::scenery();
 
-        let room_id = builder::add_room(&mut scenery.container, "roomt1");
+        let room_id = builder::add_room(&mut scenery.container, "room1");
         let item_id = builder::add_item(&mut scenery.container, "item1", room_id);
 
-        scenery.container.timer.schedule(TotalTime(1.0), Event::Obj { kind: Kind::Decay, obj_id: item_id });
+        scenery.container.timer.schedule(TotalTime(1.0), Event::Obj { kind: EventKind::Decay, obj_id: item_id });
 
         scenery.tick(0.1);
         assert!(scenery.container.objects.exists(item_id));

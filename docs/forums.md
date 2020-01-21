@@ -1,3 +1,22 @@
+# Spawn with trigger
+
+Check for trigger, then check for constraints, if succeed create the stuff, in any case, add to timer a new schedule
+
+- how to deal with initial state? 
+  - All spawn need to be initialize and create the default timer. 
+  - If load a game, the timer will persist the timers
+    - if a new spawn was added between reloads?
+  - what to do if someone create a new spawn?
+  - anyway I need maintenance task to check if a spawn was already initialize, how at least all spawns should have
+    at least one schedule active
+    
+A central check every tick/time will still be require. Even if the spawn by scheduler, a 
+check will still be require to confirm all spawns have timers.
+
+Would be possible to have a trigger every time a new spawn is created? Both in bootstrap and dynamically? Spawn 
+repository need to store all new entries that can be take.
+
+
 # Event format
 
 It is ququire to have a at least two collections to represent a Trigger. 

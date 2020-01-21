@@ -34,7 +34,7 @@ pub fn create_corpse(container: &mut Container, outputs: &mut dyn Outputs, mob_i
     });
     inventory::move_all(&mut container.locations, mob_id, corpse_id);
 
-    container.timer.schedule(container.time.total + DECAY_TIME, Event::Obj { kind: Kind::Decay, obj_id: corpse_id });
+    container.timer.schedule(container.time.total + DECAY_TIME, Event::Obj { kind: EventKind::Decay, obj_id: corpse_id });
 
     debug!(
         "{:?} corpse of {:?} created at {:?}",
