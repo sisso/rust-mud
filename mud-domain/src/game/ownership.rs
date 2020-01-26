@@ -52,6 +52,12 @@ impl Ownerships {
             .cloned()
             .unwrap_or(Vec::new())
     }
+
+    pub fn count(&self, owner_id: ObjId) -> usize {
+        self.goods.get(&owner_id)
+            .map(|list| list.len())
+            .unwrap_or(0) 
+    }
 }
 
 #[cfg(test)]

@@ -35,9 +35,10 @@ pub fn run(ctx: &mut SystemCtx) {
         let spawn_id = event.get_obj_id();
         let mut spawn = unwrap_or_continue!(ctx.container.spawns.get_mut(spawn_id));
 
-        // spawn new mob if possible
-        clean_up_dead_mobs(&mut ctx.container.mobs, spawn);
-        let can_spawn_mobs = spawn.mobs_id.len() < spawn.max as usize;
+        let can_spawn_mobs = ctx.container.ownership.count(spawn.id) < spawn.max as usize;
+
+        println!("can_spawn_mobs {}", can_spawn_mobs);
+
         if can_spawn_mobs {
             match ctx.container.locations.get(spawn.id) {
                 Some(location_id) => {
@@ -55,6 +56,8 @@ pub fn run(ctx: &mut SystemCtx) {
                 }
                 None => warn!("Spawn {:?} has no parent", spawn.id),
             };
+        } else{
+            debug!("{:?} can not spawn, already own max objects", spawn.id); 
         }
 
         schedule_next_spawn(&mut ctx.container.timer, total_time, spawn);
@@ -81,7 +84,7 @@ pub fn run(ctx: &mut SystemCtx) {
         let spawn_msg = comm::spawn_mob(mob_label);
 
         // update spawn
-        ctx.container.spawns.add_mob_id(spawn_id, mob_id);
+        ctx.container.ownership.set_owner(mob_id, spawn_id);
 
         // add outputs
         ctx.outputs.broadcast(None, room_id, spawn_msg);
@@ -98,7 +101,13 @@ fn schedule_next_spawn(timer: &mut Timer, now: TotalTime, spawn: &mut Spawn) {
     debug!("{:?} scheduling spawn at {:?}", spawn.id, spawn.next);
 }
 
-// TODO: should be a trigger
-fn clean_up_dead_mobs(mobs: &mut MobRepository, spawn: &mut Spawn) {
-    spawn.mobs_id.retain(|mob_id| mobs.exists(*mob_id));
-}
+// // TODO: should be a trigger
+// fn clean_up_dead_mobs(spawn_id: ObjId, mobs: &mut MobRepository, ownership: &mut Ownership) {
+//     let mut clean_list = vec![];
+//     for obj_id in ownership.list(spawn_id) {
+//         if !mobs.exists(obj_id) {
+//             
+//         }
+//         spawn.mobs_id.retain(|mob_id| mobs.exists(*mob_id));
+//     }
+// }

@@ -36,7 +36,6 @@ pub struct Spawn {
     pub delay: SpawnDelay,
     pub prefab_id: StaticId,
     pub next: Option<TotalTime>,
-    pub mobs_id: Vec<MobId>,
 }
 
 impl Spawn {
@@ -47,7 +46,6 @@ impl Spawn {
             delay: SpawnDelay { min: min, max: max },
             prefab_id: prefab_id,
             next: None,
-            mobs_id: vec![],
         }
     }
 }
@@ -102,10 +100,6 @@ impl Spawns {
 
     pub fn get_mut(&mut self, id: ObjId) -> Option<&mut Spawn> {
         self.spawns.get_mut(&id)
-    }
-
-    pub fn add_mob_id(&mut self, spawn_id: SpawnId, mob_id: MobId) {
-        self.spawns.get_mut(&spawn_id).unwrap().mobs_id.push(mob_id);
     }
 }
 

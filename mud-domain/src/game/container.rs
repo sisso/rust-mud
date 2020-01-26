@@ -95,6 +95,7 @@ impl Container {
         self.pos.remove(obj_id);
         self.vendors.remove(obj_id);
         self.prices.remove(obj_id);
+        self.ownership.remove_owner(obj_id);
     }
 
     pub fn get_mob_ctx(&self, mob_id: MobId) -> Option<MobCtx> {

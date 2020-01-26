@@ -121,6 +121,10 @@ fn add_money_with_item(
         }
         (None, Some(item_id)) => {
             container.locations.set(item_id, inventory_id);
+
+            // remove ownership of provided item
+            container.ownership.remove_owner(item_id);
+
             Ok(())
         }
         (None, None) => {

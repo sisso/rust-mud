@@ -22,14 +22,13 @@ impl System for DecaySystem {
             .map(|event| {
                 match event {
                     Event::Obj { obj_id, .. } => *obj_id,
-                    other=> panic!("unexpected event from kind")
+                    _other=> panic!("unexpected event from kind")
                 }
             })
             .collect();
 
         for obj_id in to_remove {
             info!("{:?} removed by decay", obj_id);
-            let location_id = ctx.container.locations.get(obj_id);
             if let Some(location_id) = ctx.container.locations.get(obj_id) {
                 let label = ctx.container.labels.get_label_f(obj_id);
                 let msg = comm::item_body_disappears(label);
