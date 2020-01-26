@@ -10,6 +10,7 @@ use crate::game::location::Locations;
 use crate::game::mob::{MobId, MobRepository};
 use crate::game::obj::Objects;
 use crate::game::player::PlayerRepository;
+use crate::game::ownership::*;
 use crate::game::pos::PosRepo;
 use crate::game::prices::Prices;
 use crate::game::room::RoomRepository;
@@ -49,6 +50,7 @@ pub struct Container {
     pub prices: Prices,
     pub timer: Timer,
     pub triggers: Triggers,
+    pub ownership: Ownerships,
 }
 
 impl Container {
@@ -76,6 +78,7 @@ impl Container {
             prices: Prices::new(),
             timer: Timer::new(),
             triggers: Triggers::new(),
+            ownership: Ownerships::new(),
         }
     }
 

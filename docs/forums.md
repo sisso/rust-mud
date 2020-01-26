@@ -1,3 +1,11 @@
+# Timers and Ticks
+
+There are 2 type of timers. 
+
+1) Timers: Are timers that need to happens in a specific point in feature, should not be postone
+
+2) Ticks: Use delta time from last tick 
+
 # Spawn with trigger
 
 Check for trigger, then check for constraints, if succeed create the stuff, in any case, add to timer a new schedule

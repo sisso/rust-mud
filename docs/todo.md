@@ -66,9 +66,6 @@
     be done by controller layer
 - split views, parsing, actions, domain methods and repository
 - use ReadRepo<T> and WriteRepo<T>
-- add timers 
-- add trigger
 - move room flags as children of room
 - move Portal a children of room
-- use double index collection (Vec<Option<Secundaryid>, Vec<Component>)
 
