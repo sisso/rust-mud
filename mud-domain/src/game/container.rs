@@ -92,10 +92,10 @@ impl Container {
         // self.spanws.remove(obj_id);
         self.equips.remove(obj_id);
         self.labels.remove(obj_id);
-        self.pos.remove(obj_id);
         self.vendors.remove(obj_id);
         self.prices.remove(obj_id);
         self.ownership.remove_owner(obj_id);
+        self.astro_bodies.remove(obj_id);
     }
 
     pub fn get_mob_ctx(&self, mob_id: MobId) -> Option<MobCtx> {

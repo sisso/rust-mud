@@ -7,22 +7,26 @@ pub type AstroBodyId = ObjId;
 /// orbit distance in 1000 * km
 pub type DistanceMkm = f32;
 
-#[derive(Clone, Debug)]
-pub struct AstroBodyOrbit {
-    /// ID of body this astro is orbiting
-    pub parent_id: AstroBodyId,
-    pub distance: DistanceMkm,
+#[derive(Clone, Debug, Copy)]
+pub enum AstroBodyKind {
+    Star,
+    Planet,
+    Moon,
+    Ship,
+    AsteroidField,
+    Station
 }
 
 #[derive(Clone, Debug)]
 pub struct AstroBody {
     pub id: AstroBodyId,
-    pub orbit: Option<AstroBodyOrbit>,
+    pub orbit_distance: DistanceMkm,
+    pub kind: AstroBodyKind,
 }
 
 impl AstroBody {
-    pub fn new(id: AstroBodyId) -> Self {
-        AstroBody { id, orbit: None }
+    pub fn new(id: AstroBodyId, orbit_distance: DistanceMkm, kind: AstroBodyKind) -> Self {
+        AstroBody { id, orbit_distance, kind }
     }
 }
 

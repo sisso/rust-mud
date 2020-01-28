@@ -1,3 +1,21 @@
+# Space parent and orbit
+
+We already have parent child relation, why do we need a new for orbiting?
+
+Each AstroBody should depend of its parent to define its orbit, only a orbit distance value will exist. And in this
+case will be zero for sum
+
+# Modules support
+
+Would be nice to organize bigger concepts into specific modules like Space, Fantasy, Room, SpaceShip, etc.
+
+A new module require
+
+- components and a repository
+- input handling
+- new events and triggers
+- output handling
+
 # Timers and Ticks
 
 There are 2 type of timers. 

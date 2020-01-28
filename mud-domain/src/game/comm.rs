@@ -7,7 +7,7 @@ use crate::game::prices::Money;
 use crate::utils::text::{plot_points, PlotCfg, PlotPoint};
 use commons::{ObjId, TotalTime, V2};
 use logs::*;
-use crate::game::astro_bodies::DistanceMkm;
+use crate::game::astro_bodies::{DistanceMkm, AstroBodyKind};
 
 pub struct InventoryDesc<'a> {
     pub id: ItemId,
@@ -576,12 +576,14 @@ pub fn space_launch_complete_others(_craft_label: &str) -> String {
 
 #[derive(Debug, Clone, Copy)]
 pub enum ShowSectorTreeBodyKind {
-    Planet,
-    Star,
-    Ship,
-    Asteroids,
-    Station,
+    BodyKind(AstroBodyKind),
     Unknown,
+}
+
+impl From<AstroBodyKind> for ShowSectorTreeBodyKind {
+    fn from(kind: AstroBodyKind) -> Self {
+        ShowSectorTreeBodyKind::BodyKind(kind)
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -594,7 +596,8 @@ pub struct ShowSectorTreeBodyOrbit {
 pub struct ShowSectorTreeBody<'a> {
     pub id: ObjId,
     pub label: &'a str,
-    pub orbit: Option<ShowSectorTreeBodyOrbit>,
+    pub orbit_id: Option<ObjId>,
+    pub orbit_distance: DistanceMkm,
     pub kind: ShowSectorTreeBodyKind,
 }
 
@@ -607,7 +610,7 @@ pub fn show_sectortree<'a>(bodies: &'a Vec<ShowSectorTreeBody<'a>>) -> String {
     ) {
         let list = bodies.iter()
             .filter(|e| {
-                 e.orbit.as_ref().map(|orbit| orbit.orbit_id) == orbit_id
+                 e.orbit_id == orbit_id
             });
 
         let (local_prefix, next_prefix) = if orbit_id.is_none() {
@@ -616,14 +619,8 @@ pub fn show_sectortree<'a>(bodies: &'a Vec<ShowSectorTreeBody<'a>>) -> String {
             (prefix, format!("  {}", prefix))
         };
 
-
         for body in list {
-            let distance_str = body.orbit.as_ref().iter()
-                .map(|orbit| format!(" {:.2}", orbit.distance))
-                .next()
-                .unwrap_or("".to_string());
-
-            buffer.push(format!("{}{}{}", local_prefix, body.label, distance_str));
+            buffer.push(format!("{}{} {:.2}", local_prefix, body.label, body.orbit_distance));
             append(bodies, buffer, Some(body.id), next_prefix.as_str());
         }
     }
@@ -727,7 +724,6 @@ pub fn vendor_buy_success_others(mob_label: &str, item_label: &str) -> String {
 mod tests {
     use super::*;
     use commons::V2;
-    use crate::game::astro_bodies::AstroBodyOrbit;
 
     #[test]
     fn help_test() {
@@ -775,38 +771,43 @@ mod tests {
             ShowSectorTreeBody {
                 id: ObjId(0),
                 label: "Sun",
-                orbit: None,
-                kind: ShowSectorTreeBodyKind::Star,
+                orbit_id: None,
+                orbit_distance: 2.0,
+                kind: AstroBodyKind::Star.into(),
             },
             ShowSectorTreeBody {
                 id: ObjId(1),
                 label: "Earth",
-                orbit: Some(ShowSectorTreeBodyOrbit { orbit_id: ObjId(0), distance: 2.0 }),
-                kind: ShowSectorTreeBodyKind::Planet,
+                orbit_id: Some(ObjId(0)),
+                orbit_distance: 2.0,
+                kind: AstroBodyKind::Planet.into(),
             },
             ShowSectorTreeBody {
                 id: ObjId(2),
                 label: "Moon",
-                orbit: Some(ShowSectorTreeBodyOrbit { orbit_id: ObjId(1), distance: 0.4 }),
-                kind: ShowSectorTreeBodyKind::Planet,
+                orbit_id: Some(ObjId(1)),
+                orbit_distance: 0.4,
+                kind: AstroBodyKind::Planet.into(),
             },
             ShowSectorTreeBody {
                 id: ObjId(3),
                 label: "Asteroids",
-                orbit: Some(ShowSectorTreeBodyOrbit { orbit_id: ObjId(0), distance: 80.0 }),
-                kind: ShowSectorTreeBodyKind::Asteroids,
+                orbit_id: Some(ObjId(0)),
+                orbit_distance: 80.0,
+                kind: AstroBodyKind::AsteroidField.into(),
             },
             ShowSectorTreeBody {
                 id: ObjId(4),
                 label: "Ring",
-                orbit: Some(ShowSectorTreeBodyOrbit { orbit_id: ObjId(2), distance: 0.05 }),
-                kind: ShowSectorTreeBodyKind::Ship,
+                orbit_id: Some(ObjId(2)),
+                orbit_distance: 0.05,
+                kind: AstroBodyKind::Ship.into(),
             },
         ];
         let result = show_sectortree(&bodies);
         assert_eq!(
             result.as_str(),
-            r##"Sun
+            r##"Sun 0.00
 - Earth 2.00
   - Moon 0.40
     - Ring 0.05

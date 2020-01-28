@@ -1,4 +1,4 @@
-use crate::game::actions_craft;
+use crate::game::actions_ships;
 use crate::game::container::Container;
 use crate::game::mob::MobId;
 use crate::game::space_utils::*;
@@ -7,7 +7,7 @@ use crate::utils::text;
 use commons::PlayerId;
 
 use crate::errors::{AsResult, Error, Result};
-use crate::game::actions_craft::{do_land_at, do_launch};
+use crate::game::actions_ships::{do_land_at, do_launch};
 
 pub fn show_startree(
     container: &Container,
@@ -51,7 +51,7 @@ pub fn move_to(
         .ok_or(Error::InvalidArgumentFailure)
         .and_then(|label| find_surface_target(container, craft_location, label))
         .and_then(|target_id| {
-            actions_craft::move_to(container, outputs, mob_id, craft_id, target_id)
+            actions_ships::move_to(container, outputs, mob_id, craft_id, target_id)
         })
         .map_err(|_| {
             outputs.private(mob_id, comm::space_move_invalid());

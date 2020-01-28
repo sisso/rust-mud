@@ -12,7 +12,7 @@ use crate::game::system::{Systems, SystemCtx};
 
 pub mod actions;
 pub mod actions_admin;
-pub mod actions_craft;
+pub mod actions_ships;
 pub mod actions_items;
 pub mod actions_vendor;
 pub mod astro_bodies;

@@ -1,5 +1,5 @@
 use crate::errors::{AsResult, Error, Result};
-use crate::game::astro_bodies::AstroBody;
+use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
 use crate::game::comm::{ShowSectorTreeBody, ShowSectorTreeBodyKind, ShowStarmapDescKind, SurfaceDesc, ShowSectorTreeBodyOrbit};
 use crate::game::container::Container;
 use crate::game::crafts::ShipId;
@@ -168,36 +168,13 @@ pub fn find_astro_bodies(container: &Container, sector_id: ObjId) -> Vec<ShowSec
 }
 
 fn to_showsectortreebody(container: &Container, obj_id: ObjId) -> Option<ShowSectorTreeBody> {
-    match (
-        container.astro_bodies.get(obj_id),
-        container.ship.get(obj_id),
-    ) {
-        (Some(body), None) => {
-            let body = ShowSectorTreeBody {
-                id: obj_id,
-                label: container.labels.get_label_f(obj_id),
-                orbit: body.orbit.as_ref().map(|orbit| {
-                    ShowSectorTreeBodyOrbit {
-                        orbit_id: orbit.parent_id,
-                        distance: orbit.distance,
-                    }
-                }),
-                kind: ShowSectorTreeBodyKind::Unknown,
-            };
-
-            Some(body)
+    container.astro_bodies.get(obj_id).map(|body| {
+        ShowSectorTreeBody {
+            id: obj_id,
+            label: container.labels.get_label_f(obj_id),
+            orbit_id:  container.locations.get(obj_id),
+            orbit_distance: body.orbit_distance,
+            kind: body.kind.into(),
         }
-        (_, Some(_ship)) => {
-            let body = ShowSectorTreeBody {
-                id: obj_id,
-                label: container.labels.get_label_f(obj_id),
-                // FIXME: implement
-                orbit: None,
-                kind: ShowSectorTreeBodyKind::Ship,
-            };
-
-            Some(body)
-        }
-        _ => None,
-    }
+    })
 }

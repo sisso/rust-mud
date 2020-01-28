@@ -2,7 +2,7 @@ mod hocon_parser;
 
 use crate::errors;
 use crate::errors::Error;
-use crate::game::astro_bodies::{AstroBody, AstroBodyOrbit};
+use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
 use crate::game::config::Config;
 use crate::game::container::Container;
 use crate::game::crafts::Ship;
@@ -38,9 +38,8 @@ pub struct RoomData {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct AstroBodyData {
-    pub kind: Option<String>,
-    pub orbit_id: Option<u32>,
-    pub orbit_distance: Option<f32>,
+    pub kind: String,
+    pub orbit_distance: f32,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -382,31 +381,19 @@ impl Loader {
             });
         }
 
-        if let Some(pos) = &data.pos {
-            container.pos.set(obj_id, V2::new(pos.x, pos.y));
-        }
-
         if let Some(astro_body) = &data.astro_body {
-            let mut body = AstroBody::new(obj_id);
-
-            body.orbit = if let Some(static_id) = astro_body.orbit_id {
-                let obj_id = Loader::get_by_static_id(
-                    &container.objects,
-                    &references,
-                    StaticId(static_id),
-                )?;
-
-                let orbit_distance = astro_body.orbit_distance
-                    .expect("orbit distance need to be defined if object has orbit");
-
-                Some(AstroBodyOrbit {
-                    parent_id: obj_id,
-                    distance: orbit_distance,
-                })
-            } else {
-                None
+            let orbit_distance = astro_body.orbit_distance;
+            let kind = match astro_body.kind.as_ref() {
+                "start" => AstroBodyKind::Star,
+                "asteroid_field" => AstroBodyKind::AsteroidField,
+                "ship" => AstroBodyKind::Ship,
+                "station" => AstroBodyKind::Station,
+                "planet" => AstroBodyKind::Planet,
+                "moon" => AstroBodyKind::Moon,
+                other => panic!("invalid astro body type {:?}", other),
             };
 
+            let body = AstroBody::new(obj_id, orbit_distance, kind);
             container.astro_bodies.add(body);
         }
 
