@@ -1,5 +1,6 @@
 use serde::export::Formatter;
 use std::any::Any;
+use crate::game::loader::StaticId;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -13,6 +14,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(Debug, Clone)]
 pub enum Error {
     NotFoundFailure,
+    NotFoundStaticId(StaticId),
     InvalidStateFailure,
     InvalidArgumentFailure,
     Failure(String),

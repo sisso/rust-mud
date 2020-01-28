@@ -11,6 +11,8 @@
 
 # Space specific
 
+- replace coord system by orbit by and orbit distance
+- replace ship moviment by burn, travel, retroburn, cyclo burn etc
 - secttormap
     - show numbers
     - show coords

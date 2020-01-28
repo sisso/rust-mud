@@ -40,6 +40,7 @@ pub struct RoomData {
 pub struct AstroBodyData {
     pub kind: Option<String>,
     pub orbit_id: Option<u32>,
+    pub orbit_distance: Option<f32>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -335,7 +336,7 @@ impl Loader {
                     None
                 }
             })
-            .ok_or_else(|| Error::NotFoundFailure)
+            .ok_or_else(|| Error::Failure(format!("Static id {:?} can not be resolved", static_id)))
     }
 
     // TODO: make it atomic: success and change or no change
@@ -350,7 +351,7 @@ impl Loader {
             Either::Right(static_id) => container
                 .loader
                 .get_prefab(static_id)
-                .ok_or(Error::NotFoundFailure)?,
+                .ok_or(Error::NotFoundStaticId(static_id))?,
         };
 
         debug!("{:?} apply prefab {:?}", obj_id, data.id);
