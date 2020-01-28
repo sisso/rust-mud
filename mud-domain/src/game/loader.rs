@@ -2,7 +2,7 @@ mod hocon_parser;
 
 use crate::errors;
 use crate::errors::Error;
-use crate::game::astro_bodies::AstroBody;
+use crate::game::astro_bodies::{AstroBody, AstroBodyOrbit};
 use crate::game::config::Config;
 use crate::game::container::Container;
 use crate::game::crafts::Ship;
@@ -388,15 +388,25 @@ impl Loader {
 
         if let Some(astro_body) = &data.astro_body {
             let mut body = AstroBody::new(obj_id);
-            body.orbit_id = if let Some(static_id) = astro_body.orbit_id {
-                Some(Loader::get_by_static_id(
+
+            body.orbit = if let Some(static_id) = astro_body.orbit_id {
+                let obj_id = Loader::get_by_static_id(
                     &container.objects,
                     &references,
                     StaticId(static_id),
-                )?)
+                )?;
+
+                let orbit_distance = astro_body.orbit_distance
+                    .expect("orbit distance need to be defined if object has orbit");
+
+                Some(AstroBodyOrbit {
+                    parent_id: obj_id,
+                    distance: orbit_distance,
+                })
             } else {
                 None
             };
+
             container.astro_bodies.add(body);
         }
 

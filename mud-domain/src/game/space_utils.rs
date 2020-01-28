@@ -1,8 +1,6 @@
 use crate::errors::{AsResult, Error, Result};
 use crate::game::astro_bodies::AstroBody;
-use crate::game::comm::{
-    ShowSectorTreeBody, ShowSectorTreeBodyKind, ShowStarmapDescKind, SurfaceDesc,
-};
+use crate::game::comm::{ShowSectorTreeBody, ShowSectorTreeBodyKind, ShowStarmapDescKind, SurfaceDesc, ShowSectorTreeBodyOrbit};
 use crate::game::container::Container;
 use crate::game::crafts::ShipId;
 use crate::game::location::LocationId;
@@ -178,7 +176,12 @@ fn to_showsectortreebody(container: &Container, obj_id: ObjId) -> Option<ShowSec
             let body = ShowSectorTreeBody {
                 id: obj_id,
                 label: container.labels.get_label_f(obj_id),
-                orbit_id: body.orbit_id,
+                orbit: body.orbit.as_ref().map(|orbit| {
+                    ShowSectorTreeBodyOrbit {
+                        orbit_id: orbit.parent_id,
+                        distance: orbit.distance,
+                    }
+                }),
                 kind: ShowSectorTreeBodyKind::Unknown,
             };
 
@@ -189,7 +192,7 @@ fn to_showsectortreebody(container: &Container, obj_id: ObjId) -> Option<ShowSec
                 id: obj_id,
                 label: container.labels.get_label_f(obj_id),
                 // FIXME: implement
-                orbit_id: None,
+                orbit: None,
                 kind: ShowSectorTreeBodyKind::Ship,
             };
 

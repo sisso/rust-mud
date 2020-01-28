@@ -4,15 +4,25 @@ use std::collections::HashMap;
 
 pub type AstroBodyId = ObjId;
 
+/// orbit distance in 1000 * km
+pub type DistanceMkm = f32;
+
+#[derive(Clone, Debug)]
+pub struct AstroBodyOrbit {
+    /// ID of body this astro is orbiting
+    pub parent_id: AstroBodyId,
+    pub distance: DistanceMkm,
+}
+
 #[derive(Clone, Debug)]
 pub struct AstroBody {
     pub id: AstroBodyId,
-    pub orbit_id: Option<AstroBodyId>,
+    pub orbit: Option<AstroBodyOrbit>,
 }
 
 impl AstroBody {
     pub fn new(id: AstroBodyId) -> Self {
-        AstroBody { id, orbit_id: None }
+        AstroBody { id, orbit: None }
     }
 }
 
