@@ -5,7 +5,7 @@ use crate::game::space_utils::*;
 use crate::game::{comm, Outputs};
 use crate::utils::text;
 use commons::PlayerId;
-
+use logs::*;
 use crate::errors::{AsResult, Error, Result};
 use crate::game::actions_ships::{do_land_at, do_launch};
 
@@ -14,15 +14,16 @@ pub fn show_startree(
     outputs: &mut dyn Outputs,
     mob_id: MobId,
 ) -> Result<()> {
-    let (ship_id, sector_id) = get_craft_and_sector(container, outputs, mob_id)?;
-    let bodies = find_astro_bodies(container, sector_id);
-    outputs.private(mob_id, comm::show_sectortree(&bodies));
+    let (ship_id, sector_id) = get_ship_and_sector(container, outputs, mob_id)?;
+    let bodies = find_astro_bodies(container, sector_id, Some(ship_id));
+    trace!("{:?} at {:?} on sector {:?} can view {:?}", mob_id, ship_id, sector_id, bodies);
+    outputs.private(mob_id, comm::show_sectortree(sector_id, &bodies));
     Ok(())
 }
 
 #[deprecated]
 pub fn show_starmap(container: &Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<()> {
-    let (craft_id, sector_id) = get_craft_and_sector(container, outputs, mob_id)?;
+    let (craft_id, sector_id) = get_ship_and_sector(container, outputs, mob_id)?;
     let objects = get_objects_in_surface(container, craft_id, sector_id);
     outputs.private(mob_id, comm::show_surface_map(&objects));
     Ok(())
@@ -33,7 +34,7 @@ pub fn move_list_targets(
     outputs: &mut dyn Outputs,
     mob_id: MobId,
 ) -> Result<()> {
-    let (craft_id, craft_location) = get_craft_and_sector(container, outputs, mob_id)?;
+    let (craft_id, craft_location) = get_ship_and_sector(container, outputs, mob_id)?;
     let objects = get_objects_in_surface(container, craft_id, craft_location);
     outputs.private(mob_id, comm::space_show_move_targets(&objects));
     Ok(())
@@ -45,7 +46,7 @@ pub fn move_to(
     mob_id: MobId,
     input: Vec<&str>,
 ) -> Result<()> {
-    let (craft_id, craft_location) = get_craft_and_sector(container, outputs, mob_id)?;
+    let (craft_id, craft_location) = get_ship_and_sector(container, outputs, mob_id)?;
     input
         .get(1)
         .ok_or(Error::InvalidArgumentFailure)
@@ -60,7 +61,7 @@ pub fn move_to(
 }
 
 pub fn land_list(container: &Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<()> {
-    get_craft(container, mob_id)
+    get_ship(container, mob_id)
         .map(|craft_id| {
             let labels = search_near_landing_sites(container, craft_id)
                 .into_iter()
@@ -81,7 +82,7 @@ pub fn land_at(
     mob_id: MobId,
     input: Vec<&str>,
 ) -> Result<()> {
-    let result = match (input.get(1), get_craft(container, mob_id)) {
+    let result = match (input.get(1), get_ship(container, mob_id)) {
         (Some(input), Some(craft_id)) => {
             let sites = search_near_landing_sites(container, craft_id);
             let labels = container.labels.resolve_codes(&sites);
@@ -104,7 +105,7 @@ pub fn land_at(
 }
 
 pub fn launch(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<()> {
-    get_craft(container, mob_id)
+    get_ship(container, mob_id)
         .as_result()
         .map_err(|e| {
             outputs.private(mob_id, comm::space_invalid_not_in_craft());

@@ -599,9 +599,10 @@ pub struct ShowSectorTreeBody<'a> {
     pub orbit_id: Option<ObjId>,
     pub orbit_distance: DistanceMkm,
     pub kind: ShowSectorTreeBodyKind,
+    pub highlight: bool,
 }
 
-pub fn show_sectortree<'a>(bodies: &'a Vec<ShowSectorTreeBody<'a>>) -> String {
+pub fn show_sectortree<'a>(origin_id: ObjId, bodies: &'a Vec<ShowSectorTreeBody<'a>>) -> String {
     fn append<'a>(
         bodies: &'a Vec<ShowSectorTreeBody<'a>>,
         buffer: &mut Vec<String>,
@@ -620,13 +621,15 @@ pub fn show_sectortree<'a>(bodies: &'a Vec<ShowSectorTreeBody<'a>>) -> String {
         };
 
         for body in list {
-            buffer.push(format!("{}{} {:.2}", local_prefix, body.label, body.orbit_distance));
+            trace!("WTF");
+            let highlight_str = if body.highlight { " <<<" } else { "" };
+            buffer.push(format!("{}{} {:.2}{}", local_prefix, body.label, body.orbit_distance, highlight_str));
             append(bodies, buffer, Some(body.id), next_prefix.as_str());
         }
     }
 
     let mut buffer = Vec::new();
-    append(bodies, &mut buffer, None, "");
+    append(bodies, &mut buffer, Some(origin_id), "");
     buffer.push("".to_string());
 
     buffer.join("\n")
@@ -772,8 +775,9 @@ mod tests {
                 id: ObjId(0),
                 label: "Sun",
                 orbit_id: None,
-                orbit_distance: 2.0,
+                orbit_distance: 0.0,
                 kind: AstroBodyKind::Star.into(),
+                highlight: false,
             },
             ShowSectorTreeBody {
                 id: ObjId(1),
@@ -781,6 +785,7 @@ mod tests {
                 orbit_id: Some(ObjId(0)),
                 orbit_distance: 2.0,
                 kind: AstroBodyKind::Planet.into(),
+                highlight: false,
             },
             ShowSectorTreeBody {
                 id: ObjId(2),
@@ -788,6 +793,7 @@ mod tests {
                 orbit_id: Some(ObjId(1)),
                 orbit_distance: 0.4,
                 kind: AstroBodyKind::Planet.into(),
+                highlight: false,
             },
             ShowSectorTreeBody {
                 id: ObjId(3),
@@ -795,13 +801,23 @@ mod tests {
                 orbit_id: Some(ObjId(0)),
                 orbit_distance: 80.0,
                 kind: AstroBodyKind::AsteroidField.into(),
+                highlight: false,
             },
             ShowSectorTreeBody {
                 id: ObjId(4),
                 label: "Ring",
                 orbit_id: Some(ObjId(2)),
                 orbit_distance: 0.05,
+                kind: AstroBodyKind::Station.into(),
+                highlight: false,
+            },
+            ShowSectorTreeBody {
+                id: ObjId(5),
+                label: "Light Cargo",
+                orbit_id: Some(ObjId(2)),
+                orbit_distance: 0.01,
                 kind: AstroBodyKind::Ship.into(),
+                highlight: true,
             },
         ];
         let result = show_sectortree(&bodies);
@@ -811,6 +827,7 @@ mod tests {
 - Earth 2.00
   - Moon 0.40
     - Ring 0.05
+    - Light Cargo 0.01 <<<
 - Asteroids 80.00
 "##
         );

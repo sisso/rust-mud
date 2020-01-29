@@ -1,17 +1,27 @@
 use commons::ObjId;
 use logs::*;
 use std::collections::HashMap;
+use crate::errors::{Result, Error};
 
 pub type AstroBodyId = ObjId;
 
 /// orbit distance in 1000 * km
+// TODO: replace by distance struct
 pub type DistanceMkm = f32;
+
+pub fn km_to_mkm(value: f32) -> f32 {
+    value / 1000.0
+}
+
+//#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+//pub struct Distance(f32);
 
 #[derive(Clone, Debug, Copy)]
 pub enum AstroBodyKind {
     Star,
     Planet,
     Moon,
+    JumpGate,
     Ship,
     AsteroidField,
     Station
@@ -28,6 +38,14 @@ impl AstroBody {
     pub fn new(id: AstroBodyId, orbit_distance: DistanceMkm, kind: AstroBodyKind) -> Self {
         AstroBody { id, orbit_distance, kind }
     }
+
+    pub fn get_low_orbit(&self) -> DistanceMkm {
+        km_to_mkm(100.0)
+    }
+
+    pub fn get_high_orbit(&self) -> DistanceMkm {
+        1.0
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -42,10 +60,24 @@ impl AstroBodies {
         }
     }
 
-    pub fn add(&mut self, value: AstroBody) {
-        assert!(!self.index.contains_key(&value.id));
-        info!("{:?} add {:?}", value.id, value);
+    pub fn insert(&mut self, value: AstroBody) -> Result<()> {
+        if self.index.contains_key(&value.id) {
+            return Err(Error::ConflictException)
+        }
+
+        info!("{:?} insert {:?}", value.id, value);
         self.index.insert(value.id, value);
+        Ok(())
+    }
+
+    pub fn update(&mut self, value: AstroBody) -> Result<()> {
+        if !self.index.contains_key(&value.id) {
+            return Err(Error::ConflictException)
+        }
+
+        info!("{:?} update {:?}", value.id, value);
+        self.index.insert(value.id, value);
+        Ok(())
     }
 
     pub fn remove(&mut self, id: AstroBodyId) -> Option<AstroBody> {

@@ -34,7 +34,6 @@ impl <T> Timer<T> {
 
     pub fn check(&mut self, total_time: f64) -> Vec<T> {
         let total_time = time_f64_to_time_u64(total_time);
-        assert!(self.current <= total_time);
         self.current = total_time;
 
         let mut result = Vec::new();
@@ -110,14 +109,6 @@ fn test_timer() {
     // no new element
     let result = timer.check(10000.0);
     assert_eq!(result.len(), 0);
-}
-
-#[test]
-#[should_panic]
-fn test_timer_fail_if_reverse_time() {
-    let mut timer: Timer<u32> = Timer::new();
-    timer.check(3.0);
-    timer.check(1.0);
 }
 
 #[test]

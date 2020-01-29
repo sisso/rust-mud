@@ -101,12 +101,12 @@ pub fn search_near_landing_sites(container: &Container, craft_id: ObjId) -> Vec<
         .unwrap_or(vec![])
 }
 
-pub fn get_craft_and_sector(
+pub fn get_ship_and_sector(
     container: &Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
 ) -> Result<(ShipId, ObjId)> {
-    let craft_id = match get_craft(container, mob_id) {
+    let ship_id = match get_ship(container, mob_id) {
         Some(craft_id) => craft_id,
         None => {
             outputs.private(mob_id, comm::space_not_in_craft());
@@ -114,16 +114,19 @@ pub fn get_craft_and_sector(
         }
     };
 
-    let craft_location = container.locations.get(craft_id).as_result()?;
-    if !container.sectors.exists(craft_location) {
-        outputs.private(mob_id, comm::space_not_in_craft());
-        return Err(Error::NotFoundFailure);
-    }
+    let sector = container.locations.list_parents(ship_id)
+        .into_iter()
+        .find(|&obj_id| container.sectors.exists(obj_id));
 
-    return Ok((craft_id, craft_location));
+    let sector_id = sector.ok_or_else(|| {
+        outputs.private(mob_id, comm::space_not_in_craft());
+        Error::NotFoundFailure
+    })?;
+
+    return Ok((ship_id, sector_id));
 }
 
-pub fn get_craft(container: &Container, mob_id: MobId) -> Option<ShipId> {
+pub fn get_ship(container: &Container, mob_id: MobId) -> Option<ShipId> {
     let room_id = container.locations.get(mob_id)?;
     if !container.rooms.exists(room_id) {
         return None;
@@ -158,16 +161,16 @@ pub fn find_children_rooms_with_can_exit(
         .collect()
 }
 
-pub fn find_astro_bodies(container: &Container, sector_id: ObjId) -> Vec<ShowSectorTreeBody> {
+pub fn find_astro_bodies(container: &Container, sector_id: ObjId, ship_id: Option<ObjId>) -> Vec<ShowSectorTreeBody> {
     container
         .locations
         .list_deep_at(sector_id)
         .into_iter()
-        .flat_map(|id| to_showsectortreebody(container, id))
+        .flat_map(|id| to_showsectortreebody(container, id, ship_id))
         .collect()
 }
 
-fn to_showsectortreebody(container: &Container, obj_id: ObjId) -> Option<ShowSectorTreeBody> {
+fn to_showsectortreebody(container: &Container, obj_id: ObjId, ship_id: Option<ObjId>) -> Option<ShowSectorTreeBody> {
     container.astro_bodies.get(obj_id).map(|body| {
         ShowSectorTreeBody {
             id: obj_id,
@@ -175,6 +178,7 @@ fn to_showsectortreebody(container: &Container, obj_id: ObjId) -> Option<ShowSec
             orbit_id:  container.locations.get(obj_id),
             orbit_distance: body.orbit_distance,
             kind: body.kind.into(),
+            highlight: Some(obj_id) == ship_id
         }
     })
 }

@@ -7,6 +7,7 @@ use crate::game::room::RoomId;
 use crate::game::{comm, space_utils, Outputs};
 use commons::{ObjId, PlayerId};
 use logs::*;
+use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
 
 pub fn move_to(
     container: &mut Container,
@@ -62,53 +63,58 @@ pub fn do_launch(
     mob_id: MobId,
     ship_id: ShipId,
 ) -> Result<()> {
-    // FIXME
-    unimplemented!()
-//    let parents = container.locations.list_parents(ship_id);
-//    let landing_pad_id = parents.get(0).cloned().unwrap();
-//
-//    // search current sector
-//    let sector_index = match parents.iter().position(|&id| container.sectors.exists(id)) {
-//        Some(index) => index,
-//        None => {
-//            warn!(
-//                "{:?} launch {:?} but no sector found, list of parents are {:?}",
-//                mob_id, ship_id, parents
-//            );
-//            outputs.private(mob_id, comm::space_launch_failed());
-//            return Err(Error::InvalidArgumentFailure);
-//        }
-//    };
-//
-//    // find current landed body
-//    let sector_id = parents.get(sector_index).cloned().unwrap();
-//    let satellite_id = parents.get(sector_index - 1).cloned().unwrap();
-//    let pos = match container.pos.get_pos(satellite_id) {
-//        Some(pos) => pos,
-//        None => {
-//            warn!(
-//                "{:?} launch {:?} but no position for the satellite {:?}",
-//                mob_id, ship_id, satellite_id
-//            );
-//            outputs.private(mob_id, comm::space_launch_failed());
-//            return Err(Error::InvalidArgumentFailure);
-//        }
-//    };
-//
-//    // put ship in position
-//    container.locations.set(ship_id, sector_id);
-//    container.pos.set(ship_id, pos);
-//
-//    // collect labels
-//    let craft_label = container.labels.get_label(ship_id).unwrap();
-//
-//    // emit events
-//    outputs.broadcast_all(None, ship_id, comm::space_launch_complete());
-//    outputs.broadcast_all(
-//        None,
-//        landing_pad_id,
-//        comm::space_launch_complete_others(craft_label),
-//    );
-//
-//    Ok(())
+    let parents = container.locations.list_parents(ship_id);
+    let landing_pad_id = parents.get(0).cloned().unwrap();
+
+    // search current body
+    let parent_body = parents.iter()
+        .flat_map(|&id| {
+            container.astro_bodies.get(id)
+        }).next();
+
+    let parent_body = match parent_body {
+        Some(body) => body,
+        None => {
+            warn!(
+                "{:?} launch {:?} fail, ship is not in astrobody",
+                mob_id, ship_id
+            );
+            outputs.private(mob_id, comm::space_launch_failed());
+            return Err(Error::InvalidArgumentFailure);
+        }
+    };
+
+    let parent_body_id = parent_body.id;
+    let orbit_distance = parent_body.get_low_orbit();
+
+    let body = AstroBody {
+        id: ship_id,
+        orbit_distance,
+        kind: AstroBodyKind::Ship,
+    };
+
+    // put ship in low orbit
+    if let Err(error) = container.astro_bodies.insert(body) {
+        warn!(
+            "{:?} launch {:?} fail to set ship orbit: {:?}",
+            mob_id, ship_id, error
+        );
+        outputs.private(mob_id, comm::space_launch_failed());
+        return Err(Error::InvalidArgumentFailure);
+    };
+
+    container.locations.set(ship_id, parent_body_id);
+
+    // collect labels
+    let craft_label = container.labels.get_label(ship_id).unwrap();
+
+    // emit events
+    outputs.broadcast_all(None, ship_id, comm::space_launch_complete());
+    outputs.broadcast_all(
+        None,
+        landing_pad_id,
+        comm::space_launch_complete_others(craft_label),
+    );
+
+    Ok(())
 }

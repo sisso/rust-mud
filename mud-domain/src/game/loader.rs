@@ -384,17 +384,18 @@ impl Loader {
         if let Some(astro_body) = &data.astro_body {
             let orbit_distance = astro_body.orbit_distance;
             let kind = match astro_body.kind.as_ref() {
-                "start" => AstroBodyKind::Star,
+                "star" => AstroBodyKind::Star,
                 "asteroid_field" => AstroBodyKind::AsteroidField,
                 "ship" => AstroBodyKind::Ship,
                 "station" => AstroBodyKind::Station,
                 "planet" => AstroBodyKind::Planet,
                 "moon" => AstroBodyKind::Moon,
+                "jump_gate" => AstroBodyKind::JumpGate,
                 other => panic!("invalid astro body type {:?}", other),
             };
 
             let body = AstroBody::new(obj_id, orbit_distance, kind);
-            container.astro_bodies.add(body);
+            container.astro_bodies.insert(body).unwrap();
         }
 
         if let Some(craft) = &data.craft {
