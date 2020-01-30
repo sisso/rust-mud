@@ -83,7 +83,7 @@ fn assert_outputs_contains(outputs: &Vec<String>, msg: &str) {
 }
 
 #[test]
-fn test_sectormap() -> Result<(), ()> {
+fn test_sectormap() {
     let mut scenery = TestScenery::new();
     scenery.login();
 
@@ -115,5 +115,9 @@ fn test_sectormap() -> Result<(), ()> {
     scenery.send_input("sm");
     scenery.wait_for("Dune");
 
-    Ok(())
+    scenery.send_input("move");
+    scenery.wait_for("Asteroid Field");
+
+    scenery.send_input("move asteroid");
+    scenery.wait_for("arrival");
 }

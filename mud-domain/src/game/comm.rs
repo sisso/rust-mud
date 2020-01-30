@@ -503,17 +503,15 @@ pub fn show_surface_map(desc: &Vec<SurfaceDesc>) -> String {
     buffer.join("\n")
 }
 
-pub fn space_show_move_targets(desc: &Vec<SurfaceDesc>) -> String {
+
+// TODO: add distance
+pub fn space_show_move_targets(desc: &Vec<ShowSectorTreeBody>) -> String {
     let mut buffer = vec!["Targets:".to_string()];
 
     let items: Vec<String> = desc
         .iter()
         .enumerate()
         .flat_map(|(_i, desc)| {
-            if desc.me {
-                return None;
-            }
-
             Some(format!("- {}", desc.label))
         })
         .collect();
@@ -596,17 +594,18 @@ pub struct ShowSectorTreeBodyOrbit {
 pub struct ShowSectorTreeBody<'a> {
     pub id: ObjId,
     pub label: &'a str,
-    pub orbit_id: Option<ObjId>,
+    pub orbit_id: ObjId,
     pub orbit_distance: DistanceMkm,
     pub kind: ShowSectorTreeBodyKind,
-    pub highlight: bool,
+    pub is_self: bool,
 }
 
 pub fn show_sectortree<'a>(origin_id: ObjId, bodies: &'a Vec<ShowSectorTreeBody<'a>>) -> String {
     fn append<'a>(
         bodies: &'a Vec<ShowSectorTreeBody<'a>>,
         buffer: &mut Vec<String>,
-        orbit_id: Option<ObjId>,
+        origin_id: ObjId,
+        orbit_id: ObjId,
         prefix: &str,
     ) {
         let list = bodies.iter()
@@ -614,22 +613,22 @@ pub fn show_sectortree<'a>(origin_id: ObjId, bodies: &'a Vec<ShowSectorTreeBody<
                  e.orbit_id == orbit_id
             });
 
-        let (local_prefix, next_prefix) = if orbit_id.is_none() {
-            ("", "- ".to_string())
-        } else {
-            (prefix, format!("  {}", prefix))
-        };
+        let (local_prefix, next_prefix) =
+            if orbit_id == origin_id {
+                ("", "- ".to_string())
+            } else {
+                (prefix, format!("  {}", prefix))
+            };
 
         for body in list {
-            trace!("WTF");
-            let highlight_str = if body.highlight { " <<<" } else { "" };
+            let highlight_str = if body.is_self { " <<<" } else { "" };
             buffer.push(format!("{}{} {:.2}{}", local_prefix, body.label, body.orbit_distance, highlight_str));
-            append(bodies, buffer, Some(body.id), next_prefix.as_str());
+            append(bodies, buffer, origin_id,body.id,  next_prefix.as_str());
         }
     }
 
     let mut buffer = Vec::new();
-    append(bodies, &mut buffer, Some(origin_id), "");
+    append(bodies, &mut buffer, origin_id,origin_id, "");
     buffer.push("".to_string());
 
     buffer.join("\n")
@@ -772,55 +771,56 @@ mod tests {
     fn test_show_sectortree() {
         let bodies = vec![
             ShowSectorTreeBody {
-                id: ObjId(0),
+                id: ObjId(1),
                 label: "Sun",
-                orbit_id: None,
+                orbit_id: ObjId(0),
                 orbit_distance: 0.0,
                 kind: AstroBodyKind::Star.into(),
-                highlight: false,
-            },
-            ShowSectorTreeBody {
-                id: ObjId(1),
-                label: "Earth",
-                orbit_id: Some(ObjId(0)),
-                orbit_distance: 2.0,
-                kind: AstroBodyKind::Planet.into(),
-                highlight: false,
+                is_self: false,
             },
             ShowSectorTreeBody {
                 id: ObjId(2),
-                label: "Moon",
-                orbit_id: Some(ObjId(1)),
-                orbit_distance: 0.4,
+                label: "Earth",
+                orbit_id: ObjId(1),
+                orbit_distance: 2.0,
                 kind: AstroBodyKind::Planet.into(),
-                highlight: false,
+                is_self: false,
             },
             ShowSectorTreeBody {
                 id: ObjId(3),
-                label: "Asteroids",
-                orbit_id: Some(ObjId(0)),
-                orbit_distance: 80.0,
-                kind: AstroBodyKind::AsteroidField.into(),
-                highlight: false,
+                label: "Moon",
+                orbit_id: ObjId(2),
+                orbit_distance: 0.4,
+                kind: AstroBodyKind::Planet.into(),
+                is_self: false,
             },
             ShowSectorTreeBody {
                 id: ObjId(4),
-                label: "Ring",
-                orbit_id: Some(ObjId(2)),
-                orbit_distance: 0.05,
-                kind: AstroBodyKind::Station.into(),
-                highlight: false,
+                label: "Asteroids",
+                orbit_id: ObjId(1),
+                orbit_distance: 80.0,
+                kind: AstroBodyKind::AsteroidField.into(),
+                is_self: false,
             },
             ShowSectorTreeBody {
                 id: ObjId(5),
+                label: "Ring",
+                orbit_id: ObjId(3),
+                orbit_distance: 0.05,
+                kind: AstroBodyKind::Station.into(),
+                is_self: false,
+            },
+            ShowSectorTreeBody {
+                id: ObjId(6),
                 label: "Light Cargo",
-                orbit_id: Some(ObjId(2)),
+                orbit_id: ObjId(3),
                 orbit_distance: 0.01,
                 kind: AstroBodyKind::Ship.into(),
-                highlight: true,
+                is_self: true,
             },
         ];
-        let result = show_sectortree(&bodies);
+
+        let result = show_sectortree(ObjId(0), &bodies);
         assert_eq!(
             result.as_str(),
             r##"Sun 0.00

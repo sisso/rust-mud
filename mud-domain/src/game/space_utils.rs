@@ -8,6 +8,7 @@ use crate::game::mob::MobId;
 use crate::game::{comm, Outputs};
 use commons::{ObjId, PlayerId, MIN_DISTANCE, V2};
 
+#[deprecated]
 pub fn find_surface_target(
     container: &mut Container,
     craft_location: ObjId,
@@ -22,6 +23,7 @@ pub fn find_surface_target(
     founds.first().cloned().ok_or(Error::NotFoundFailure)
 }
 
+#[deprecated]
 pub fn get_objects_in_surface(
     container: &Container,
     craft_id: ObjId,
@@ -161,24 +163,31 @@ pub fn find_children_rooms_with_can_exit(
         .collect()
 }
 
-pub fn find_astro_bodies(container: &Container, sector_id: ObjId, ship_id: Option<ObjId>) -> Vec<ShowSectorTreeBody> {
+pub fn find_space_bodies(container: &Container, sector_id: ObjId) -> Vec<&AstroBody> {
     container
         .locations
         .list_deep_at(sector_id)
         .into_iter()
-        .flat_map(|id| to_showsectortreebody(container, id, ship_id))
+        .flat_map(|id| container.astro_bodies.get(id))
         .collect()
 }
 
-fn to_showsectortreebody(container: &Container, obj_id: ObjId, ship_id: Option<ObjId>) -> Option<ShowSectorTreeBody> {
-    container.astro_bodies.get(obj_id).map(|body| {
-        ShowSectorTreeBody {
-            id: obj_id,
-            label: container.labels.get_label_f(obj_id),
-            orbit_id:  container.locations.get(obj_id),
-            orbit_distance: body.orbit_distance,
-            kind: body.kind.into(),
-            highlight: Some(obj_id) == ship_id
-        }
-    })
+pub fn find_showsector_bodies(container: &Container, sector_id: ObjId, ship_id: Option<ObjId>) -> Vec<ShowSectorTreeBody> {
+    find_space_bodies(container, sector_id)
+        .into_iter()
+        .map(|body| to_showsectortreebody(container, ship_id, body))
+        .collect()
+}
+
+pub fn to_showsectortreebody<'a>(container: &'a Container, self_id: Option<ObjId>, body: &'a AstroBody) -> ShowSectorTreeBody<'a> {
+    let obj_id = body.id;
+
+    ShowSectorTreeBody {
+        id: obj_id,
+        label: container.labels.get_label_f(obj_id),
+        orbit_id:  container.locations.get(obj_id).expect("Space objects must have a orbit"),
+        orbit_distance: body.orbit_distance,
+        kind: body.kind.into(),
+        is_self: Some(obj_id) == self_id
+    }
 }

@@ -172,7 +172,7 @@ pub fn handle(
         "move" => input_handle_space::move_list_targets(container, outputs, mob_id),
 
         _ if input.has_command("move") => {
-            input_handle_space::move_to(container, outputs, mob_id, input.split())
+            input_handle_space::move_to(container, outputs, mob_id, &input)
         }
 
         "land" => input_handle_space::land_list(container, outputs, mob_id),

@@ -78,6 +78,10 @@ impl Labels {
             .unwrap_or("???")
     }
 
+    pub fn resolve(&self, ids: &Vec<ObjId>) -> Vec<&Label> {
+        ids.iter().map(|&id| self.get(id).expect("label not found")).collect()
+    }
+
     // TODO: do not replace codes per ???
     pub fn resolve_codes(&self, ids: &Vec<ObjId>) -> Vec<&str> {
         // flat map can not be used because we want replace none by ???
@@ -103,5 +107,15 @@ impl Labels {
             result.push(ids[selected_index]);
         }
         result
+    }
+
+    pub fn search(&self, ids: &Vec<ObjId>, input: &str) -> Vec<ObjId> {
+       self.resolve(ids)
+           .into_iter()
+           .filter(|label| {
+               text::is_valid_search(label.label.as_str(), input)
+           })
+           .map(|label| label.id)
+           .collect()
     }
 }
