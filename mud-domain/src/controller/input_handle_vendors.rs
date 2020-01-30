@@ -110,7 +110,7 @@ pub fn parse_vendor_item(container: &Container, vendor_id: ObjId, input: &str) -
         .loader
         .list_prefabs()
         .filter(|data| data.price.is_some())
-        .filter(|data| text::is_valid_search(data.label.as_str(), input))
+        .filter(|data| text::is_text_eq(data.label.as_str(), input))
         .map(|data| data.id)
         .next()
 }

@@ -33,7 +33,7 @@ pub fn run(ctx: &mut SystemCtx) {
     // process all already triggered spawns
     for event in ctx.container.triggers.list(EventKind::Spawn) {
         let spawn_id = event.get_obj_id();
-        let mut spawn = unwrap_or_continue!(ctx.container.spawns.get_mut(spawn_id));
+        let spawn = unwrap_or_continue!(ctx.container.spawns.get_mut(spawn_id));
 
         let can_spawn_mobs = ctx.container.ownership.count(spawn.id) < spawn.max as usize;
 

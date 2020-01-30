@@ -2,6 +2,8 @@ use crate::utils::text;
 use commons::ObjId;
 use logs::*;
 use std::collections::HashMap;
+use crate::utils::strinput::StrInput;
+use std::panic::resume_unwind;
 
 #[derive(Clone, Debug)]
 pub struct Label {
@@ -110,12 +112,107 @@ impl Labels {
     }
 
     pub fn search(&self, ids: &Vec<ObjId>, input: &str) -> Vec<ObjId> {
-       self.resolve(ids)
-           .into_iter()
-           .filter(|label| {
-               text::is_valid_search(label.label.as_str(), input)
-           })
-           .map(|label| label.id)
-           .collect()
+        let labels = self.resolve(ids);
+        label_search(&labels, input)
+    }
+}
+
+// TODO: search by multiple strings (drop sword shield bag)
+pub fn label_search<'a>(labels: &Vec<&'a Label>, input: &str) -> Vec<ObjId> {
+    let mut result = vec![];
+    // search by exactly label
+    for i in labels.iter() {
+        if text::is_text_eq(i.label.as_str(), input) {
+            result.push(i.id);
+        }
+    }
+
+    if !result.is_empty() {
+        return result;
+    }
+
+    // search by exactly code
+    for i in labels.iter() {
+        if text::is_text_eq(i.code.as_str(), input) {
+            result.push(i.id);
+        }
+    }
+
+    if !result.is_empty() {
+        return result;
+    }
+
+    // search by fuzzy label
+    for i in labels.iter() {
+        if text::is_text_like(i.label.as_str(), input) {
+            result.push(i.id);
+        }
+    }
+
+    if !result.is_empty() {
+        return result;
+    }
+
+    // search by fuzzy code
+    for i in labels.iter() {
+        if text::is_text_like(i.code.as_str(), input) {
+            result.push(i.id);
+        }
+    }
+
+    result
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    fn test_label_search(labels: Vec<(u32, &str, &str)>, input: &str, expected: Vec<u32>) {
+        let labels: Vec<Label> = labels.into_iter()
+           .map(|(id, label, code)| {
+               Label {
+                   id: ObjId(id),
+                   label: label.to_string(),
+                   code: code.to_string(),
+                   desc: "".to_string()
+               }
+           }).collect();
+
+        let labels_ref: Vec<&Label> = labels.iter().map(|i| i).collect();
+        let result = label_search(&labels_ref, input);
+        let result_ids: Vec<u32> = result.into_iter().map(|id| id.as_u32()).collect();
+        assert_eq!(result_ids, expected);
+    }
+
+    #[test]
+    fn test_label_search_with_full_label() {
+        test_label_search(vec![
+            (0, "Asteroid Field", "asteroid"),
+            (1, "Asteroid Station", "station"),
+        ], "asteroid field", vec![0]);
+    }
+
+    #[test]
+    fn test_label_search_with_full_code() {
+        test_label_search(vec![
+            (0, "Asteroid Field", "asteroid"),
+            (1, "Asteroid Station", "asteroid_station"),
+        ], "asteroid", vec![0]);
+    }
+
+    #[test]
+    fn test_label_search_with_partial_label() {
+        test_label_search(vec![
+            (0, "Asteroid Field", "not"),
+            (1, "Asteroid Station", "station"),
+        ], "asteroid", vec![0, 1]);
+    }
+
+    #[test]
+    fn test_label_search_with_partial_code() {
+        test_label_search(vec![
+            (0, "Field", "asteroid_field"),
+            (1, "Station", "asteroid_station"),
+        ], "asteroid", vec![0, 1]);
     }
 }

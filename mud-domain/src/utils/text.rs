@@ -100,7 +100,7 @@ pub fn search_label(input: &str, labels: &Vec<&str>) -> Vec<usize> {
         .iter()
         .enumerate()
         .filter_map(|(i, s)| {
-            if is_valid_search(s, input) {
+            if is_text_eq(s, input) {
                 Some(i)
             } else {
                 None
@@ -109,8 +109,12 @@ pub fn search_label(input: &str, labels: &Vec<&str>) -> Vec<usize> {
         .collect()
 }
 
-pub fn is_valid_search(label: &str, input: &str) -> bool {
+pub fn is_text_eq(label: &str, input: &str) -> bool {
     label.eq_ignore_ascii_case(input)
+}
+
+pub fn is_text_like(label: &str, input: &str) -> bool {
+    label.to_lowercase().starts_with(input)
 }
 
 #[cfg(test)]
