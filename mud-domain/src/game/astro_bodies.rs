@@ -42,10 +42,6 @@ impl AstroBody {
     pub fn get_low_orbit(&self) -> DistanceMkm {
         km_to_mkm(100.0)
     }
-
-    pub fn get_high_orbit(&self) -> DistanceMkm {
-        1.0
-    }
 }
 
 #[derive(Clone, Debug)]

@@ -18,7 +18,7 @@ pub struct InventoryDesc<'a> {
 
 // TODO: move to a rule like system that control this semantic through
 pub fn is_visible(container: &Container, obj_id: ObjId) -> bool {
-    container.mobs.exists(obj_id) || container.items.exists(obj_id) || container.ship.exists(obj_id)
+    container.mobs.exists(obj_id) || container.items.exists(obj_id) || container.ships.exists(obj_id)
 }
 
 pub fn help() -> String {
@@ -521,11 +521,11 @@ pub fn space_show_move_targets(desc: &Vec<ShowSectorTreeBody>) -> String {
 }
 
 pub fn space_invalid_not_in_craft() -> String {
-    "You can not do this, you are not in a craft.".to_string()
+    "You can not do this, you are not in a ship.".to_string()
 }
 
 pub fn space_move() -> String {
-    "command accepted, the craft is accelerating to the target".to_string()
+    "command accepted, the ship is accelerating to the target".to_string()
 }
 
 pub fn space_move_invalid() -> String {
@@ -545,7 +545,7 @@ pub fn space_land_invalid() -> String {
 }
 
 pub fn space_not_in_craft() -> String {
-    "you are not in a craft".to_string()
+    "you are not in a ship".to_string()
 }
 
 pub fn space_needs_to_be_in_space() -> String {

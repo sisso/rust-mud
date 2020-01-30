@@ -8,6 +8,43 @@
 - land and fly around
 - as factorio, everything that player do need to be automatized 
 
+## Orbit movement
+
+Find root of both places, make diff from the root, sum others.
+
+### Case 1
+
+Star 0
+- Earth 200
+  - Luna 5
+    - Trade 0.1
+- Mars 320
+
+Luna -> Earth ->  Star -> Mars
+0.1 + 5 + abs(200 - 320) = 125.1
+
+### Case 2
+
+Star 0
+- Earth 200
+  - Luna 5
+    - Trade 0.1
+  - ISS 0.2
+
+Luna 0.1 + abs(Earth 0.5 - ISS 0.2) = 0.4
+
+Star 0
+- Earth 200
+  - Luna 5
+    - Trade 0.1
+- Mars 320
+  - Olympus 2
+     - Olympus Station 0.2
+
+Luna 0.1 + Earth 5 + abs(Star 200 - Mars 320) + Olympus 2 + Station 0.2 = 127.3 
+
+###  Case 3 
+
 ## Galaxy
 
 Galaxy is like a big sphere, where start systems can jump anywhere in the borders. Player can stay in the border systems

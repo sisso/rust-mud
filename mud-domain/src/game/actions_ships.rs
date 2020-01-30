@@ -1,14 +1,15 @@
 use crate::errors::{Error, Result};
 use crate::game::container::Container;
-use crate::game::crafts::{ShipCommand, ShipId};
+use crate::game::ships::{ShipCommand, ShipId};
 use crate::game::domain::Dir;
 use crate::game::mob::MobId;
 use crate::game::room::RoomId;
 use crate::game::{comm, space_utils, Outputs};
-use commons::{ObjId, PlayerId};
+use commons::{ObjId, PlayerId, DeltaTime};
 use logs::*;
 use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
 
+/// Assume that all arguments are correct
 pub fn move_to(
     container: &mut Container,
     outputs: &mut dyn Outputs,
@@ -16,9 +17,13 @@ pub fn move_to(
     craft_id: ShipId,
     target_id: ObjId,
 ) -> Result<()> {
+    // TODO compute a proper distance
+    let travel_time = DeltaTime(5.0);
+    let arrival_time = container.time.total + travel_time;
+
     container
-        .ship
-        .set_command(craft_id, ShipCommand::MoveTo { target_id })
+        .ships
+        .set_command(craft_id, ShipCommand::MoveTo { target_id, arrival_time })
         .map(|ok| {
             debug!("move_to {:?} at {:?}", craft_id, target_id);
             outputs.private(mob_id, comm::space_move());

@@ -5,7 +5,7 @@ use crate::errors::Error;
 use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
 use crate::game::config::Config;
 use crate::game::container::Container;
-use crate::game::crafts::Ship;
+use crate::game::ships::Ship;
 use crate::game::domain::{Dir, Modifier};
 use crate::game::item::{Armor, Item, Weapon};
 use crate::game::labels::Label;
@@ -399,7 +399,7 @@ impl Loader {
         }
 
         if let Some(craft) = &data.craft {
-            container.ship.add(Ship::new(obj_id));
+            container.ships.add(Ship::new(obj_id));
         }
 
         if let Some(_surfaces) = &data.sector {

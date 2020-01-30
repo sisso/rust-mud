@@ -1,6 +1,6 @@
 use crate::game::astro_bodies::AstroBodies;
 use crate::game::config::Config;
-use crate::game::crafts::Ships;
+use crate::game::ships::Ships;
 use crate::game::domain::{GameTime, MobCtx, PlayerCtx};
 use crate::game::equip::Equips;
 use crate::game::item::ItemRepository;
@@ -40,7 +40,7 @@ pub struct Container {
     pub equips: Equips,
     pub tags: Tags,
     pub labels: Labels,
-    pub ship: Ships,
+    pub ships: Ships,
     pub sectors: Surfaces,
     pub astro_bodies: AstroBodies,
     pub pos: PosRepo,
@@ -68,7 +68,7 @@ impl Container {
             equips: Equips::new(),
             tags: Tags::new(),
             labels: Labels::new(),
-            ship: Ships::new(),
+            ships: Ships::new(),
             sectors: Surfaces::new(),
             astro_bodies: AstroBodies::new(),
             pos: PosRepo::new(),

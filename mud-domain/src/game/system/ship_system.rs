@@ -1,48 +1,46 @@
 use crate::game::comm;
-use crate::game::crafts::ShipCommand;
+use crate::game::ships::ShipCommand;
 use crate::utils::geometry;
 use crate::game::system::SystemCtx;
+use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
+use logs::*;
 
 pub fn tick(ctx: &mut SystemCtx) {
-    let mut commands_complete = vec![];
+    let total_time = ctx.container.time.total;
+    let mut move_commands_complete = vec![];
 
-    for craft in ctx.container.ship.list_all() {
-        match craft.command {
-            ShipCommand::Idle => {}
-            ShipCommand::MoveTo { target_id } => {
-                let target_pos = ctx.container.pos.get_pos(target_id);
-                let self_pos = ctx.container.pos.get_pos(craft.id);
-
-                match (self_pos, target_pos) {
-                    (Some(self_pos), Some(target_pos)) => {
-                        let max_distance =
-                            craft.attributes.speed * ctx.container.time.delta.as_f32();
-                        let (new_pos, done) =
-                            geometry::move_towards(self_pos, target_pos, max_distance);
-                        let _ = ctx.container.pos.update(craft.id, new_pos);
-                        if done {
-                            commands_complete.push((craft.id, true));
-                        }
-                    }
-                    _ => {
-                        commands_complete.push((craft.id, false));
-                    }
+    for ship in ctx.container.ships.list_all() {
+        match ship.command {
+            ShipCommand::Idle => {},
+            ShipCommand::MoveTo { target_id, arrival_time } => {
+                if arrival_time.is_after(total_time) {
+                    // not yea
+                } else {
+                    move_commands_complete.push((ship.id, true, target_id));
                 }
             }
         }
     }
 
-    for (craft_id, success) in commands_complete {
-        ctx.container
-            .ship
-            .set_command(craft_id, ShipCommand::Idle)
-            .unwrap();
+    for (ship_id, success, target_id) in move_commands_complete {
+        ctx.container.ships.set_command(ship_id, ShipCommand::Idle).unwrap();
 
         let msg = if success {
+            ctx.container.locations.set(ship_id, target_id);
+
+            let low_orbit = ctx.container.astro_bodies.get(target_id).unwrap().get_low_orbit();
+
+            ctx.container.astro_bodies.update(AstroBody {
+                id: ship_id,
+                orbit_distance: low_orbit,
+                kind: AstroBodyKind::Ship
+            }).unwrap();
+
             comm::space_command_complete()
         } else {
             comm::space_command_failed()
         };
-        ctx.outputs.broadcast(None, craft_id, msg);
+
+        ctx.outputs.broadcast_all(None, ship_id, msg);
     }
 }

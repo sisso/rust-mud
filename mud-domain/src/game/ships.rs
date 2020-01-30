@@ -1,6 +1,6 @@
 use crate::errors::{Error, Result};
 use crate::game::container::Container;
-use commons::ObjId;
+use commons::{ObjId, TotalTime};
 use logs::*;
 use std::collections::HashMap;
 
@@ -9,7 +9,7 @@ pub type ShipId = ObjId;
 #[derive(Clone, Debug)]
 pub enum ShipCommand {
     Idle,
-    MoveTo { target_id: ObjId },
+    MoveTo { target_id: ObjId, arrival_time: TotalTime },
 }
 
 #[derive(Clone, Debug)]
@@ -65,6 +65,10 @@ impl Ships {
 
     pub fn get(&self, id: ObjId) -> Option<&Ship> {
         self.index.get(&id)
+    }
+
+    pub fn get_mut(&mut self, id: ObjId) -> Option<&mut Ship> {
+        self.index.get_mut(&id)
     }
 
     pub fn set_command(&mut self, craft_id: ShipId, command: ShipCommand) -> Result<()> {

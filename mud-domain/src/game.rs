@@ -23,7 +23,7 @@ pub mod comm;
 pub mod config;
 pub mod container;
 pub mod corpse;
-pub mod crafts;
+pub mod ships;
 pub mod domain;
 pub mod equip;
 pub mod inventory;

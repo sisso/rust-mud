@@ -2,7 +2,7 @@ use crate::errors::{AsResult, Error, Result};
 use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
 use crate::game::comm::{ShowSectorTreeBody, ShowSectorTreeBodyKind, ShowStarmapDescKind, SurfaceDesc, ShowSectorTreeBodyOrbit};
 use crate::game::container::Container;
-use crate::game::crafts::ShipId;
+use crate::game::ships::ShipId;
 use crate::game::location::LocationId;
 use crate::game::mob::MobId;
 use crate::game::{comm, Outputs};
@@ -35,7 +35,7 @@ pub fn get_objects_in_surface(
         .flat_map(|id| {
             let label = container.labels.get_label_f(id);
             let pos = container.pos.get_pos(id);
-            let is_craft = container.ship.exists(id);
+            let is_craft = container.ships.exists(id);
             let is_planet = container.astro_bodies.exists(id);
 
             match pos {
@@ -135,7 +135,7 @@ pub fn get_ship(container: &Container, mob_id: MobId) -> Option<ShipId> {
     }
 
     let craft_id = container.locations.get(room_id)?;
-    if !container.ship.exists(craft_id) {
+    if !container.ships.exists(craft_id) {
         return None;
     }
 
@@ -146,7 +146,7 @@ pub fn find_ships_at(container: &Container, location_id: LocationId) -> Vec<Ship
     container
         .locations
         .list_at(location_id)
-        .filter(|&id| container.ship.exists(id))
+        .filter(|&id| container.ships.exists(id))
         .collect()
 }
 
