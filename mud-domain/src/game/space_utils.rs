@@ -5,8 +5,9 @@ use crate::game::container::Container;
 use crate::game::ships::ShipId;
 use crate::game::location::LocationId;
 use crate::game::mob::MobId;
-use crate::game::{comm, Outputs};
+use crate::game::{comm, Outputs, rooms_zones};
 use commons::{ObjId, PlayerId, MIN_DISTANCE, V2};
+use logs::*;
 
 #[deprecated]
 pub fn find_surface_target(
@@ -36,7 +37,7 @@ pub fn get_objects_in_surface(
             let label = container.labels.get_label_f(id);
             let pos = container.pos.get_pos(id);
             let is_craft = container.ships.exists(id);
-            let is_planet = container.astro_bodies.exists(id);
+            let is_planet = container.space_body.exists(id);
 
             match pos {
                 Some(pos) if is_craft => Some(SurfaceDesc {
@@ -59,48 +60,29 @@ pub fn get_objects_in_surface(
     objects
 }
 
-pub fn search_near_landing_sites(container: &Container, craft_id: ObjId) -> Vec<ObjId> {
-    container
-        .locations
-        .get(craft_id)
-        .and_then(|location_id| {
-            container
-                .pos
-                .get_pos(craft_id)
-                .map(|pos| (location_id, pos))
-        })
-        .map(|(location_id, pos)| {
-            container
-                .locations
-                .list_at(location_id)
-                .filter(|&obj_id| {
-                    if !container.astro_bodies.exists(obj_id) {
-                        return false;
-                    }
+pub fn search_landing_sites(container: &Container, ship_id: ObjId) -> Vec<ObjId> {
+    let orbit_id = if let Some(orbit_id) = container.locations.get(ship_id) {
+        orbit_id
+    } else {
+        warn!("{:?} requested to land but has no location", ship_id);
+        return vec![];
+    };
 
-                    let is_near = container
-                        .pos
-                        .get_pos(obj_id)
-                        .map(|planet_pos| {
-                            let distance = planet_pos.distance(pos);
-                            distance <= MIN_DISTANCE
-                        })
-                        .unwrap_or(false);
+    if !container.space_body.exists(orbit_id) {
+        warn!("{:?} requested to land but location is not a space body", ship_id);
+        return vec![];
+    }
 
-                    is_near
-                })
-                .flat_map(|planet_id| {
-                    container.locations.list_at(planet_id).filter(|&id| {
-                        container
-                            .rooms
-                            .get(id)
-                            .map(|room| room.can_exit)
-                            .unwrap_or(false)
-                    })
-                })
-                .collect()
-        })
-        .unwrap_or(vec![])
+    let candidates = rooms_zones::search_rooms_at(container, orbit_id);
+    let sites = candidates.iter()
+        .filter(|room| room.can_exit)
+        .map(|room| room.id)
+        .collect();
+
+    trace!("{:?} searching landing sites at orbit {:?}. From rooms {:?} found {:?} landing sites",
+           ship_id, orbit_id, candidates, sites);
+
+    sites
 }
 
 pub fn get_ship_and_sector(
@@ -168,7 +150,7 @@ pub fn find_space_bodies(container: &Container, sector_id: ObjId) -> Vec<&AstroB
         .locations
         .list_deep_at(sector_id)
         .into_iter()
-        .flat_map(|id| container.astro_bodies.get(id))
+        .flat_map(|id| container.space_body.get(id))
         .collect()
 }
 

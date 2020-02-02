@@ -82,10 +82,10 @@ pub fn move_to(
 
 pub fn land_list(container: &Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<()> {
     get_ship(container, mob_id)
-        .map(|craft_id| {
-            let labels = search_near_landing_sites(container, craft_id)
+        .map(|ship_id| {
+            let labels = search_landing_sites(container, ship_id)
                 .into_iter()
-                .map(|id| container.labels.get_label_f(id))
+                .flat_map(|id| container.labels.get_label(id))
                 .collect();
 
             outputs.private(mob_id, comm::space_land_list(&labels));
@@ -104,7 +104,7 @@ pub fn land_at(
 ) -> Result<()> {
     let result = match (input.get(1), get_ship(container, mob_id)) {
         (Some(input), Some(craft_id)) => {
-            let sites = search_near_landing_sites(container, craft_id);
+            let sites = search_landing_sites(container, craft_id);
             let labels = container.labels.resolve_codes(&sites);
 
             match text::search_label(input, &labels).first().cloned() {

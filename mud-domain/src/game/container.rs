@@ -26,6 +26,7 @@ use commons::{DeltaTime, ObjId, PlayerId};
 use logs::*;
 use crate::errors::*;
 use crate::game::system::{SystemCtx, ship_system, spawn_system, combat_system, rest_system, item_system};
+use crate::game::zone::Zones;
 
 pub struct Container {
     pub config: Config,
@@ -42,7 +43,7 @@ pub struct Container {
     pub labels: Labels,
     pub ships: Ships,
     pub sectors: Surfaces,
-    pub astro_bodies: AstroBodies,
+    pub space_body: AstroBodies,
     pub pos: PosRepo,
     pub surface_objects: SurfaceObjects,
     pub loader: Loader,
@@ -51,6 +52,7 @@ pub struct Container {
     pub timer: Timer,
     pub triggers: Triggers,
     pub ownership: Ownerships,
+    pub zones: Zones,
 }
 
 impl Container {
@@ -70,7 +72,7 @@ impl Container {
             labels: Labels::new(),
             ships: Ships::new(),
             sectors: Surfaces::new(),
-            astro_bodies: AstroBodies::new(),
+            space_body: AstroBodies::new(),
             pos: PosRepo::new(),
             surface_objects: SurfaceObjects::new(),
             loader: Loader::new(),
@@ -79,6 +81,7 @@ impl Container {
             timer: Timer::new(),
             triggers: Triggers::new(),
             ownership: Ownerships::new(),
+            zones: Zones::new(),
         }
     }
 
@@ -95,7 +98,7 @@ impl Container {
         self.vendors.remove(obj_id);
         self.prices.remove(obj_id);
         self.ownership.remove_owner(obj_id);
-        self.astro_bodies.remove(obj_id);
+        self.space_body.remove(obj_id);
     }
 
     pub fn get_mob_ctx(&self, mob_id: MobId) -> Option<MobCtx> {

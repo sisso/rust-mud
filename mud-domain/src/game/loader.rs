@@ -23,6 +23,7 @@ use logs::*;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
+use crate::game::zone::Zone;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct RoomExitData {
@@ -135,6 +136,9 @@ pub struct PriceData {
 pub struct VendorData {}
 
 #[derive(Deserialize, Serialize, Debug)]
+pub struct ZoneData {}
+
+#[derive(Deserialize, Serialize, Debug)]
 pub struct ObjData {
     pub id: StaticId,
     pub label: String,
@@ -154,6 +158,7 @@ pub struct ObjData {
     pub item: Option<ItemData>,
     pub price: Option<PriceData>,
     pub vendor: Option<VendorData>,
+    pub zone: Option<ZoneData>,
 }
 
 impl ObjData {
@@ -175,6 +180,7 @@ impl ObjData {
             item: None,
             price: None,
             vendor: None,
+            zone: None,
         }
     }
 }
@@ -395,7 +401,7 @@ impl Loader {
             };
 
             let body = AstroBody::new(obj_id, orbit_distance, kind);
-            container.astro_bodies.insert(body).unwrap();
+            container.space_body.insert(body).unwrap();
         }
 
         if let Some(craft) = &data.craft {
@@ -487,6 +493,10 @@ impl Loader {
         if let Some(data) = &data.vendor {
             let vendor = Vendor::new(obj_id);
             container.vendors.add(vendor);
+        }
+
+        if let Some(zone) = &data.zone {
+            container.zones.add(Zone { id: obj_id });
         }
 
         if let Some(children) = data.children.clone() {

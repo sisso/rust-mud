@@ -28,9 +28,9 @@ pub fn tick(ctx: &mut SystemCtx) {
         let msg = if success {
             ctx.container.locations.set(ship_id, target_id);
 
-            let low_orbit = ctx.container.astro_bodies.get(target_id).unwrap().get_low_orbit();
+            let low_orbit = ctx.container.space_body.get(target_id).unwrap().get_low_orbit();
 
-            ctx.container.astro_bodies.update(AstroBody {
+            ctx.container.space_body.update(AstroBody {
                 id: ship_id,
                 orbit_distance: low_orbit,
                 kind: AstroBodyKind::Ship

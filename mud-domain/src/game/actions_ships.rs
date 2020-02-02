@@ -74,7 +74,7 @@ pub fn do_launch(
     // search current body
     let parent_body = parents.iter()
         .flat_map(|&id| {
-            container.astro_bodies.get(id)
+            container.space_body.get(id)
         }).next();
 
     let parent_body = match parent_body {
@@ -99,7 +99,7 @@ pub fn do_launch(
     };
 
     // put ship in low orbit
-    if let Err(error) = container.astro_bodies.insert(body) {
+    if let Err(error) = container.space_body.insert(body) {
         warn!(
             "{:?} launch {:?} fail to set ship orbit: {:?}",
             mob_id, ship_id, error

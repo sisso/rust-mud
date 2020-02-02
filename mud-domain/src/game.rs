@@ -51,6 +51,8 @@ pub mod vendors;
 pub mod system;
 pub mod main_loop;
 pub mod ownership;
+pub mod zone;
+pub mod rooms_zones;
 
 /// TODO: replace by buffer? looks a like of extra work keep this abstraction as reference
 pub trait Outputs {

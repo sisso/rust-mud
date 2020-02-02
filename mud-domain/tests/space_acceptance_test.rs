@@ -120,6 +120,11 @@ fn test_sectormap() {
 
     scenery.send_input("move asteroid");
     scenery.wait_for("command accepted");
-
     scenery.wait_for("command complete");
+
+    scenery.send_input("land");
+    scenery.wait_for("Asteroid");
+
+    scenery.send_input("land asteroid");
+    scenery.wait_for("landing complete");
 }
