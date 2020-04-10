@@ -1,8 +1,8 @@
 # Main Todo
 
-# Design
+- crew
 
-- how we can introduce a new view that will stop to receive events? Like stunned?
+# Design
 
 # usability
 
@@ -34,7 +34,6 @@
 
 # Features
 
-- spawn track items life cycle
 - TODO in config checker 
 - serialization 
 - crafting
