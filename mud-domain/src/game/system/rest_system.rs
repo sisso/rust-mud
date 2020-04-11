@@ -7,12 +7,12 @@ use crate::game::mob::Mob;
 pub fn run(ctx: &mut SystemCtx) {
     let total_time = ctx.container.time.total;
 
-    for mob_id in ctx.container.mobs.list() {
-        let mob = ctx.container.mobs.get_mut(mob_id).unwrap();
-        
+    for mob in ctx.container.mobs.list_mut() {
         if !mob.is_resting() {
             continue;
         }
+
+        let mob_id = mob.id;
 
         if update_resting(mob, total_time) {
             if mob.attributes.pv.is_damaged() {

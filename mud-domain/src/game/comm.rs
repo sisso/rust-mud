@@ -42,6 +42,7 @@ pub fn help() -> String {
   put <item> <obj>   - put a object into other container
   enter <target>     - enter in something
   out                - get out of something
+  hire               - hire someone
 -------------------------------------------------------------"#;
 
     str.to_string()
@@ -175,6 +176,13 @@ pub fn killed_by_player(mob: &str, xp: Xp) -> String {
 
 pub fn killed(mob: &str) -> String {
     format!("{} was killed", mob)
+}
+
+pub fn kill_return_attack_self(aggressor_mob_label: &str) -> String {
+    format!(
+        "You return combat against {}",
+        aggressor_mob_label
+    )
 }
 
 pub fn kill_return_attack(mob_label: &str, aggressor_mob_label: &str) -> String {

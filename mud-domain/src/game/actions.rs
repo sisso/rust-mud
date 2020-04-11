@@ -121,16 +121,15 @@ pub fn attack(
     mob_id: MobId,
     target_mob_id: MobId,
 ) -> Result<()> {
-    let room_id = container.locations.get(mob_id).as_result()?;
-
-    let mob_label = container.labels.get_label(mob_id).unwrap();
-    let target_label = container.labels.get_label(target_mob_id).unwrap();
+    let location_id = container.locations.get(mob_id).as_result()?;
+    let mob_label = container.labels.get_label(mob_id).as_result()?;
+    let target_label = container.labels.get_label(target_mob_id).as_result()?;
 
     let player_msg = comm::attack_player_initiate(target_label);
     let room_msg = comm::attack_mob_initiate_attack(mob_label, target_label);
 
     outputs.private(mob_id, player_msg);
-    outputs.broadcast(Some(mob_id), room_id, room_msg);
+    outputs.broadcast(Some(mob_id), location_id, room_msg);
 
     container.mobs.set_mob_attack_target(mob_id, target_mob_id);
 
@@ -155,14 +154,13 @@ pub fn rest(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId)
     outputs.broadcast(Some(mob_id), room_id, comm::rest_start_others(mob_label));
 
     container.mobs.update(mob_id, |mob| {
-        mob.set_action(MobAction::Resting, total_time);
+        let _ = mob.set_action_rest(total_time);
     })
 }
 
 // optional PlayerId
 pub fn stand(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<()> {
     let ctx = container.get_mob_ctx(mob_id).as_result()?;
-    let total_time = container.time.total;
 
     if ctx.mob.is_resting() {
         outputs.private(mob_id, comm::stand_fail_not_resting());
@@ -174,7 +172,7 @@ pub fn stand(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId
     outputs.private(mob_id, comm::stand_up());
     outputs.broadcast(Some(mob_id), ctx.room.id, comm::stand_up_others(mob_label));
     container.mobs.update(mob_id, |mob| {
-        mob.set_action(MobAction::None, total_time);
+        let _ = mob.stop_rest();
     });
 
     Ok(())

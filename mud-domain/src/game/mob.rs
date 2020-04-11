@@ -16,6 +16,7 @@ use crate::game::{avatars, combat, comm};
 use crate::game::inventory;
 use crate::game::domain::{Rd, Attribute};
 use crate::game::system::SystemCtx;
+use crate::errors::Error::InvalidStateFailure;
 
 pub type MobId = ObjId;
 pub type Xp = u32;
@@ -24,10 +25,11 @@ pub type Xp = u32;
 #[derive(Clone, Debug, Copy)]
 pub enum MobCommand {
     None,
-    Kill { target: MobId },
+    Kill { target_id: MobId },
 }
 
 impl MobCommand {
+    // TODO: is idle vs mob.is_idle???
     pub fn is_idle(&self) -> bool {
         match self {
             MobCommand::None => true,
@@ -179,15 +181,26 @@ impl Mob {
         self.state.action == MobAction::Resting
     }
 
-    pub fn set_action(&mut self, action: MobAction, total: TotalTime) {
-        self.state.action = action;
+    pub fn set_action_rest(&mut self, total: TotalTime) -> Result<()>{
+        self.state.action = MobAction::Resting;
+        self.state.heal_calm_down = TimeTrigger::next(self.attributes.pv.heal_rate, total);
+        Ok(())
+    }
 
+    pub fn stop_rest(&mut self) -> Result<()> {
         match self.state.action {
             MobAction::Resting => {
-                self.state.heal_calm_down = TimeTrigger::next(self.attributes.pv.heal_rate, total);
+                self.state.action = MobAction::None;
+                Ok(())
             }
-            _ => {}
+            _ => Err(InvalidStateFailure)
         }
+    }
+
+    pub fn set_action_kill(&mut self, target_id: ObjId) -> Result<()> {
+        self.command = MobCommand::Kill { target_id };
+        self.state.action = MobAction::Combat;
+        Ok(())
     }
 }
 
@@ -202,13 +215,22 @@ impl MobRepository {
         }
     }
 
-    // TODO: iterator of ref?
-    pub fn list(&self) -> Vec<MobId> {
+    pub fn list<'a>(&'a self) -> impl Iterator<Item = &'a Mob> + 'a {
         self.index
             .iter()
-            .into_iter()
-            .map(|(id, _)| id.clone())
-            .collect()
+            .map(|(_id, mob)| mob)
+    }
+
+    pub fn list_ids<'a>(&'a mut self) -> impl Iterator<Item = MobId> + 'a {
+        self.index
+            .iter()
+            .map(|(id, _mob)| *id)
+    }
+
+    pub fn list_mut<'a>(&'a mut self) -> impl Iterator<Item = &'a mut Mob> + 'a {
+        self.index
+            .iter_mut()
+            .map(|(_id, mob)| mob)
     }
 
     pub fn add(&mut self, mob: Mob) -> &Mob {
@@ -256,10 +278,7 @@ impl MobRepository {
 
     pub fn set_mob_attack_target(&mut self, mob_id: MobId, target: MobId) {
         let mut mob = self.index.get_mut(&mob_id).unwrap();
-        mob.command = MobCommand::Kill {
-            target: target.clone(),
-        };
-        mob.state.action = MobAction::Combat;
+        mob.set_action_kill(target);
     }
 
     pub fn cancel_attack(&mut self, mob_id: MobId) {

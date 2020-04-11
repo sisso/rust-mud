@@ -57,6 +57,7 @@ impl TestScenery {
         self.wait_until(vec![contains], vec![])
     }
 
+    /// should have all contains, and if contain, should have no exclude
     pub fn wait_until(&mut self, contains: Vec<&str>, exclude: Vec<&str>) -> Vec<String> {
         for _ in 0..self.timeout {
             let outputs = self.take_outputs();
@@ -165,15 +166,23 @@ fn test_fantasy_hire_mercenary_and_fight() {
     scenery.login();
     scenery.give_money(100);
     // wait until mercenary spaw
+    hire_mercenary(&mut scenery);
+    from_village_to_florest(&mut scenery);
+    // confirm mercenary have follow us
+    scenery.input_and_wait("look", "mercenary");
+    // wait for wolf
+    scenery.repeat_command_until("look", "wolf");
+    // kill wolf
+    scenery.input("kill wolf");
+    scenery.wait_until(vec!["mercenary", "attack", "wolf"], vec![]);
+}
+
+fn hire_mercenary(scenery: &mut TestScenery) {
     scenery.repeat_command_until("look", "mercenary");
     scenery.input("hire");
     scenery.wait_for("mercenary");
     scenery.input("hire mercenary");
     scenery.wait_for("mercenary hired");
-    from_market_to_florest(&mut scenery);
-    // confirm mercenary have follow us
-    scenery.input_and_wait("look", "mercenary");
-    unimplemented!();
 }
 
 fn sell_meat(scenery: &mut TestScenery) {
@@ -226,7 +235,6 @@ fn from_village_to_florest(scenery: &mut TestScenery) {
 
 fn from_market_to_florest(scenery: &mut TestScenery) {
     scenery.input("look");
-    scenery.input("s");
     scenery.wait_for("Market");
     scenery.input("s");
     scenery.wait_for("Florest");

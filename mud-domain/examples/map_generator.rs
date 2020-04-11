@@ -121,7 +121,7 @@ fn make_full_connected(rooms: &mut Rooms) {
     }
 }
 
-fn create_rooms_and_portals(rng: &mut StdRng, mut rooms: &mut Rooms, door_prob: f32) {
+fn create_rooms_and_portals(rng: &mut StdRng, rooms: &mut Rooms, door_prob: f32) {
     // for door each cell, there is 50% chance to have a door to N or W
     for y in 0..rooms.height {
         for x in 0..rooms.width {

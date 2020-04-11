@@ -6,30 +6,38 @@ use super::mob::*;
 use super::Outputs;
 use crate::errors::{AsResult, Error, Result};
 use crate::game::mob;
+use crate::errors::Error::InvalidStateFailure;
+use logs::*;
 
 pub fn tick_attack(
     container: &mut Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
-    target_mob_id: MobId,
+    target_id: MobId,
 ) -> Result<()> {
     let attacker = container.mobs.get(mob_id).ok_or(Error::NotFoundFailure)?;
-    let defender = container.mobs.get(target_mob_id);
+    let defender = container.mobs.get(target_id);
 
     if let Some(defender) = defender {
         let attacker_room_id = container.locations.get(attacker.id).as_result()?;
         let defender_room_id = container.locations.get(defender.id).as_result()?;
 
         if attacker_room_id != defender_room_id {
-            cancel_attack(container, outputs, mob_id, Some(&target_mob_id));
+            cancel_attack(container, outputs, mob_id, Some(&target_id));
             return Err(Error::InvalidArgumentFailure);
         }
 
         if attacker.is_read_to_attack(container.time.total) {
-            execute_attack(container, outputs, mob_id, target_mob_id)?;
+            execute_attack(container, outputs, mob_id, target_id)?;
         }
 
-        check_return_attack(container, outputs, target_mob_id, mob_id)
+        match return_attack(container, outputs, target_id, mob_id) {
+            Err(err) =>
+                warn!("fail to execute return attack from {:?} to {:?}", mob_id, target_id),
+            _ => {},
+        };
+
+        Ok(())
     } else {
         cancel_attack(container, outputs, mob_id, None);
         Ok(())
@@ -161,27 +169,40 @@ fn roll_damage(damage: &Damage) -> u32 {
     rng.gen_range(damage.min, damage.max + 1)
 }
 
-fn check_return_attack(
+/// mob_id is the mob that receive the attack
+/// target_id is the mob that executed the attack
+fn return_attack(
     container: &mut Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
-    aggressor_mob_id: MobId,
+    target_id: MobId,
 ) -> Result<()> {
-    match container.mobs.get(mob_id) {
-        Some(mob) if mob.command.is_idle() => {
-            let _aggressor_mob = container.mobs.get(aggressor_mob_id).as_result()?;
-            let room_id = container.locations.get(aggressor_mob_id).as_result()?;
-            let mob_label = container.labels.get_label_f(mob_id);
-            let aggressor_mob_label = container.labels.get_label_f(aggressor_mob_id);
+    let mob = container.mobs.get_mut(mob_id).as_result()?;
 
-            let msg = comm::kill_return_attack(mob_label, aggressor_mob_label);
-            outputs.broadcast(None, room_id, msg);
+    if !mob.is_combat() {
+        let location_id = container.locations.get(target_id).as_result()?;
+        let mob_label = container.labels.get_label_f(mob_id);
+        let aggressor_mob_label = container.labels.get_label_f(target_id);
 
-            container
-                .mobs
-                .set_mob_attack_target(mob_id, aggressor_mob_id);
+        outputs.private(mob_id, comm::kill_return_attack_self(aggressor_mob_label));
+
+        let msg = comm::kill_return_attack(mob_label, aggressor_mob_label);
+        outputs.broadcast(Some(mob_id), location_id, msg);
+
+        match mob.set_action_kill(target_id) {
+            Err(err) =>
+                warn!("{:?} fail to execute return attack to {:?}: {:?}", mob_id, target_id, err),
+            Ok(_) =>
+                info!("{:?} set attack to {:?}", mob_id, target_id),
         }
-        _ => {}
+    }
+
+    for follower_id in mob.followers.clone() {
+        match return_attack(container, outputs, follower_id, target_id) {
+            Err(err) =>
+                warn!("{:?} fail to execute return attack from {:?} to {:?}: {:?}", follower_id, mob_id, target_id, err),
+            _ => {},
+        }
     }
 
     Ok(())

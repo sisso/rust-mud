@@ -1,6 +1,6 @@
 # Main Todo
 
-- crew
+- fast spawn
 
 # Design
 
@@ -56,6 +56,7 @@
 
 # refactoring
 
+- stop the infinite amount og mob.get during combat
 - actions should not trigger instantatnius changes
 - add time/tick to logs
 - move outputs to Container, use container Buffer to remove the reference. Maybe not, we could just have events there
