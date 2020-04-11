@@ -10,6 +10,7 @@ use logs::*;
 use std::process::id;
 use crate::game::loader::StaticId;
 use crate::game::item::ItemId;
+use crate::errors::Error::NotFoundFailure;
 
 //#[derive(Debug, Clone)]
 //pub enum Action {
@@ -70,26 +71,40 @@ pub fn mv(
     dir: Dir,
 ) -> Result<()> {
     let location_id = container.locations.get(mob_id).as_result()?;
+    let mob = container.mobs.get(mob_id).as_result()?;
     let room = container.rooms.get(location_id).as_result()?;
     let exit_room_id = room.get_exit(&dir);
 
     match exit_room_id {
         Some(exit_room_id) => {
             let previous_room_id = location_id;
-            // change mob place
-            container.locations.set(mob_id, exit_room_id);
 
-            let label = container.labels.get(mob_id).unwrap();
-            let mob_label = label.label.as_str();
+            let mut mobs_to_move = vec![];
+            mobs_to_move.push(mob_id);
+            mobs_to_move.extend_from_slice(&mob.followers);
 
-            let look = comm::look_description(&container, mob_id).unwrap();
-            let player_msg = format!("{}\n\n{}", comm::move_you_move(&dir), look);
-            let enter_room_msg = comm::move_come(mob_label, &dir.inv());
-            let exit_room_msg = comm::move_goes(mob_label, &dir);
+            for mob_id in mobs_to_move {
+                if !container.objects.exists(mob_id) {
+                    warn!("follower {:?} do not exists!", mob_id);
+                    continue;
+                }
 
-            outputs.private(mob_id, player_msg);
-            outputs.broadcast(Some(mob_id), previous_room_id, exit_room_msg);
-            outputs.broadcast(Some(mob_id), exit_room_id, enter_room_msg);
+                // change mob place
+                container.locations.set(mob_id, exit_room_id);
+
+                let mob_label = container.labels.get_label_f(mob_id);
+
+                // TODO: maybe exclude output for people in the same group?
+                let look = comm::look_description(&container, mob_id).unwrap();
+                let privte_msg = format!("{}\n\n{}", comm::move_you_move(&dir), look);
+                let enter_room_msg = comm::move_come(mob_label, &dir.inv());
+                let exit_room_msg = comm::move_goes(mob_label, &dir);
+
+                outputs.private(mob_id, privte_msg);
+                outputs.broadcast(Some(mob_id), previous_room_id, exit_room_msg);
+                outputs.broadcast(Some(mob_id), exit_room_id, enter_room_msg);
+            }
+
             Ok(())
         }
         None => {

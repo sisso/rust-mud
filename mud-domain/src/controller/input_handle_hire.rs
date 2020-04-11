@@ -27,15 +27,7 @@ pub fn hire(
     let founds = container.labels.search_codes(&candidates, args);
 
     if let Some(&hired_id) = founds.first() {
-        let mob_label = container.labels.get_label_f(mob_id);
-        let hired_label = container.labels.get_label_f(hired_id);
-
-        container.ownership.set_owner(hired_id, mob_id);
-
-        outputs.private(mob_id, comm::hire(hired_label));
-        outputs.broadcast(Some(mob_id), location_id, comm::hire_others(mob_label, hired_label));
-
-        Ok(())
+        crate::game::actions_hire::hire(container, outputs, mob_id, hired_id)
     } else {
         let labels = container.labels.resolve_labels(&candidates);
 

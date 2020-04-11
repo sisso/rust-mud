@@ -145,6 +145,7 @@ pub struct Mob {
     pub attributes: Attributes,
     pub xp: Xp,
     pub state: MobState,
+    pub followers: Vec<ObjId>,
 }
 
 impl Mob {
@@ -156,6 +157,7 @@ impl Mob {
             attributes: Attributes::new(),
             xp: 0,
             state: MobState::new(),
+            followers: Default::default(),
         }
     }
 

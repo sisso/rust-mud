@@ -15,6 +15,7 @@ pub mod actions_admin;
 pub mod actions_ships;
 pub mod actions_items;
 pub mod actions_vendor;
+pub mod actions_hire;
 pub mod astro_bodies;
 pub mod avatars;
 pub mod builder;
