@@ -7,6 +7,7 @@ use crate::game::location;
 use crate::game::location::{LocationId, Locations};
 use crate::game::prices::Money;
 use commons::ObjId;
+use logs::*;
 
 // TODO: Merge common code related with money
 
@@ -109,6 +110,8 @@ fn add_money_with_item(
             // since we add to a already existent item, we don't need this anymore
             container.remove(provided_item_id);
 
+            debug!("{:?} receive {:?} money by merging inventory money", inventory_id, amount);
+
             Ok(())
         }
         (Some(item_id), None) => {
@@ -117,14 +120,13 @@ fn add_money_with_item(
                 .get_mut(item_id)
                 .expect("Money was created but is not a item");
             item.amount += amount.as_u32();
+            debug!("{:?} receive {:?} money by updating inventory money", inventory_id, amount);
             Ok(())
         }
         (None, Some(item_id)) => {
             container.locations.set(item_id, inventory_id);
-
-            // remove ownership of provided item
             container.ownership.remove_owner(item_id);
-
+            debug!("{:?} receive {:?} money by adding money to inventory", inventory_id, amount);
             Ok(())
         }
         (None, None) => {
@@ -135,6 +137,7 @@ fn add_money_with_item(
                 .get_mut(item_id)
                 .expect("Money was created but is not a item");
             item.amount = amount.as_u32();
+            debug!("{:?} receive {:?} money by creating money in inventory", inventory_id, amount);
             Ok(())
         }
     }

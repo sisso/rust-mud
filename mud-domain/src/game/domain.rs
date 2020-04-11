@@ -10,6 +10,7 @@ use crate::errors::Error;
 pub struct Modifier(pub i32);
 
 impl Modifier {
+    /// Apply modifier to a value by increasing / decreasing it, min attribute is zero
     pub fn apply(&self, value: Attribute) -> Attribute{
         0.min(value as i32 + self.0) as u32
     }

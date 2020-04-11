@@ -24,6 +24,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use crate::game::zone::Zone;
+use crate::game::hire::Hire;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct RoomExitData {
@@ -54,6 +55,7 @@ pub struct MobData {
     pub damage_max: u32,
     pub pv: u32,
     pub xp: u32,
+    pub hire_cost: Option<u32>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -426,6 +428,12 @@ impl Loader {
             mob.attributes.damage.min = mob_data.damage_min;
             mob.xp = mob_data.xp;
             container.mobs.add(mob);
+
+            if let Some(hire_cost) = mob_data.hire_cost {
+                let mut hire = Hire::new(obj_id);
+                hire.cost = Money(hire_cost);
+                container.hires.add(hire);
+            }
         }
 
         if let Some(room_data) = &data.room {

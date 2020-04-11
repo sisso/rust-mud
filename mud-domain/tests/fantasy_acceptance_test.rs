@@ -4,6 +4,7 @@ use commons::{ConnectionId, DeltaTime};
 use mud_domain::game::container::Container;
 use mud_domain::game::{inventory, loader, Game};
 use std::path::Path;
+use mud_domain::game::prices::Money;
 
 pub struct TestScenery {
     pub game: Game,
@@ -92,6 +93,11 @@ impl TestScenery {
 
         panic!(format!("timeout waiting for {:?}", expected));
     }
+
+    pub fn give_money(&mut self, amount: u32) {
+        let player_id = *self.game.container.players.list_players().iter().next().unwrap();
+        inventory::add_money(&mut self.game.container, player_id, Money(amount));
+    }
 }
 
 /// should have all contains, and if contain, should have no exclude
@@ -153,6 +159,20 @@ fn test_fantasy_steal_temple_and_buy_weapon() {
     equip_sword(&mut scenery);
 }
 
+#[test]
+fn test_fantasy_hire_mercenary_and_fight() {
+    let mut scenery = TestScenery::new();
+    scenery.login();
+    scenery.give_money(100);
+    scenery.repeat_command_until("look", "mercenary");
+    scenery.input("hire");
+    scenery.wait_for("mercenary");
+    scenery.input("hire mercenary");
+    scenery.wait_for("mercenary hired");
+    from_market_to_florest(&mut scenery);
+    unimplemented!();
+}
+
 fn sell_meat(scenery: &mut TestScenery) {
     scenery.input("look");
     scenery.wait_for("- vendor");
@@ -191,6 +211,14 @@ fn from_village_to_market(scenery: &mut TestScenery) {
     scenery.wait_for("Village");
     scenery.input("s");
     scenery.wait_for("Market");
+}
+
+fn from_village_to_florest(scenery: &mut TestScenery) {
+    scenery.input("look");
+    scenery.wait_for("Village");
+    scenery.input("s");
+    scenery.input("s");
+    scenery.wait_for("Florest");
 }
 
 fn from_market_to_florest(scenery: &mut TestScenery) {

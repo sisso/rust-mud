@@ -833,3 +833,17 @@ mod tests {
         );
     }
 }
+
+pub fn hire_fail() -> String {
+    "you can not hire now".to_string()
+}
+
+pub fn hire_list(candidates: Vec<&str>) -> String {
+    let mut buff = "You can hire the following:\n".to_string();
+    for candidate in candidates {
+        buff.push_str(" - ");
+        buff.push_str(candidate);
+        buff.push_str("\n");
+    }
+    buff
+}

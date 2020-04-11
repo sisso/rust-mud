@@ -53,6 +53,7 @@ pub mod main_loop;
 pub mod ownership;
 pub mod zone;
 pub mod rooms_zones;
+pub mod hire;
 
 /// TODO: replace by buffer? looks a like of extra work keep this abstraction as reference
 pub trait Outputs {
@@ -66,7 +67,7 @@ pub trait Outputs {
 
 /// Hold container and interface logic
 pub struct Game {
-    container: Container,
+    pub container: Container,
     controller: Controller,
     systems: Systems,
 }

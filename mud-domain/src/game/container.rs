@@ -27,6 +27,7 @@ use logs::*;
 use crate::errors::*;
 use crate::game::system::{SystemCtx, ship_system, spawn_system, combat_system, rest_system, item_system};
 use crate::game::zone::Zones;
+use crate::game::hire::Hires;
 
 pub struct Container {
     pub config: Config,
@@ -53,6 +54,7 @@ pub struct Container {
     pub triggers: Triggers,
     pub ownership: Ownerships,
     pub zones: Zones,
+    pub hires: Hires,
 }
 
 impl Container {
@@ -82,6 +84,7 @@ impl Container {
             triggers: Triggers::new(),
             ownership: Ownerships::new(),
             zones: Zones::new(),
+            hires: Hires::new(),
         }
     }
 

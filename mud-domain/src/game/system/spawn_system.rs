@@ -37,8 +37,6 @@ pub fn run(ctx: &mut SystemCtx) {
 
         let can_spawn_mobs = ctx.container.ownership.count(spawn.id) < spawn.max as usize;
 
-        println!("can_spawn_mobs {}", can_spawn_mobs);
-
         if can_spawn_mobs {
             match ctx.container.locations.get(spawn.id) {
                 Some(location_id) => {

@@ -67,11 +67,11 @@ fn execute_attack(
     mob_id: MobId,
     target_id: MobId,
 ) -> Result<()> {
-    let attacker_attributes = mob::get_attributes(container, mob_id)?;
+    let attacker_attributes = mob::get_attributes_with_bonus(container, mob_id)?;
     let attacker_room_id = container.locations.get(mob_id).as_result()?;
     let attacker_label = container.labels.get_label_f(mob_id);
 
-    let defender_attributes = mob::get_attributes(container, mob_id)?;
+    let defender_attributes = mob::get_attributes_with_bonus(container, mob_id)?;
     let defender_label = container.labels.get_label_f(target_id);
 
     let attack_result = roll_attack(

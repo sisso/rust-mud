@@ -342,12 +342,12 @@ pub fn search_mobs_at(
 }
 
 /// get mob attributes summing items
-pub fn get_attributes(container: &Container, mob_id: MobId) -> Result<Attributes> {
+pub fn get_attributes_with_bonus(container: &Container, mob_id: MobId) -> Result<Attributes> {
     let mut attributes= container.mobs.get(mob_id)
         .ok_or(Error::NotFoundFailure)
         .map(|mob| mob.attributes.clone())?;
 
-    let equipped_items = container.equips.get(mob_id)
+    container.equips.get(mob_id)
         .into_iter()
         .map(|item_id| container.items.get(item_id).unwrap())
         .for_each(|item| {
@@ -358,7 +358,8 @@ pub fn get_attributes(container: &Container, mob_id: MobId) -> Result<Attributes
 
             if let Some(weapon) = item.weapon.as_ref() {
                 attributes.attack = weapon.attack.apply(attributes.attack);
-                attributes.damage = weapon.damage.clone();
+                attributes.damage.max += weapon.damage.max;
+                attributes.damage.min += weapon.damage.min;
                 attributes.attack_calm_down = weapon.calm_down;
             }
         });

@@ -14,6 +14,7 @@ use crate::game::{actions_admin, inventory, mob};
 use crate::utils::strinput::StrInput;
 use logs::*;
 use super::{input_handle_items, input_handle_space, input_handle_vendors};
+use crate::controller::input_handle_hire;
 
 fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc> {
     let equip = container.equips.get(obj_id);
@@ -194,6 +195,9 @@ pub fn handle(
         _ if input.has_command("sell") => {
             input_handle_vendors::sell(container, outputs, mob_id, input)
         }
+
+        _ if input.has_command("hire") =>
+            input_handle_hire::hire(container, outputs, mob_id, input),
 
         _ => {
             outputs.private(mob_id, comm::unknown_input(input.as_str()));

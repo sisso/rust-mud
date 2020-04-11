@@ -12,6 +12,7 @@ mod view_main;
 mod input_handle_items;
 mod input_handle_space;
 mod input_handle_vendors;
+mod input_handle_hire;
 
 #[derive(Debug)]
 struct ConnectionState {
