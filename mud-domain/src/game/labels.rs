@@ -102,6 +102,10 @@ impl Labels {
     }
 
     pub fn search_codes(&self, ids: &Vec<ObjId>, input: &str) -> Vec<ObjId> {
+        if input.is_empty() {
+            return vec![];
+        }
+
         let candidates = self.resolve_codes(&ids);
         let selected = text::search_label(input, &candidates);
         let mut result = vec![];

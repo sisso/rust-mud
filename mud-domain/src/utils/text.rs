@@ -96,6 +96,10 @@ pub fn mkstring(buffer: Vec<Vec<String>>) -> String {
 ///
 // TODO: full match
 pub fn search_label(input: &str, labels: &Vec<&str>) -> Vec<usize> {
+    if input.is_empty() {
+        return vec![];
+    }
+
     labels
         .iter()
         .enumerate()

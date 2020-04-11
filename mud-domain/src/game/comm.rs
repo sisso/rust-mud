@@ -837,6 +837,17 @@ mod tests {
 pub fn hire_fail() -> String {
     "you can not hire now".to_string()
 }
+pub fn hire_fail_not_found(label: &str) -> String {
+    format!("you can not hire {}", label)
+}
+
+pub fn hire(hired_label: &str) -> String {
+    format!("{} hired", hired_label)
+}
+
+pub fn hire_others(mob_label: &str, hired_label: &str) -> String {
+    format!("{} hired {}", mob_label, hired_label)
+}
 
 pub fn hire_list(candidates: Vec<&str>) -> String {
     let mut buff = "You can hire the following:\n".to_string();

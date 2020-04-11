@@ -164,12 +164,15 @@ fn test_fantasy_hire_mercenary_and_fight() {
     let mut scenery = TestScenery::new();
     scenery.login();
     scenery.give_money(100);
+    // wait until mercenary spaw
     scenery.repeat_command_until("look", "mercenary");
     scenery.input("hire");
     scenery.wait_for("mercenary");
     scenery.input("hire mercenary");
     scenery.wait_for("mercenary hired");
     from_market_to_florest(&mut scenery);
+    // confirm mercenary have follow us
+    scenery.input_and_wait("look", "mercenary");
     unimplemented!();
 }
 
@@ -223,6 +226,7 @@ fn from_village_to_florest(scenery: &mut TestScenery) {
 
 fn from_market_to_florest(scenery: &mut TestScenery) {
     scenery.input("look");
+    scenery.input("s");
     scenery.wait_for("Market");
     scenery.input("s");
     scenery.wait_for("Florest");
