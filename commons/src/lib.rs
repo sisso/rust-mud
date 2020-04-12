@@ -28,6 +28,18 @@ pub const MIN_DISTANCE: f32 = 0.01;
 pub const MIN_DISTANCE_SQR: f32 = MIN_DISTANCE * MIN_DISTANCE;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
+pub struct V2I {
+    pub x: i32,
+    pub y: i32,
+}
+
+impl V2I {
+    pub fn new(x: i32, y: i32) -> Self {
+        V2I { x, y }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct V2 {
     pub x: f32,
     pub y: f32,

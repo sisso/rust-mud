@@ -1,6 +1,8 @@
 # Main Todo
 
-- fast spawn
+- command show map
+- attach random generate map into loader
+- configure spawns to trigger during start
 
 # Design
 

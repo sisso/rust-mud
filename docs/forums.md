@@ -1,3 +1,19 @@
+# CSV vs HOCON
+
+List of CSV files that get converted into json looks much simpler to create/parse/manipulate over HOCON files. 
+
+- how this improve ID? 
+    - maybe using static_id in the scope of csv file
+    
+The file format is {kind}-{namespace}.csv
+
+First column is {id} string
+
+spawn-zone0.csv
+
+    id, location_id, prefab_id,min_time,max_time,max
+    wolf_0,rooms-zone0.florest,mobs-animals.wolf,30,180,4
+
 # Space parent and orbit
 
 We already have parent child relation, why do we need a new for orbiting?

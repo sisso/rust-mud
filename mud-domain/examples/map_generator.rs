@@ -78,7 +78,7 @@ fn make_full_connected(rooms: &mut Rooms) {
                 // complete
                 break;
             } else {
-                eprintln!("deadlock");
+                // eprintln!("deadlock");
 
                 // deadlock, find any non visit room that is neighbor of an already visited
                 // and create a new portal
@@ -97,7 +97,7 @@ fn make_full_connected(rooms: &mut Rooms) {
                             // add current to be vistied
                             visit_queue.push(index);
 
-                            eprintln!("adding portal between {} and {}", index, other_index);
+                            // eprintln!("adding portal between {} and {}", index, other_index);
 
                             continue 'main;
                         }
@@ -108,12 +108,12 @@ fn make_full_connected(rooms: &mut Rooms) {
             let index = visit_queue.pop().unwrap();
             visited.insert(index);
 
-            eprintln!("current {}", index);
+            // eprintln!("current {}", index);
 
             for other_index in rooms.neighbors(index) {
                 let valid = !visited.contains(&other_index) && rooms.is_portal(index, other_index);
                 if valid {
-                    eprintln!("adding {}", other_index);
+                    // eprintln!("adding {}", other_index);
                     visit_queue.push(other_index);
                 }
             }
@@ -146,7 +146,7 @@ fn print(map: &Rooms) {
         .#-#-#.
         .......
     */
-    let empty = '.';
+    let empty = ' ';
     let room = '#';
     let portal_v = '|';
     let portal_h = '-';
@@ -202,7 +202,7 @@ fn main() {
     let rooms = generate(0, 5, 5, 0.60);
     print(&rooms);
 
-    for (a, b) in rooms.portals {
-        println!("{} {}", a, b);
-    }
+    // for (a, b) in rooms.portals {
+    //     println!("{} {}", a, b);
+    // }
 }
