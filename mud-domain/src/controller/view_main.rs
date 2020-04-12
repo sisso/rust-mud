@@ -168,7 +168,9 @@ pub fn handle(
             }
         }
 
-        "sm" | "map" => input_handle_space::show_startree(container, outputs, mob_id),
+        "sm" => input_handle_space::show_startree(container, outputs, mob_id),
+
+        "map" => actions::show_map(container, outputs, mob_id),
 
         "move" => input_handle_space::move_list_targets(container, outputs, mob_id),
 

@@ -8,6 +8,9 @@ use crate::utils::text::{plot_points, PlotCfg, PlotPoint};
 use commons::{ObjId, TotalTime, V2};
 use logs::*;
 use crate::game::astro_bodies::{DistanceMkm, AstroBodyKind};
+use crate::game::room::Room;
+use std::collections::HashMap;
+use crate::game::obj::Obj;
 
 pub struct InventoryDesc<'a> {
     pub id: ItemId,
@@ -43,6 +46,7 @@ pub fn help() -> String {
   enter <target>     - enter in something
   out                - get out of something
   hire               - hire someone
+  map                - show map of current zone
 -------------------------------------------------------------"#;
 
     str.to_string()
@@ -865,4 +869,65 @@ pub fn hire_list(candidates: Vec<&str>) -> String {
         buff.push_str("\n");
     }
     buff
+}
+
+#[derive(Debug,Clone, Eq, PartialEq)]
+pub enum RoomMapCell {
+    Empty,
+    Room(ObjId),
+    DoorHor,
+    DoorVer
+}
+
+#[derive(Debug,Clone)]
+pub struct RoomMap {
+    pub width: u32,
+    pub height: u32,
+    pub cells: Vec<RoomMapCell>,
+}
+
+pub fn print_room_map(current_id: ObjId, room_map: RoomMap, labels: &HashMap<ObjId, String>) -> String {
+    let mut buffer = String::new();
+
+    buffer.push_str("Map\n");
+
+    let mut room_indexes = vec![];
+    let mut current_label = "";
+
+    let mut index = 0;
+    for y in 0..room_map.height {
+        for x in 0..room_map.width {
+            match &room_map.cells[index] {
+                RoomMapCell::Empty => buffer.push_str(".."),
+                RoomMapCell::Room(obj_id) => {
+                    let label = labels.get(obj_id).unwrap();
+
+                    if *obj_id == current_id {
+                        current_label = label.as_str();
+                        buffer.push_str("**");
+                    } else {
+                        room_indexes.push(label);
+                        let current = room_indexes.len();
+                        buffer.push_str(format!("{:02}", current).as_str());
+                    }
+                }
+                RoomMapCell::DoorHor => buffer.push_str("=="),
+                RoomMapCell::DoorVer => buffer.push_str("||"),
+            }
+
+            index += 1;
+        }
+        buffer.push_str("\n");
+    }
+
+    buffer.push_str("labels:\n");
+
+    buffer.push_str(format!("** - {}\n", current_label).as_str());
+
+    for index in 0..room_indexes.len() {
+        let label = room_indexes[index];
+        buffer.push_str(format!("{:02} - {}\n", index, label).as_str());
+    }
+
+    buffer
 }

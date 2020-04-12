@@ -126,6 +126,12 @@ impl ObjId {
     }
 }
 
+impl From<u32> for ObjId {
+    fn from(value: u32) -> Self {
+        ObjId(value)
+    }
+}
+
 pub type PlayerId = ObjId;
 
 #[derive(Clone, Copy, Debug)]

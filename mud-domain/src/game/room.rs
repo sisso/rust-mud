@@ -83,10 +83,14 @@ impl RoomRepository {
         room2.exits.push((dir.inv(), room1_id));
         debug!(
             "adding portal {:?} to {:?} from {:?}",
-            room1_id,
             room2_id,
+            room1_id,
             dir.inv()
         );
+    }
+
+    pub fn get_portals(&self, room_id: RoomId) -> Result<&Vec<(Dir, RoomId)>> {
+        Ok(&self.get(room_id).unwrap().exits)
     }
 
     pub fn exists(&self, id: RoomId) -> bool {

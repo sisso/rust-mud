@@ -177,6 +177,14 @@ fn test_fantasy_hire_mercenary_and_fight() {
     scenery.wait_until(vec!["mercenary", "attack", "wolf"], vec![]);
 }
 
+#[test]
+fn test_fantasy_show_map() {
+    let mut scenery = TestScenery::new();
+    scenery.login();
+    scenery.input("map");
+    scenery.wait_until(vec!["Map", "01==**==02", "Florest"], vec![]);
+}
+
 fn hire_mercenary(scenery: &mut TestScenery) {
     scenery.repeat_command_until("look", "mercenary");
     scenery.input("hire");

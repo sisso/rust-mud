@@ -61,7 +61,7 @@ fn print(rooms: &dyn Rooms) {
         buffer.push_str("\n");
     }
 
-    for x in 0..(rooms.width() * 2 + 1) {
+    for _x in 0..(rooms.width() * 2 + 1) {
         buffer.push_str(empty);
     }
 
