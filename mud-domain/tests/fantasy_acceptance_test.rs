@@ -53,6 +53,13 @@ impl TestScenery {
             .collect()
     }
 
+    pub fn assert_output(&mut self, contains: Vec<&str>) {
+        let outputs = self.take_outputs();
+        if !check_output(&outputs, &contains,&vec![]) {
+            assert_eq!(outputs.join("\n"), contains.join("\n"));
+        }
+    }
+
     pub fn wait_for(&mut self, contains: &str) -> Vec<String> {
         self.wait_until(vec![contains], vec![])
     }
@@ -185,6 +192,15 @@ fn test_fantasy_show_map() {
     scenery.wait_until(vec!["Map", "01==**==02", "forest"], vec![]);
 }
 
+#[test]
+fn test_fantasy_random_rooms() {
+    let mut scenery = TestScenery::new();
+    scenery.login();
+    from_village_to_dungeons(&mut scenery);
+    scenery.input("map");
+    scenery.assert_output(vec!["Map", "01==**==02", "forest"]);
+}
+
 fn hire_mercenary(scenery: &mut TestScenery) {
     scenery.repeat_command_until("look", "mercenary");
     scenery.input("hire");
@@ -239,6 +255,12 @@ fn from_village_to_forest(scenery: &mut TestScenery) {
     scenery.input("s");
     scenery.input("s");
     scenery.wait_for("forest");
+}
+
+fn from_village_to_dungeons(scenery: &mut TestScenery) {
+    from_village_to_forest(scenery);
+    scenery.input("e");
+    scenery.wait_for("Dungeon");
 }
 
 fn from_market_to_forest(scenery: &mut TestScenery) {

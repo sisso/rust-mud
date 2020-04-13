@@ -28,6 +28,7 @@ use crate::errors::*;
 use crate::game::system::{SystemCtx, ship_system, spawn_system, combat_system, rest_system, item_system};
 use crate::game::zone::Zones;
 use crate::game::hire::Hires;
+use crate::game::random_rooms::RandomRoomsRepository;
 
 pub struct Container {
     pub config: Config,
@@ -55,6 +56,7 @@ pub struct Container {
     pub ownership: Ownerships,
     pub zones: Zones,
     pub hires: Hires,
+    pub random_rooms: RandomRoomsRepository,
 }
 
 impl Container {
@@ -85,6 +87,7 @@ impl Container {
             ownership: Ownerships::new(),
             zones: Zones::new(),
             hires: Hires::new(),
+            random_rooms: RandomRoomsRepository::new(),
         }
     }
 

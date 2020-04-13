@@ -15,7 +15,6 @@ trait Rooms {
 
 fn print(rooms: &dyn Rooms) {
     let empty = "..";
-    let room = "##";
     let portal_v = "||";
     let portal_h = "==";
 

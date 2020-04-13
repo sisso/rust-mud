@@ -14,7 +14,7 @@ pub fn add_room(container: &mut Container, label: &str) -> RoomId {
 
     container.rooms.add(Room::new(room_id));
 
-    container.labels.set(Label {
+    container.labels.add(Label {
         id: room_id,
         label: label.to_string(),
         // TODO: use autocode
@@ -31,7 +31,7 @@ pub fn add_item(container: &mut Container, label: &str, location_id: ObjId) -> I
     let item = Item::new(item_id);
     container.items.add(item);
 
-    container.labels.set(Label::new(item_id, label));
+    container.labels.add(Label::new(item_id, label));
     container.locations.set(item_id, location_id);
 
     item_id
@@ -40,7 +40,7 @@ pub fn add_item(container: &mut Container, label: &str, location_id: ObjId) -> I
 pub fn add_mob(container: &mut Container, label: &str, location_id: RoomId) -> MobId {
     let id = container.objects.create();
     container.mobs.add(Mob::new(id));
-    container.labels.set(Label::new(id, label));
+    container.labels.add(Label::new(id, label));
     container.locations.set(id, location_id);
     id
 }

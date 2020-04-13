@@ -26,7 +26,7 @@ pub fn create_corpse(container: &mut Container, outputs: &mut dyn Outputs, mob_i
     let corpse_label = format!("{} corpse", mob_label);
     let corpse_desc = format!("The corpse of {} laying in the ground", mob_label);
 
-    container.labels.set(Label {
+    container.labels.add(Label {
         id: corpse_id,
         label: corpse_label.clone(),
         code: "corpse".to_string(),

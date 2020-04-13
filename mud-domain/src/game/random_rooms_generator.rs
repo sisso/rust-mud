@@ -4,20 +4,20 @@ use rand::prelude::StdRng;
 use rand::{Rng, SeedableRng, thread_rng, RngCore};
 use std::collections::HashSet;
 
-pub struct RandomRoomsCfg {
-    seed: Option<u64>,
-    width: usize,
-    height: usize,
-    portal_prob: Option<f32>,
+pub struct RoomGridCfg {
+    pub seed: Option<u64>,
+    pub width: usize,
+    pub height: usize,
+    pub portal_prob: Option<f32>,
 }
 
-pub struct RandomRooms {
-    width: usize,
-    height: usize,
-    portals: HashSet<(usize, usize)>,
+pub struct RoomGrid {
+    pub width: usize,
+    pub height: usize,
+    pub portals: HashSet<(usize, usize)>,
 }
 
-impl RandomRooms {
+impl RoomGrid {
     pub fn is_portal(&self, room_a: usize, room_b: usize) -> bool {
         self.portals.contains(&(room_a, room_b)) || self.portals.contains(&(room_b, room_a))
     }
@@ -30,13 +30,13 @@ impl RandomRooms {
         self.width * self.height
     }
 
-    pub fn coords(&self, index: usize) -> (usize, usize) {
+    pub fn get_coords(&self, index: usize) -> (usize, usize) {
         (index % self.width, index / self.height)
     }
 
     pub fn neighbors(&self, index: usize) -> Vec<usize> {
         let mut list = vec![];
-        let (x, y) = self.coords(index);
+        let (x, y) = self.get_coords(index);
 
         if x > 0 {
             list.push(index - 1);
@@ -57,8 +57,8 @@ impl RandomRooms {
         list
     }
 
-    fn new(cfg: RandomRoomsCfg) -> RandomRooms {
-        let mut rooms = RandomRooms {
+    pub fn new(cfg: RoomGridCfg) -> RoomGrid {
+        let mut rooms = RoomGrid {
             width: cfg.width,
             height: cfg.height,
             portals: Default::default(),
@@ -148,7 +148,7 @@ impl RandomRooms {
         }
     }
 
-    fn print(&self) -> String {
+    pub fn print(&self) -> String {
         /*
         .......
         .#-#.#.
@@ -210,18 +210,18 @@ impl RandomRooms {
     }
 }
 
-pub struct RandomSpawnsCfg {
+pub struct SpawnListCfg {
     spawns_to_add: Vec<u32>,
     seed: u64
 }
 
-pub struct RandomSpawns {
+pub struct SpawnList {
     /// room index, x, y
     spawns: Vec<(u32, usize, usize)>
 }
 
-impl RandomSpawns {
-    pub fn new(cfg: RandomSpawnsCfg, rooms: &RandomRooms) -> Self {
+impl SpawnList {
+    pub fn new(cfg: SpawnListCfg, rooms: &RoomGrid) -> Self {
         let mut rng: StdRng = SeedableRng::seed_from_u64(cfg.seed);
         let mut spawns: Vec<(u32, usize, usize)> = vec![];
 
@@ -240,7 +240,7 @@ impl RandomSpawns {
             }
         }
 
-        RandomSpawns {
+        SpawnList {
             spawns
         }
     }
@@ -252,7 +252,7 @@ mod test {
 
     #[test]
     pub fn test_generate_rooms() {
-        let rooms = RandomRooms::new(RandomRoomsCfg {
+        let rooms = RoomGrid::new(RoomGridCfg {
             seed: Some(0),
             width: 5,
             height: 5,

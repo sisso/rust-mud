@@ -8,6 +8,7 @@ pub mod ship_system;
 pub mod combat_system;
 pub mod rest_system;
 pub mod item_system;
+pub mod random_room_generators_system;
 
 // TODO: since contains only mutable references, we can send it by value
 pub struct SystemCtx<'a> {
@@ -39,6 +40,7 @@ impl Systems {
         combat_system::run(ctx);
         rest_system::run(ctx);
         ship_system::tick(ctx);
+        random_room_generators_system::run(ctx);
         ctx.container.triggers.clear();
     }
 }

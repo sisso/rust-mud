@@ -47,7 +47,11 @@ impl Templates {
         self.index.contains_key(&id)
     }
 
-    pub fn list<'a>(&'a self) -> impl Iterator<Item = &ObjId> + 'a {
+    pub fn list_ids<'a>(&'a self) -> impl Iterator<Item = &ObjId> + 'a {
         self.index.keys()
+    }
+
+    pub fn list<'a>(&'a self) -> impl Iterator<Item = &Template> + 'a {
+        self.index.values()
     }
 }

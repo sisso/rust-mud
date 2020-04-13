@@ -55,8 +55,8 @@ impl Dir {
         match self {
             Dir::N => Dir::S,
             Dir::S => Dir::N,
-            Dir::E => Dir::E,
-            Dir::W => Dir::W,
+            Dir::E => Dir::W,
+            Dir::W => Dir::E,
         }
     }
 

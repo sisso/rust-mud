@@ -56,6 +56,7 @@ pub mod zone;
 pub mod rooms_zones;
 pub mod hire;
 pub mod random_rooms_generator;
+pub mod random_rooms;
 
 /// TODO: replace by buffer? looks a like of extra work keep this abstraction as reference
 pub trait Outputs {

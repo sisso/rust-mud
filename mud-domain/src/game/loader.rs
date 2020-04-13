@@ -25,6 +25,9 @@ use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use crate::game::zone::Zone;
 use crate::game::hire::Hire;
+use crate::game::random_rooms::{RandomRoomsRepository, RandomRoomsCfg};
+use rand::random;
+use std::borrow::Borrow;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct RoomExitData {
@@ -137,8 +140,18 @@ pub struct PriceData {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct VendorData {}
 
+#[derive(Deserialize,  Serialize, Clone, Debug)]
+pub struct RandomRoomsData {
+    entrance_room_id: StaticId,
+    entrance_dir: String,
+    width: u32,
+    height: u32,
+}
+
 #[derive(Deserialize, Serialize, Debug)]
-pub struct ZoneData {}
+pub struct ZoneData {
+    random_rooms: Option<RandomRoomsData>
+}
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ObjData {
@@ -381,7 +394,7 @@ impl Loader {
                 .unwrap_or(label.clone());
             let desc = data.desc.clone().unwrap_or("".to_string());
 
-            container.labels.set(Label {
+            container.labels.add(Label {
                 id: obj_id,
                 label,
                 code,
@@ -505,6 +518,19 @@ impl Loader {
 
         if let Some(zone) = &data.zone {
             container.zones.add(Zone { id: obj_id });
+
+            if let Some(random_rooms) = &zone.random_rooms {
+                let entrance_id = Loader::get_by_static_id(&container.objects, &references, random_rooms.entrance_room_id).unwrap();
+
+                container.random_rooms.add(RandomRoomsCfg {
+                    id: obj_id,
+                    entrance_id: entrance_id,
+                    entrance_dir: Dir::parse(random_rooms.entrance_dir.as_str()).unwrap(),
+                    seed: 0,
+                    width: random_rooms.width,
+                    height: random_rooms.height,
+                });
+            }
         }
 
         if let Some(children) = data.children.clone() {
@@ -571,6 +597,10 @@ impl Loader {
             }
             _ => {}
         }
+
+        // initialize objects
+        crate::game::system::random_room_generators_system::init(container);
+
 
         Ok(())
     }
