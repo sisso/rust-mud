@@ -3,6 +3,8 @@
 - command show map
 - attach random generate map into loader
 - configure spawns to trigger during start
+- spawn creatures spawn/walk through rooms
+- flag to never spawn if player is viewing
 
 # Design
 

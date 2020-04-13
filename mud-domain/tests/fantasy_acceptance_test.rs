@@ -125,9 +125,9 @@ fn test_fantasy_kill_wolf_and_sell_meat() {
     scenery.login();
     from_village_to_market(&mut scenery);
     // run the following lines multiple times can cause have multiple bodies
-    from_market_to_florest(&mut scenery);
+    from_market_to_forest(&mut scenery);
     kill_wolf_and_loot(&mut scenery);
-    from_florest_to_market(&mut scenery);
+    from_forest_to_market(&mut scenery);
     sell_meat(&mut scenery);
 }
 
@@ -167,7 +167,7 @@ fn test_fantasy_hire_mercenary_and_fight() {
     scenery.give_money(100);
     // wait until mercenary spaw
     hire_mercenary(&mut scenery);
-    from_village_to_florest(&mut scenery);
+    from_village_to_forest(&mut scenery);
     // confirm mercenary have follow us
     scenery.input_and_wait("look", "mercenary");
     // wait for wolf
@@ -182,7 +182,7 @@ fn test_fantasy_show_map() {
     let mut scenery = TestScenery::new();
     scenery.login();
     scenery.input("map");
-    scenery.wait_until(vec!["Map", "01==**==02", "Florest"], vec![]);
+    scenery.wait_until(vec!["Map", "01==**==02", "forest"], vec![]);
 }
 
 fn hire_mercenary(scenery: &mut TestScenery) {
@@ -204,7 +204,7 @@ fn sell_meat(scenery: &mut TestScenery) {
     scenery.wait_for("- gold");
 }
 
-fn from_florest_to_market(scenery: &mut TestScenery) {
+fn from_forest_to_market(scenery: &mut TestScenery) {
     scenery.input("n");
     scenery.wait_for("Market");
 }
@@ -233,19 +233,19 @@ fn from_village_to_market(scenery: &mut TestScenery) {
     scenery.wait_for("Market");
 }
 
-fn from_village_to_florest(scenery: &mut TestScenery) {
+fn from_village_to_forest(scenery: &mut TestScenery) {
     scenery.input("look");
     scenery.wait_for("Village");
     scenery.input("s");
     scenery.input("s");
-    scenery.wait_for("Florest");
+    scenery.wait_for("forest");
 }
 
-fn from_market_to_florest(scenery: &mut TestScenery) {
+fn from_market_to_forest(scenery: &mut TestScenery) {
     scenery.input("look");
     scenery.wait_for("Market");
     scenery.input("s");
-    scenery.wait_for("Florest");
+    scenery.wait_for("forest");
 }
 
 fn from_village_to_temple(scenery: &mut TestScenery) {

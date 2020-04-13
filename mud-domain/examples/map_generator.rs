@@ -199,8 +199,15 @@ fn print(map: &Rooms) {
 }
 
 fn main() {
-    let rooms = generate(0, 5, 5, 0.60);
-    print(&rooms);
+    let mut buffer = String::new();
+    let mut seed = 0;
+    loop {
+        std::io::stdin().read_line(&mut buffer).unwrap();
+        let rooms = generate(seed, 5, 5, 0.60);
+        print(&rooms);
+
+        seed += 1;
+    }
 
     // for (a, b) in rooms.portals {
     //     println!("{} {}", a, b);

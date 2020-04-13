@@ -1,3 +1,77 @@
+# Random dungeons 
+
+- a pre-defined room and direction, can spawn a full random zone like dungeon of forest. Sam can be applied for searching.
+
+- these zones are temporary and can be re-randomize or removed in case of no player is active there
+
+  zone_1_dungeon_entrance: {
+    id: 9,
+    label: "Dungeon entrance"
+    desc: ""
+    room: {
+      exits: [
+        {dir: "n", to: ${objects.zone_0_forest.id} }
+      ]
+    }
+    parent: ${objects.zone_1.id}
+  }
+  
+  zone_1_dungeon_zone: {
+    id: 10
+    random_zone {
+        entrance {
+            id: ${objects.zone_0.forest.id}
+            dir: "s"
+        }
+        
+        size: [5,5]
+        
+        num_spawn_points: [3,5]
+        
+        spawn_points: [
+            {
+                prob: 1.0
+                min_distance_entrance: 2
+                space_distance: 2
+                max_spawns: 2
+                spawn {
+                  prefab_id: [{prefabs.skeleton.id}, {prefabs.sekeleton_sword.id}]
+                  max: 4
+                  time_min: 10
+                  time_max: 60
+                }
+            }
+            {
+                prob: 1.0
+                min_distance_entrance: 4
+                space_distance: 4
+                max_spawns: 1
+                spawn {
+                  prefab_id: [{prefabs.spider_small.id}]
+                  max: 8
+                  time_min: 10
+                  time_max: 60
+                }
+            }
+        ]
+    }
+  }
+
+This will generate a random map. We need to populate spawn points. Each spawn can be added with some min/max distance 
+from entrance, and a radius of affect.
+
+With the previous defined config. A new zone will be created with 5x5 dimension. The entrance will be through the
+south of forest in zone 0.
+
+Now it is time to create spanws.
+
+It will sort a number between 3 or 5 spawns to be created.
+
+It will sort one of spawns giving the prob.
+
+Will search a place far away of `min_distance_entrance` from the entrance of the random zone and distance enough of
+of any other spawn in distance of `max(this.space_distance, i.space_distance)`
+
 # CSV vs HOCON
 
 List of CSV files that get converted into json looks much simpler to create/parse/manipulate over HOCON files. 
@@ -12,7 +86,7 @@ First column is {id} string
 spawn-zone0.csv
 
     id, location_id, prefab_id,min_time,max_time,max
-    wolf_0,rooms-zone0.florest,mobs-animals.wolf,30,180,4
+    wolf_0,rooms-zone0.forest,mobs-animals.wolf,30,180,4
 
 # Space parent and orbit
 
@@ -1517,7 +1591,7 @@ Sector 1
 - Planet 1 
   - Main room
   - Bar 
-  - florest
+  - forest
 
 - Planet 2
   -rocks
