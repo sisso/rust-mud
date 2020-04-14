@@ -12,7 +12,7 @@ use crate::game::system::SystemCtx;
 
 type SpawnId = ObjId;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct SpawnDelay {
     pub min: DeltaTime,
     pub max: DeltaTime,
@@ -29,7 +29,21 @@ impl SpawnDelay {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
+pub struct SpawnBuilder {
+    pub max: u32,
+    pub delay_min: DeltaTime,
+    pub delay_max: DeltaTime,
+    pub prefab_id: StaticId,
+}
+
+impl SpawnBuilder {
+    pub fn create_spawn(&self, id: ObjId) -> Spawn {
+        Spawn::new(id, self.prefab_id, self.delay_min, self.delay_max)
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct Spawn {
     pub id: SpawnId,
     pub max: u32,
@@ -48,6 +62,7 @@ impl Spawn {
             next: None,
         }
     }
+
 }
 
 #[derive(Debug)]

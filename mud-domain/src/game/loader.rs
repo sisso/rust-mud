@@ -15,7 +15,7 @@ use crate::game::obj::Objects;
 use crate::game::pos::Pos;
 use crate::game::prices::{Money, Price};
 use crate::game::room::Room;
-use crate::game::spawn::Spawn;
+use crate::game::spawn::{Spawn, SpawnBuilder};
 use crate::game::surfaces::Surface;
 use crate::game::vendors::Vendor;
 use commons::{DeltaTime, Either, ObjId, V2};
@@ -25,9 +25,10 @@ use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use crate::game::zone::Zone;
 use crate::game::hire::Hire;
-use crate::game::random_rooms::{RandomRoomsRepository, RandomRoomsCfg};
+use crate::game::random_rooms::{RandomRoomsRepository, RandomRoomsCfg, RandomRoomsSpawnCfg};
 use rand::random;
 use std::borrow::Borrow;
+use crate::game::comm::vendor_buy_item_not_found;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct RoomExitData {
@@ -140,12 +141,19 @@ pub struct PriceData {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct VendorData {}
 
-#[derive(Deserialize,  Serialize, Clone, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
+pub struct RandomRoomsSpawnData {
+    amount: u32,
+    spawn: SpawnData,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
 pub struct RandomRoomsData {
     entrance_room_id: StaticId,
     entrance_dir: String,
     width: u32,
     height: u32,
+    spawns: Vec<RandomRoomsSpawnData>
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -466,10 +474,8 @@ impl Loader {
         }
 
         if let Some(spawn_data) = &data.spawn {
-            let min = DeltaTime(spawn_data.time_min);
-            let max = DeltaTime(spawn_data.time_max);
-
-            let spawn = Spawn::new(obj_id, spawn_data.prefab_id, min, max);
+            let builder = Loader::spawn_data_to_spawn_builder(spawn_data);
+            let spawn = builder.create_spawn(obj_id);
             container.spawns.add(spawn)?;
         }
 
@@ -516,19 +522,28 @@ impl Loader {
             container.vendors.add(vendor);
         }
 
-        if let Some(zone) = &data.zone {
+        if let Some(zone_data) = &data.zone {
             container.zones.add(Zone { id: obj_id });
 
-            if let Some(random_rooms) = &zone.random_rooms {
-                let entrance_id = Loader::get_by_static_id(&container.objects, &references, random_rooms.entrance_room_id).unwrap();
+            if let Some(rr_data) = &zone_data.random_rooms {
+                let entrance_id = Loader::get_by_static_id(&container.objects, &references, rr_data.entrance_room_id).unwrap();
+
+                let spawns = rr_data.spawns.iter().map(|spawn_data| {
+                    let spawn_builder = Loader::spawn_data_to_spawn_builder(&spawn_data.spawn);
+                    RandomRoomsSpawnCfg {
+                        amount: spawn_data.amount,
+                        spawn_builder: spawn_builder,
+                    }
+                }).collect();
 
                 container.random_rooms.add(RandomRoomsCfg {
                     id: obj_id,
                     entrance_id: entrance_id,
-                    entrance_dir: Dir::parse(random_rooms.entrance_dir.as_str()).unwrap(),
+                    entrance_dir: Dir::parse(rr_data.entrance_dir.as_str()).unwrap(),
                     seed: 0,
-                    width: random_rooms.width,
-                    height: random_rooms.height,
+                    width: rr_data.width,
+                    height: rr_data.height,
+                    spawns: spawns,
                 });
             }
         }
@@ -642,6 +657,15 @@ impl Loader {
         }
 
         Ok(())
+    }
+
+    fn spawn_data_to_spawn_builder(data: &SpawnData) -> SpawnBuilder {
+        SpawnBuilder {
+            max: data.max,
+            delay_min: DeltaTime(data.time_min),
+            delay_max: DeltaTime(data.time_max),
+            prefab_id: data.prefab_id
+        }
     }
 }
 

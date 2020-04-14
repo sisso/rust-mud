@@ -1,7 +1,7 @@
 use crate::game::system::SystemCtx;
 use crate::game::random_rooms_generator::{RoomGrid, RoomGridCfg};
-use crate::game::random_rooms::RandomRoomsCfg;
-use crate::game::room::{RoomRepository, Room};
+use crate::game::random_rooms::{RandomRoomsCfg, RandomRoomsSpawnCfg};
+use crate::game::room::{RoomRepository, Room, RoomId};
 use logs::*;
 use crate::game::labels::{Labels, Label};
 use crate::game::obj::Objects;
@@ -46,11 +46,18 @@ pub fn init(container: &mut Container) {
 
         connect_rooms_to_entrance(rooms, rr.cfg.entrance_id, rr.cfg.entrance_dir, &rooms_grid, &rooms_ids);
 
+        create_spawns(objects, &rooms_ids, &rr.cfg.spawns);
+
         rr.generated = true;
     }
 }
 
-fn connect_rooms_to_entrance(rooms: &mut RoomRepository, entrance_id: ObjId, dir: Dir, rooms_grid: &RoomGrid, ids: &Vec<ObjId>) -> Result<()> {
+fn create_spawns(objects: &mut Objects, rooms_id: &Vec<RoomId>, spawns_cfg: &Vec<RandomRoomsSpawnCfg>) -> Result<()> {
+    Ok(())
+}
+
+fn connect_rooms_to_entrance(rooms: &mut RoomRepository, entrance_id: ObjId, dir: Dir,
+                             rooms_grid: &RoomGrid, rooms_id: &Vec<RoomId>) -> Result<()> {
     let first_room_index = match dir {
         Dir::E => {
            rooms_grid.get_index(0, 0)
@@ -58,7 +65,7 @@ fn connect_rooms_to_entrance(rooms: &mut RoomRepository, entrance_id: ObjId, dir
         other => unimplemented!("for {:?}", other),
     };
 
-    let first_room_id = ids[first_room_index];
+    let first_room_id = rooms_id[first_room_index];
     rooms.add_portal(entrance_id, first_room_id, dir);
     Ok(())
 }

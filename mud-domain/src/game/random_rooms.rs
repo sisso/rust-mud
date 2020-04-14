@@ -3,6 +3,13 @@ use std::collections::HashMap;
 use crate::game::room::RoomId;
 use crate::game::domain::Dir;
 use commons::ObjId;
+use crate::game::spawn::SpawnBuilder;
+
+#[derive(Clone, Debug)]
+pub struct RandomRoomsSpawnCfg{
+    pub amount: u32,
+    pub spawn_builder: SpawnBuilder,
+}
 
 #[derive(Clone, Debug)]
 pub struct RandomRoomsCfg {
@@ -12,6 +19,7 @@ pub struct RandomRoomsCfg {
     pub seed: u64,
     pub width: u32,
     pub height: u32,
+    pub spawns: Vec<RandomRoomsSpawnCfg>
 }
 
 #[derive(Clone, Debug)]
