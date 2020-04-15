@@ -9,6 +9,12 @@ use crate::game::domain::Dir;
 use crate::errors::Result;
 use crate::game::container::Container;
 use commons::ObjId;
+use crate::game::spawn::Spawns;
+use std::collections::HashSet;
+use rand::prelude::StdRng;
+use rand::{SeedableRng, Rng};
+use std::io::repeat;
+use crate::game::location::Locations;
 
 pub fn run(ctx: &mut SystemCtx) {
 
@@ -19,6 +25,8 @@ pub fn init(container: &mut Container) {
     let objects = &mut container.objects;
     let rooms = &mut container.rooms;
     let labels = &mut container.labels;
+    let locations = &mut container.locations;
+    let spawns = &mut container.spawns;
 
     for rr in random_rooms_repo.list_states_mut() {
         if rr.generated {
@@ -28,7 +36,7 @@ pub fn init(container: &mut Container) {
         info!("{:?} generating random rooms", rr.cfg.id);
 
         let cfg = RoomGridCfg {
-            seed: Some(rr.cfg.seed),
+            rng: &mut rr.rng,
             width: rr.cfg.width as usize,
             height: rr.cfg.height as usize,
             portal_prob: None
@@ -46,13 +54,50 @@ pub fn init(container: &mut Container) {
 
         connect_rooms_to_entrance(rooms, rr.cfg.entrance_id, rr.cfg.entrance_dir, &rooms_grid, &rooms_ids);
 
-        create_spawns(objects, &rooms_ids, &rr.cfg.spawns);
+        create_spawns(
+            rr.cfg.id,
+            &mut rr.rng,
+            objects,
+            locations,
+            spawns,
+            &rooms_ids,
+            &rr.cfg.spawns
+        );
 
         rr.generated = true;
     }
 }
 
-fn create_spawns(objects: &mut Objects, rooms_id: &Vec<RoomId>, spawns_cfg: &Vec<RandomRoomsSpawnCfg>) -> Result<()> {
+fn create_spawns(
+    rr_id: ObjId,
+    rng: &mut StdRng,
+    objects: &mut Objects,
+    locations: &mut Locations,
+    spawns: &mut Spawns,
+    rooms_id: &Vec<RoomId>,
+    spawns_cfg: &Vec<RandomRoomsSpawnCfg>
+) -> Result<()> {
+    let mut availables = rooms_id.clone();
+
+    for spawn in spawns_cfg {
+        for i in 0..spawn.amount {
+            if availables.is_empty() {
+                break;
+            }
+
+            // find available room
+            let candidate_index = rng.gen_range(0, availables.len());
+            let room_id = availables.remove(candidate_index);
+
+            let spawn_id = objects.create();
+            spawns.add(spawn.spawn_builder.create_spawn(spawn_id));
+
+            locations.set(spawn_id, room_id);
+
+            trace!("{:?} adding spawn {:?} at room {:?}", rr_id, spawn_id, room_id);
+        }
+    }
+
     Ok(())
 }
 

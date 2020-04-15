@@ -198,7 +198,7 @@ fn test_fantasy_random_rooms() {
     scenery.login();
     from_village_to_dungeons(&mut scenery);
     scenery.input("map");
-    scenery.assert_output(vec!["Map", "01==**==02", "forest"]);
+    scenery.assert_output(vec!["Map", "05==**==06", "forest"]);
 }
 
 fn hire_mercenary(scenery: &mut TestScenery) {

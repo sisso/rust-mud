@@ -1,5 +1,7 @@
 # Main Todo
 
+- player die is failing
+- player mob dont have is_avatar flag
 - command show map
 - attach random generate map into loader
 - configure spawns to trigger during start

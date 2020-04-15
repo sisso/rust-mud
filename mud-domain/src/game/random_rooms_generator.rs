@@ -4,8 +4,8 @@ use rand::prelude::StdRng;
 use rand::{Rng, SeedableRng, thread_rng, RngCore};
 use std::collections::HashSet;
 
-pub struct RoomGridCfg {
-    pub seed: Option<u64>,
+pub struct RoomGridCfg<'a> {
+    pub rng: &'a mut StdRng,
     pub width: usize,
     pub height: usize,
     pub portal_prob: Option<f32>,
@@ -64,14 +64,11 @@ impl RoomGrid {
             portals: Default::default(),
         };
 
-        let seed = cfg.seed.unwrap_or_else(|| thread_rng().next_u64());
-        let mut rng: StdRng = SeedableRng::seed_from_u64(seed);
-
         let door_prob = cfg.portal_prob.unwrap_or(0.6);
         assert!(door_prob > 0.1);
         assert!(door_prob < 1.0);
 
-        rooms.create_portals(&mut rng, door_prob);
+        rooms.create_portals(cfg.rng, door_prob);
         rooms.connect_all_rooms();
 
         rooms
@@ -252,8 +249,9 @@ mod test {
 
     #[test]
     pub fn test_generate_rooms() {
+        let mut rng = SeedableRng::seed_from_u64(0);
         let rooms = RoomGrid::new(RoomGridCfg {
-            seed: Some(0),
+            rng: &mut rng,
             width: 5,
             height: 5,
             portal_prob: None

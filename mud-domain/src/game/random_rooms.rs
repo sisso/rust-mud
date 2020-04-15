@@ -4,6 +4,8 @@ use crate::game::room::RoomId;
 use crate::game::domain::Dir;
 use commons::ObjId;
 use crate::game::spawn::SpawnBuilder;
+use rand::SeedableRng;
+use rand::prelude::StdRng;
 
 #[derive(Clone, Debug)]
 pub struct RandomRoomsSpawnCfg{
@@ -26,13 +28,17 @@ pub struct RandomRoomsCfg {
 pub struct RandomRoomsState {
     pub cfg: RandomRoomsCfg,
     pub generated: bool,
+    pub rng: StdRng
 }
 
 impl RandomRoomsState {
     pub fn new(cfg: RandomRoomsCfg) -> Self {
+        let seed = cfg.seed;
+
         RandomRoomsState {
             cfg,
             generated: false,
+            rng: SeedableRng::seed_from_u64(seed),
         }
     }
 }
