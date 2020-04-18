@@ -1,9 +1,11 @@
-use mud_domain::game::loader::Loader;
+use mud_domain::game::loader::{Loader, ObjData};
 use serde::Serialize;
 use serde_json;
 use std::collections::HashMap;
 use std::env;
 use std::path::Path;
+use commons::tree::Tree;
+use commons::ObjId;
 
 // TODO: refactory everything, it got ugly,
 // TODO: support commands
@@ -36,39 +38,62 @@ fn main() {
 
     let data = Loader::read_folder(Path::new(path.as_str())).unwrap();
 
-    let mut m = HashMap::new();
+    let mut data_by_id = HashMap::new();
+    let mut roots = vec![];
+    let mut roots_prefabs = vec![];
+    let mut tree = Tree::<u32>::new();
+    let mut max_id = 0;
 
-    for (_, e) in data.objects.iter() {
-        if m.insert(e.id.as_u32(), (&e.label, false, e)).is_some() {
+    for (_, e) in &data.objects {
+        match e.parent {
+            Some(parent_id) => {
+                tree.insert(e.id.as_u32(), parent_id.as_u32());
+            },
+            None => roots.push(e.id.as_u32()),
+        }
+
+        max_id = max_id.max(e.id.as_u32());
+
+        if data_by_id.insert(e.id.as_u32(), e).is_some() {
             panic!("Duplicated id {:?}", e.id);
         }
     }
 
-    for (_, e) in data.prefabs.iter() {
-        if m.insert(e.id.as_u32(), (&e.label, true, e)).is_some() {
+    for (_, e) in &data.prefabs {
+        match e.parent {
+            Some(parent_id) => {
+                tree.insert(e.id.as_u32(), parent_id.as_u32());
+            },
+            None => roots_prefabs.push(e.id.as_u32()),
+        }
+
+        max_id = max_id.max(e.id.as_u32());
+
+        if data_by_id.insert(e.id.as_u32(), e).is_some() {
             panic!("Duplicated id {:?}", e.id);
         }
     }
 
-    let mut keys = m.keys().collect::<Vec<&u32>>();
-    keys.sort();
+    if dump_id.is_none() {
+        println!();
+        println!("Prefabs:");
 
-    let mut max: u32 = 0;
-    for key in keys {
-        if *key > max {
-            max = *key;
+        roots_prefabs.sort();
+        for key in roots_prefabs {
+            print_deep(0, key, &data_by_id, &tree);
         }
 
-        let (label, is_prefab, obj) = m.get(key).unwrap();
-        let is_prefab_str = if *is_prefab { "*" } else { "" };
-        let has_parent = if obj.parent.is_some() { "" } else { "$" };
-        if dump_id.is_none() {
-            println!("{}) {} {}{}", key, label, is_prefab_str, has_parent);
+        println!();
+        println!("Objects:");
+
+        roots.sort();
+        for key in roots {
+            print_deep(0, key, &data_by_id, &tree);
         }
     }
 
     if let Some(id) = dump_id {
-        let (_, _, obj) = m.get(&id).unwrap();
+        let obj = data_by_id.get(&id).unwrap();
         println!();
         println!("[Dump {:?}]", id);
 
@@ -76,10 +101,30 @@ fn main() {
         println!("{}", json);
     } else {
         println!();
-        println!("next: {}", max + 1);
-        println!();
-        println!("Legend:");
-        println!("* is prefab");
-        println!("$ is root object, has no parent");
+        println!("next: {}", max_id + 1);
     }
 }
+
+fn print_one(deep: u32, data: &ObjData) {
+    let prefix = String::from_utf8(vec![b' '; (deep * 2) as usize]).unwrap();
+    let mut children_str = "".to_string();
+    for children in &data.children {
+        let mut ids = children.iter().map(|i| i.as_u32()).collect::<Vec<_>>();
+        ids.sort();
+        children_str = format!(" - {:?}", ids);
+    }
+    println!("{}{:04}) {}{}", prefix, data.id.as_u32(), data.label, children_str);
+}
+
+fn print_deep(deep: u32, key: u32, data_by_id: &HashMap<u32, &ObjData>, tree: &Tree<u32>) {
+    print_one(deep, data_by_id.get(&key).unwrap());
+
+    let mut children = tree.children(key).collect::<Vec<_>>();
+    children.sort();
+
+    for child in children {
+        print_deep(deep + 1, child, data_by_id, tree);
+    }
+}
+
+

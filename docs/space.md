@@ -1,5 +1,12 @@
 # TODO
 
+- jump points
+- jump
+- sector generator
+- wait time between ship operations
+- cockpit 
+- command hire
+
 # Design
 
 - build a ship like Aurora 4x
@@ -83,3 +90,6 @@ Each group of components in a craft require crew to manage
 Ship components are furniture in rooms. They can be examited, managed and repair
 lack of crew cause % performance degradation in every task.
 
+## DV require to land and move between planets
+
+https://camo.githubusercontent.com/78adc73bf13274c230318a14f1cc34bdb7337b28/687474703a2f2f692e696d6775722e636f6d2f4141474a7644312e706e67
