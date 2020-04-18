@@ -1,13 +1,5 @@
 # Main Todo
 
-- player die is failing
-- player mob dont have is_avatar flag
-- command show map
-- attach random generate map into loader
-- configure spawns to trigger during start
-- spawn creatures spawn/walk through rooms
-- flag to never spawn if player is viewing
-
 # Design
 
 # usability
@@ -29,21 +21,22 @@
 # Fantasy specific
 
 - casting
-- equip
-- armor
-- experience
-- improve combat 
+- level up
+- improve combat
   - dodge
   - aggressive
   - defensive
-- potions
 
 # Features
 
-- TODO in config checker 
+- potions and food
+- advanced spawn
+    - multiple rooms (zone?, radious?)
+    - spawned creatures spawn/walk through rooms
+    - flag to never spawn if player is viewing
+- TODO in config checker
 - serialization 
 - crafting
-- remove room_id from spawn (we could want ot have spawn per multiples rooms, zones? regions?)
 - level up
     - separate XP that give on kill from accumulated
 - add exit type
@@ -57,7 +50,6 @@
 # usability
 
 - get usability by giving feedback with options when execute a get: get? get what? get what wher? get what in where?
-- comm need to be defined by configuration files for localization
 - there is no server buffering to send and receive messages, if user can not read, is possible that we lose output or stuck
 
 # refactoring

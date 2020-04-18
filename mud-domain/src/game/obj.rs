@@ -86,16 +86,3 @@ impl Objects {
     }
 }
 
-// TODO: use or remove?
-pub trait ReadRepository<'a, T> {
-    fn exists(id: ObjId) -> bool;
-
-    fn get(id: ObjId) -> Option<&'a T>;
-}
-
-// TODO: use or remove?
-pub trait WriteRepository<T> {
-    fn add(obj: T);
-
-    fn remove(id: ObjId) -> bool;
-}

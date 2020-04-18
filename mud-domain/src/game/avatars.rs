@@ -50,7 +50,6 @@ pub fn respawn_avatar(
     Ok(())
 }
 
-// TODO: detach avatar creation from player
 pub fn create_player(container: &mut Container, login: &str) -> Result<PlayerId> {
     let avatar_static_id = container.config.avatar_id.unwrap();
     let room_id = container.config.initial_room.unwrap();

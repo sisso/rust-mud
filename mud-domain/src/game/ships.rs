@@ -52,10 +52,10 @@ impl Ships {
         }
     }
 
-    pub fn add(&mut self, craft: Ship) {
-        assert!(!self.index.contains_key(&craft.id));
-        info!("{:?} add {:?}", craft.id, craft);
-        self.index.insert(craft.id, craft);
+    pub fn add(&mut self, ship: Ship) {
+        assert!(!self.index.contains_key(&ship.id));
+        info!("{:?} add {:?}", ship.id, ship);
+        self.index.insert(ship.id, ship);
     }
 
     pub fn remove(&mut self, id: ObjId) -> Option<Ship> {

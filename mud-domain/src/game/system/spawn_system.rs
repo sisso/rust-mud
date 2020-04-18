@@ -89,23 +89,11 @@ pub fn run(ctx: &mut SystemCtx) {
     }
 }
 
-// TODO: move to spawn
 fn schedule_next_spawn(timer: &mut Timer, now: TotalTime, spawn: &mut Spawn) {
     let mut rng = rand::thread_rng();
     let range = rng.gen_range(spawn.delay.min.as_f32(), spawn.delay.max.as_f32());
     let next = now + DeltaTime(range);
-    spawn.next = Some(next);
+    spawn.next = next;
     timer.schedule(next, Event::Obj { kind: EventKind::Spawn, obj_id: spawn.id });
     debug!("{:?} scheduling spawn at {:?}", spawn.id, spawn.next);
 }
-
-// // TODO: should be a trigger
-// fn clean_up_dead_mobs(spawn_id: ObjId, mobs: &mut MobRepository, ownership: &mut Ownership) {
-//     let mut clean_list = vec![];
-//     for obj_id in ownership.list(spawn_id) {
-//         if !mobs.exists(obj_id) {
-//             
-//         }
-//         spawn.mobs_id.retain(|mob_id| mobs.exists(*mob_id));
-//     }
-// }

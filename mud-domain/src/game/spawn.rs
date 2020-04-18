@@ -49,7 +49,7 @@ pub struct Spawn {
     pub max: u32,
     pub delay: SpawnDelay,
     pub prefab_id: StaticId,
-    pub next: Option<TotalTime>,
+    pub next: TotalTime,
 }
 
 impl Spawn {
@@ -59,7 +59,7 @@ impl Spawn {
             max: 1,
             delay: SpawnDelay { min: min, max: max },
             prefab_id: prefab_id,
-            next: None,
+            next: TotalTime(0.0),
         }
     }
 
