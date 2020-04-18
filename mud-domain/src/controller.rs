@@ -138,7 +138,7 @@ impl Controller {
 
         if let Some(player_id) = state.player_id {
             debug!("{:?} input '{}'", connection_id, input);
-            let mob_id = container.players.get(player_id).mob_id;
+            let mob_id = container.players.get(player_id).expect("player not found").mob_id;
             match view_main::handle(container, &mut self.outputs, mob_id, input) {
                 Err(ref err) if !err.is_failure() =>
                     warn!("{:?} exception handling input {:?}: {:?}", connection_id, input, err),
@@ -194,15 +194,15 @@ impl Controller {
         let mut append_cursor_ids: Vec<ConnectionId> = vec![];
         let mut new_lines_ids: Vec<ConnectionId> = vec![];
 
-        for (connection_id, _) in self.server_outputs.iter() {
+        for (connection_id, _) in self.server_outputs.iter().cloned() {
             let player_id = self.player_id_from_connection_id(connection_id);
 
             match player_id {
-                Some(_) if !append_cursor_ids.contains(connection_id) => {
+                Some(_) if !append_cursor_ids.contains(&connection_id) => {
                     append_cursor_ids.push(connection_id.clone());
 
                     // if player do not have newline because sent a input, append new line in start
-                    if !self.connections_with_input.contains(connection_id)
+                    if !self.connections_with_input.contains(&connection_id)
                         && !new_lines_ids.contains(&connection_id)
                     {
                         new_lines_ids.push(connection_id.clone());
@@ -267,7 +267,7 @@ impl Controller {
                         .flat_map(|player_id| self.zip_connection_id_from_player_id(player_id))
                         .collect();
 
-                    for (player_id, connection_id) in connections {
+                    for (_player_id, connection_id) in connections {
                         debug!("{:?} output {:?}", connection_id, msg);
                         self.server_outputs
                             .push((connection_id, format!("{}\n", msg)))
@@ -285,14 +285,14 @@ impl Controller {
             .map(|connection_id| (player_id, connection_id))
     }
 
-    fn connection_id_from_player_id(&self, player_id: PlayerId) -> Option<ConnectionId> {
+    pub fn connection_id_from_player_id(&self, player_id: PlayerId) -> Option<ConnectionId> {
         self.connection_id_by_player_id.get(&player_id).cloned()
     }
 
     fn get_state(&self, connection_id: ConnectionId) -> &ConnectionState {
         self.connections
             .get(&connection_id)
-            .expect(format!("could not found connection for {:?}", connection_id).as_str())
+            .expect(format!("could not found connection {:?}", connection_id).as_str())
     }
 
     fn set_state(&mut self, state: ConnectionState) {
@@ -303,9 +303,9 @@ impl Controller {
         self.connections.insert(state.connection_id.clone(), state);
     }
 
-    fn player_id_from_connection_id(&self, connection_id: &ConnectionId) -> Option<PlayerId> {
+    pub fn player_id_from_connection_id(&self, connection_id: ConnectionId) -> Option<PlayerId> {
         self.connections
-            .get(connection_id)
+            .get(&connection_id)
             .and_then(|i| i.player_id)
     }
 }

@@ -9,6 +9,7 @@ use crate::game::location::LocationId;
 use crate::game::mob::MobId;
 use crate::game::room::RoomId;
 use crate::game::system::{Systems, SystemCtx};
+use crate::errors::*;
 
 pub mod actions;
 pub mod actions_admin;
@@ -111,6 +112,13 @@ impl Game {
 
     pub fn flush_outputs(&mut self) -> Vec<(ConnectionId, String)> {
         self.controller.flush_outputs(&self.container)
+    }
+
+    pub fn admin_kill_avatar_from_connection(&mut self, connection_id: ConnectionId) -> Result<()> {
+        let player_id = self.controller.player_id_from_connection_id(connection_id).as_result()?;
+        let avatar_id = self.container.players.get(player_id).as_result()?;
+        let mob_id = avatar_id.mob_id;
+        actions_admin::force_kill(&mut self.container, self.controller.get_outputs(), mob_id)
     }
 }
 

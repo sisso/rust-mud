@@ -5,6 +5,7 @@ use mud_domain::game::container::Container;
 use mud_domain::game::{inventory, loader, Game};
 use std::path::Path;
 use mud_domain::game::prices::Money;
+use mud_domain::game::actions_admin::force_kill;
 
 pub struct TestScenery {
     pub game: Game,
@@ -199,6 +200,15 @@ fn test_fantasy_random_rooms() {
     from_village_to_dungeons(&mut scenery);
     scenery.input("map");
     scenery.assert_output(vec!["Map", "05==**==06", "forest"]);
+}
+
+#[test]
+fn test_fantasy_player_respawn() {
+    let mut scenery = TestScenery::new();
+    scenery.login();
+    from_village_to_temple(&mut scenery);
+    scenery.game.admin_kill_avatar_from_connection(scenery.connection_id);
+    scenery.assert_output(vec!["resurrect"]);
 }
 
 fn hire_mercenary(scenery: &mut TestScenery) {

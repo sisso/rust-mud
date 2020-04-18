@@ -13,8 +13,8 @@ pub fn on_player_disconnect(
     _outputs: &mut dyn Outputs,
     player_id: PlayerId,
 ) {
-    let player = container.players.get(player_id);
-    let _mob_id = player.mob_id;
+    // let player = container.players.get(player_id).as_result()?;
+    // let _mob_id = player.mob_id;
 }
 
 pub fn on_player_login(
@@ -59,6 +59,8 @@ pub fn create_player(container: &mut Container, login: &str) -> Result<PlayerId>
     let mob_id = Loader::spawn_at(container, avatar_static_id, room_id)?;
 
     container.labels.update(Label::new(mob_id, login));
+
+    container.mobs.update(mob_id, |mob| mob.is_avatar = true);
 
     // add player to game
     let player = container

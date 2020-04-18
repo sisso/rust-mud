@@ -12,13 +12,6 @@ trait Rooms {
     fn portals(&self, id: ObjId) -> Vec<(Dir, ObjId)>;
 }
 
-enum Cell {
-    Empty,
-    Room(ObjId),
-    DoorHor,
-    DoorVer
-}
-
 #[derive(Debug, Clone)]
 struct RoomsMap {
     width: usize,

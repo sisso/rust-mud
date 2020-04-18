@@ -57,13 +57,11 @@ impl PlayerRepository {
             .map(|(&player_id, _)| player_id)
     }
 
-    // TODO: to Option<>
-    pub fn get(&self, id: PlayerId) -> &Player {
+    pub fn get(&self, id: PlayerId) -> Option<&Player> {
         self.index
             .iter()
             .find(|(pid, _)| **pid == id)
             .map(|(_, p)| p)
-            .expect(format!("player with id {:?} not found", id).as_str())
     }
 
     pub fn get_mob(&self, player_id: PlayerId) -> Option<MobId> {

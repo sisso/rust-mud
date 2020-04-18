@@ -159,7 +159,7 @@ pub fn handle(
                     let mob_label = container.labels.get_label_f(target_mob_id);
                     outputs.private(mob_id, comm::admin_suicide());
                     outputs.broadcast(None, pctx.room.id, comm::admin_suicide_others(mob_label));
-                    actions_admin::kill(container, outputs, target_mob_id)
+                    actions_admin::force_kill(container, outputs, target_mob_id)
                 }
                 _ => {
                     outputs.private(mob_id, comm::admin_invalid_command());

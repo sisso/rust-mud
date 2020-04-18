@@ -116,7 +116,7 @@ impl Container {
     }
 
     pub fn get_player_ctx(&self, player_id: PlayerId) -> Option<PlayerCtx> {
-        let player = self.players.get(player_id);
+        let player = self.players.get(player_id)?;
         let mob = self.mobs.get(player.mob_id)?;
         let room_id = self.locations.get(mob.id)?;
         let room = self.rooms.get(room_id)?;
