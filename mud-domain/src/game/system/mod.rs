@@ -10,7 +10,6 @@ pub mod rest_system;
 pub mod item_system;
 pub mod random_room_generators_system;
 
-// TODO: since contains only mutable references, we can send it by value
 pub struct SystemCtx<'a> {
     pub container: &'a mut Container,
     pub outputs: &'a mut dyn Outputs,

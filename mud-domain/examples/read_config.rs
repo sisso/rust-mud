@@ -43,6 +43,7 @@ fn main() {
     let mut roots_prefabs = vec![];
     let mut tree = Tree::<u32>::new();
     let mut max_id = 0;
+    let mut errors = vec![];
 
     for (_, e) in &data.objects {
         match e.parent {
@@ -55,7 +56,7 @@ fn main() {
         max_id = max_id.max(e.id.as_u32());
 
         if data_by_id.insert(e.id.as_u32(), e).is_some() {
-            panic!("Duplicated id {:?}", e.id);
+            errors.push(format!("duplicate id {:?}", e.id));
         }
     }
 
@@ -70,7 +71,7 @@ fn main() {
         max_id = max_id.max(e.id.as_u32());
 
         if data_by_id.insert(e.id.as_u32(), e).is_some() {
-            panic!("Duplicated id {:?}", e.id);
+            errors.push(format!("duplicate id {:?}", e.id));
         }
     }
 
@@ -102,6 +103,13 @@ fn main() {
     } else {
         println!();
         println!("next: {}", max_id + 1);
+        println!();
+        if !errors.is_empty() {
+            println!("ERRORS:");
+            for e in errors {
+                println!("- {}", e);
+            }
+        }
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::errors::{Error, Result};
+use crate::errors::{Error, Result, AsResult};
 use crate::game::container::Container;
 use crate::game::ships::{ShipCommand, ShipId};
 use crate::game::domain::Dir;
@@ -92,11 +92,7 @@ pub fn do_launch(
     let parent_body_id = parent_body.id;
     let orbit_distance = parent_body.get_low_orbit();
 
-    let body = AstroBody {
-        id: ship_id,
-        orbit_distance,
-        kind: AstroBodyKind::Ship,
-    };
+    let body = AstroBody::new(ship_id, orbit_distance, AstroBodyKind::Ship);
 
     // put ship in low orbit
     if let Err(error) = container.space_body.insert(body) {
@@ -120,6 +116,32 @@ pub fn do_launch(
         landing_pad_id,
         comm::space_launch_complete_others(craft_label),
     );
+
+    Ok(())
+}
+
+pub fn do_jump(
+    container: &mut Container,
+    outputs: &mut dyn Outputs,
+    mob_id: MobId,
+    ship_id: ShipId,
+) -> Result<()> {
+    let location_id = container.locations.get(ship_id).as_result()?;
+    let astro_location = container.space_body.get(location_id).as_result()?;
+
+    if astro_location.kind != AstroBodyKind::JumpGate {
+        warn!(
+            "{:?} jump {:?} fail, invalid paretn",
+            mob_id, ship_id
+        );
+        outputs.private(mob_id, comm::space_jump_failed());
+       return Err(Error::InvalidArgumentFailure);
+    }
+
+    // get target jump point
+    // container.locations.set(ship_id, parent_body_id);
+
+    unimplemented!();
 
     Ok(())
 }

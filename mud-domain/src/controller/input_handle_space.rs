@@ -7,11 +7,12 @@ use crate::utils::text;
 use commons::{PlayerId, ObjId};
 use logs::*;
 use crate::errors::{AsResult, Error, Result};
-use crate::game::actions_ships::{do_land_at, do_launch};
+use crate::game::actions_ships::{do_land_at, do_launch, do_jump};
 use crate::game::obj::Obj;
 use crate::game::comm::ShowSectorTreeBody;
 use crate::utils::strinput::StrInput;
 use crate::game::astro_bodies::AstroBody;
+use crate::controller::ViewHandleCtx;
 
 pub fn show_startree(
     container: &Container,
@@ -133,3 +134,11 @@ pub fn launch(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobI
         })
         .and_then(|craft_id| do_launch(container, outputs, mob_id, craft_id))
 }
+
+pub fn jump(ctx: &mut ViewHandleCtx) -> Result<()> {
+    let ship_id = get_ship(ctx.container, ctx.mob_id)
+        .as_result()?;
+
+    do_jump(ctx.container, ctx.outputs, ctx.mob_id, ship_id)
+}
+

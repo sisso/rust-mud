@@ -16,11 +16,12 @@ pub fn km_to_mkm(value: f32) -> f32 {
 //#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 //pub struct Distance(f32);
 
-#[derive(Clone, Debug, Copy)]
+#[derive(Clone, Debug, Copy, PartialEq)]
 pub enum AstroBodyKind {
     Star,
     Planet,
     Moon,
+    // TODO: rename to Jump
     JumpGate,
     Ship,
     AsteroidField,
@@ -32,11 +33,17 @@ pub struct AstroBody {
     pub id: AstroBodyId,
     pub orbit_distance: DistanceMkm,
     pub kind: AstroBodyKind,
+    pub jump_target_id: Option<ObjId>,
 }
 
 impl AstroBody {
     pub fn new(id: AstroBodyId, orbit_distance: DistanceMkm, kind: AstroBodyKind) -> Self {
-        AstroBody { id, orbit_distance, kind }
+        AstroBody {
+            id,
+            orbit_distance,
+            kind,
+            jump_target_id: None,
+        }
     }
 
     pub fn get_low_orbit(&self) -> DistanceMkm {

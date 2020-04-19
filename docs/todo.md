@@ -55,6 +55,7 @@
 
 # refactoring
 
+- replace dyn buffer to vector one. Better, move it to container as Events, and later events to messages!
 - stop the infinite amount og mob.get during combat
 - actions should not trigger instantatnius changes
 - add time/tick to logs

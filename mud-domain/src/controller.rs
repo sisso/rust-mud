@@ -77,6 +77,12 @@ impl Outputs for OutputsBuffer {
     }
 }
 
+pub struct ViewHandleCtx<'a> {
+    pub container: &'a mut Container,
+    pub outputs: &'a mut dyn Outputs,
+    pub mob_id: MobId,
+}
+
 /// Manage connectivity and messages to players through a socket.
 pub struct Controller {
     connections: HashMap<ConnectionId, ConnectionState>,
@@ -138,8 +144,16 @@ impl Controller {
 
         if let Some(player_id) = state.player_id {
             debug!("{:?} input '{}'", connection_id, input);
+
             let mob_id = container.players.get(player_id).expect("player not found").mob_id;
-            match view_main::handle(container, &mut self.outputs, mob_id, input) {
+
+            let ctx = ViewHandleCtx {
+                container: container,
+                outputs: &mut self.outputs,
+                mob_id,
+            };
+
+            match view_main::handle(ctx, input) {
                 Err(ref err) if !err.is_failure() =>
                     warn!("{:?} exception handling input {:?}: {:?}", connection_id, input, err),
                 _ => {},

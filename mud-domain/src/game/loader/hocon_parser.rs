@@ -97,10 +97,10 @@ impl HParser {
 
             let static_id = obj.id;
             if objects.contains_key(&static_id) {
-                panic!("duplicated id {:?}", static_id);
+                warn!("duplicated id {:?}, ignoring", static_id);
+            } else {
+                objects.insert(static_id, obj);
             }
-
-            objects.insert(static_id, obj);
         }
 
         Ok(())

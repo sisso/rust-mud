@@ -207,7 +207,7 @@ fn test_fantasy_player_respawn() {
     let mut scenery = TestScenery::new();
     scenery.login();
     from_village_to_temple(&mut scenery);
-    scenery.game.admin_kill_avatar_from_connection(scenery.connection_id);
+    scenery.game.admin_kill_avatar_from_connection(scenery.connection_id).unwrap();
     scenery.assert_output(vec!["resurrect"]);
 }
 

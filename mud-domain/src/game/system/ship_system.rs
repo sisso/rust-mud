@@ -30,11 +30,11 @@ pub fn tick(ctx: &mut SystemCtx) {
 
             let low_orbit = ctx.container.space_body.get(target_id).unwrap().get_low_orbit();
 
-            ctx.container.space_body.update(AstroBody {
-                id: ship_id,
-                orbit_distance: low_orbit,
-                kind: AstroBodyKind::Ship
-            }).unwrap();
+            ctx.container.space_body.update(AstroBody::new(
+                ship_id,
+                low_orbit,
+                AstroBodyKind::Ship,
+            )).unwrap();
 
             comm::space_command_complete()
         } else {

@@ -931,3 +931,7 @@ pub fn print_room_map(current_id: ObjId, room_map: RoomMap, labels: &HashMap<Obj
 
     buffer
 }
+
+pub fn space_jump_failed() -> String {
+    "jump fail!".to_string()
+}

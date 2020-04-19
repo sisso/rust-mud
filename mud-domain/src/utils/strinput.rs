@@ -16,6 +16,11 @@ impl<'a> StrInput<'a> {
         }
     }
 
+    /// just a alias since I keep forget bout first :), but still thing first is correct
+    pub fn get_command(&self) -> &'a str {
+        self.first()
+    }
+
     pub fn has_command(&self, command: &str) -> bool {
         self.0 == command || self.0.starts_with(&format!("{} ", command))
     }

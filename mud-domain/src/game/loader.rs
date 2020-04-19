@@ -29,6 +29,7 @@ use crate::game::random_rooms::{RandomRoomsRepository, RandomRoomsCfg, RandomRoo
 use rand::random;
 use std::borrow::Borrow;
 use crate::game::comm::vendor_buy_item_not_found;
+use crate::game::space_utils::find_surface_target;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct RoomExitData {
@@ -46,6 +47,7 @@ pub struct RoomData {
 pub struct AstroBodyData {
     pub kind: String,
     pub orbit_distance: f32,
+    pub jump_target_id: Option<StaticId>
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -423,7 +425,25 @@ impl Loader {
                 other => panic!("invalid astro body type {:?}", other),
             };
 
-            let body = AstroBody::new(obj_id, orbit_distance, kind);
+            let mut body = AstroBody::new(obj_id, orbit_distance, kind);
+
+            match (kind, astro_body.jump_target_id) {
+                (AstroBodyKind::JumpGate, Some(target_static_id)) => {
+                    let target_id = Loader::get_by_static_id(&container.objects, &references, target_static_id)?;
+                    body.jump_target_id = Some(target_id);
+                },
+
+                (AstroBodyKind::JumpGate, None) => {
+                    warn!("{:?} jump_target_id must be defined for Jump", obj_id);
+                }
+
+                (_, Some(_)) => {
+                    warn!("{:?} jump_target_id is only available to jump kind", obj_id);
+                }
+
+                _ => {}
+            }
+
             container.space_body.insert(body).unwrap();
         }
 

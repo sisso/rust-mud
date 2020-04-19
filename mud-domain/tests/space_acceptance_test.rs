@@ -21,6 +21,14 @@ impl TestScenery {
         }
     }
 
+    pub fn new_sectors_with_jump() -> Self {
+        TestScenery::new()
+    }
+
+    pub fn new_landed_with_ship() -> Self {
+        TestScenery::new()
+    }
+
     pub fn login(&mut self) {
         self.game.add_connection(self.connection_id);
         self.game.handle_input(self.connection_id, "player");
@@ -84,15 +92,51 @@ fn assert_outputs_contains(outputs: &Vec<String>, msg: &str) {
 
 #[test]
 fn test_sectormap() {
-    let mut scenery = TestScenery::new();
+    let mut scenery = TestScenery::new_landed_with_ship();
     scenery.login();
 
-    scenery.send_input("look");
-    scenery.wait_for("Palace");
+    move_to_space(&mut scenery);
+    fly_and_land_at_asteroid(&mut scenery);
+}
 
-    scenery.send_input("s");
-    scenery.wait_for("Landing Pad");
+#[test]
+fn test_jump_to_sector_2() {
+    let mut scenery = TestScenery::new_sectors_with_jump();
+    scenery.login();
+    move_to_space(&mut scenery);
+}
 
+fn fly_and_land_at_asteroid(scenery: &mut TestScenery) {
+    scenery.send_input("move");
+    scenery.wait_for("Asteroid Field");
+
+    scenery.send_input("move asteroid");
+    scenery.wait_for("command accepted");
+    scenery.wait_for("command complete");
+
+    scenery.send_input("land");
+    scenery.wait_for("Asteroid");
+
+    scenery.send_input("land asteroid");
+    scenery.wait_for("landing complete");
+}
+
+fn move_to_space(scenery: &mut TestScenery) {
+    go_to_landing_pad(scenery);
+    enter_ship_and_move_to_cockpit(scenery);
+    launch_ship(scenery);
+    jump_to_sector_2(scenery);
+}
+
+fn launch_ship(scenery: &mut TestScenery) {
+    scenery.send_input("launch");
+    scenery.wait_for("launch complete");
+
+    scenery.send_input("sm");
+    scenery.wait_for("Dune");
+}
+
+fn enter_ship_and_move_to_cockpit(scenery: &mut TestScenery) {
     scenery.send_input("look");
     scenery.wait_for("Light Transport");
 
@@ -108,23 +152,22 @@ fn test_sectormap() {
     scenery.send_input("n");
     scenery.send_input("n");
     scenery.wait_for("Bridge");
+}
 
-    scenery.send_input("launch");
-    scenery.wait_for("launch complete");
+fn go_to_landing_pad(scenery: &mut TestScenery) {
+    scenery.send_input("look");
+    scenery.wait_for("Palace");
 
-    scenery.send_input("sm");
-    scenery.wait_for("Dune");
-
-    scenery.send_input("move");
-    scenery.wait_for("Asteroid Field");
-
-    scenery.send_input("move asteroid");
+    scenery.send_input("s");
+    scenery.wait_for("Landing Pad");
+}
+fn jump_to_sector_2(scenery: &mut TestScenery) {
+    scenery.send_input("move Jump point");
     scenery.wait_for("command accepted");
     scenery.wait_for("command complete");
-
-    scenery.send_input("land");
-    scenery.wait_for("Asteroid");
-
-    scenery.send_input("land asteroid");
-    scenery.wait_for("landing complete");
+    scenery.send_input("jump");
+    scenery.wait_for("command accepted");
+    scenery.wait_for("command complete");
+    scenery.send_input("sm");
+    scenery.wait_for("Sector 2");
 }

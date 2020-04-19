@@ -14,7 +14,8 @@ use crate::game::{actions_admin, inventory, mob};
 use crate::utils::strinput::StrInput;
 use logs::*;
 use super::{input_handle_items, input_handle_space, input_handle_vendors};
-use crate::controller::input_handle_hire;
+use crate::controller::{input_handle_hire, ViewHandleCtx};
+use crate::errors::Error::NotFoundFailure;
 
 fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc> {
     let equip = container.equips.get(obj_id);
@@ -34,22 +35,25 @@ fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc>
         .collect()
 }
 
-// TODO: normalize use o ctx
 pub fn handle(
-    container: &mut Container,
-    outputs: &mut dyn Outputs,
-    mob_id: MobId,
+    mut ctx: ViewHandleCtx,
     input: &str,
 ) -> Result<()> {
     let input = StrInput(input);
 
+    // handle inputs per category
+    handle_general(&mut ctx, &input)?;
+    handle_ship(&mut ctx, &input)?;
+
+    // handle legacy
+    let (container, outputs, mob_id) = (
+        ctx.container,
+        ctx.outputs,
+        ctx.mob_id
+    );
+
     // TODO: replace by first(), if a input want to be unique should check if there is no args
     match input.as_str() {
-        "h" | "help" => {
-            outputs.private(mob_id, comm::help());
-            Ok(())
-        }
-
         "l" | "look" => actions::look(container, outputs, mob_id),
 
         "n" => actions::mv(container, outputs, mob_id, Dir::N),
@@ -68,11 +72,6 @@ pub fn handle(
         }
 
         "exit" | "out" => actions::out(container, outputs, mob_id),
-
-        "uptime" => {
-            outputs.private(mob_id, comm::uptime(container.time.total));
-            Ok(())
-        }
 
         "rest" => actions::rest(container, outputs, mob_id),
 
@@ -263,4 +262,31 @@ fn action_examine(
     // else
     outputs.private(mob_id, comm::examine_target_not_found(target_label));
     Err(Error::InvalidArgumentFailure)
+}
+
+pub fn handle_ship(ctx: &mut ViewHandleCtx, input: &StrInput) -> Result<()> {
+    match input.first() {
+        "jump" => {
+            input_handle_space::jump(ctx);
+            Ok(())
+        },
+
+        _ => Err(NotFoundFailure)
+    }
+}
+
+pub fn handle_general(ctx: &mut ViewHandleCtx, input: &StrInput) -> Result<()> {
+    match input.first() {
+        "h" | "help" => {
+            ctx.outputs.private(ctx.mob_id, comm::help());
+            Ok(())
+        }
+
+        "uptime" => {
+            ctx.outputs.private(ctx.mob_id, comm::uptime(ctx.container.time.total));
+            Ok(())
+        }
+
+        _ => Err(NotFoundFailure)
+    }
 }
