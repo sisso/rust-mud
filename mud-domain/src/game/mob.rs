@@ -5,18 +5,18 @@ use commons::*;
 use logs::*;
 
 use super::container::Container;
+use crate::errors::Error::InvalidStateFailure;
 use crate::errors::{Error, Result, ResultError};
+use crate::game::domain::{Attribute, Rd};
+use crate::game::inventory;
 use crate::game::item::ItemPrefabId;
 use crate::game::labels::Labels;
 use crate::game::location;
 use crate::game::location::Locations;
 use crate::game::room::RoomId;
+use crate::game::system::SystemCtx;
 use crate::game::Outputs;
 use crate::game::{avatars, combat, comm};
-use crate::game::inventory;
-use crate::game::domain::{Rd, Attribute};
-use crate::game::system::SystemCtx;
-use crate::errors::Error::InvalidStateFailure;
 
 pub type MobId = ObjId;
 pub type Xp = u32;
@@ -181,7 +181,7 @@ impl Mob {
         self.state.action == MobAction::Resting
     }
 
-    pub fn set_action_rest(&mut self, total: TotalTime) -> Result<()>{
+    pub fn set_action_rest(&mut self, total: TotalTime) -> Result<()> {
         self.state.action = MobAction::Resting;
         self.state.heal_calm_down = TimeTrigger::next(self.attributes.pv.heal_rate, total);
         Ok(())
@@ -193,7 +193,7 @@ impl Mob {
                 self.state.action = MobAction::None;
                 Ok(())
             }
-            _ => Err(InvalidStateFailure)
+            _ => Err(InvalidStateFailure),
         }
     }
 
@@ -216,21 +216,15 @@ impl MobRepository {
     }
 
     pub fn list<'a>(&'a self) -> impl Iterator<Item = &'a Mob> + 'a {
-        self.index
-            .iter()
-            .map(|(_id, mob)| mob)
+        self.index.iter().map(|(_id, mob)| mob)
     }
 
     pub fn list_ids<'a>(&'a mut self) -> impl Iterator<Item = MobId> + 'a {
-        self.index
-            .iter()
-            .map(|(id, _mob)| *id)
+        self.index.iter().map(|(id, _mob)| *id)
     }
 
     pub fn list_mut<'a>(&'a mut self) -> impl Iterator<Item = &'a mut Mob> + 'a {
-        self.index
-            .iter_mut()
-            .map(|(_id, mob)| mob)
+        self.index.iter_mut().map(|(_id, mob)| mob)
     }
 
     pub fn add(&mut self, mob: Mob) -> &Mob {
@@ -364,11 +358,15 @@ pub fn search_mobs_at(
 
 /// get mob attributes summing items
 pub fn get_attributes_with_bonus(container: &Container, mob_id: MobId) -> Result<Attributes> {
-    let mut attributes= container.mobs.get(mob_id)
+    let mut attributes = container
+        .mobs
+        .get(mob_id)
         .ok_or(Error::NotFoundFailure)
         .map(|mob| mob.attributes.clone())?;
 
-    container.equips.get(mob_id)
+    container
+        .equips
+        .get(mob_id)
         .into_iter()
         .map(|item_id| container.items.get(item_id).unwrap())
         .for_each(|item| {

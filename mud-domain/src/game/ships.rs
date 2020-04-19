@@ -9,7 +9,10 @@ pub type ShipId = ObjId;
 #[derive(Clone, Debug)]
 pub enum ShipCommand {
     Idle,
-    MoveTo { target_id: ObjId, arrival_time: TotalTime },
+    MoveTo {
+        target_id: ObjId,
+        arrival_time: TotalTime,
+    },
 }
 
 #[derive(Clone, Debug)]

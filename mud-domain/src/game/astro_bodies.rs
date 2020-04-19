@@ -1,7 +1,7 @@
+use crate::errors::{Error, Result};
 use commons::ObjId;
 use logs::*;
 use std::collections::HashMap;
-use crate::errors::{Result, Error};
 
 pub type AstroBodyId = ObjId;
 
@@ -24,7 +24,7 @@ pub enum AstroBodyKind {
     JumpGate,
     Ship,
     AsteroidField,
-    Station
+    Station,
 }
 
 #[derive(Clone, Debug)]
@@ -64,7 +64,7 @@ impl AstroBodies {
 
     pub fn insert(&mut self, value: AstroBody) -> Result<()> {
         if self.index.contains_key(&value.id) {
-            return Err(Error::ConflictException)
+            return Err(Error::ConflictException);
         }
 
         info!("{:?} insert {:?}", value.id, value);
@@ -74,7 +74,7 @@ impl AstroBodies {
 
     pub fn update(&mut self, value: AstroBody) -> Result<()> {
         if !self.index.contains_key(&value.id) {
-            return Err(Error::ConflictException)
+            return Err(Error::ConflictException);
         }
 
         info!("{:?} update {:?}", value.id, value);

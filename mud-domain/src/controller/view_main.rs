@@ -2,20 +2,20 @@ use std::collections::HashSet;
 
 use commons::{ObjId, PlayerId};
 
+use super::{input_handle_items, input_handle_space, input_handle_vendors};
+use crate::controller::{input_handle_hire, ViewHandleCtx};
+use crate::errors::Error::NotFoundFailure;
 use crate::errors::{AsResult, Error, Result};
 use crate::game::actions;
 use crate::game::comm;
 use crate::game::comm::InventoryDesc;
-use crate::game::container::{Container};
+use crate::game::container::Container;
 use crate::game::domain::Dir;
 use crate::game::mob::MobId;
 use crate::game::Outputs;
 use crate::game::{actions_admin, inventory, mob};
 use crate::utils::strinput::StrInput;
 use logs::*;
-use super::{input_handle_items, input_handle_space, input_handle_vendors};
-use crate::controller::{input_handle_hire, ViewHandleCtx};
-use crate::errors::Error::NotFoundFailure;
 
 fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc> {
     let equip = container.equips.get(obj_id);
@@ -35,17 +35,14 @@ fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc>
         .collect()
 }
 
-pub fn handle(
-    mut ctx: ViewHandleCtx,
-    input: &str,
-) -> Result<()> {
+pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<()> {
     let input = StrInput(input);
 
     // handle inputs per category
     let result = handle_general(&mut ctx, &input);
     match result {
         Ok(()) => return Ok(()),
-        Err(NotFoundFailure) => {},
+        Err(NotFoundFailure) => {}
         Err(other) => {
             warn!("{:?} fail processing command {:?}", ctx.mob_id, other);
         }
@@ -54,18 +51,14 @@ pub fn handle(
     let result = handle_ship(&mut ctx, &input);
     match result {
         Ok(()) => return Ok(()),
-        Err(NotFoundFailure) => {},
+        Err(NotFoundFailure) => {}
         Err(other) => {
             warn!("{:?} fail processing command {:?}", ctx.mob_id, other);
         }
     }
 
     // handle legacy
-    let (container, outputs, mob_id) = (
-        ctx.container,
-        ctx.outputs,
-        ctx.mob_id
-    );
+    let (container, outputs, mob_id) = (ctx.container, ctx.outputs, ctx.mob_id);
 
     // TODO: replace by first(), if a input want to be unique should check if there is no args
     match input.as_str() {
@@ -212,8 +205,9 @@ pub fn handle(
             input_handle_vendors::sell(container, outputs, mob_id, input)
         }
 
-        _ if input.has_command("hire") =>
-            input_handle_hire::hire(container, outputs, mob_id, input),
+        _ if input.has_command("hire") => {
+            input_handle_hire::hire(container, outputs, mob_id, input)
+        }
 
         _ => {
             outputs.private(mob_id, comm::unknown_input(input.as_str()));
@@ -284,9 +278,9 @@ pub fn handle_ship(ctx: &mut ViewHandleCtx, input: &StrInput) -> Result<()> {
         "jump" => {
             input_handle_space::jump(ctx);
             Ok(())
-        },
+        }
 
-        _ => Err(NotFoundFailure)
+        _ => Err(NotFoundFailure),
     }
 }
 
@@ -298,10 +292,11 @@ pub fn handle_general(ctx: &mut ViewHandleCtx, input: &StrInput) -> Result<()> {
         }
 
         "uptime" => {
-            ctx.outputs.private(ctx.mob_id, comm::uptime(ctx.container.time.total));
+            ctx.outputs
+                .private(ctx.mob_id, comm::uptime(ctx.container.time.total));
             Ok(())
         }
 
-        _ => Err(NotFoundFailure)
+        _ => Err(NotFoundFailure),
     }
 }

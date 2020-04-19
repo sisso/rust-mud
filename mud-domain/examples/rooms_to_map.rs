@@ -1,8 +1,8 @@
 extern crate rand;
 
-use std::collections::{HashMap};
-use commons::{ObjId};
+use commons::ObjId;
 use mud_domain::game::domain::Dir;
+use std::collections::HashMap;
 
 trait Rooms {
     fn portals(&self, id: ObjId) -> Vec<(Dir, ObjId)>;
@@ -17,7 +17,6 @@ struct RoomsMap {
 
 // TODO: conflicts?
 fn generate_map(initial: ObjId, max_distance: u32, rooms: &dyn Rooms) -> RoomsMap {
-
     let mut queue = vec![];
     queue.push((initial, 0, 0));
 
@@ -35,7 +34,7 @@ fn generate_map(initial: ObjId, max_distance: u32, rooms: &dyn Rooms) -> RoomsMa
                 print!("replace {},{} by {},{} for {:?}", x1, y1, x, y, id);
                 visited.insert(id, (x, y));
                 continue;
-            },
+            }
             // skip already vistied
             Some(_) => continue,
             None => {}
@@ -48,7 +47,7 @@ fn generate_map(initial: ObjId, max_distance: u32, rooms: &dyn Rooms) -> RoomsMa
         // }
         //
         for (dir, target_id) in rooms.portals(id) {
-            let (tx,ty) = match dir {
+            let (tx, ty) = match dir {
                 Dir::N => (x, y - 1),
                 Dir::S => (x, y + 1),
                 Dir::E => (x + 1, y),
@@ -79,8 +78,8 @@ fn generate_map(initial: ObjId, max_distance: u32, rooms: &dyn Rooms) -> RoomsMa
         max_y = max_y.max(*y);
     }
 
-    let mut width = max_x - min_x;
-    let mut height = max_y - min_y;
+    let width = max_x - min_x;
+    let height = max_y - min_y;
     // println!("min {},{} max {},{} width {} height {}", min_x, min_y, max_x, max_y, width, height);
 
     // normalize
@@ -105,7 +104,7 @@ fn generate_map(initial: ObjId, max_distance: u32, rooms: &dyn Rooms) -> RoomsMa
     RoomsMap {
         width: width as usize,
         height: height as usize,
-        list
+        list,
     }
 }
 

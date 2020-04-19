@@ -141,4 +141,3 @@ impl RoomRepository {
             .and_then(|room| room.get_exit_for(room2_id))
     }
 }
-

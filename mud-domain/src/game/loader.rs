@@ -3,33 +3,33 @@ mod hocon_parser;
 use crate::errors;
 use crate::errors::Error;
 use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
+use crate::game::comm::vendor_buy_item_not_found;
 use crate::game::config::Config;
 use crate::game::container::Container;
-use crate::game::ships::Ship;
 use crate::game::domain::{Dir, Modifier};
+use crate::game::hire::Hire;
 use crate::game::item::{Armor, Item, Weapon};
 use crate::game::labels::Label;
 use crate::game::loader::hocon_parser::HParser;
-use crate::game::mob::{Mob, Damage};
+use crate::game::mob::{Damage, Mob};
 use crate::game::obj::Objects;
 use crate::game::pos::Pos;
 use crate::game::prices::{Money, Price};
+use crate::game::random_rooms::{RandomRoomsCfg, RandomRoomsRepository, RandomRoomsSpawnCfg};
 use crate::game::room::Room;
+use crate::game::ships::Ship;
+use crate::game::space_utils::find_surface_target;
 use crate::game::spawn::{Spawn, SpawnBuilder};
 use crate::game::surfaces::Surface;
 use crate::game::vendors::Vendor;
+use crate::game::zone::Zone;
 use commons::{DeltaTime, Either, ObjId, V2};
 use logs::*;
+use rand::random;
 use serde::{Deserialize, Serialize};
+use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
-use crate::game::zone::Zone;
-use crate::game::hire::Hire;
-use crate::game::random_rooms::{RandomRoomsRepository, RandomRoomsCfg, RandomRoomsSpawnCfg};
-use rand::random;
-use std::borrow::Borrow;
-use crate::game::comm::vendor_buy_item_not_found;
-use crate::game::space_utils::find_surface_target;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct RoomExitData {
@@ -47,7 +47,7 @@ pub struct RoomData {
 pub struct AstroBodyData {
     pub kind: String,
     pub orbit_distance: f32,
-    pub jump_target_id: Option<StaticId>
+    pub jump_target_id: Option<StaticId>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -97,7 +97,7 @@ pub struct ItemWeaponData {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ItemArmorData {
     defense: i32,
-    rd: u32
+    rd: u32,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -155,12 +155,12 @@ pub struct RandomRoomsData {
     entrance_dir: String,
     width: u32,
     height: u32,
-    spawns: Vec<RandomRoomsSpawnData>
+    spawns: Vec<RandomRoomsSpawnData>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ZoneData {
-    random_rooms: Option<RandomRoomsData>
+    random_rooms: Option<RandomRoomsData>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -429,9 +429,13 @@ impl Loader {
 
             match (kind, astro_body.jump_target_id) {
                 (AstroBodyKind::JumpGate, Some(target_static_id)) => {
-                    let target_id = Loader::get_by_static_id(&container.objects, &references, target_static_id)?;
+                    let target_id = Loader::get_by_static_id(
+                        &container.objects,
+                        &references,
+                        target_static_id,
+                    )?;
                     body.jump_target_id = Some(target_id);
-                },
+                }
 
                 (AstroBodyKind::JumpGate, None) => {
                     warn!("{:?} jump_target_id must be defined for Jump", obj_id);
@@ -447,7 +451,7 @@ impl Loader {
             container.space_body.insert(body).unwrap();
         }
 
-        if let Some(craft) = &data.craft {
+        if let Some(_craft) = &data.craft {
             container.ships.add(Ship::new(obj_id));
         }
 
@@ -537,7 +541,7 @@ impl Loader {
             container.prices.add(price);
         }
 
-        if let Some(data) = &data.vendor {
+        if let Some(_data) = &data.vendor {
             let vendor = Vendor::new(obj_id);
             container.vendors.add(vendor);
         }
@@ -546,15 +550,24 @@ impl Loader {
             container.zones.add(Zone { id: obj_id });
 
             if let Some(rr_data) = &zone_data.random_rooms {
-                let entrance_id = Loader::get_by_static_id(&container.objects, &references, rr_data.entrance_room_id).unwrap();
+                let entrance_id = Loader::get_by_static_id(
+                    &container.objects,
+                    &references,
+                    rr_data.entrance_room_id,
+                )
+                .unwrap();
 
-                let spawns = rr_data.spawns.iter().map(|spawn_data| {
-                    let spawn_builder = Loader::spawn_data_to_spawn_builder(&spawn_data.spawn);
-                    RandomRoomsSpawnCfg {
-                        amount: spawn_data.amount,
-                        spawn_builder: spawn_builder,
-                    }
-                }).collect();
+                let spawns = rr_data
+                    .spawns
+                    .iter()
+                    .map(|spawn_data| {
+                        let spawn_builder = Loader::spawn_data_to_spawn_builder(&spawn_data.spawn);
+                        RandomRoomsSpawnCfg {
+                            amount: spawn_data.amount,
+                            spawn_builder: spawn_builder,
+                        }
+                    })
+                    .collect();
 
                 container.random_rooms.add(RandomRoomsCfg {
                     id: obj_id,
@@ -579,11 +592,10 @@ impl Loader {
     }
 
     pub fn load_str(container: &mut Container, buffer: &str) -> errors::Result<()> {
-        let data: errors::Result<Data> =
-            HParser::load_from_str(buffer).map_err(|e| {
-                let msg = format!("{:?}", e);
-                errors::Error::Error(msg)
-            });
+        let data: errors::Result<Data> = HParser::load_from_str(buffer).map_err(|e| {
+            let msg = format!("{:?}", e);
+            errors::Error::Error(msg)
+        });
 
         Loader::load_data(container, data?)
     }
@@ -601,7 +613,9 @@ impl Loader {
 
     pub fn read_folder(folder: &Path) -> errors::Result<Data> {
         if !folder.exists() {
-            return Err(Error::Error("configuration folder do not exists".to_string()));
+            return Err(Error::Error(
+                "configuration folder do not exists".to_string(),
+            ));
         }
 
         HParser::load_from_folder(folder).map_err(|e| Error::Error(format!("{:?}", e)))
@@ -611,7 +625,7 @@ impl Loader {
         let _ = Loader::validate(&data)?;
 
         // add prefabs
-        for (k, v) in data.prefabs {
+        for (_k, v) in data.prefabs {
             container.loader.add_prefab(v);
         }
 
@@ -623,7 +637,7 @@ impl Loader {
             Some(CfgData {
                 initial_room,
                 avatar_mob,
-                initial_craft,
+                initial_craft: _,
                 money_id,
             }) => {
                 container.config.initial_room = Some(ObjId(initial_room.as_u32()));
@@ -635,7 +649,6 @@ impl Loader {
 
         // initialize objects
         crate::game::system::random_room_generators_system::init(container);
-
 
         Ok(())
     }
@@ -684,7 +697,7 @@ impl Loader {
             max: data.max,
             delay_min: DeltaTime(data.time_min),
             delay_max: DeltaTime(data.time_max),
-            prefab_id: data.prefab_id
+            prefab_id: data.prefab_id,
         }
     }
 }

@@ -102,7 +102,7 @@ fn test_sectormap() {
 #[test]
 fn test_jump_to_sector_2() {
     let mut scenery = TestScenery::new_sectors_with_jump();
-    let scenery= &mut scenery;
+    let scenery = &mut scenery;
     scenery.login();
     move_to_space(scenery);
     jump_to_sector_2(scenery);

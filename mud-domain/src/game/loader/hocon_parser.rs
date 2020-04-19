@@ -1,3 +1,4 @@
+use crate::errors::Result as EResult;
 use crate::game::domain::Dir;
 use crate::game::loader::{CfgData, Data, ObjData, StaticId};
 use crate::game::obj::Obj;
@@ -7,7 +8,6 @@ use std::collections::HashMap;
 use std::fs::ReadDir;
 use std::io::Error as IError;
 use std::path::Path;
-use crate::errors::{Result as EResult};
 
 #[derive(Debug)]
 pub enum ParseError {
@@ -75,15 +75,23 @@ impl HParser {
     }
 
     fn load_cfg(hocon: Hocon) -> Result<CfgData, ParseError> {
-        hocon.clone().resolve().map_err(|error| {
-            ParseError::HoconError { error, hint: format!("hocon '{:?}'", hocon) }
-        })
+        hocon
+            .clone()
+            .resolve()
+            .map_err(|error| ParseError::HoconError {
+                error,
+                hint: format!("hocon '{:?}'", hocon),
+            })
     }
 
     fn load_obj(hocon: Hocon) -> Result<ObjData, ParseError> {
-        hocon.clone().resolve().map_err(|error| {
-            ParseError::HoconError { error, hint: format!("hocon '{:?}'", hocon) }
-        })
+        hocon
+            .clone()
+            .resolve()
+            .map_err(|error| ParseError::HoconError {
+                error,
+                hint: format!("hocon '{:?}'", hocon),
+            })
     }
 
     fn load_all(hocon: Hocon, objects: &mut HashMap<StaticId, ObjData>) -> Result<(), ParseError> {
@@ -108,12 +116,16 @@ impl HParser {
 
     pub fn load_from_str(input: &str) -> Result<Data, ParseError> {
         let loader = HoconLoader::new().strict().no_system();
-        let loader = loader.load_str(input).map_err(|error| {
-            ParseError::HoconError { error, hint: format!("loader for {:?}", input) }
-        })?;
+        let loader = loader
+            .load_str(input)
+            .map_err(|error| ParseError::HoconError {
+                error,
+                hint: format!("loader for {:?}", input),
+            })?;
 
-        let raw = loader.hocon().map_err(|error| {
-            ParseError::HoconError { error, hint: format!("converting to hocon for {:?}", input) }
+        let raw = loader.hocon().map_err(|error| ParseError::HoconError {
+            error,
+            hint: format!("converting to hocon for {:?}", input),
         })?;
 
         HParser::parse(raw)
@@ -126,12 +138,16 @@ impl HParser {
             let path = entry?.path();
             info!("loading configuration file {:?}", path);
             loader = loader.load_file(path.to_str().unwrap()).map_err(|error| {
-                ParseError::HoconError { error, hint: format!("path '{:?}'", path) }
+                ParseError::HoconError {
+                    error,
+                    hint: format!("path '{:?}'", path),
+                }
             })?;
         }
 
-        let raw = loader.hocon().map_err(|error| {
-            ParseError::HoconError { error, hint: format!("root_path'{:?}'", root_path) }
+        let raw = loader.hocon().map_err(|error| ParseError::HoconError {
+            error,
+            hint: format!("root_path'{:?}'", root_path),
         })?;
 
         HParser::parse(raw)

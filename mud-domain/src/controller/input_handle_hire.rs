@@ -1,11 +1,11 @@
-use crate::game::container::Container;
-use crate::game::{Outputs, comm};
-use crate::game::mob::MobId;
-use crate::utils::strinput::StrInput;
-use crate::errors::{Result, Error};
-use logs::*;
 use crate::errors::Error::NotFoundFailure;
+use crate::errors::{Error, Result};
 use crate::game::actions::out;
+use crate::game::container::Container;
+use crate::game::mob::MobId;
+use crate::game::{comm, Outputs};
+use crate::utils::strinput::StrInput;
+use logs::*;
 
 pub fn hire(
     container: &mut Container,
@@ -19,7 +19,9 @@ pub fn hire(
         Error::InvalidStateFailure
     })?;
 
-    let candidates = container.locations.list_at(location_id)
+    let candidates = container
+        .locations
+        .list_at(location_id)
         .filter(|obj_id| container.hires.exist(*obj_id))
         .collect::<Vec<_>>();
 
@@ -41,4 +43,3 @@ pub fn hire(
         }
     }
 }
-

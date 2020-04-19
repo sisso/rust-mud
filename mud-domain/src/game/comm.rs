@@ -3,14 +3,14 @@ use super::domain::*;
 use super::item::*;
 use super::mob::*;
 use crate::errors::{AsResult, Result};
+use crate::game::astro_bodies::{AstroBodyKind, DistanceMkm};
+use crate::game::obj::Obj;
 use crate::game::prices::Money;
+use crate::game::room::Room;
 use crate::utils::text::{plot_points, PlotCfg, PlotPoint};
 use commons::{ObjId, TotalTime, V2};
 use logs::*;
-use crate::game::astro_bodies::{DistanceMkm, AstroBodyKind};
-use crate::game::room::Room;
 use std::collections::HashMap;
-use crate::game::obj::Obj;
 
 pub struct InventoryDesc<'a> {
     pub id: ItemId,
@@ -21,7 +21,9 @@ pub struct InventoryDesc<'a> {
 
 // TODO: move to a rule like system that control this semantic through
 pub fn is_visible(container: &Container, obj_id: ObjId) -> bool {
-    container.mobs.exists(obj_id) || container.items.exists(obj_id) || container.ships.exists(obj_id)
+    container.mobs.exists(obj_id)
+        || container.items.exists(obj_id)
+        || container.ships.exists(obj_id)
 }
 
 pub fn help() -> String {
@@ -154,9 +156,7 @@ pub fn kill_player_execute_attack(target: &str, attack_result: &AttackResult) ->
     if attack_result.success {
         format!(
             "you attack {} and hit, causing {}/{} damage!",
-            target,
-            attack_result.damage_deliver,
-            attack_result.damage_total
+            target, attack_result.damage_deliver, attack_result.damage_total
         )
     } else {
         format!("you attack {} and miss!", target)
@@ -183,10 +183,7 @@ pub fn killed(mob: &str) -> String {
 }
 
 pub fn kill_return_attack_self(aggressor_mob_label: &str) -> String {
-    format!(
-        "You return combat against {}",
-        aggressor_mob_label
-    )
+    format!("You return combat against {}", aggressor_mob_label)
 }
 
 pub fn kill_return_attack(mob_label: &str, aggressor_mob_label: &str) -> String {
@@ -515,7 +512,6 @@ pub fn show_surface_map(desc: &Vec<SurfaceDesc>) -> String {
     buffer.join("\n")
 }
 
-
 // TODO: add distance
 pub fn space_show_move_targets(desc: &Vec<ShowSectorTreeBody>) -> String {
     let mut buffer = vec!["Targets:".to_string()];
@@ -523,9 +519,7 @@ pub fn space_show_move_targets(desc: &Vec<ShowSectorTreeBody>) -> String {
     let items: Vec<String> = desc
         .iter()
         .enumerate()
-        .flat_map(|(_i, desc)| {
-            Some(format!("- {}", desc.label))
-        })
+        .flat_map(|(_i, desc)| Some(format!("- {}", desc.label)))
         .collect();
 
     buffer.extend(items);
@@ -612,7 +606,11 @@ pub struct ShowSectorTreeBody<'a> {
     pub is_self: bool,
 }
 
-pub fn show_sectortree<'a>(origin_id: ObjId, sector_label: &str, bodies: &'a Vec<ShowSectorTreeBody<'a>>) -> String {
+pub fn show_sectortree<'a>(
+    origin_id: ObjId,
+    sector_label: &str,
+    bodies: &'a Vec<ShowSectorTreeBody<'a>>,
+) -> String {
     fn append<'a>(
         bodies: &'a Vec<ShowSectorTreeBody<'a>>,
         buffer: &mut Vec<String>,
@@ -620,29 +618,28 @@ pub fn show_sectortree<'a>(origin_id: ObjId, sector_label: &str, bodies: &'a Vec
         orbit_id: ObjId,
         prefix: &str,
     ) {
-        let list = bodies.iter()
-            .filter(|e| {
-                 e.orbit_id == orbit_id
-            });
+        let list = bodies.iter().filter(|e| e.orbit_id == orbit_id);
 
-        let (local_prefix, next_prefix) =
-            if orbit_id == origin_id {
-                ("", "- ".to_string())
-            } else {
-                (prefix, format!("  {}", prefix))
-            };
+        let (local_prefix, next_prefix) = if orbit_id == origin_id {
+            ("", "- ".to_string())
+        } else {
+            (prefix, format!("  {}", prefix))
+        };
 
         for body in list {
-            let highlight_str = if body.is_self { " (you)" } else { "" };
-            buffer.push(format!("{}{} {:.2}{}", local_prefix, body.label, body.orbit_distance, highlight_str));
-            append(bodies, buffer, origin_id,body.id,  next_prefix.as_str());
+            let highlight_str = if body.is_self { " <" } else { "" };
+            buffer.push(format!(
+                "{}{} {:.2}{}",
+                local_prefix, body.label, body.orbit_distance, highlight_str
+            ));
+            append(bodies, buffer, origin_id, body.id, next_prefix.as_str());
         }
     }
 
     let mut buffer = Vec::new();
     let title = format!("[{}]", sector_label);
     buffer.push(title);
-    append(bodies, &mut buffer, origin_id,origin_id, "");
+    append(bodies, &mut buffer, origin_id, origin_id, "");
     buffer.push("".to_string());
 
     buffer.join("\n")
@@ -843,7 +840,7 @@ Sun 0.00
 - Earth 2.00
   - Moon 0.40
     - Ring 0.05
-    - Light Cargo 0.01 <<<
+    - Light Cargo 0.01 <
 - Asteroids 80.00
 "##
         );
@@ -875,22 +872,26 @@ pub fn hire_list(candidates: Vec<&str>) -> String {
     buff
 }
 
-#[derive(Debug,Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum RoomMapCell {
     Empty,
     Room(ObjId),
     DoorHor,
-    DoorVer
+    DoorVer,
 }
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct RoomMap {
     pub width: u32,
     pub height: u32,
     pub cells: Vec<RoomMapCell>,
 }
 
-pub fn print_room_map(current_id: ObjId, room_map: RoomMap, labels: &HashMap<ObjId, String>) -> String {
+pub fn print_room_map(
+    current_id: ObjId,
+    room_map: RoomMap,
+    labels: &HashMap<ObjId, String>,
+) -> String {
     let mut buffer = String::new();
 
     buffer.push_str("Map\n");
@@ -899,8 +900,8 @@ pub fn print_room_map(current_id: ObjId, room_map: RoomMap, labels: &HashMap<Obj
     let mut current_label = "";
 
     let mut index = 0;
-    for y in 0..room_map.height {
-        for x in 0..room_map.width {
+    for _y in 0..room_map.height {
+        for _x in 0..room_map.width {
             match &room_map.cells[index] {
                 RoomMapCell::Empty => buffer.push_str(".."),
                 RoomMapCell::Room(obj_id) => {
@@ -943,5 +944,3 @@ pub fn space_jump_failed() -> String {
 pub fn space_jump_complete() -> String {
     "jump complete!".to_string()
 }
-
-

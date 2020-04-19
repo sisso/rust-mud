@@ -1,14 +1,14 @@
 use crate::errors::{Error, Result};
-use std::collections::HashMap;
-use crate::game::room::RoomId;
 use crate::game::domain::Dir;
-use commons::ObjId;
+use crate::game::room::RoomId;
 use crate::game::spawn::SpawnBuilder;
-use rand::SeedableRng;
+use commons::ObjId;
 use rand::prelude::StdRng;
+use rand::SeedableRng;
+use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
-pub struct RandomRoomsSpawnCfg{
+pub struct RandomRoomsSpawnCfg {
     pub amount: u32,
     pub spawn_builder: SpawnBuilder,
 }
@@ -21,14 +21,14 @@ pub struct RandomRoomsCfg {
     pub seed: u64,
     pub width: u32,
     pub height: u32,
-    pub spawns: Vec<RandomRoomsSpawnCfg>
+    pub spawns: Vec<RandomRoomsSpawnCfg>,
 }
 
 #[derive(Clone, Debug)]
 pub struct RandomRoomsState {
     pub cfg: RandomRoomsCfg,
     pub generated: bool,
-    pub rng: StdRng
+    pub rng: StdRng,
 }
 
 impl RandomRoomsState {
@@ -42,7 +42,6 @@ impl RandomRoomsState {
         }
     }
 }
-
 
 #[derive(Clone, Debug)]
 pub struct RandomRoomsRepository {
@@ -80,4 +79,3 @@ impl RandomRoomsRepository {
         self.index.values_mut()
     }
 }
-

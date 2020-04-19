@@ -1,11 +1,11 @@
 use super::comm;
 use crate::errors::{AsResult, Error, Result};
+use crate::game::domain::{Modifier, Rd};
+use crate::game::mob::Damage;
+use crate::game::system::SystemCtx;
 use commons::*;
 use logs::*;
 use std::collections::HashMap;
-use crate::game::mob::Damage;
-use crate::game::domain::{Modifier, Rd};
-use crate::game::system::SystemCtx;
 
 pub type ItemId = ObjId;
 pub type ItemPrefabId = ObjId;
@@ -70,10 +70,7 @@ pub struct Weapon {
 impl Weapon {
     pub fn new() -> Self {
         Weapon {
-            damage: Damage {
-                min: 1,
-                max: 1
-            },
+            damage: Damage { min: 1, max: 1 },
             calm_down: DeltaTime(1.0),
             attack: Modifier(0),
         }
@@ -88,7 +85,10 @@ pub struct Armor {
 
 impl Armor {
     pub fn new() -> Self {
-        Armor { defense: Modifier(0), rd: 0 }
+        Armor {
+            defense: Modifier(0),
+            rd: 0,
+        }
     }
 }
 
@@ -179,4 +179,3 @@ impl ItemRepository {
     //        }
     //    }
 }
-

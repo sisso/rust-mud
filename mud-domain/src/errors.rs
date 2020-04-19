@@ -1,6 +1,6 @@
+use crate::game::loader::StaticId;
 use serde::export::Formatter;
 use std::any::Any;
-use crate::game::loader::StaticId;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -30,8 +30,10 @@ pub enum Error {
 impl Error {
     pub fn is_exception(&self) -> bool {
         match self {
-            Error::NotFoundException | Error::ConflictException | Error::Exception(_) |
-            Error::NotImplementedException => true,
+            Error::NotFoundException
+            | Error::ConflictException
+            | Error::Exception(_)
+            | Error::NotImplementedException => true,
             _ => false,
         }
     }
@@ -64,7 +66,7 @@ pub trait ResultError<T> {
     fn as_failure(self) -> Result<T>;
 }
 
-impl <T> ResultError<T> for Result<T> {
+impl<T> ResultError<T> for Result<T> {
     fn as_failure(self) -> Result<T> {
         self.map_err(|error| error.as_failure())
     }

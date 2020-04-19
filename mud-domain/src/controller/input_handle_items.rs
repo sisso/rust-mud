@@ -166,7 +166,6 @@ pub fn strip(
         .and_then(|item_id| do_strip(container, outputs, mob_id, item_id))
 }
 
-
 #[cfg(test)]
 pub mod test {
     use super::*;

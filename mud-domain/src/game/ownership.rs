@@ -1,12 +1,11 @@
 use crate::errors::{Error, Result};
 use commons::ObjId;
-use std::collections::HashMap;
 use logs::*;
-
+use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
 pub struct Ownerships {
-    /// key = obj, value = owner 
+    /// key = obj, value = owner
     owners: HashMap<ObjId, ObjId>,
     /// key =owner, values = objects
     goods: HashMap<ObjId, Vec<ObjId>>,
@@ -23,7 +22,8 @@ impl Ownerships {
     pub fn set_owner(&mut self, obj_id: ObjId, owner_id: ObjId) {
         self.remove_owner(obj_id);
         self.owners.insert(obj_id, owner_id);
-        self.goods.entry(owner_id)
+        self.goods
+            .entry(owner_id)
             .or_insert(Vec::new())
             .push(obj_id);
 
@@ -33,10 +33,8 @@ impl Ownerships {
     pub fn remove_owner(&mut self, obj_id: ObjId) -> Option<ObjId> {
         let last_owner = self.owners.remove(&obj_id);
         if let Some(owner) = last_owner {
-            self.goods.get_mut(&owner)
-                .unwrap()
-                .retain(|i| *i != obj_id);
-        
+            self.goods.get_mut(&owner).unwrap().retain(|i| *i != obj_id);
+
             debug!("{:?} owner removed, previous owner was {:?}", obj_id, owner);
         }
 
@@ -48,15 +46,14 @@ impl Ownerships {
     }
 
     pub fn list(&self, owner_id: ObjId) -> Vec<ObjId> {
-        self.goods.get(&owner_id)
-            .cloned()
-            .unwrap_or(Vec::new())
+        self.goods.get(&owner_id).cloned().unwrap_or(Vec::new())
     }
 
     pub fn count(&self, owner_id: ObjId) -> usize {
-        self.goods.get(&owner_id)
+        self.goods
+            .get(&owner_id)
             .map(|list| list.len())
-            .unwrap_or(0) 
+            .unwrap_or(0)
     }
 }
 

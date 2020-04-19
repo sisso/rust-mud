@@ -1,11 +1,5 @@
 extern crate rand;
 
-use rand::prelude::StdRng;
-use rand::{Rng, SeedableRng};
-use std::collections::HashSet;
-use std::process::id;
-use commons::V2I;
-
 trait Rooms {
     fn height(&self) -> usize;
     fn width(&self) -> usize;
@@ -92,8 +86,7 @@ fn main() {
                 (2, 1, 2, 0),
             ];
 
-            portals.contains(&(x0, y0, x1, y1)) ||
-                portals.contains(&(x1, y1, x0, y0))
+            portals.contains(&(x0, y0, x1, y1)) || portals.contains(&(x1, y1, x0, y0))
         }
 
         fn id(&self, x: usize, y: usize) -> usize {

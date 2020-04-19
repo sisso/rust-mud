@@ -3,7 +3,6 @@ extern crate rand;
 use rand::prelude::StdRng;
 use rand::{Rng, SeedableRng};
 use std::collections::HashSet;
-use std::process::id;
 
 pub struct Rooms {
     width: usize,
@@ -190,7 +189,7 @@ fn print(map: &Rooms) {
         buffer.push('\n');
     }
 
-    for x in 0..(map.width * 2 + 1) {
+    for _x in 0..(map.width * 2 + 1) {
         buffer.push(empty);
     }
 

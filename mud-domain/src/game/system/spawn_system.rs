@@ -1,16 +1,16 @@
-use logs::*;
 use commons::unwrap_or_continue;
+use logs::*;
 
-use crate::game::system::SystemCtx;
-use crate::game::loader::Loader;
-use crate::game::comm;
-use commons::{TotalTime, DeltaTime};
-use crate::game::spawn::Spawn;
-use crate::game::mob::MobRepository;
-use rand::Rng;
 use crate::errors::*;
+use crate::game::comm;
+use crate::game::loader::Loader;
+use crate::game::mob::MobRepository;
+use crate::game::spawn::Spawn;
+use crate::game::system::SystemCtx;
 use crate::game::timer::Timer;
 use crate::game::triggers::{Event, EventKind};
+use commons::{DeltaTime, TotalTime};
+use rand::Rng;
 
 pub fn run(ctx: &mut SystemCtx) {
     let total_time = ctx.container.time.total;
@@ -22,7 +22,7 @@ pub fn run(ctx: &mut SystemCtx) {
             None => {
                 warn!("{:?} added spawn not found", spawn_id);
                 continue;
-            },
+            }
         };
 
         schedule_next_spawn(&mut ctx.container.timer, total_time, spawn);
@@ -54,8 +54,8 @@ pub fn run(ctx: &mut SystemCtx) {
                 }
                 None => warn!("Spawn {:?} has no parent", spawn.id),
             };
-        } else{
-            debug!("{:?} can not spawn, already own max objects", spawn.id); 
+        } else {
+            debug!("{:?} can not spawn, already own max objects", spawn.id);
         }
 
         schedule_next_spawn(&mut ctx.container.timer, total_time, spawn);
@@ -94,6 +94,12 @@ fn schedule_next_spawn(timer: &mut Timer, now: TotalTime, spawn: &mut Spawn) {
     let range = rng.gen_range(spawn.delay.min.as_f32(), spawn.delay.max.as_f32());
     let next = now + DeltaTime(range);
     spawn.next = next;
-    timer.schedule(next, Event::Obj { kind: EventKind::Spawn, obj_id: spawn.id });
+    timer.schedule(
+        next,
+        Event::Obj {
+            kind: EventKind::Spawn,
+            obj_id: spawn.id,
+        },
+    );
     debug!("{:?} scheduling spawn at {:?}", spawn.id, spawn.next);
 }

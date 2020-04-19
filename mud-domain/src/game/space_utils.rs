@@ -1,11 +1,14 @@
 use crate::errors::{AsResult, Error, Result};
 use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
-use crate::game::comm::{ShowSectorTreeBody, ShowSectorTreeBodyKind, ShowStarmapDescKind, SurfaceDesc, ShowSectorTreeBodyOrbit};
+use crate::game::comm::{
+    ShowSectorTreeBody, ShowSectorTreeBodyKind, ShowSectorTreeBodyOrbit, ShowStarmapDescKind,
+    SurfaceDesc,
+};
 use crate::game::container::Container;
-use crate::game::ships::ShipId;
 use crate::game::location::LocationId;
 use crate::game::mob::MobId;
-use crate::game::{comm, Outputs, rooms_zones};
+use crate::game::ships::ShipId;
+use crate::game::{comm, rooms_zones, Outputs};
 use commons::{ObjId, PlayerId, MIN_DISTANCE, V2};
 use logs::*;
 
@@ -69,18 +72,27 @@ pub fn search_landing_sites(container: &Container, ship_id: ObjId) -> Vec<ObjId>
     };
 
     if !container.space_body.exists(orbit_id) {
-        warn!("{:?} requested to land but location is not a space body", ship_id);
+        warn!(
+            "{:?} requested to land but location is not a space body",
+            ship_id
+        );
         return vec![];
     }
 
     let candidates = rooms_zones::search_rooms_at(container, orbit_id);
-    let sites = candidates.iter()
+    let sites = candidates
+        .iter()
         .filter(|room| room.can_exit)
         .map(|room| room.id)
         .collect();
 
-    trace!("{:?} searching landing sites at orbit {:?}. From rooms {:?} found {:?} landing sites",
-           ship_id, orbit_id, candidates, sites);
+    trace!(
+        "{:?} searching landing sites at orbit {:?}. From rooms {:?} found {:?} landing sites",
+        ship_id,
+        orbit_id,
+        candidates,
+        sites
+    );
 
     sites
 }
@@ -98,7 +110,9 @@ pub fn get_ship_and_sector(
         }
     };
 
-    let sector = container.locations.list_parents(ship_id)
+    let sector = container
+        .locations
+        .list_parents(ship_id)
         .into_iter()
         .find(|&obj_id| container.sectors.exists(obj_id));
 
@@ -154,22 +168,33 @@ pub fn find_space_bodies(container: &Container, sector_id: ObjId) -> Vec<&AstroB
         .collect()
 }
 
-pub fn find_showsector_bodies(container: &Container, sector_id: ObjId, ship_id: Option<ObjId>) -> Vec<ShowSectorTreeBody> {
+pub fn find_showsector_bodies(
+    container: &Container,
+    sector_id: ObjId,
+    ship_id: Option<ObjId>,
+) -> Vec<ShowSectorTreeBody> {
     find_space_bodies(container, sector_id)
         .into_iter()
         .map(|body| to_showsectortreebody(container, ship_id, body))
         .collect()
 }
 
-pub fn to_showsectortreebody<'a>(container: &'a Container, self_id: Option<ObjId>, body: &'a AstroBody) -> ShowSectorTreeBody<'a> {
+pub fn to_showsectortreebody<'a>(
+    container: &'a Container,
+    self_id: Option<ObjId>,
+    body: &'a AstroBody,
+) -> ShowSectorTreeBody<'a> {
     let obj_id = body.id;
 
     ShowSectorTreeBody {
         id: obj_id,
         label: container.labels.get_label_f(obj_id),
-        orbit_id:  container.locations.get(obj_id).expect("Space objects must have a orbit"),
+        orbit_id: container
+            .locations
+            .get(obj_id)
+            .expect("Space objects must have a orbit"),
         orbit_distance: body.orbit_distance,
         kind: body.kind.into(),
-        is_self: Some(obj_id) == self_id
+        is_self: Some(obj_id) == self_id,
     }
 }

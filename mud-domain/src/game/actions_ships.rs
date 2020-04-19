@@ -1,13 +1,13 @@
-use crate::errors::{Error, Result, AsResult};
+use crate::errors::{AsResult, Error, Result};
+use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
 use crate::game::container::Container;
-use crate::game::ships::{ShipCommand, ShipId};
 use crate::game::domain::Dir;
 use crate::game::mob::MobId;
 use crate::game::room::RoomId;
+use crate::game::ships::{ShipCommand, ShipId};
 use crate::game::{comm, space_utils, Outputs};
-use commons::{ObjId, PlayerId, DeltaTime};
+use commons::{DeltaTime, ObjId, PlayerId};
 use logs::*;
-use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
 
 /// Assume that all arguments are correct
 pub fn move_to(
@@ -23,7 +23,13 @@ pub fn move_to(
 
     container
         .ships
-        .set_command(craft_id, ShipCommand::MoveTo { target_id, arrival_time })
+        .set_command(
+            craft_id,
+            ShipCommand::MoveTo {
+                target_id,
+                arrival_time,
+            },
+        )
         .map(|ok| {
             debug!("move_to {:?} at {:?}", craft_id, target_id);
             outputs.private(mob_id, comm::space_move());
@@ -72,10 +78,10 @@ pub fn do_launch(
     let landing_pad_id = parents.get(0).cloned().unwrap();
 
     // search current body
-    let parent_body = parents.iter()
-        .flat_map(|&id| {
-            container.space_body.get(id)
-        }).next();
+    let parent_body = parents
+        .iter()
+        .flat_map(|&id| container.space_body.get(id))
+        .next();
 
     let parent_body = match parent_body {
         Some(body) => body,
@@ -138,7 +144,10 @@ pub fn do_jump(
     let target_jump_id = match astro_location.jump_target_id {
         Some(id) => id,
         None => {
-            warn!("{:?} can not jump, jump {:?} has no target", mob_id, astro_location);
+            warn!(
+                "{:?} can not jump, jump {:?} has no target",
+                mob_id, astro_location
+            );
             outputs.private(mob_id, comm::space_jump_failed());
             return Err(Error::InvalidArgumentFailure);
         }

@@ -12,7 +12,7 @@ pub struct Trigger<T> {
     kind_by_listener_id: HashMap<Listener, Kind>,
 }
 
-impl <T> Trigger<T> {
+impl<T> Trigger<T> {
     pub fn new() -> Self {
         Trigger {
             next_listener: 0,
@@ -28,8 +28,7 @@ impl <T> Trigger<T> {
 
         self.kind_by_listener_id.insert(next, event_kind);
 
-        let listeners = self.listeners_per_kind.entry(event_kind)
-            .or_default();
+        let listeners = self.listeners_per_kind.entry(event_kind).or_default();
         listeners.insert(next, 0);
 
         next
@@ -41,7 +40,7 @@ impl <T> Trigger<T> {
             None => {
                 self.events.insert(event_kind, Vec::new());
                 self.events.get_mut(&event_kind).unwrap()
-            },
+            }
         };
 
         events.push(event);
@@ -50,7 +49,9 @@ impl <T> Trigger<T> {
     pub fn take(&mut self, listener: Listener) -> Vec<&T> {
         let kind = self.kind_by_listener_id.get(&listener).unwrap();
 
-        let index = self.listeners_per_kind.get_mut(&kind)
+        let index = self
+            .listeners_per_kind
+            .get_mut(&kind)
             .unwrap()
             .get_mut(&listener)
             .unwrap();
@@ -60,22 +61,20 @@ impl <T> Trigger<T> {
                 let current = *index;
                 *index = vec.len();
                 vec.iter().skip(current).collect()
-            },
+            }
             None => Vec::new(),
         }
     }
 
     pub fn len_by_kind(&self, event_kind: Kind) -> usize {
-        self.events.get(&event_kind)
+        self.events
+            .get(&event_kind)
             .map(|vec| vec.len())
             .unwrap_or(0)
     }
 
     pub fn len(&self) -> usize {
-        self.events
-            .iter()
-            .map(|(_, vec)| vec.len())
-            .sum()
+        self.events.iter().map(|(_, vec)| vec.len()).sum()
     }
 
     pub fn gc(&mut self) {
@@ -84,19 +83,16 @@ impl <T> Trigger<T> {
             match self.listeners_per_kind.get_mut(kind) {
                 Some(listeners) => {
                     // find min index from all listeners
-                    let min = listeners.iter()
-                        .map(|(_, &pos)| pos)
-                        .min()
-                        .unwrap_or(0);
-                   
+                    let min = listeners.iter().map(|(_, &pos)| pos).min().unwrap_or(0);
+
                     // clean up events
                     events.drain(0..min);
-                    
+
                     // update indexes
                     for (_, pos) in listeners.iter_mut() {
                         *pos -= min;
                     }
-                },
+                }
                 None => events.clear(),
             }
         }

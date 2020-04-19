@@ -110,7 +110,10 @@ fn add_money_with_item(
             // since we add to a already existent item, we don't need this anymore
             container.remove(provided_item_id);
 
-            debug!("{:?} receive {:?} money by merging inventory money", inventory_id, amount);
+            debug!(
+                "{:?} receive {:?} money by merging inventory money",
+                inventory_id, amount
+            );
 
             Ok(())
         }
@@ -120,13 +123,19 @@ fn add_money_with_item(
                 .get_mut(item_id)
                 .expect("Money was created but is not a item");
             item.amount += amount.as_u32();
-            debug!("{:?} receive {:?} money by updating inventory money", inventory_id, amount);
+            debug!(
+                "{:?} receive {:?} money by updating inventory money",
+                inventory_id, amount
+            );
             Ok(())
         }
         (None, Some(item_id)) => {
             container.locations.set(item_id, inventory_id);
             container.ownership.remove_owner(item_id);
-            debug!("{:?} receive {:?} money by adding money to inventory", inventory_id, amount);
+            debug!(
+                "{:?} receive {:?} money by adding money to inventory",
+                inventory_id, amount
+            );
             Ok(())
         }
         (None, None) => {
@@ -137,7 +146,10 @@ fn add_money_with_item(
                 .get_mut(item_id)
                 .expect("Money was created but is not a item");
             item.amount = amount.as_u32();
-            debug!("{:?} receive {:?} money by creating money in inventory", inventory_id, amount);
+            debug!(
+                "{:?} receive {:?} money by creating money in inventory",
+                inventory_id, amount
+            );
             Ok(())
         }
     }
@@ -155,9 +167,7 @@ pub fn get_inventory_list<'a>(
     items: &'a ItemRepository,
     obj_id: ObjId,
 ) -> impl Iterator<Item = &'a Item> + 'a {
-    locations
-        .list_at(obj_id)
-        .flat_map(move |id| items.get(id))
+    locations.list_at(obj_id).flat_map(move |id| items.get(id))
 }
 
 pub fn search(

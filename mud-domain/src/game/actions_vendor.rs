@@ -1,6 +1,6 @@
 use crate::errors::*;
 use crate::game::comm::VendorListItem;
-use crate::game::container::{Container};
+use crate::game::container::Container;
 use crate::game::item::ItemId;
 use crate::game::loader::{Loader, StaticId};
 use crate::game::mob::MobId;
@@ -14,7 +14,7 @@ pub fn list(
     container: &mut Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
-    vendor_id: MobId,
+    _vendor_id: MobId,
 ) -> Result<()> {
     let list = container
         .prices
@@ -39,7 +39,7 @@ pub fn buy(
     container: &mut Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
-    vendor_id: MobId,
+    _vendor_id: MobId,
     item_static_id: StaticId,
 ) -> Result<ItemId> {
     let location_id = container.locations.get(mob_id).ok_or_else(|| {

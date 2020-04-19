@@ -1,10 +1,10 @@
 use mud_domain::game::loader::{Loader, ObjData};
-use serde::Serialize;
+
+use commons::tree::Tree;
 use serde_json;
 use std::collections::HashMap;
 use std::env;
 use std::path::Path;
-use commons::tree::Tree;
 
 // TODO: refactory everything, it got ugly,
 // TODO: support commands
@@ -48,7 +48,7 @@ fn main() {
         match e.parent {
             Some(parent_id) => {
                 tree.insert(e.id.as_u32(), parent_id.as_u32());
-            },
+            }
             None => roots.push(e.id.as_u32()),
         }
 
@@ -63,7 +63,7 @@ fn main() {
         match e.parent {
             Some(parent_id) => {
                 tree.insert(e.id.as_u32(), parent_id.as_u32());
-            },
+            }
             None => roots_prefabs.push(e.id.as_u32()),
         }
 
@@ -120,7 +120,13 @@ fn print_one(deep: u32, data: &ObjData) {
         ids.sort();
         children_str = format!(" - {:?}", ids);
     }
-    println!("{}{:04}) {}{}", prefix, data.id.as_u32(), data.label, children_str);
+    println!(
+        "{}{:04}) {}{}",
+        prefix,
+        data.id.as_u32(),
+        data.label,
+        children_str
+    );
 }
 
 fn print_deep(deep: u32, key: u32, data_by_id: &HashMap<u32, &ObjData>, tree: &Tree<u32>) {
@@ -133,5 +139,3 @@ fn print_deep(deep: u32, key: u32, data_by_id: &HashMap<u32, &ObjData>, tree: &T
         print_deep(deep + 1, child, data_by_id, tree);
     }
 }
-
-

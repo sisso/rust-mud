@@ -9,9 +9,9 @@ use crate::game::{comm, Outputs};
 use commons::{DeltaTime, PlayerId};
 
 pub fn on_player_disconnect(
-    container: &mut Container,
+    _container: &mut Container,
     _outputs: &mut dyn Outputs,
-    player_id: PlayerId,
+    _player_id: PlayerId,
 ) {
     // let player = container.players.get(player_id).as_result()?;
     // let _mob_id = player.mob_id;

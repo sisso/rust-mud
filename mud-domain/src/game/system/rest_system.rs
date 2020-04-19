@@ -1,8 +1,8 @@
-use crate::game::system::SystemCtx;
 use crate::errors::*;
 use crate::game::comm;
-use commons::{TotalTime, TimeTrigger};
 use crate::game::mob::Mob;
+use crate::game::system::SystemCtx;
+use commons::{TimeTrigger, TotalTime};
 
 pub fn run(ctx: &mut SystemCtx) {
     let total_time = ctx.container.time.total;
@@ -30,11 +30,7 @@ fn update_resting(mob: &mut Mob, total: TotalTime) -> bool {
         return false;
     }
 
-    match TimeTrigger::check_trigger(
-        mob.attributes.pv.heal_rate,
-        mob.state.heal_calm_down,
-        total,
-    ) {
+    match TimeTrigger::check_trigger(mob.attributes.pv.heal_rate, mob.state.heal_calm_down, total) {
         Some(next) => {
             mob.state.heal_calm_down = next;
             mob.attributes.pv.current += 1;
@@ -43,4 +39,3 @@ fn update_resting(mob: &mut Mob, total: TotalTime) -> bool {
         None => false,
     }
 }
-

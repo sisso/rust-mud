@@ -1,11 +1,11 @@
-use commons::{ ObjId };
+use commons::ObjId;
 use logs::*;
 
 /// Numeric identifier of event type, used for query
 #[derive(Clone, Debug, Copy, PartialEq)]
 pub enum EventKind {
     Spawn,
-    Rest, 
+    Rest,
     Combat,
     Decay,
     /// Used now for last element
@@ -14,10 +14,7 @@ pub enum EventKind {
 
 #[derive(Debug, Clone)]
 pub enum Event {
-    Obj { 
-        kind: EventKind,
-        obj_id: ObjId
-    },
+    Obj { kind: EventKind, obj_id: ObjId },
 }
 
 impl Event {
@@ -46,25 +43,25 @@ pub struct Triggers {
 impl Triggers {
     pub fn new() -> Self {
         let mut index = Vec::new();
-        
-        for i in 0..EventKind::Unknown as u32 {
+
+        for _i in 0..EventKind::Unknown as u32 {
             index.push(Vec::new());
         }
 
-        Triggers {
-            index
-        }
+        Triggers { index }
     }
 
     pub fn push(&mut self, event: Event) {
         debug!("push {:?}", event);
-        self.index.get_mut(event.get_kind() as usize)
+        self.index
+            .get_mut(event.get_kind() as usize)
             .expect("wrong events initalization")
             .push(event);
     }
 
     pub fn list<'a>(&'a self, kind: EventKind) -> impl Iterator<Item = &Event> + 'a {
-        self.index.get(kind as usize)
+        self.index
+            .get(kind as usize)
             .expect("wrong events initalization")
             .iter()
     }

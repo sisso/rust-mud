@@ -1,29 +1,28 @@
-use crate::game::system::{SystemCtx, System};
-use crate::game::item::ItemId;
-use crate::game::comm;
-use crate::game::triggers::*;
 use crate::errors::*;
-use logs::*;
+use crate::game::comm;
+use crate::game::item::ItemId;
+use crate::game::system::{System, SystemCtx};
+use crate::game::triggers::*;
 use commons::ObjId;
+use logs::*;
 
-pub struct DecaySystem {
-}
+pub struct DecaySystem {}
 
 impl DecaySystem {
     pub fn new() -> Self {
-        DecaySystem {
-        }
+        DecaySystem {}
     }
 }
 
 impl System for DecaySystem {
     fn tick<'a>(&mut self, ctx: &mut SystemCtx<'a>) -> Result<()> {
-        let to_remove: Vec<ObjId> = ctx.container.triggers.list(EventKind::Decay)
-            .map(|event| {
-                match event {
-                    Event::Obj { obj_id, .. } => *obj_id,
-                    _other=> panic!("unexpected event from kind")
-                }
+        let to_remove: Vec<ObjId> = ctx
+            .container
+            .triggers
+            .list(EventKind::Decay)
+            .map(|event| match event {
+                Event::Obj { obj_id, .. } => *obj_id,
+                _other => panic!("unexpected event from kind"),
             })
             .collect();
 
@@ -46,11 +45,11 @@ impl System for DecaySystem {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::controller::OutputsBuffer;
     use crate::game::container::Container;
     use crate::game::system::Systems;
     use crate::game::{builder, main_loop};
-    use commons::{TotalTime, DeltaTime};
-    use crate::controller::OutputsBuffer;
+    use commons::{DeltaTime, TotalTime};
 
     #[test]
     pub fn test_decay() {
@@ -59,7 +58,13 @@ mod test {
         let room_id = builder::add_room(&mut scenery.container, "room1");
         let item_id = builder::add_item(&mut scenery.container, "item1", room_id);
 
-        scenery.container.timer.schedule(TotalTime(1.0), Event::Obj { kind: EventKind::Decay, obj_id: item_id });
+        scenery.container.timer.schedule(
+            TotalTime(1.0),
+            Event::Obj {
+                kind: EventKind::Decay,
+                obj_id: item_id,
+            },
+        );
 
         scenery.tick(0.1);
         assert!(scenery.container.objects.exists(item_id));
@@ -68,4 +73,3 @@ mod test {
         assert!(!scenery.container.objects.exists(item_id));
     }
 }
-

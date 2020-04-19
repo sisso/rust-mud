@@ -1,11 +1,11 @@
-use crate::game::container::Container;
-use crate::game::{Outputs, comm};
-use crate::game::mob::MobId;
-use crate::utils::strinput::StrInput;
-use crate::errors::{Result, Error, AsResult};
-use logs::*;
 use crate::errors::Error::NotFoundFailure;
+use crate::errors::{AsResult, Error, Result};
 use crate::game::actions::out;
+use crate::game::container::Container;
+use crate::game::mob::MobId;
+use crate::game::{comm, Outputs};
+use crate::utils::strinput::StrInput;
+use logs::*;
 
 pub fn hire(
     container: &mut Container,
@@ -28,7 +28,11 @@ pub fn hire(
     let hired_label = container.labels.get_label_f(hired_id);
 
     outputs.private(mob_id, comm::hire(hired_label));
-    outputs.broadcast(Some(mob_id), location_id, comm::hire_others(mob_label, hired_label));
+    outputs.broadcast(
+        Some(mob_id),
+        location_id,
+        comm::hire_others(mob_label, hired_label),
+    );
 
     Ok(())
 }

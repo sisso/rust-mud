@@ -3,17 +3,17 @@ use super::container::Container;
 use super::domain::*;
 use super::mob::*;
 use super::Outputs;
+use crate::errors::Error::NotFoundFailure;
 use crate::errors::{AsResult, Error, Result};
+use crate::game::comm::{RoomMap, RoomMapCell};
+use crate::game::item::ItemId;
+use crate::game::loader::StaticId;
+use crate::game::room::RoomRepository;
 use crate::game::space_utils;
 use commons::{ObjId, PlayerId};
 use logs::*;
-use std::process::id;
-use crate::game::loader::StaticId;
-use crate::game::item::ItemId;
-use crate::errors::Error::NotFoundFailure;
-use crate::game::room::RoomRepository;
-use crate::game::comm::{RoomMap, RoomMapCell};
 use std::collections::{HashMap, HashSet};
+use std::process::id;
 
 //#[derive(Debug, Clone)]
 //pub enum Action {
@@ -324,7 +324,11 @@ pub fn show_map(container: &mut Container, outputs: &mut dyn Outputs, mob_id: Mo
     Ok(())
 }
 
-fn generate_room_maps(location_id: ObjId, max_distance: u32, rooms: &RoomRepository) -> Result<RoomMap> {
+fn generate_room_maps(
+    location_id: ObjId,
+    max_distance: u32,
+    rooms: &RoomRepository,
+) -> Result<RoomMap> {
     let mut visited = HashMap::<ObjId, (i32, i32)>::new();
     let mut portals = HashSet::new();
 
@@ -332,8 +336,11 @@ fn generate_room_maps(location_id: ObjId, max_distance: u32, rooms: &RoomReposit
     room_map_from_rooms_coords(visited, portals)
 }
 
-fn room_map_from_rooms_coords(mut visited: HashMap<ObjId, (i32, i32)>, portals: HashSet<(ObjId, ObjId)>) -> Result<RoomMap> {
-// normalize in the top left corner
+fn room_map_from_rooms_coords(
+    mut visited: HashMap<ObjId, (i32, i32)>,
+    portals: HashSet<(ObjId, ObjId)>,
+) -> Result<RoomMap> {
+    // normalize in the top left corner
     let mut min_x = 0;
     let mut min_y = 0;
     let mut max_x = 0;
@@ -344,26 +351,24 @@ fn room_map_from_rooms_coords(mut visited: HashMap<ObjId, (i32, i32)>, portals: 
         max_x = max_x.max(*x);
         max_y = max_y.max(*y);
     }
-// normalize
+    // normalize
     for (_id, (x, y)) in &mut visited {
         *x -= min_x;
         *y -= min_y;
     }
-// compute cells size
-    let mut width = max_x - min_x + 1;
-    let mut height = max_y - min_y + 1;
-// send to array
+    // compute cells size
+    let width = max_x - min_x + 1;
+    let height = max_y - min_y + 1;
+    // send to array
     let mut cells = vec![];
-// trace!("min {},{} max {},{} width {} height {}", min_x, min_y, max_x, max_y, width, height);
+    // trace!("min {},{} max {},{} width {} height {}", min_x, min_y, max_x, max_y, width, height);
 
-    let rooms_by_coords =
-        visited.iter().map(|(id, (x, y))| {
-            ((*x, *y), *id)
-        }).collect::<HashMap<_, _>>();
+    let rooms_by_coords = visited
+        .iter()
+        .map(|(id, (x, y))| ((*x, *y), *id))
+        .collect::<HashMap<_, _>>();
 
-    let get_room = |x, y| -> Option<ObjId> {
-        rooms_by_coords.get(&(x, y)).cloned()
-    };
+    let get_room = |x, y| -> Option<ObjId> { rooms_by_coords.get(&(x, y)).cloned() };
 
     let is_portal = |x0, y0, x1, y1| -> bool {
         let id0 = get_room(x0, y0);
@@ -409,7 +414,7 @@ fn room_map_from_rooms_coords(mut visited: HashMap<ObjId, (i32, i32)>, portals: 
         }
     }
 
-// trace!("cells {:?}", cells);
+    // trace!("cells {:?}", cells);
     Ok(RoomMap {
         width: (width * 2 - 1) as u32,
         height: (height * 2 - 1) as u32,
@@ -417,7 +422,13 @@ fn room_map_from_rooms_coords(mut visited: HashMap<ObjId, (i32, i32)>, portals: 
     })
 }
 
-fn load_rooms_into_coords_map(location_id: ObjId, max_distance: u32, rooms: &RoomRepository, visited: &mut HashMap<ObjId, (i32, i32)>, portals: &mut HashSet<(ObjId, ObjId)>) -> Result<()> {
+fn load_rooms_into_coords_map(
+    location_id: ObjId,
+    max_distance: u32,
+    rooms: &RoomRepository,
+    visited: &mut HashMap<ObjId, (i32, i32)>,
+    portals: &mut HashSet<(ObjId, ObjId)>,
+) -> Result<()> {
     let mut queue = vec![];
     queue.push((location_id, 0, 0));
     loop {
@@ -432,7 +443,7 @@ fn load_rooms_into_coords_map(location_id: ObjId, max_distance: u32, rooms: &Roo
                 // trace!("{:?} replace {},{} by {},{}", id, x1, y1, x, y);
                 visited.insert(id, (x, y));
                 continue;
-            },
+            }
             // skip already vistied
             Some(_) => continue,
             None => {}
@@ -468,10 +479,10 @@ fn load_rooms_into_coords_map(location_id: ObjId, max_distance: u32, rooms: &Roo
 
 #[cfg(test)]
 mod test {
-    use crate::game::room::{RoomRepository, Room};
-    use commons::ObjId;
-    use crate::game::domain::Dir;
     use crate::game::comm::RoomMapCell;
+    use crate::game::domain::Dir;
+    use crate::game::room::{Room, RoomRepository};
+    use commons::ObjId;
 
     #[test]
     fn test_generate_room_maps() {
@@ -496,21 +507,24 @@ mod test {
         rooms.add_portal(3.into(), 4.into(), Dir::E);
         rooms.add_portal(4.into(), 5.into(), Dir::E);
 
-
-
         // 0 1
         // | |
         // 3-4
-        let room_map = super::generate_room_maps(0.into(), 1, &rooms)
-            .unwrap();
+        let room_map = super::generate_room_maps(0.into(), 1, &rooms).unwrap();
 
         assert_eq!(room_map.width, 3);
         assert_eq!(room_map.height, 3);
 
         let expected = vec![
-            RoomMapCell::Room(0.into()), RoomMapCell::Empty, RoomMapCell::Room(1.into()),
-            RoomMapCell::DoorVer, RoomMapCell::Empty, RoomMapCell::DoorVer,
-            RoomMapCell::Room(3.into()), RoomMapCell::DoorHor, RoomMapCell::Room(4.into()),
+            RoomMapCell::Room(0.into()),
+            RoomMapCell::Empty,
+            RoomMapCell::Room(1.into()),
+            RoomMapCell::DoorVer,
+            RoomMapCell::Empty,
+            RoomMapCell::DoorVer,
+            RoomMapCell::Room(3.into()),
+            RoomMapCell::DoorHor,
+            RoomMapCell::Room(4.into()),
         ];
 
         assert_eq!(room_map.cells, expected);
@@ -518,16 +532,27 @@ mod test {
         // 0 1-2
         // | | |
         // 3-4-5
-        let room_map = super::generate_room_maps(0.into(), 2, &rooms)
-            .unwrap();
+        let room_map = super::generate_room_maps(0.into(), 2, &rooms).unwrap();
 
         assert_eq!(room_map.width, 5);
         assert_eq!(room_map.height, 3);
 
         let expected = vec![
-            RoomMapCell::Room(0.into()), RoomMapCell::Empty, RoomMapCell::Room(1.into()),RoomMapCell::DoorHor, RoomMapCell::Room(2.into()),
-            RoomMapCell::DoorVer, RoomMapCell::Empty, RoomMapCell::DoorVer, RoomMapCell::Empty, RoomMapCell::DoorVer,
-            RoomMapCell::Room(3.into()), RoomMapCell::DoorHor, RoomMapCell::Room(4.into()), RoomMapCell::DoorHor, RoomMapCell::Room(5.into()),
+            RoomMapCell::Room(0.into()),
+            RoomMapCell::Empty,
+            RoomMapCell::Room(1.into()),
+            RoomMapCell::DoorHor,
+            RoomMapCell::Room(2.into()),
+            RoomMapCell::DoorVer,
+            RoomMapCell::Empty,
+            RoomMapCell::DoorVer,
+            RoomMapCell::Empty,
+            RoomMapCell::DoorVer,
+            RoomMapCell::Room(3.into()),
+            RoomMapCell::DoorHor,
+            RoomMapCell::Room(4.into()),
+            RoomMapCell::DoorHor,
+            RoomMapCell::Room(5.into()),
         ];
 
         assert_eq!(room_map.cells, expected);

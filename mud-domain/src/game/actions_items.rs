@@ -63,7 +63,7 @@ pub fn do_pickup(
         }
     }
 
-    inventory::add(container, item_id, mob_id).map_err(|error| {
+    inventory::add(container, item_id, mob_id).map_err(|_error| {
         let item_label = container.labels.get_label_f(item_id);
 
         outputs.private(mob_id, comm::pick_fail_storage_is_not_inventory(item_label));

@@ -103,13 +103,7 @@ pub fn search_label(input: &str, labels: &Vec<&str>) -> Vec<usize> {
     labels
         .iter()
         .enumerate()
-        .filter_map(|(i, s)| {
-            if is_text_eq(s, input) {
-                Some(i)
-            } else {
-                None
-            }
-        })
+        .filter_map(|(i, s)| if is_text_eq(s, input) { Some(i) } else { None })
         .collect()
 }
 

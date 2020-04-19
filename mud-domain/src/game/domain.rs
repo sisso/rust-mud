@@ -2,16 +2,16 @@ use super::mob::*;
 use super::player::*;
 use super::room::*;
 use crate::errors;
+use crate::errors::Error;
 use commons::{DeltaTime, Tick, TotalTime};
 use serde::Deserialize;
-use crate::errors::Error;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Modifier(pub i32);
 
 impl Modifier {
     /// Apply modifier to a value by increasing / decreasing it, min attribute is zero
-    pub fn apply(&self, value: Attribute) -> Attribute{
+    pub fn apply(&self, value: Attribute) -> Attribute {
         0.min(value as i32 + self.0) as u32
     }
 }

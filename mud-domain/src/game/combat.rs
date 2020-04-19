@@ -4,9 +4,9 @@ use super::comm;
 use super::container::*;
 use super::mob::*;
 use super::Outputs;
+use crate::errors::Error::InvalidStateFailure;
 use crate::errors::{AsResult, Error, Result};
 use crate::game::mob;
-use crate::errors::Error::InvalidStateFailure;
 use logs::*;
 
 pub fn tick_attack(
@@ -32,9 +32,11 @@ pub fn tick_attack(
         }
 
         match return_attack(container, outputs, target_id, mob_id) {
-            Err(err) =>
-                warn!("fail to execute return attack from {:?} to {:?}", mob_id, target_id),
-            _ => {},
+            Err(_err) => warn!(
+                "fail to execute return attack from {:?} to {:?}",
+                mob_id, target_id
+            ),
+            _ => {}
         };
 
         Ok(())
@@ -86,7 +88,7 @@ fn execute_attack(
         attacker_attributes.attack,
         &attacker_attributes.damage,
         defender_attributes.defense,
-        defender_attributes.rd
+        defender_attributes.rd,
     );
 
     let room_attack_msg =
@@ -99,10 +101,13 @@ fn execute_attack(
     if attack_result.success {
         // deduct pv
         let mut dead = false;
-        container.mobs.update(target_id, |mob| {
-            mob.attributes.pv.current -= attack_result.damage_deliver as i32;
-            dead = mob.attributes.pv.current < 0;
-        }).unwrap();
+        container
+            .mobs
+            .update(target_id, |mob| {
+                mob.attributes.pv.current -= attack_result.damage_deliver as i32;
+                dead = mob.attributes.pv.current < 0;
+            })
+            .unwrap();
 
         if dead {
             let defender_xp = container.mobs.get(target_id).unwrap().xp;
@@ -141,11 +146,7 @@ fn execute_attack_killed(
 }
 
 fn roll_attack(attack: u32, damage: &Damage, defense: u32, rd: u32) -> AttackResult {
-    let mut result = AttackResult::new(
-        attack,
-        defense,
-        rd
-    );
+    let mut result = AttackResult::new(attack, defense, rd);
 
     result.attack_dice = roll_dice() + attack;
     result.defense_dice = roll_dice() + defense;
@@ -190,18 +191,21 @@ fn return_attack(
         outputs.broadcast(Some(mob_id), location_id, msg);
 
         match mob.set_action_kill(target_id) {
-            Err(err) =>
-                warn!("{:?} fail to execute return attack to {:?}: {:?}", mob_id, target_id, err),
-            Ok(_) =>
-                info!("{:?} set attack to {:?}", mob_id, target_id),
+            Err(err) => warn!(
+                "{:?} fail to execute return attack to {:?}: {:?}",
+                mob_id, target_id, err
+            ),
+            Ok(_) => info!("{:?} set attack to {:?}", mob_id, target_id),
         }
     }
 
     for follower_id in mob.followers.clone() {
         match return_attack(container, outputs, follower_id, target_id) {
-            Err(err) =>
-                warn!("{:?} fail to execute return attack from {:?} to {:?}: {:?}", follower_id, mob_id, target_id, err),
-            _ => {},
+            Err(err) => warn!(
+                "{:?} fail to execute return attack from {:?} to {:?}: {:?}",
+                follower_id, mob_id, target_id, err
+            ),
+            _ => {}
         }
     }
 

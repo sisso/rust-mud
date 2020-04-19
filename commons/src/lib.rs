@@ -1,8 +1,8 @@
 pub mod jsons;
 pub mod save;
+pub mod timer;
 pub mod tree;
 pub mod trigger;
-pub mod timer;
 
 #[macro_export]
 macro_rules! unwrap_or_continue {
@@ -11,7 +11,7 @@ macro_rules! unwrap_or_continue {
             Some(value) => value,
             None => continue,
         }
-    }
+    };
 }
 
 // TODO: probably don't belongs here anymore

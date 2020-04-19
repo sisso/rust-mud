@@ -1,6 +1,8 @@
+use crate::controller::input_handle_items;
+use crate::controller::input_handle_items::ParseItemError;
 use crate::errors::*;
 use crate::game::actions::out;
-use crate::game::container::{Container};
+use crate::game::container::Container;
 use crate::game::inventory;
 use crate::game::item::ItemId;
 use crate::game::loader::{Loader, StaticId};
@@ -10,14 +12,12 @@ use crate::game::{actions_vendor, comm, Outputs};
 use crate::utils::strinput::StrInput;
 use crate::utils::text;
 use commons::ObjId;
-use crate::controller::input_handle_items::ParseItemError;
-use crate::controller::input_handle_items;
 
 pub fn list(
     container: &mut Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
-    input: StrInput,
+    _input: StrInput,
 ) -> Result<()> {
     let vendor_id = find_vendor_at_mob_location(container, outputs, mob_id)?;
     actions_vendor::list(container, outputs, mob_id, vendor_id)
@@ -105,7 +105,11 @@ fn find_vendor_sell_item(
     })
 }
 
-pub fn parse_vendor_item(container: &Container, vendor_id: ObjId, input: &str) -> Option<StaticId> {
+pub fn parse_vendor_item(
+    container: &Container,
+    _vendor_id: ObjId,
+    input: &str,
+) -> Option<StaticId> {
     container
         .loader
         .list_prefabs()

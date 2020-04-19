@@ -1,12 +1,9 @@
-use commons::{
-    TotalTime,
-    timer::{Timer as CTimer}
-};
-use logs::*;
 use crate::game::triggers::{Event, Triggers};
+use commons::{timer::Timer as CTimer, TotalTime};
+use logs::*;
 
 pub struct Timer {
-    index: CTimer<Event>
+    index: CTimer<Event>,
 }
 
 impl Timer {
@@ -28,4 +25,3 @@ impl Timer {
         }
     }
 }
-

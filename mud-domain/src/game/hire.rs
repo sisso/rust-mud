@@ -1,8 +1,8 @@
 use crate::errors::{Error, Result};
-use commons::ObjId;
-use std::collections::HashMap;
 use crate::game::prices::Money;
+use commons::ObjId;
 use logs::*;
+use std::collections::HashMap;
 
 /// should use live hire
 ///

@@ -1,7 +1,7 @@
 extern crate rand;
 
 use rand::prelude::StdRng;
-use rand::{Rng, SeedableRng, thread_rng, RngCore};
+use rand::{thread_rng, Rng, RngCore, SeedableRng};
 use std::collections::HashSet;
 
 pub struct RoomGridCfg<'a> {
@@ -118,7 +118,8 @@ impl RoomGrid {
                 // eprintln!("current {}", index);
 
                 for other_index in self.neighbors(index) {
-                    let valid = !visited.contains(&other_index) && self.is_portal(index, other_index);
+                    let valid =
+                        !visited.contains(&other_index) && self.is_portal(index, other_index);
                     if valid {
                         // eprintln!("adding {}", other_index);
                         visit_queue.push(other_index);
@@ -147,12 +148,12 @@ impl RoomGrid {
 
     pub fn print(&self) -> String {
         /*
-        .......
-        .#-#.#.
-        .|...|.
-        .#-#-#.
-        .......
-    */
+            .......
+            .#-#.#.
+            .|...|.
+            .#-#-#.
+            .......
+        */
         let empty = ' ';
         let room = '#';
         let portal_v = '|';
@@ -197,7 +198,7 @@ impl RoomGrid {
             buffer.push('\n');
         }
 
-        for x in 0..(self.width * 2 + 1) {
+        for _x in 0..(self.width * 2 + 1) {
             buffer.push(empty);
         }
 
@@ -209,12 +210,12 @@ impl RoomGrid {
 
 pub struct SpawnListCfg {
     spawns_to_add: Vec<u32>,
-    seed: u64
+    seed: u64,
 }
 
 pub struct SpawnList {
     /// room index, x, y
-    spawns: Vec<(u32, usize, usize)>
+    spawns: Vec<(u32, usize, usize)>,
 }
 
 impl SpawnList {
@@ -228,7 +229,11 @@ impl SpawnList {
                 let candidate_y = rng.gen_range(0, rooms.height) as usize;
 
                 // check no collision
-                if spawns.iter().find(|(_, x, y)| *x == candidate_x && *y == candidate_y).is_some() {
+                if spawns
+                    .iter()
+                    .find(|(_, x, y)| *x == candidate_x && *y == candidate_y)
+                    .is_some()
+                {
                     continue;
                 }
 
@@ -237,9 +242,7 @@ impl SpawnList {
             }
         }
 
-        SpawnList {
-            spawns
-        }
+        SpawnList { spawns }
     }
 }
 
@@ -254,11 +257,10 @@ mod test {
             rng: &mut rng,
             width: 5,
             height: 5,
-            portal_prob: None
+            portal_prob: None,
         });
 
         let buffer = rooms.print();
         assert!(buffer.as_str().contains("#-#-#"));
     }
 }
-

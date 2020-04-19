@@ -4,11 +4,11 @@ use super::room::RoomId;
 use super::Outputs;
 use crate::errors::{Error, Result};
 use crate::game::loader::{Loader, StaticId};
+use crate::game::system::SystemCtx;
 use commons::*;
 use logs::*;
 use rand::Rng;
 use std::collections::HashMap;
-use crate::game::system::SystemCtx;
 
 type SpawnId = ObjId;
 
@@ -22,7 +22,9 @@ impl SpawnDelay {
     pub fn validate(&self) -> Result<()> {
         // TODO: create fixed delay
         if (self.min.as_f32() - self.max.as_f32()).abs() < 0.01 {
-            return Err(Error::Error("Min and max time can not be so short".to_string()));
+            return Err(Error::Error(
+                "Min and max time can not be so short".to_string(),
+            ));
         }
 
         Ok(())
@@ -62,7 +64,6 @@ impl Spawn {
             next: TotalTime(0.0),
         }
     }
-
 }
 
 #[derive(Debug)]
@@ -117,4 +118,3 @@ impl Spawns {
         self.spawns.get_mut(&id)
     }
 }
-

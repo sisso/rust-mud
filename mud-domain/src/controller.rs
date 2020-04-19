@@ -7,12 +7,12 @@ use commons::*;
 use logs::*;
 use std::collections::{HashMap, HashSet};
 
-mod view_login;
-mod view_main;
+mod input_handle_hire;
 mod input_handle_items;
 mod input_handle_space;
 mod input_handle_vendors;
-mod input_handle_hire;
+mod view_login;
+mod view_main;
 
 #[derive(Debug)]
 struct ConnectionState {
@@ -103,7 +103,7 @@ impl Controller {
         }
     }
 
-    pub fn add_connection(&mut self, container: &mut Container, connection_id: ConnectionId) {
+    pub fn add_connection(&mut self, _container: &mut Container, connection_id: ConnectionId) {
         info!("{:?} receive connection", connection_id);
         self.connections.insert(
             connection_id.clone(),
@@ -145,7 +145,11 @@ impl Controller {
         if let Some(player_id) = state.player_id {
             debug!("{:?} input '{}'", connection_id, input);
 
-            let mob_id = container.players.get(player_id).expect("player not found").mob_id;
+            let mob_id = container
+                .players
+                .get(player_id)
+                .expect("player not found")
+                .mob_id;
 
             let ctx = ViewHandleCtx {
                 container: container,
@@ -154,9 +158,11 @@ impl Controller {
             };
 
             match view_main::handle(ctx, input) {
-                Err(ref err) if !err.is_failure() =>
-                    warn!("{:?} exception handling input {:?}: {:?}", connection_id, input, err),
-                _ => {},
+                Err(ref err) if !err.is_failure() => warn!(
+                    "{:?} exception handling input {:?}: {:?}",
+                    connection_id, input, err
+                ),
+                _ => {}
             }
         } else {
             debug!("{:?} login input '{}'", connection_id, input);
@@ -204,7 +210,7 @@ impl Controller {
     /// For each player that will receive output, append new line with cursor.
     ///
     /// If player send no input, append a new line before any output
-    fn normalize_connection_outputs(&mut self, container: &Container) {
+    fn normalize_connection_outputs(&mut self, _container: &Container) {
         let mut append_cursor_ids: Vec<ConnectionId> = vec![];
         let mut new_lines_ids: Vec<ConnectionId> = vec![];
 
@@ -253,7 +259,7 @@ impl Controller {
                         .find_from_mob(mob_id)
                         .and_then(|player_id| self.zip_connection_id_from_player_id(player_id));
 
-                    if let Some((player_id, connection_id)) = connection_id {
+                    if let Some((_player_id, connection_id)) = connection_id {
                         debug!("{:?} output {:?}", connection_id, msg);
                         self.server_outputs
                             .push((connection_id, format!("{}\n", msg)));

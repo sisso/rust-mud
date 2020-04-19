@@ -2,10 +2,9 @@ extern crate mud_domain;
 
 use commons::{ConnectionId, DeltaTime};
 use mud_domain::game::container::Container;
+use mud_domain::game::prices::Money;
 use mud_domain::game::{inventory, loader, Game};
 use std::path::Path;
-use mud_domain::game::prices::Money;
-use mud_domain::game::actions_admin::force_kill;
 
 pub struct TestScenery {
     pub game: Game,
@@ -56,7 +55,7 @@ impl TestScenery {
 
     pub fn assert_output(&mut self, contains: Vec<&str>) {
         let outputs = self.take_outputs();
-        if !check_output(&outputs, &contains,&vec![]) {
+        if !check_output(&outputs, &contains, &vec![]) {
             assert_eq!(outputs.join("\n"), contains.join("\n"));
         }
     }
@@ -104,7 +103,14 @@ impl TestScenery {
     }
 
     pub fn give_money(&mut self, amount: u32) {
-        let player_id = *self.game.container.players.list_players().iter().next().unwrap();
+        let player_id = *self
+            .game
+            .container
+            .players
+            .list_players()
+            .iter()
+            .next()
+            .unwrap();
         inventory::add_money(&mut self.game.container, player_id, Money(amount));
     }
 }
@@ -207,7 +213,10 @@ fn test_fantasy_player_respawn() {
     let mut scenery = TestScenery::new();
     scenery.login();
     from_village_to_temple(&mut scenery);
-    scenery.game.admin_kill_avatar_from_connection(scenery.connection_id).unwrap();
+    scenery
+        .game
+        .admin_kill_avatar_from_connection(scenery.connection_id)
+        .unwrap();
     scenery.assert_output(vec!["resurrect"]);
 }
 

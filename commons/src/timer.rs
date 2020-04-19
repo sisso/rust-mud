@@ -1,5 +1,5 @@
-use std::collections::{BinaryHeap, HashMap};
 use std::cmp::Reverse;
+use std::collections::{BinaryHeap, HashMap};
 
 type Index = u64;
 type Time = u64;
@@ -12,14 +12,14 @@ pub struct Timer<T> {
     entries: HashMap<Index, T>,
 }
 
-impl <T> Timer<T> {
+impl<T> Timer<T> {
     pub fn new() -> Self {
         Timer {
             next_index: 0,
             current: 0,
             queue: Default::default(),
             entries: Default::default(),
-         }
+        }
     }
 
     pub fn schedule(&mut self, value: T, total_time: f64) {
@@ -43,18 +43,20 @@ impl <T> Timer<T> {
                     let obj = self.entries.remove(id).unwrap();
                     result.push(obj);
                     self.queue.pop();
-                },
+                }
                 _ => break,
             }
         }
 
         result
-   }
+    }
 
     pub fn peek(&self) -> Option<f64> {
-        self.queue.peek().iter().next().map(|(reversed_time, _)| {
-            time_u64_to_time_f64(reversed_time.0)
-        })
+        self.queue
+            .peek()
+            .iter()
+            .next()
+            .map(|(reversed_time, _)| time_u64_to_time_f64(reversed_time.0))
     }
 }
 
@@ -66,11 +68,10 @@ fn time_f64_to_time_u64(total_time: f64) -> u64 {
     (total_time * 100.0) as u64
 }
 
-
 #[test]
 fn test_timer() {
     let mut timer: Timer<&str> = Timer::new();
-    
+
     timer.schedule("Z", 0.0);
     timer.schedule("A", 2.0);
     timer.schedule("B", 3.5);

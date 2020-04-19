@@ -1,21 +1,19 @@
 use crate::game::labels::Labels;
+use commons::tree::Tree;
 use commons::ObjId;
 use logs::*;
 use std::collections::HashMap;
-use commons::tree::Tree;
 
 pub type LocationId = ObjId;
 
 #[derive(Clone, Debug)]
 pub struct Locations {
-    index: Tree<ObjId>
+    index: Tree<ObjId>,
 }
 
 impl Locations {
     pub fn new() -> Self {
-        Locations {
-            index: Tree::new(),
-        }
+        Locations { index: Tree::new() }
     }
 
     pub fn set(&mut self, obj_id: ObjId, location: ObjId) {
@@ -60,7 +58,6 @@ mod test {
     use crate::game::location::Locations;
     use commons::ObjId;
     use std::collections::HashSet;
-
 
     #[test]
     fn test_list_deep_at() {

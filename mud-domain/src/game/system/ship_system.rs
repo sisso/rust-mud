@@ -1,8 +1,8 @@
+use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
 use crate::game::comm;
 use crate::game::ships::ShipCommand;
-use crate::utils::geometry;
 use crate::game::system::SystemCtx;
-use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
+use crate::utils::geometry;
 use logs::*;
 
 pub fn tick(ctx: &mut SystemCtx) {
@@ -11,8 +11,11 @@ pub fn tick(ctx: &mut SystemCtx) {
 
     for ship in ctx.container.ships.list_all() {
         match ship.command {
-            ShipCommand::Idle => {},
-            ShipCommand::MoveTo { target_id, arrival_time } => {
+            ShipCommand::Idle => {}
+            ShipCommand::MoveTo {
+                target_id,
+                arrival_time,
+            } => {
                 if arrival_time.is_after(total_time) {
                     // not yea
                 } else {
@@ -23,18 +26,25 @@ pub fn tick(ctx: &mut SystemCtx) {
     }
 
     for (ship_id, success, target_id) in move_commands_complete {
-        ctx.container.ships.set_command(ship_id, ShipCommand::Idle).unwrap();
+        ctx.container
+            .ships
+            .set_command(ship_id, ShipCommand::Idle)
+            .unwrap();
 
         let msg = if success {
             ctx.container.locations.set(ship_id, target_id);
 
-            let low_orbit = ctx.container.space_body.get(target_id).unwrap().get_low_orbit();
+            let low_orbit = ctx
+                .container
+                .space_body
+                .get(target_id)
+                .unwrap()
+                .get_low_orbit();
 
-            ctx.container.space_body.update(AstroBody::new(
-                ship_id,
-                low_orbit,
-                AstroBodyKind::Ship,
-            )).unwrap();
+            ctx.container
+                .space_body
+                .update(AstroBody::new(ship_id, low_orbit, AstroBodyKind::Ship))
+                .unwrap();
 
             comm::space_command_complete()
         } else {

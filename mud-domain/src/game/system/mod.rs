@@ -1,14 +1,14 @@
-use crate::game::container::Container;
-use crate::game::Outputs;
 use crate::errors::*;
+use crate::game::container::Container;
 use crate::game::system::item_system::DecaySystem;
+use crate::game::Outputs;
 
-pub mod spawn_system;
-pub mod ship_system;
 pub mod combat_system;
-pub mod rest_system;
 pub mod item_system;
 pub mod random_room_generators_system;
+pub mod rest_system;
+pub mod ship_system;
+pub mod spawn_system;
 
 pub struct SystemCtx<'a> {
     pub container: &'a mut Container,
@@ -24,7 +24,7 @@ pub struct Systems {
 }
 
 impl Systems {
-    pub fn new(container: &mut Container) -> Self {
+    pub fn new(_container: &mut Container) -> Self {
         Systems {
             decay_system: DecaySystem::new(),
         }
@@ -32,7 +32,9 @@ impl Systems {
 
     pub fn tick(&mut self, ctx: &mut SystemCtx) {
         // trigger all scheduled tasks
-        ctx.container.timer.tick(ctx.container.time.total, &mut ctx.container.triggers);
+        ctx.container
+            .timer
+            .tick(ctx.container.time.total, &mut ctx.container.triggers);
         // execute jobs
         self.decay_system.tick(ctx).unwrap();
         spawn_system::run(ctx);
@@ -43,4 +45,3 @@ impl Systems {
         ctx.container.triggers.clear();
     }
 }
-
