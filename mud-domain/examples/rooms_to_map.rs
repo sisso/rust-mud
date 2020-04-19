@@ -1,12 +1,8 @@
 extern crate rand;
 
-use rand::prelude::StdRng;
-use rand::{Rng, SeedableRng};
-use std::collections::{HashSet, HashMap};
+use std::collections::{HashMap};
 use commons::{ObjId};
 use mud_domain::game::domain::Dir;
-use mud_domain::game::inventory::search;
-use std::alloc::handle_alloc_error;
 
 trait Rooms {
     fn portals(&self, id: ObjId) -> Vec<(Dir, ObjId)>;
@@ -99,7 +95,7 @@ fn generate_map(initial: ObjId, max_distance: u32, rooms: &dyn Rooms) -> RoomsMa
         // println!("{:?} {},{}", id, x, y);
         let index = *x + *y * (height as i32);
 
-        for i in (list.len() as i32)..(index - 1) {
+        for _ in (list.len() as i32)..(index - 1) {
             list.push(None);
         }
 

@@ -102,8 +102,10 @@ fn test_sectormap() {
 #[test]
 fn test_jump_to_sector_2() {
     let mut scenery = TestScenery::new_sectors_with_jump();
+    let scenery= &mut scenery;
     scenery.login();
-    move_to_space(&mut scenery);
+    move_to_space(scenery);
+    jump_to_sector_2(scenery);
 }
 
 fn fly_and_land_at_asteroid(scenery: &mut TestScenery) {
@@ -125,7 +127,6 @@ fn move_to_space(scenery: &mut TestScenery) {
     go_to_landing_pad(scenery);
     enter_ship_and_move_to_cockpit(scenery);
     launch_ship(scenery);
-    jump_to_sector_2(scenery);
 }
 
 fn launch_ship(scenery: &mut TestScenery) {
@@ -166,8 +167,7 @@ fn jump_to_sector_2(scenery: &mut TestScenery) {
     scenery.wait_for("command accepted");
     scenery.wait_for("command complete");
     scenery.send_input("jump");
-    scenery.wait_for("command accepted");
-    scenery.wait_for("command complete");
+    scenery.wait_for("jump complete");
     scenery.send_input("sm");
     scenery.wait_for("Sector 2");
 }

@@ -21,7 +21,6 @@ pub enum AstroBodyKind {
     Star,
     Planet,
     Moon,
-    // TODO: rename to Jump
     JumpGate,
     Ship,
     AsteroidField,

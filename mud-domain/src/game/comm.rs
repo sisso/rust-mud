@@ -612,7 +612,7 @@ pub struct ShowSectorTreeBody<'a> {
     pub is_self: bool,
 }
 
-pub fn show_sectortree<'a>(origin_id: ObjId, bodies: &'a Vec<ShowSectorTreeBody<'a>>) -> String {
+pub fn show_sectortree<'a>(origin_id: ObjId, sector_label: &str, bodies: &'a Vec<ShowSectorTreeBody<'a>>) -> String {
     fn append<'a>(
         bodies: &'a Vec<ShowSectorTreeBody<'a>>,
         buffer: &mut Vec<String>,
@@ -633,13 +633,15 @@ pub fn show_sectortree<'a>(origin_id: ObjId, bodies: &'a Vec<ShowSectorTreeBody<
             };
 
         for body in list {
-            let highlight_str = if body.is_self { " <<<" } else { "" };
+            let highlight_str = if body.is_self { " (you)" } else { "" };
             buffer.push(format!("{}{} {:.2}{}", local_prefix, body.label, body.orbit_distance, highlight_str));
             append(bodies, buffer, origin_id,body.id,  next_prefix.as_str());
         }
     }
 
     let mut buffer = Vec::new();
+    let title = format!("[{}]", sector_label);
+    buffer.push(title);
     append(bodies, &mut buffer, origin_id,origin_id, "");
     buffer.push("".to_string());
 
@@ -832,10 +834,12 @@ mod tests {
             },
         ];
 
-        let result = show_sectortree(ObjId(0), &bodies);
+        let sector_label = "Sector 1";
+        let result = show_sectortree(ObjId(0), sector_label, &bodies);
         assert_eq!(
             result.as_str(),
-            r##"Sun 0.00
+            r##"[Sector 1]
+Sun 0.00
 - Earth 2.00
   - Moon 0.40
     - Ring 0.05
@@ -935,3 +939,9 @@ pub fn print_room_map(current_id: ObjId, room_map: RoomMap, labels: &HashMap<Obj
 pub fn space_jump_failed() -> String {
     "jump fail!".to_string()
 }
+
+pub fn space_jump_complete() -> String {
+    "jump complete!".to_string()
+}
+
+

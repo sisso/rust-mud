@@ -42,8 +42,23 @@ pub fn handle(
     let input = StrInput(input);
 
     // handle inputs per category
-    handle_general(&mut ctx, &input)?;
-    handle_ship(&mut ctx, &input)?;
+    let result = handle_general(&mut ctx, &input);
+    match result {
+        Ok(()) => return Ok(()),
+        Err(NotFoundFailure) => {},
+        Err(other) => {
+            warn!("{:?} fail processing command {:?}", ctx.mob_id, other);
+        }
+    }
+
+    let result = handle_ship(&mut ctx, &input);
+    match result {
+        Ok(()) => return Ok(()),
+        Err(NotFoundFailure) => {},
+        Err(other) => {
+            warn!("{:?} fail processing command {:?}", ctx.mob_id, other);
+        }
+    }
 
     // handle legacy
     let (container, outputs, mob_id) = (

@@ -21,8 +21,9 @@ pub fn show_startree(
 ) -> Result<()> {
     let (ship_id, sector_id) = get_ship_and_sector(container, outputs, mob_id)?;
     let bodies = find_showsector_bodies(container, sector_id, Some(ship_id));
-    trace!("{:?} at {:?} on sector {:?} can view {:?}", mob_id, ship_id, sector_id, bodies);
-    outputs.private(mob_id, comm::show_sectortree(sector_id, &bodies));
+    let sector_label = container.labels.get_label_f(sector_id);
+    // trace!("{:?} at {:?} on sector {:?} can view {:?}", mob_id, ship_id, sector_id, bodies);
+    outputs.private(mob_id, comm::show_sectortree(sector_id, sector_label, &bodies));
     Ok(())
 }
 

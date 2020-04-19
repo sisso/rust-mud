@@ -5,7 +5,6 @@ use std::collections::HashMap;
 use std::env;
 use std::path::Path;
 use commons::tree::Tree;
-use commons::ObjId;
 
 // TODO: refactory everything, it got ugly,
 // TODO: support commands
@@ -13,11 +12,11 @@ use commons::ObjId;
 // TODO: show hierarchic as tree
 
 fn usage() {
-    println!("");
+    println!();
     println!("Usage:");
-    println!("");
+    println!();
     println!("{} config-folder [id]", env::args().nth(0).unwrap());
-    println!("");
+    println!();
 }
 
 fn main() {

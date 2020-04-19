@@ -130,18 +130,25 @@ pub fn do_jump(
     let astro_location = container.space_body.get(location_id).as_result()?;
 
     if astro_location.kind != AstroBodyKind::JumpGate {
-        warn!(
-            "{:?} jump {:?} fail, invalid paretn",
-            mob_id, ship_id
-        );
+        warn!("{:?} jump {:?} fail, invalid paretn", mob_id, ship_id);
         outputs.private(mob_id, comm::space_jump_failed());
-       return Err(Error::InvalidArgumentFailure);
+        return Err(Error::InvalidArgumentFailure);
     }
 
-    // get target jump point
-    // container.locations.set(ship_id, parent_body_id);
+    let target_jump_id = match astro_location.jump_target_id {
+        Some(id) => id,
+        None => {
+            warn!("{:?} can not jump, jump {:?} has no target", mob_id, astro_location);
+            outputs.private(mob_id, comm::space_jump_failed());
+            return Err(Error::InvalidArgumentFailure);
+        }
+    };
 
-    unimplemented!();
+    // get target jump point
+    container.locations.set(ship_id, target_jump_id);
+
+    // emit events
+    outputs.broadcast_all(None, ship_id, comm::space_jump_complete());
 
     Ok(())
 }
