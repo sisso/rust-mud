@@ -9,15 +9,6 @@
 
 # Space specific
 
-- replace coord system by orbit by and orbit distance
-- replace ship moviment by burn, travel, retroburn, cyclo burn etc
-- secttormap
-    - show numbers
-    - show coords
-    - allow to move by numbers
-- time to land, time to launch
-- see inside a Vehicle
-
 # Fantasy specific
 
 - casting
@@ -55,6 +46,7 @@
 
 # refactoring
 
+- merge space and fantasy scenery test functionality
 - replace dyn buffer to vector one. Better, move it to container as Events, and later events to messages!
 - stop the infinite amount og mob.get during combat
 - actions should not trigger instantatnius changes

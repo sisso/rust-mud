@@ -14,24 +14,36 @@ pub fn move_to(
     container: &mut Container,
     outputs: &mut dyn Outputs,
     mob_id: MobId,
-    craft_id: ShipId,
+    ship_id: ShipId,
     target_id: ObjId,
 ) -> Result<()> {
     // TODO compute a proper distance
     let travel_time = DeltaTime(5.0);
     let arrival_time = container.time.total + travel_time;
 
+    // find solar system root
+    let star_id = container
+        .locations
+        .list_parents(ship_id)
+        .into_iter()
+        .flat_map(|astro| container.space_body.get(astro))
+        .find(|astro| astro.kind == AstroBodyKind::Star)
+        .map(|astro| astro.id)
+        .as_result()?;
+
     container
         .ships
         .set_command(
-            craft_id,
+            ship_id,
             ShipCommand::MoveTo {
                 target_id,
                 arrival_time,
             },
         )
         .map(|ok| {
-            debug!("move_to {:?} at {:?}", craft_id, target_id);
+            container.locations.set(ship_id, star_id);
+
+            debug!("move_to {:?} at {:?}", ship_id, target_id);
             outputs.private(mob_id, comm::space_move());
             ok
         })

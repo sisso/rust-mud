@@ -17,7 +17,7 @@ pub fn tick(ctx: &mut SystemCtx) {
                 arrival_time,
             } => {
                 if arrival_time.is_after(total_time) {
-                    // not yea
+                    // not yet
                 } else {
                     move_commands_complete.push((ship.id, true, target_id));
                 }

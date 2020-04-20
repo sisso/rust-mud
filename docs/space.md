@@ -1,11 +1,19 @@
 # TODO
 
-- jump points
-- jump
+
+- look/examine transport do not work
 - sector generator
 - wait time between ship operations
-- cockpit 
-- command hire
+- cockpit, need to sit to control the ship
+- compute time travel time, now all flying move is 5 seconds
+- replace coord system by orbit by and orbit distance
+- replace ship moviment by burn, travel, retroburn, cyclo burn etc
+- secttormap
+    - show numbers
+    - show coords
+    - allow to move by numbers
+- time to land, time to launch
+- see inside a Vehicle
 
 # Design
 

@@ -53,6 +53,33 @@ impl TestScenery {
             .collect()
     }
 
+    pub fn eventually(&mut self, command: &str, expected: &str) -> Vec<String> {
+        let mut buffer = vec![];
+
+        for _ in 0..100 {
+            self.send_input(command);
+            self.tick();
+
+            let outputs = self.take_outputs();
+            if check_output(&outputs, &vec![expected], &vec![]) {
+                return outputs;
+            } else {
+                buffer.extend(outputs);
+
+                // wait a bit
+                for _ in 0..10 {
+                    self.tick();
+                }
+            }
+        }
+
+        panic!(format!(
+            "timeout waiting for {:?}, output received\n{}",
+            expected,
+            buffer.join("\n")
+        ));
+    }
+
     pub fn wait_for(&mut self, contains: &str) -> Vec<String> {
         let mut buffer = vec![];
 
@@ -80,6 +107,24 @@ impl TestScenery {
     }
 }
 
+/// should have all contains, and if contain, should have no exclude
+fn check_output(outputs: &Vec<String>, contains: &Vec<&str>, exclude: &Vec<&str>) -> bool {
+    for expected in contains {
+        match outputs.iter().find(|s| s.contains(expected)) {
+            Some(line) => {
+                for not_expected in exclude {
+                    if line.contains(not_expected) {
+                        return false;
+                    }
+                }
+            }
+            None => return false,
+        }
+    }
+
+    true
+}
+
 fn assert_outputs_contains(outputs: &Vec<String>, msg: &str) {
     for i in outputs {
         if i.contains(msg) {
@@ -91,7 +136,7 @@ fn assert_outputs_contains(outputs: &Vec<String>, msg: &str) {
 }
 
 #[test]
-fn test_sectormap() {
+fn test_fly_to_asteroid_field() {
     let mut scenery = TestScenery::new_landed_with_ship();
     scenery.login();
 
@@ -114,6 +159,7 @@ fn fly_and_land_at_asteroid(scenery: &mut TestScenery) {
 
     scenery.send_input("move asteroid");
     scenery.wait_for("command accepted");
+    assert_ship_in_orbit_sol(scenery);
     scenery.wait_for("command complete");
 
     scenery.send_input("land");
@@ -162,6 +208,7 @@ fn go_to_landing_pad(scenery: &mut TestScenery) {
     scenery.send_input("s");
     scenery.wait_for("Landing Pad");
 }
+
 fn jump_to_sector_2(scenery: &mut TestScenery) {
     scenery.send_input("move Jump point");
     scenery.wait_for("command accepted");
@@ -170,4 +217,8 @@ fn jump_to_sector_2(scenery: &mut TestScenery) {
     scenery.wait_for("jump complete");
     scenery.send_input("sm");
     scenery.wait_for("Sector 2");
+}
+
+fn assert_ship_in_orbit_sol(scenery: &mut TestScenery) {
+    scenery.eventually("sm", "\n- Light Transport");
 }
