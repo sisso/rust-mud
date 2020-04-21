@@ -59,7 +59,8 @@ pub fn init(container: &mut Container) {
             rr.cfg.entrance_dir,
             &rooms_grid,
             &rooms_ids,
-        );
+        )
+        .unwrap();
 
         create_spawns(
             rr.cfg.id,
@@ -69,7 +70,8 @@ pub fn init(container: &mut Container) {
             spawns,
             &rooms_ids,
             &rr.cfg.spawns,
-        );
+        )
+        .unwrap();
 
         rr.generated = true;
     }
@@ -97,7 +99,9 @@ fn create_spawns(
             let room_id = availables.remove(candidate_index);
 
             let spawn_id = objects.create();
-            spawns.add(spawn.spawn_builder.create_spawn(spawn_id));
+            spawns
+                .add(spawn.spawn_builder.create_spawn(spawn_id))
+                .unwrap();
 
             locations.set(spawn_id, room_id);
 

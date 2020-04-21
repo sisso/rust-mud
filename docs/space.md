@@ -23,7 +23,40 @@
 - land and fly around
 - as factorio, everything that player do need to be automatized 
 
-## Orbit movement
+## Orbit travel stage
+
+- Align for mass/trust seconds
+- Ejection burn DV seconds
+- Drift distance / DV
+- De-burn DV change
+- Sync orbits mass/trust seconds
+ 
+### Times
+
+Maneuvering - Is moving the ship in current orbit, like align, change orbit or synchronize. 
+
+Burn - To make ejections and de-burn.
+ 
+### Speed modifier
+
+A float value 0 can be defined the % of the burn.
+
+Align burn can only be increment in second to save fuel
+Ejection burn multiply the time, but divide the travel time
+
+## Landing and Launch
+
+Launch:
+Atmosphere bypass
+Taking speed
+Circulization
+
+Land:
+Align
+Atmosphere braking
+Landing
+
+## Orbit movement through hierarchic bodies
 
 Find root of both places, make diff from the root, sum others.
 

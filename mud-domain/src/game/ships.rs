@@ -1,18 +1,75 @@
 use crate::errors::{Error, Result};
+use crate::game::astro_bodies::DistanceMkm;
 use crate::game::container::Container;
 use commons::{ObjId, TotalTime};
 use logs::*;
+use serde_json::ser::State;
 use std::collections::HashMap;
 
 pub type ShipId = ObjId;
 
 #[derive(Clone, Debug)]
+pub enum MoveState {
+    NotStarted,
+    Alignment {
+        complete_time: TotalTime,
+    },
+    EjectionBurn {
+        complete_time: TotalTime,
+    },
+    Drift {
+        from_distance: DistanceMkm,
+        to_distance: DistanceMkm,
+        start_time: TotalTime,
+        complete_time: TotalTime,
+    },
+    RetroBurn {
+        complete_time: TotalTime,
+    },
+    OrbitSync {
+        complete_time: TotalTime,
+    },
+}
+
+impl MoveState {
+    pub fn is_running(&self, total_time: TotalTime) -> bool {
+        self.get_complete_time()
+            .map(|time| time.is_after(total_time))
+            .unwrap_or(false)
+    }
+
+    pub fn get_complete_time(&self) -> Option<TotalTime> {
+        match self {
+            MoveState::NotStarted => None,
+            MoveState::Alignment { complete_time, .. } => Some(*complete_time),
+            MoveState::EjectionBurn { complete_time, .. } => Some(*complete_time),
+            MoveState::Drift { complete_time, .. } => Some(*complete_time),
+            MoveState::RetroBurn { complete_time, .. } => Some(*complete_time),
+            MoveState::OrbitSync { complete_time, .. } => Some(*complete_time),
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
 pub enum ShipCommand {
     Idle,
-    MoveTo {
-        target_id: ObjId,
-        arrival_time: TotalTime,
-    },
+    MoveTo { target_id: ObjId, state: MoveState },
+}
+
+impl ShipCommand {
+    pub fn move_to(target_id: ObjId) -> Self {
+        ShipCommand::MoveTo {
+            target_id,
+            state: MoveState::NotStarted,
+        }
+    }
+
+    pub fn is_running(&self, total_time: TotalTime) -> bool {
+        match self {
+            ShipCommand::Idle => false,
+            ShipCommand::MoveTo { state, .. } => state.is_running(total_time),
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -94,5 +151,9 @@ impl Ships {
 
     pub fn list_all<'a>(&'a self) -> impl Iterator<Item = &'a Ship> + 'a {
         self.index.values()
+    }
+
+    pub fn list_all_mut<'a>(&'a mut self) -> impl Iterator<Item = &'a mut Ship> + 'a {
+        self.index.values_mut()
     }
 }

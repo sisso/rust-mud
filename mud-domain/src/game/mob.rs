@@ -270,9 +270,9 @@ impl MobRepository {
         self.index.contains_key(&id)
     }
 
-    pub fn set_mob_attack_target(&mut self, mob_id: MobId, target: MobId) {
+    pub fn set_mob_attack_target(&mut self, mob_id: MobId, target: MobId) -> Result<()> {
         let mob = self.index.get_mut(&mob_id).unwrap();
-        mob.set_action_kill(target);
+        mob.set_action_kill(target)
     }
 
     pub fn cancel_attack(&mut self, mob_id: MobId) {

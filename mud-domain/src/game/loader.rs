@@ -448,7 +448,7 @@ impl Loader {
                 _ => {}
             }
 
-            container.space_body.insert(body).unwrap();
+            container.astro_bodies.insert(body).unwrap();
         }
 
         if let Some(_craft) = &data.craft {
@@ -569,15 +569,18 @@ impl Loader {
                     })
                     .collect();
 
-                container.random_rooms.add(RandomRoomsCfg {
-                    id: obj_id,
-                    entrance_id: entrance_id,
-                    entrance_dir: Dir::parse(rr_data.entrance_dir.as_str()).unwrap(),
-                    seed: 0,
-                    width: rr_data.width,
-                    height: rr_data.height,
-                    spawns: spawns,
-                });
+                container
+                    .random_rooms
+                    .add(RandomRoomsCfg {
+                        id: obj_id,
+                        entrance_id: entrance_id,
+                        entrance_dir: Dir::parse(rr_data.entrance_dir.as_str()).unwrap(),
+                        seed: 0,
+                        width: rr_data.width,
+                        height: rr_data.height,
+                        spawns: spawns,
+                    })
+                    .unwrap();
             }
         }
 

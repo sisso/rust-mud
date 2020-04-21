@@ -659,6 +659,30 @@ pub fn space_land_list(candidates: &Vec<&str>) -> String {
     buffer.join("\n")
 }
 
+pub fn space_fly_start() -> String {
+    "orbital alignment started".to_string()
+}
+
+pub fn space_fly_alignment_complete_start_ejection_burn() -> String {
+    "orbital alignment complete, starting ejection burn".to_string()
+}
+
+pub fn space_fly_ejection_burn_complete() -> String {
+    "ejection burn complete, drifting in space".to_string()
+}
+
+pub fn space_fly_drift_complete() -> String {
+    "approaching target, starting retro burn".to_string()
+}
+
+pub fn space_fly_retroburn_complete_start_orbital_sync() -> String {
+    "retro burn complete, doing orbital alignment and circularizing".to_string()
+}
+
+pub fn space_fly_complete() -> String {
+    "command complete".to_string()
+}
+
 pub struct VendorListItem<'a> {
     pub label: &'a str,
     pub buy: Money,

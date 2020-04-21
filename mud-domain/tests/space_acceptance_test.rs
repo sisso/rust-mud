@@ -125,16 +125,6 @@ fn check_output(outputs: &Vec<String>, contains: &Vec<&str>, exclude: &Vec<&str>
     true
 }
 
-fn assert_outputs_contains(outputs: &Vec<String>, msg: &str) {
-    for i in outputs {
-        if i.contains(msg) {
-            return;
-        }
-    }
-
-    panic!("can not find {:?} in outputs {:?}", msg, outputs);
-}
-
 #[test]
 fn test_fly_to_asteroid_field() {
     let mut scenery = TestScenery::new_landed_with_ship();

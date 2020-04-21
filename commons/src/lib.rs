@@ -160,10 +160,12 @@ impl TotalTime {
         self.0 as f64
     }
 
+    /// Or equal
     pub fn is_after(&self, time: TotalTime) -> bool {
         self.0 >= time.0
     }
 
+    /// Or equal
     pub fn is_before(&self, time: TotalTime) -> bool {
         self.0 <= time.0
     }

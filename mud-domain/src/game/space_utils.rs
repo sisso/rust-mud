@@ -40,7 +40,7 @@ pub fn get_objects_in_surface(
             let label = container.labels.get_label_f(id);
             let pos = container.pos.get_pos(id);
             let is_craft = container.ships.exists(id);
-            let is_planet = container.space_body.exists(id);
+            let is_planet = container.astro_bodies.exists(id);
 
             match pos {
                 Some(pos) if is_craft => Some(SurfaceDesc {
@@ -71,7 +71,7 @@ pub fn search_landing_sites(container: &Container, ship_id: ObjId) -> Vec<ObjId>
         return vec![];
     };
 
-    if !container.space_body.exists(orbit_id) {
+    if !container.astro_bodies.exists(orbit_id) {
         warn!(
             "{:?} requested to land but location is not a space body",
             ship_id
@@ -164,7 +164,7 @@ pub fn find_space_bodies(container: &Container, sector_id: ObjId) -> Vec<&AstroB
         .locations
         .list_deep_at(sector_id)
         .into_iter()
-        .flat_map(|id| container.space_body.get(id))
+        .flat_map(|id| container.astro_bodies.get(id))
         .collect()
 }
 

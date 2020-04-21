@@ -1,4 +1,5 @@
 use crate::errors::{Error, Result};
+use crate::game::location::Locations;
 use commons::ObjId;
 use logs::*;
 use std::collections::HashMap;
@@ -94,4 +95,17 @@ impl AstroBodies {
     pub fn exists(&self, id: ObjId) -> bool {
         self.index.contains_key(&id)
     }
+}
+
+pub fn find_start_of(
+    locations: &Locations,
+    astro_bodies: &AstroBodies,
+    obj_id: ObjId,
+) -> Option<ObjId> {
+    locations
+        .list_parents(obj_id)
+        .into_iter()
+        .flat_map(|astro| astro_bodies.get(astro))
+        .find(|astro| astro.kind == AstroBodyKind::Star)
+        .map(|astro| astro.id)
 }

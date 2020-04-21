@@ -17,32 +17,10 @@ pub fn move_to(
     ship_id: ShipId,
     target_id: ObjId,
 ) -> Result<()> {
-    // TODO compute a proper distance
-    let travel_time = DeltaTime(5.0);
-    let arrival_time = container.time.total + travel_time;
-
-    // find solar system root
-    let star_id = container
-        .locations
-        .list_parents(ship_id)
-        .into_iter()
-        .flat_map(|astro| container.space_body.get(astro))
-        .find(|astro| astro.kind == AstroBodyKind::Star)
-        .map(|astro| astro.id)
-        .as_result()?;
-
     container
         .ships
-        .set_command(
-            ship_id,
-            ShipCommand::MoveTo {
-                target_id,
-                arrival_time,
-            },
-        )
+        .set_command(ship_id, ShipCommand::move_to(target_id))
         .map(|ok| {
-            container.locations.set(ship_id, star_id);
-
             debug!("move_to {:?} at {:?}", ship_id, target_id);
             outputs.private(mob_id, comm::space_move());
             ok
@@ -92,7 +70,7 @@ pub fn do_launch(
     // search current body
     let parent_body = parents
         .iter()
-        .flat_map(|&id| container.space_body.get(id))
+        .flat_map(|&id| container.astro_bodies.get(id))
         .next();
 
     let parent_body = match parent_body {
@@ -113,7 +91,7 @@ pub fn do_launch(
     let body = AstroBody::new(ship_id, orbit_distance, AstroBodyKind::Ship);
 
     // put ship in low orbit
-    if let Err(error) = container.space_body.insert(body) {
+    if let Err(error) = container.astro_bodies.insert(body) {
         warn!(
             "{:?} launch {:?} fail to set ship orbit: {:?}",
             mob_id, ship_id, error
@@ -145,7 +123,7 @@ pub fn do_jump(
     ship_id: ShipId,
 ) -> Result<()> {
     let location_id = container.locations.get(ship_id).as_result()?;
-    let astro_location = container.space_body.get(location_id).as_result()?;
+    let astro_location = container.astro_bodies.get(location_id).as_result()?;
 
     if astro_location.kind != AstroBodyKind::JumpGate {
         warn!("{:?} jump {:?} fail, invalid paretn", mob_id, ship_id);
