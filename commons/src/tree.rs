@@ -45,8 +45,19 @@ impl<K: Hash + Eq + Copy + Clone> Tree<K> {
         buffer
     }
 
+    pub fn parents_inclusive(&self, from: K) -> Vec<K> {
+        let mut buffer = vec![from];
+        self.find_parents(&mut buffer, from);
+        buffer
+    }
+
     pub fn parents(&self, from: K) -> Vec<K> {
         let mut buffer = vec![];
+        self.find_parents(&mut buffer, from);
+        buffer
+    }
+
+    fn find_parents(&self, buffer: &mut Vec<K>, from: K) {
         let mut current = from;
         loop {
             let parent = self.get(current);
@@ -58,7 +69,6 @@ impl<K: Hash + Eq + Copy + Clone> Tree<K> {
                 None => break,
             }
         }
-        buffer
     }
 }
 

@@ -41,6 +41,10 @@ impl Locations {
     pub fn list_parents(&self, obj_id: ObjId) -> Vec<LocationId> {
         self.index.parents(obj_id)
     }
+
+    pub fn list_parents_inclusive(&self, obj_id: ObjId) -> Vec<LocationId> {
+        self.index.parents_inclusive(obj_id)
+    }
 }
 
 pub fn search_at(
@@ -61,33 +65,7 @@ mod test {
 
     #[test]
     fn test_list_deep_at() {
-        let mut locations = Locations::new();
-
-        /*
-
-        0
-        - 1
-        - 2
-         - 4
-         - 5
-          - 6
-        - 3
-
-        */
-
-        locations.set(ObjId(1), ObjId(0));
-        locations.set(ObjId(2), ObjId(0));
-        locations.set(ObjId(3), ObjId(0));
-        locations.set(ObjId(4), ObjId(2));
-        locations.set(ObjId(5), ObjId(2));
-        locations.set(ObjId(6), ObjId(5));
-
-        fn assert(a: Vec<ObjId>, b: Vec<ObjId>) {
-            let sa = a.into_iter().collect::<HashSet<_>>();
-            let sb = b.into_iter().collect::<HashSet<_>>();
-
-            assert_eq!(sa, sb);
-        }
+        let locations = create_scenery();
 
         assert(
             locations.list_deep_at(ObjId(0)),
@@ -101,5 +79,41 @@ mod test {
 
         assert(locations.list_deep_at(ObjId(5)), vec![ObjId(6)]);
         assert(locations.list_deep_at(ObjId(6)), vec![]);
+    }
+
+    #[test]
+    fn test_list_parents() {
+        let locations = create_scenery();
+
+        assert(locations.list_parents(ObjId(5)), vec![ObjId(2), ObjId(0)]);
+    }
+
+    fn create_scenery() -> Locations {
+        let mut locations = Locations::new();
+        /*
+
+        0
+        - 1
+        - 2
+         - 4
+         - 5
+          - 6
+        - 3
+
+        */
+        locations.set(ObjId(1), ObjId(0));
+        locations.set(ObjId(2), ObjId(0));
+        locations.set(ObjId(3), ObjId(0));
+        locations.set(ObjId(4), ObjId(2));
+        locations.set(ObjId(5), ObjId(2));
+        locations.set(ObjId(6), ObjId(5));
+        locations
+    }
+
+    fn assert(a: Vec<ObjId>, b: Vec<ObjId>) {
+        let sa = a.into_iter().collect::<HashSet<_>>();
+        let sb = b.into_iter().collect::<HashSet<_>>();
+
+        assert_eq!(sa, sb);
     }
 }

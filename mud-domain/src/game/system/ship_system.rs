@@ -58,22 +58,31 @@ pub fn tick(ctx: &mut SystemCtx) {
                 target_id,
                 state: MoveState::EjectionBurn { .. },
             } => {
-                let star_id = match astro_bodies::find_start_of(locations, astros, ship_id) {
-                    Some(id) => id,
-                    None => {
-                        warn!("{:?} can not find star in parent locations", ship_id);
+                let travel = match astro_bodies::travel_plan(locations, astros, ship_id, *target_id)
+                {
+                    Ok(travel_plan) => travel_plan,
+
+                    Err(err) => {
+                        warn!(
+                            "{:?} can not find travel plan to {:?}: {:?}",
+                            ship_id, target_id, err
+                        );
                         continue;
                     }
                 };
-                locations.set(ship_id, star_id);
+
+                let ship_speed = 10.0;
+                let travel_time = DeltaTime(travel.total_distance / ship_speed);
+
+                locations.set(ship_id, travel.reference_body_id);
 
                 ship.command = ShipCommand::MoveTo {
                     target_id: *target_id,
                     state: MoveState::Drift {
-                        from_distance: 0.0,
-                        to_distance: 0.0,
+                        from_distance: travel.from_distance,
+                        to_distance: travel.to_distance,
                         start_time: total_time,
-                        complete_time: total_time.add(DeltaTime(1.0)),
+                        complete_time: total_time.add(travel_time),
                     },
                 };
 
