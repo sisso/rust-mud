@@ -93,6 +93,15 @@ impl AstroBodies {
         self.index.get(&id)
     }
 
+    pub fn get_mut(&mut self, id: AstroBodyId) -> Option<&mut AstroBody> {
+        self.index.get_mut(&id)
+    }
+
+    pub fn update_orbit(&mut self, id: AstroBodyId, orbital_distance: f32) -> Result<()> {
+        self.index.get_mut(&id).as_result()?.orbit_distance = orbital_distance;
+        Ok(())
+    }
+
     pub fn exists(&self, id: ObjId) -> bool {
         self.index.contains_key(&id)
     }

@@ -1,5 +1,16 @@
 # TODO
 
+- orbital travel is stil broken
+
+    [Sector 1]
+     Red Star 0.00
+     - Dune 150.00
+       - Light Transport 151.00 <
+       - Station 2.00
+     - Asteroid Field 80.00
+     - Jump point 200.00
+
+
 
 - look/examine transport do not work
 - sector generator

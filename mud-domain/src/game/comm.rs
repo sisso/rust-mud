@@ -125,7 +125,7 @@ pub fn spawn_mob(label: &str) -> String {
 }
 
 pub fn uptime(time: TotalTime) -> String {
-    format!("now it is {}s after start", time.as_f64())
+    format!("now it is {}s after start", time.as_seconds_f64())
 }
 
 pub fn kill_target_not_found(target: &str) -> String {

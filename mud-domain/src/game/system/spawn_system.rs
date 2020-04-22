@@ -91,7 +91,10 @@ pub fn run(ctx: &mut SystemCtx) {
 
 fn schedule_next_spawn(timer: &mut Timer, now: TotalTime, spawn: &mut Spawn) {
     let mut rng = rand::thread_rng();
-    let range = rng.gen_range(spawn.delay.min.as_f32(), spawn.delay.max.as_f32());
+    let range = rng.gen_range(
+        spawn.delay.min.as_seconds_f32(),
+        spawn.delay.max.as_seconds_f32(),
+    );
     let next = now + DeltaTime(range);
     spawn.next = next;
     timer.schedule(

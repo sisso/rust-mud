@@ -21,9 +21,9 @@ pub struct SpawnDelay {
 impl SpawnDelay {
     pub fn validate(&self) -> Result<()> {
         // TODO: create fixed delay
-        if (self.min.as_f32() - self.max.as_f32()).abs() < 0.01 {
+        if (self.min.as_seconds_f32() - self.max.as_seconds_f32()).abs() < 0.01 {
             return Err(Error::Error(
-                "Min and max time can not be so short".to_string(),
+                "Min and max time can not be too short".to_string(),
             ));
         }
 

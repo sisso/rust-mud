@@ -139,16 +139,8 @@ pub type PlayerId = ObjId;
 pub struct DeltaTime(pub f32);
 
 impl DeltaTime {
-    pub fn as_second(&self) -> DeltaTime {
-        DeltaTime(self.0)
-    }
-
-    pub fn as_f32(&self) -> f32 {
+    pub fn as_seconds_f32(&self) -> f32 {
         self.0
-    }
-
-    pub fn as_f64(&self) -> f64 {
-        self.0 as f64
     }
 }
 
@@ -156,7 +148,7 @@ impl DeltaTime {
 pub struct TotalTime(pub f64);
 
 impl TotalTime {
-    pub fn as_f64(&self) -> f64 {
+    pub fn as_seconds_f64(&self) -> f64 {
         self.0 as f64
     }
 
@@ -183,7 +175,7 @@ impl std::ops::Add<DeltaTime> for TotalTime {
     type Output = TotalTime;
 
     fn add(self, rhs: DeltaTime) -> TotalTime {
-        TotalTime(self.0 + rhs.as_f64())
+        TotalTime(self.0 + rhs.as_seconds_f32() as f64)
     }
 }
 
