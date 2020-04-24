@@ -1,5 +1,49 @@
-# Space world generator
+# CSV
 
+Csv is much easy to manage multiple entries, add new fields and you can even keep references of static id like HOCON. 
+
+A CSV <=> To json is a easy 2 ways conversion, while HOCON is always a single direction.
+
+## Prefabs
+
+Today we keep in a different array objects that are instantiate in start from those are prefabs. Same aproach need
+to happens for CSV.
+
+
+
+# Loading and Persistent Again
+
+Is already defined:
+
+- init is basically a load game for a pre-defined save game with extra initializer, like random stuff generator
+- init files are used to create save game
+- anything that need to be reference between save initializations, for instances, rooms, prefabs and configuration, can have
+  a StaticId. StaticId will be used by migration tools and loader to convert into save files.
+- StaticId can be a string or number
+
+## Caso of uses
+
+### Init game
+
+    {
+        cfg {
+            initial_room: "room_initial" 
+        }
+
+        objects {
+            room_initial {
+                static_id: "room_initial"
+                label: "Initial room"
+                exits: [ dir: "n", id: ${objects.arean.static_id} }
+            }
+            
+            arena {
+                exits: [ dir: "n", id: ${objects.room_initial.static_id} }
+            }
+        }
+    }
+    
+Considering the plans to convert all init data into csv. Should we do it?
 
 # Random dungeons 
 
