@@ -9,7 +9,7 @@ use logs::*;
 use std::env::current_exe;
 
 const TRANSFER_TIME: f32 = 2.0;
-const SHIP_SPEED: f32 = 1.0;
+const SHIP_SPEED: f32 = 5.0;
 
 pub fn tick(ctx: &mut SystemCtx) {
     let total_time = ctx.container.time.total;
@@ -102,7 +102,7 @@ pub fn tick(ctx: &mut SystemCtx) {
                     let ship_speed = SHIP_SPEED;
                     let travel_time = DeltaTime(travel.total_distance / ship_speed);
 
-                    locations.set(ship_id, travel.reference_body_id);
+                    locations.set(ship_id, travel.root_body_id);
 
                     ship.command = ShipCommand::MoveTo {
                         target_id: *target_id,

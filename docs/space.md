@@ -1,17 +1,5 @@
 # TODO
 
-- orbital travel is stil broken
-
-    [Sector 1]
-     Red Star 0.00
-     - Dune 150.00
-       - Light Transport 151.00 <
-       - Station 2.00
-     - Asteroid Field 80.00
-     - Jump point 200.00
-
-
-
 - look/examine transport do not work
 - sector generator
 - wait time between ship operations
@@ -145,3 +133,9 @@ lack of crew cause % performance degradation in every task.
 ## DV require to land and move between planets
 
 https://camo.githubusercontent.com/78adc73bf13274c230318a14f1cc34bdb7337b28/687474703a2f2f692e696d6775722e636f6d2f4141474a7644312e706e67
+
+# Forum
+
+## Movement
+
+Fly mathematics between bodies is interesting bug not useful, maybe just compute the global value is enough

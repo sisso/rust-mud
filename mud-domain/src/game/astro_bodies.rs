@@ -108,6 +108,8 @@ impl AstroBodies {
 }
 
 pub struct TravelPlan {
+    /// root body where positions are computed
+    pub root_body_id: ObjId,
     /// parent body in common between current and target orbit
     pub reference_body_id: ObjId,
     /// global distance from current orbit
@@ -137,8 +139,10 @@ pub fn travel_plan(
         .flat_map(|id| astro_bodies.get(id))
         .collect();
 
+    let root_body_id = ship_parents.last().unwrap().id;
+
     // find common reference body
-    let (root_ship_index, root_target_index) = ship_parents
+    let (reference_ship_index, reference_target_index) = ship_parents
         .iter()
         .enumerate()
         .flat_map(|(index, one)| {
@@ -151,9 +155,10 @@ pub fn travel_plan(
         .next()
         .as_result()?;
 
-    let reference_body_id = ship_parents[root_ship_index].id;
-    assert_eq!(reference_body_id, target_parents[root_target_index].id);
+    let reference_body_id = ship_parents[reference_ship_index].id;
+    assert_eq!(reference_body_id, target_parents[reference_target_index].id);
 
+    // trace!("root body: {:?}", root_body_id);
     // trace!("reference body: {:?}", reference_body_id);
     // trace!("ship parents {:?}", ship_parents);
     // trace!("target parents {:?}", target_parents);
@@ -169,28 +174,37 @@ pub fn travel_plan(
         .map(|astro| astro.orbit_distance)
         .sum::<f32>();
 
-    // trace!("root ship index {:?}", root_ship_index);
-    // trace!("root target index {:?}", root_target_index);
+    // trace!("root ship index {:?}", reference_ship_index);
+    // trace!("root target index {:?}", reference_target_index);
     // trace!("ship parents {:?}", ship_parents);
     // trace!("target parents {:?}", target_parents);
     // trace!("from {:?}", from_distance);
     // trace!("to {:?}", to_distance);
 
     // compute reference body diff to transfer between bodies
-    let root_distance_ship = ship_parents[root_ship_index - 1].orbit_distance;
-    let root_distance_target = target_parents[root_target_index - 1].orbit_distance;
-    let root_distance = (root_distance_ship - root_distance_target).abs();
+    let reference_distance_ship = ship_parents[reference_ship_index - 1].orbit_distance;
+    let reference_distance_target = if reference_target_index == 0 {
+        0.0
+    } else {
+        target_parents[reference_target_index - 1].orbit_distance
+    };
+
+    let root_distance = (reference_distance_ship - reference_distance_target).abs();
 
     // compute distance from reference body
-    let ship_to_root_distance: f32 = ship_parents[0..root_ship_index - 1]
+    let ship_to_root_distance: f32 = ship_parents[0..reference_ship_index - 1]
         .iter()
         .map(|astro| astro.orbit_distance)
         .sum();
 
-    let target_to_root_distance: f32 = target_parents[0..root_target_index - 1]
-        .iter()
-        .map(|astro| astro.orbit_distance)
-        .sum();
+    let target_to_root_distance: f32 = if reference_target_index == 0 {
+        0.0
+    } else {
+        target_parents[0..reference_target_index - 1]
+            .iter()
+            .map(|astro| astro.orbit_distance)
+            .sum()
+    };
 
     // trace!("root distance {:?}", root_distance);
     // trace!("ship_to_root_distance {:?}", ship_to_root_distance);
@@ -201,6 +215,7 @@ pub fn travel_plan(
     let total_distance = root_distance + ship_to_root_distance + target_to_root_distance;
 
     Ok(TravelPlan {
+        root_body_id,
         reference_body_id,
         from_distance,
         to_distance,
@@ -273,6 +288,7 @@ mod test {
 
         {
             let plan = travel_plan(&locations, &astros, 3.into(), 5.into()).unwrap();
+            assert_eq!(plan.root_body_id.as_u32(), 0);
             assert_eq!(plan.reference_body_id.as_u32(), 0);
             assert_eq!(plan.from_distance as u32, 13);
             assert_eq!(plan.to_distance as u32, 22);
@@ -281,6 +297,7 @@ mod test {
 
         {
             let plan = travel_plan(&locations, &astros, 3.into(), 6.into()).unwrap();
+            assert_eq!(plan.root_body_id.as_u32(), 0);
             assert_eq!(plan.reference_body_id.as_u32(), 1);
             assert_eq!(plan.from_distance as u32, 13);
             assert_eq!(plan.to_distance as u32, 14);
@@ -296,6 +313,7 @@ mod test {
         scenery_2(&mut locations, &mut astros);
 
         let plan = travel_plan(&locations, &astros, 2.into(), 3.into()).unwrap();
+        assert_eq!(plan.root_body_id.as_u32(), 0);
         assert_eq!(plan.reference_body_id.as_u32(), 0);
         assert_eq!(plan.from_distance as u32, 11);
         assert_eq!(plan.to_distance as u32, 20);
@@ -314,6 +332,7 @@ mod test {
 
         // compute travel to planet 1
         let plan = travel_plan(&locations, &astros, 2.into(), 1.into()).unwrap();
+        assert_eq!(plan.root_body_id.as_u32(), 0);
         assert_eq!(plan.reference_body_id.as_u32(), 0);
         assert_eq!(plan.from_distance as u32, 14);
         assert_eq!(plan.to_distance as u32, 10);
@@ -321,6 +340,7 @@ mod test {
 
         // compute travel to planet 2
         let plan = travel_plan(&locations, &astros, 2.into(), 3.into()).unwrap();
+        assert_eq!(plan.root_body_id.as_u32(), 0);
         assert_eq!(plan.reference_body_id.as_u32(), 0);
         assert_eq!(plan.from_distance as u32, 14);
         assert_eq!(plan.to_distance as u32, 20);
@@ -340,5 +360,21 @@ mod test {
         assert_eq!(plan.from_distance as u32, 11);
         assert_eq!(plan.to_distance as u32, 20);
         assert_eq!(plan.total_distance as u32, 1 + (20 - 10));
+    }
+
+    #[test]
+    fn test_travel_from_station_into_orbiting_moon() {
+        let mut locations = Locations::new();
+        let mut astros = AstroBodies::new();
+
+        scenery_1(&mut locations, &mut astros);
+        locations.set(0.into(), 99.into());
+
+        let plan = travel_plan(&locations, &astros, 3.into(), 1.into()).unwrap();
+        assert_eq!(plan.root_body_id.as_u32(), 0);
+        assert_eq!(plan.reference_body_id.as_u32(), 1);
+        assert_eq!(plan.from_distance as u32, 13);
+        assert_eq!(plan.to_distance as u32, 10);
+        assert_eq!(plan.total_distance as u32, 1 + 2);
     }
 }
