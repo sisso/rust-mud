@@ -1,11 +1,11 @@
+use super::mob::MobId;
+use commons::save::{Snapshot, SnapshotSupport};
 use commons::*;
+use logs::*;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use super::mob::MobId;
-
-use logs::*;
-
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Player {
     pub id: PlayerId,
     pub login: String,
@@ -67,15 +67,17 @@ impl PlayerRepository {
     pub fn get_mob(&self, player_id: PlayerId) -> Option<MobId> {
         self.index.get(&player_id).map(|player| player.mob_id)
     }
+}
 
-    //    pub fn save(&self, save: &mut dyn Save) {
-    //        use serde_json::json;
-    //
-    //        for (player_id, player) in self.index.iter() {
-    //            save.add(player_id.0, "player", json!({
-    //                "mob_id": player.avatar_id.0,
-    //                "login": player.login
-    //            }));
-    //        }
-    //    }
+impl SnapshotSupport for PlayerRepository {
+    fn save(&self, snapshot: &mut Snapshot) {
+        use serde_json::json;
+        for (player_id, player) in &self.index {
+            snapshot.add(player_id.as_u32(), "player", json!(player));
+        }
+    }
+
+    fn load(&mut self, load: &mut Snapshot) {
+        unimplemented!()
+    }
 }

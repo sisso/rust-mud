@@ -3,14 +3,16 @@ use crate::errors::{AsResult, Error, Result};
 use crate::game::domain::{Modifier, Rd};
 use crate::game::mob::Damage;
 use crate::game::system::SystemCtx;
+use commons::save::{Snapshot, SnapshotSupport};
 use commons::*;
 use logs::*;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 pub type ItemId = ObjId;
 pub type ItemPrefabId = ObjId;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ItemFlags {
     /// can hold more items
     pub is_inventory: bool,
@@ -33,7 +35,7 @@ impl ItemFlags {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Item {
     pub id: ItemId,
     pub amount: u32,
@@ -60,7 +62,7 @@ impl Item {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Weapon {
     pub damage: Damage,
     pub calm_down: DeltaTime,
@@ -77,7 +79,7 @@ impl Weapon {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Armor {
     pub defense: Modifier,
     pub rd: Rd,
@@ -146,36 +148,46 @@ impl ItemRepository {
     pub fn list(&self) -> Vec<ItemId> {
         self.index.keys().map(|i| *i).collect()
     }
+}
 
-    //    pub fn save(&self, save: &mut dyn Save) {
-    //        use serde_json::json;
-    //
-    //        for (id, obj) in self.index.iter() {
-    //            let obj_json = json!({
-    //                "kind": obj.kind.0,
-    //                "label": obj.label,
-    //                "decay": obj.decay.map(|i| i.0),
-    //                "amount": obj.amount,
-    //                "definition_id": obj.item_def_id.map(|i| i.0)
-    //            });
-    //
-    //            save.add(id.0, "item", obj_json);
-    //        }
-    //
-    //        for (id, (location, inventory)) in self.inventory.iter().enumerate() {
-    //            let location_json = match location {
-    //                ObjId::Limbo => json!({"kind": "limbo"}),
-    //                ObjId::Mob { mob_id } => json!({"kind": "mob", "mob_id": mob_id.0 }),
-    //                ObjId::Room { room_id } => json!({"kind": "room", "room_id": room_id.0 }),
-    //                ObjId::Item { item_id } => json!({"kind": "item", "item_id": item_id.0 }),
-    //            };
-    //
-    //            let obj_json = json!({
-    //                "location": location_json,
-    //                "items": inventory.list.iter().map(|i| i.0).collect::<Vec<u32>>()
-    //            });
-    //
-    //            save.add(id as u32, "inventory", obj_json);
-    //        }
-    //    }
+impl SnapshotSupport for ItemRepository {
+    fn save(&self, snapshot: &mut Snapshot) {
+        use serde_json::json;
+
+        for (id, comp) in &self.index {
+            snapshot.add(id.as_u32(), "item", json!(comp));
+        }
+
+        // for (id, obj) in self.index.iter() {
+        //     let obj_json = json!({
+        //         "kind": obj.kind.0,
+        //         "label": obj.label,
+        //         "decay": obj.decay.map(|i| i.0),
+        //         "amount": obj.amount,
+        //         "definition_id": obj.item_def_id.map(|i| i.0)
+        //     });
+        //
+        //     save.add(id.0, "item", obj_json);
+        // }
+        //
+        // for (id, (location, inventory)) in self.inventory.iter().enumerate() {
+        //     let location_json = match location {
+        //         ObjId::Limbo => json!({"kind": "limbo"}),
+        //         ObjId::Mob { mob_id } => json!({"kind": "mob", "mob_id": mob_id.0 }),
+        //         ObjId::Room { room_id } => json!({"kind": "room", "room_id": room_id.0 }),
+        //         ObjId::Item { item_id } => json!({"kind": "item", "item_id": item_id.0 }),
+        //     };
+        //
+        //     let obj_json = json!({
+        //         "location": location_json,
+        //         "items": inventory.list.iter().map(|i| i.0).collect::<Vec<u32>>()
+        //     });
+        //
+        //     save.add(id as u32, "inventory", obj_json);
+        // }
+    }
+
+    fn load(&mut self, snapshot: &mut Snapshot) {
+        unimplemented!()
+    }
 }

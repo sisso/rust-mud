@@ -1,12 +1,14 @@
 use super::domain::Dir;
 use crate::errors::{Error, Result};
+use commons::save::{Snapshot, SnapshotSupport};
 use commons::ObjId;
 use logs::*;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 pub type RoomId = ObjId;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Room {
     pub id: RoomId,
     pub exits: Vec<(Dir, RoomId)>,
@@ -139,5 +141,19 @@ impl RoomRepository {
         self.index
             .get(&room1_id)
             .and_then(|room| room.get_exit_for(room2_id))
+    }
+}
+
+impl SnapshotSupport for RoomRepository {
+    fn save(&self, snapshot: &mut Snapshot) {
+        use serde_json::json;
+
+        for (id, comp) in &self.index {
+            snapshot.add(id.as_u32(), "room", json!(comp));
+        }
+    }
+
+    fn load(&mut self, snapshot: &mut Snapshot) {
+        unimplemented!()
     }
 }

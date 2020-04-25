@@ -3,10 +3,11 @@ use super::player::*;
 use super::room::*;
 use crate::errors;
 use crate::errors::Error;
+use commons::save::{Snapshot, SnapshotSupport};
 use commons::{DeltaTime, Tick, TotalTime};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Deserialize, Serialize)]
 pub struct Modifier(pub i32);
 
 impl Modifier {
@@ -19,7 +20,7 @@ impl Modifier {
 pub type Attribute = u32;
 pub type Rd = u32;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 pub struct GameTime {
     pub tick: Tick,
     pub total: TotalTime,
@@ -42,7 +43,18 @@ impl GameTime {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Copy, Deserialize)]
+impl SnapshotSupport for GameTime {
+    fn save(&self, snapshot: &mut Snapshot) {
+        use serde_json::json;
+        snapshot.add_header("game_time", json!(self));
+    }
+
+    fn load(&mut self, snapshot: &mut Snapshot) {
+        unimplemented!()
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Copy, Deserialize, Serialize)]
 pub enum Dir {
     N,
     S,

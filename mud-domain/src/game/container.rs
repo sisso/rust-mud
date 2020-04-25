@@ -29,6 +29,7 @@ use crate::game::triggers::*;
 use crate::game::vendors::Vendors;
 use crate::game::zone::Zones;
 use crate::game::{item, mob, spawn, system, Outputs};
+use commons::save::{Snapshot, SnapshotSupport};
 use commons::{DeltaTime, ObjId, PlayerId};
 use logs::*;
 
@@ -125,10 +126,85 @@ impl Container {
 
         Some(PlayerCtx { player, mob, room })
     }
+}
 
-    //    pub fn save(&self, save: &mut dyn Save) {
-    //        self.players.save(save);
-    //        self.mobs.save(save);
-    //        self.items.save(save);
-    //    }
+impl SnapshotSupport for Container {
+    fn save(&self, snapshot: &mut Snapshot) {
+        self.config.save(snapshot);
+        self.time.save(snapshot);
+        // self.objects.save(snapshot);
+        self.players.save(snapshot);
+        self.mobs.save(snapshot);
+        self.items.save(snapshot);
+        self.rooms.save(snapshot);
+        self.spawns.save(snapshot);
+        self.locations.save(snapshot);
+        // self.equips.save(snapshot);
+        // self.tags.save(snapshot);
+        // self.labels.save(snapshot);
+        // self.ships.save(snapshot);
+        // self.sectors.save(snapshot);
+        // self.astro_bodies.save(snapshot);
+        // self.pos.save(snapshot);
+        // self.surface_objects.save(snapshot);
+        // self.loader.save(snapshot);
+        // self.vendors.save(snapshot);
+        // self.prices.save(snapshot);
+        // self.timer.save(snapshot);
+        // self.triggers.save(snapshot);
+        // self.ownership.save(snapshot);
+        // self.zones.save(snapshot);
+        // self.hires.save(snapshot);
+        // self.random_rooms.save(snapshot);
+    }
+
+    fn load(&mut self, snapshot: &mut Snapshot) {
+        unimplemented!()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    #[test]
+    fn fields_into_save() {
+        let fields = r"
+        config: Config::new(),
+        time: GameTime::new(),
+        objects: Objects::new(),
+        players: PlayerRepository::new(),
+        mobs: MobRepository::new(),
+        items: ItemRepository::new(),
+        rooms: RoomRepository::new(),
+        spawns: Spawns::new(),
+        locations: Locations::new(),
+        equips: Equips::new(),
+        tags: Tags::new(),
+        labels: Labels::new(),
+        ships: Ships::new(),
+        sectors: Surfaces::new(),
+        astro_bodies: AstroBodies::new(),
+        pos: PosRepo::new(),
+        surface_objects: SurfaceObjects::new(),
+        loader: Loader::new(),
+        vendors: Vendors::new(),
+        prices: Prices::new(),
+        timer: Timer::new(),
+        triggers: Triggers::new(),
+        ownership: Ownerships::new(),
+        zones: Zones::new(),
+        hires: Hires::new(),
+        random_rooms: RandomRoomsRepository::new()";
+
+        for line in fields.split('\n') {
+            let line: &str = line;
+            let field = line.split(":").next().unwrap().trim();
+            if field.is_empty() {
+                continue;
+            }
+
+            println!("self.{}.save(snapshot);", field);
+        }
+
+        unimplemented!()
+    }
 }

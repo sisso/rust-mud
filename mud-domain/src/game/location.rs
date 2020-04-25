@@ -1,7 +1,9 @@
 use crate::game::labels::Labels;
+use commons::save::{Snapshot, SnapshotSupport};
 use commons::tree::Tree;
 use commons::ObjId;
 use logs::*;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 pub type LocationId = ObjId;
@@ -115,5 +117,20 @@ mod test {
         let sb = b.into_iter().collect::<HashSet<_>>();
 
         assert_eq!(sa, sb);
+    }
+}
+
+impl SnapshotSupport for Locations {
+    fn save(&self, snapshot: &mut Snapshot) {
+        use serde_json::json;
+
+        for (id, parent_id) in self.index.list_all() {
+            let value = json!(parent_id);
+            snapshot.add(id.as_u32(), "location", value);
+        }
+    }
+
+    fn load(&mut self, snapshot: &mut Snapshot) {
+        unimplemented!()
     }
 }

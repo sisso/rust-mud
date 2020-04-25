@@ -17,12 +17,14 @@ use crate::game::room::RoomId;
 use crate::game::system::SystemCtx;
 use crate::game::Outputs;
 use crate::game::{avatars, combat, comm};
+use commons::save::{Snapshot, SnapshotSupport};
+use serde::{Deserialize, Serialize};
 
 pub type MobId = ObjId;
 pub type Xp = u32;
 
 /// What mob should be doing
-#[derive(Clone, Debug, Copy)]
+#[derive(Clone, Debug, Copy, Deserialize, Serialize)]
 pub enum MobCommand {
     None,
     Kill { target_id: MobId },
@@ -39,20 +41,20 @@ impl MobCommand {
 }
 
 /// What is current doing
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub enum MobAction {
     None,
     Combat,
     Resting,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Damage {
     pub min: u32,
     pub max: u32,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Pv {
     pub current: i32,
     pub max: u32,
@@ -65,7 +67,7 @@ impl Pv {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Attributes {
     pub attack: Attribute,
     pub defense: Attribute,
@@ -92,7 +94,7 @@ impl Attributes {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MobState {
     // after this total time can attack
     pub attack_calm_down: TotalTime,
@@ -111,7 +113,7 @@ impl MobState {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AttackResult {
     pub success: bool,
     pub damage_total: u32,
@@ -139,7 +141,7 @@ impl AttackResult {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Mob {
     pub id: MobId,
     pub is_avatar: bool,
@@ -384,4 +386,18 @@ pub fn get_attributes_with_bonus(container: &Container, mob_id: MobId) -> Result
         });
 
     Ok(attributes)
+}
+
+impl SnapshotSupport for MobRepository {
+    fn save(&self, snapshot: &mut Snapshot) {
+        use serde_json::json;
+
+        for (id, comp) in &self.index {
+            snapshot.add(id.as_u32(), "mob", json!(comp));
+        }
+    }
+
+    fn load(&mut self, snapshot: &mut Snapshot) {
+        unimplemented!()
+    }
 }

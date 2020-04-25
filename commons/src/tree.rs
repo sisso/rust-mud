@@ -57,6 +57,10 @@ impl<K: Hash + Eq + Copy + Clone> Tree<K> {
         buffer
     }
 
+    pub fn list_all(&self) -> &HashMap<K, K> {
+        &self.parents
+    }
+
     fn find_parents(&self, buffer: &mut Vec<K>, from: K) {
         let mut current = from;
         loop {
@@ -154,6 +158,21 @@ mod test {
         for (index, expected) in tests {
             let children = tree.parents(index);
             assert_eq!(children, expected);
+        }
+    }
+
+    #[test]
+    fn test_tree_iter() {
+        let mut tree = Tree::new();
+        tree.insert(1, 0);
+        tree.insert(2, 0);
+        tree.insert(3, 1);
+
+        for (id, parent) in tree.list_all() {
+            match (id, parent) {
+                (1, 0) | (2, 0) | (3, 1) => {}
+                other => panic!("unexpected {:?}", other),
+            }
         }
     }
 }

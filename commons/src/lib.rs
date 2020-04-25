@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 pub mod csv;
 pub mod jsons;
 pub mod save;
@@ -101,7 +103,7 @@ impl V2 {
 
 pub type Position = V2;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 pub struct Tick(pub u32);
 
 impl Tick {
@@ -118,7 +120,7 @@ impl Tick {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Serialize, Deserialize)]
 pub struct ObjId(pub u32);
 
 impl ObjId {
@@ -135,7 +137,7 @@ impl From<u32> for ObjId {
 
 pub type PlayerId = ObjId;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 pub struct DeltaTime(pub f32);
 
 impl DeltaTime {
@@ -144,7 +146,7 @@ impl DeltaTime {
     }
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 pub struct TotalTime(pub f64);
 
 impl TotalTime {
