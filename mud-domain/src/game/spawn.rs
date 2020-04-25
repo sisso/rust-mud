@@ -4,6 +4,7 @@ use super::room::RoomId;
 use super::Outputs;
 use crate::errors::{Error, Result};
 use crate::game::loader::{Loader, StaticId};
+use crate::game::location::LocationId;
 use crate::game::system::SystemCtx;
 use commons::save::{Snapshot, SnapshotSupport};
 use commons::*;
@@ -54,6 +55,8 @@ pub struct Spawn {
     pub delay: SpawnDelay,
     pub prefab_id: StaticId,
     pub next: TotalTime,
+    /// zones and rooms are valid, when empty, parent objects is used
+    pub locations_id: Vec<LocationId>,
 }
 
 impl Spawn {
@@ -64,6 +67,7 @@ impl Spawn {
             delay: SpawnDelay { min: min, max: max },
             prefab_id: prefab_id,
             next: TotalTime(0.0),
+            locations_id: vec![],
         }
     }
 }

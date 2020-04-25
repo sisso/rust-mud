@@ -4,7 +4,7 @@ use commons::ObjId;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-/// should use live zone
+/// Hierarchic organization of zones can contains another zones and rooms
 ///
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Zone {

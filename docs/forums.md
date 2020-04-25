@@ -1,3 +1,24 @@
+
+# Spawn region
+
+How it will be supported with spawn builder?
+- spawn builder is used to random level generators. The idea is to have things like distance from entrance and radious.
+- for now will simply not be supported.
+
+## Plan 
+
+a) spawn by a list of locations_id
+
+b) spawn by parent room/zone
+
+- become a bit painful to keep adding new zones exclusively to add a spawn
+    - worse in case of dungeon that you can create new spawns
+
+c) spawn by location and radius
+
+- a lot of complication
+- extra complication when try to tune the affected area
+
 # Team & Relations
 
 Should be hierarchic. A mob belong to a band that belong to a clan that work for a kingdom that just enter in war.

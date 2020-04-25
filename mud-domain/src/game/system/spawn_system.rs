@@ -10,7 +10,7 @@ use crate::game::system::SystemCtx;
 use crate::game::timer::Timer;
 use crate::game::triggers::{Event, EventKind};
 use commons::{DeltaTime, TotalTime};
-use rand::Rng;
+use rand::{thread_rng, Rng};
 
 pub fn run(ctx: &mut SystemCtx) {
     let total_time = ctx.container.time.total;
@@ -38,7 +38,14 @@ pub fn run(ctx: &mut SystemCtx) {
         let can_spawn_mobs = ctx.container.ownership.count(spawn.id) < spawn.max as usize;
 
         if can_spawn_mobs {
-            match ctx.container.locations.get(spawn.id) {
+            let location_id = if spawn.locations_id.is_empty() {
+                ctx.container.locations.get(spawn.id)
+            } else {
+                let index = thread_rng().gen_range(0, spawn.locations_id.len());
+                spawn.locations_id.get(index).cloned()
+            };
+
+            match location_id {
                 Some(location_id) => {
                     let is_valid = ctx.container.rooms.exists(location_id)
                         || ctx.container.items.exists(location_id);
@@ -47,12 +54,12 @@ pub fn run(ctx: &mut SystemCtx) {
                         mob_spawns.push((spawn.id, location_id, spawn.prefab_id));
                     } else {
                         warn!(
-                            "Spawn {:?} parent {:?} is not a valid room or item.",
+                            "{:?} Spawn parent {:?} is not a valid room or item.",
                             spawn.id, location_id
                         );
                     }
                 }
-                None => warn!("Spawn {:?} has no parent", spawn.id),
+                None => warn!("{:?} Spawn has no parent", spawn.id),
             };
         } else {
             debug!("{:?} can not spawn, already own max objects", spawn.id);

@@ -273,10 +273,18 @@ mod test {
         locations.set(1.into(), 0.into());
         locations.set(2.into(), 1.into());
         locations.set(3.into(), 0.into());
-        astros.insert(AstroBody::new(0.into(), 0.0, AstroBodyKind::Star));
-        astros.insert(AstroBody::new(1.into(), 10.0, AstroBodyKind::Planet));
-        astros.insert(AstroBody::new(2.into(), 1.0, AstroBodyKind::Ship));
-        astros.insert(AstroBody::new(3.into(), 20.0, AstroBodyKind::Planet));
+        astros
+            .insert(AstroBody::new(0.into(), 0.0, AstroBodyKind::Star))
+            .unwrap();
+        astros
+            .insert(AstroBody::new(1.into(), 10.0, AstroBodyKind::Planet))
+            .unwrap();
+        astros
+            .insert(AstroBody::new(2.into(), 1.0, AstroBodyKind::Ship))
+            .unwrap();
+        astros
+            .insert(AstroBody::new(3.into(), 20.0, AstroBodyKind::Planet))
+            .unwrap();
     }
 
     #[test]

@@ -232,6 +232,7 @@ pub struct SpawnData {
     pub max: u32,
     pub time_min: f32,
     pub time_max: f32,
+    pub locations_id: Option<Vec<StaticId>>,
 }
 
 impl Data {
@@ -325,7 +326,7 @@ impl Loader {
 
         // create objects
         let obj_id = container.objects.create();
-        trace!("spawning prefab {:?} with id {:?}", static_id, obj_id);
+        trace!("{:?} creating prefab of {:?}", obj_id, static_id);
         references.insert(static_id, obj_id);
 
         let children_prefabs = container.loader.find_deep_prefabs_by_parents(static_id);
@@ -500,7 +501,18 @@ impl Loader {
 
         if let Some(spawn_data) = &data.spawn {
             let builder = Loader::spawn_data_to_spawn_builder(spawn_data);
-            let spawn = builder.create_spawn(obj_id);
+
+            let mut locations_id = vec![];
+            if let Some(locations) = &spawn_data.locations_id {
+                for static_id in locations {
+                    let location_id =
+                        Loader::get_by_static_id(&container.objects, &references, *static_id)?;
+                    locations_id.push(location_id);
+                }
+            }
+
+            let mut spawn = builder.create_spawn(obj_id);
+            spawn.locations_id = locations_id;
             container.spawns.add(spawn)?;
         }
 
@@ -562,6 +574,11 @@ impl Loader {
                     .spawns
                     .iter()
                     .map(|spawn_data| {
+                        assert!(
+                            spawn_data.spawn.locations_id.is_none(),
+                            "locations_id is not supported for spawn in random maps"
+                        );
+
                         let spawn_builder = Loader::spawn_data_to_spawn_builder(&spawn_data.spawn);
                         RandomRoomsSpawnCfg {
                             amount: spawn_data.amount,
