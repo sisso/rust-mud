@@ -158,7 +158,7 @@ impl SnapshotSupport for Container {
         // self.random_rooms.save(snapshot);
     }
 
-    fn load(&mut self, snapshot: &mut Snapshot) {
+    fn load(&mut self, _snapshot: &mut Snapshot) {
         unimplemented!()
     }
 }
@@ -204,7 +204,5 @@ mod test {
 
             println!("self.{}.save(snapshot);", field);
         }
-
-        unimplemented!()
     }
 }

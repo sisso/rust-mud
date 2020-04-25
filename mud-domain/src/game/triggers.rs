@@ -82,7 +82,7 @@ impl SnapshotSupport for Triggers {
         snapshot.add_header("triggers", value);
     }
 
-    fn load(&mut self, snapshot: &mut Snapshot) {
+    fn load(&mut self, _snapshot: &mut Snapshot) {
         unimplemented!()
     }
 }

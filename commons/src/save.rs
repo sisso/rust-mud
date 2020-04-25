@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+
 use serde_json::{json, Value};
 
 use std::fs::File;
@@ -71,7 +71,7 @@ impl Snapshot {
             file.write("\n".as_bytes()).unwrap();
         }
 
-        for (id, components) in &self.objects {
+        for (_id, components) in &self.objects {
             let json = json!(components);
             file.write(json.to_string().as_bytes()).unwrap();
             file.write("\n".as_bytes()).unwrap();
@@ -81,7 +81,7 @@ impl Snapshot {
     }
 
     pub fn load(file_path: &str) -> Self {
-        let mut file =
+        let file =
             File::open(file_path).expect(&format!("failed to open file {:?}", file_path));
 
         let lines = std::io::BufReader::new(file).lines();

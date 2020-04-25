@@ -49,7 +49,7 @@ impl SnapshotSupport for GameTime {
         snapshot.add_header("game_time", json!(self));
     }
 
-    fn load(&mut self, snapshot: &mut Snapshot) {
+    fn load(&mut self, _snapshot: &mut Snapshot) {
         unimplemented!()
     }
 }

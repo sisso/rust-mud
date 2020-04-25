@@ -77,7 +77,7 @@ impl SnapshotSupport for PlayerRepository {
         }
     }
 
-    fn load(&mut self, load: &mut Snapshot) {
+    fn load(&mut self, _load: &mut Snapshot) {
         unimplemented!()
     }
 }
