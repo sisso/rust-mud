@@ -66,6 +66,20 @@ impl Ownerships {
             .map(|list| list.len())
             .unwrap_or(0)
     }
+
+    /// return true if both has same owner or one is owner of other
+    pub fn same_owner(&self, obj_id_a: ObjId, obj_id_b: ObjId) -> bool {
+        let owner_a = self.owners.get(&obj_id_a);
+        let owner_b = self.owners.get(&obj_id_b);
+
+        match (owner_a, owner_b) {
+            (None, None) => false,
+            (Some(owner_a_id), _) if *owner_a_id == obj_id_b => true,
+            (_, Some(owner_b_id)) if *owner_b_id == obj_id_a => true,
+            (Some(owner_a_id), Some(owner_b_id)) => owner_a_id == owner_b_id,
+            _ => false,
+        }
+    }
 }
 
 impl SnapshotSupport for Ownerships {

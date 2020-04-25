@@ -190,7 +190,7 @@ fn return_attack(
         let msg = comm::kill_return_attack(mob_label, aggressor_mob_label);
         outputs.broadcast(Some(mob_id), location_id, msg);
 
-        match mob.set_action_kill(target_id) {
+        match mob.set_action_attack(target_id) {
             Err(err) => warn!(
                 "{:?} fail to execute return attack to {:?}: {:?}",
                 mob_id, target_id, err

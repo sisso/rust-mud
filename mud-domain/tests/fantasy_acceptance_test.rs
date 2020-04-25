@@ -146,6 +146,14 @@ fn test_fantasy_kill_wolf_and_sell_meat() {
 }
 
 #[test]
+fn test_fantasy_wolf_are_aggressive() {
+    let mut scenery = TestScenery::new();
+    scenery.login();
+    from_village_to_forest(&mut scenery);
+    scenery.wait_for("wolf execute a attack");
+}
+
+#[test]
 fn test_fantasy_collect_money_should_be_merged() {
     let mut scenery = TestScenery::new();
     scenery.login();

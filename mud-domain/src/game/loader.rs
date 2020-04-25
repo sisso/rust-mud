@@ -18,7 +18,6 @@ use crate::game::prices::{Money, Price};
 use crate::game::random_rooms::{RandomRoomsCfg, RandomRoomsRepository, RandomRoomsSpawnCfg};
 use crate::game::room::Room;
 use crate::game::ships::Ship;
-use crate::game::space_utils::find_surface_target;
 use crate::game::spawn::{Spawn, SpawnBuilder};
 use crate::game::surfaces::Surface;
 use crate::game::vendors::Vendor;
@@ -62,6 +61,7 @@ pub struct MobData {
     pub pv: u32,
     pub xp: u32,
     pub hire_cost: Option<u32>,
+    pub aggressive: Option<bool>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -472,6 +472,7 @@ impl Loader {
             mob.attributes.damage.max = mob_data.damage_max;
             mob.attributes.damage.min = mob_data.damage_min;
             mob.xp = mob_data.xp;
+            mob.aggressive = mob_data.aggressive.unwrap_or(false);
             container.mobs.add(mob);
 
             if let Some(hire_cost) = mob_data.hire_cost {

@@ -21,6 +21,7 @@
 # Features
 
 - commanding
+- teams
 - potions and food
 - advanced spawn
     - multiple rooms (zone?, radious?)

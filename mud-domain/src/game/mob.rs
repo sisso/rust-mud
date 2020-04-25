@@ -150,6 +150,7 @@ pub struct Mob {
     pub xp: Xp,
     pub state: MobState,
     pub followers: Vec<ObjId>,
+    pub aggressive: bool,
 }
 
 impl Mob {
@@ -162,6 +163,7 @@ impl Mob {
             xp: 0,
             state: MobState::new(),
             followers: Default::default(),
+            aggressive: false,
         }
     }
 
@@ -199,7 +201,7 @@ impl Mob {
         }
     }
 
-    pub fn set_action_kill(&mut self, target_id: ObjId) -> Result<()> {
+    pub fn set_action_attack(&mut self, target_id: ObjId) -> Result<()> {
         self.command = MobCommand::Kill { target_id };
         self.state.action = MobAction::Combat;
         Ok(())
@@ -274,7 +276,7 @@ impl MobRepository {
 
     pub fn set_mob_attack_target(&mut self, mob_id: MobId, target: MobId) -> Result<()> {
         let mob = self.index.get_mut(&mob_id).unwrap();
-        mob.set_action_kill(target)
+        mob.set_action_attack(target)
     }
 
     pub fn cancel_attack(&mut self, mob_id: MobId) {

@@ -1,3 +1,32 @@
+# Team & Relations
+
+Should be hierarchic. A mob belong to a band that belong to a clan that work for a kingdom that just enter in war.
+
+But for current use case, just don't attack the same type is enough. 
+
+## Sample
+
+    objects {
+      team_nature_predator {
+        id: 30
+        label: "Team Nature Predators"
+        team: {}
+      }
+    
+      team_nature{
+        id: 31
+        label: "Team Nature"
+        team: {}
+      }
+      
+      team_undead {
+        id: 32
+        label: "Team Nature"
+        team: {}
+      }
+    }
+
+
 # CSV
 
 Csv is much easy to manage multiple entries, add new fields and you can even keep references of static id like HOCON. 
