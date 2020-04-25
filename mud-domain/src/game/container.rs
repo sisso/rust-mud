@@ -139,22 +139,22 @@ impl SnapshotSupport for Container {
         self.rooms.save(snapshot);
         self.spawns.save(snapshot);
         self.locations.save(snapshot);
-        // self.equips.save(snapshot);
+        self.equips.save(snapshot);
         // self.tags.save(snapshot);
-        // self.labels.save(snapshot);
+        self.labels.save(snapshot);
         // self.ships.save(snapshot);
         // self.sectors.save(snapshot);
         // self.astro_bodies.save(snapshot);
         // self.pos.save(snapshot);
         // self.surface_objects.save(snapshot);
         // self.loader.save(snapshot);
-        // self.vendors.save(snapshot);
-        // self.prices.save(snapshot);
-        // self.timer.save(snapshot);
-        // self.triggers.save(snapshot);
-        // self.ownership.save(snapshot);
-        // self.zones.save(snapshot);
-        // self.hires.save(snapshot);
+        self.vendors.save(snapshot);
+        self.prices.save(snapshot);
+        self.timer.save(snapshot);
+        self.triggers.save(snapshot);
+        self.ownership.save(snapshot);
+        self.zones.save(snapshot);
+        self.hires.save(snapshot);
         // self.random_rooms.save(snapshot);
     }
 

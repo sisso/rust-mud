@@ -1,7 +1,9 @@
+use commons::save::{Snapshot, SnapshotSupport};
 use commons::ObjId;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Vendor {
     pub id: ObjId,
 }
@@ -39,5 +41,20 @@ impl Vendors {
 
     pub fn exist(&self, id: ObjId) -> bool {
         self.index.contains_key(&id)
+    }
+}
+
+impl SnapshotSupport for Vendors {
+    fn save(&self, snapshot: &mut Snapshot) {
+        use serde_json::json;
+
+        for (id, comp) in &self.index {
+            let value = json!(comp);
+            snapshot.add(id.as_u32(), "vendor", value);
+        }
+    }
+
+    fn load(&mut self, snapshot: &mut Snapshot) {
+        unimplemented!()
     }
 }

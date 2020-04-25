@@ -1,12 +1,14 @@
 use crate::errors::{Error, Result};
 use crate::game::prices::Money;
+use commons::save::{Snapshot, SnapshotSupport};
 use commons::ObjId;
 use logs::*;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// should use live hire
 ///
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Hire {
     pub id: ObjId,
     pub cost: Money,
@@ -54,5 +56,20 @@ impl Hires {
 
     pub fn list<'a>(&'a self) -> impl Iterator<Item = &ObjId> + 'a {
         self.index.keys()
+    }
+}
+
+impl SnapshotSupport for Hires {
+    fn save(&self, snapshot: &mut Snapshot) {
+        use serde_json::json;
+
+        for (id, comp) in &self.index {
+            let value = json!(comp);
+            snapshot.add(id.as_u32(), "hire", value);
+        }
+    }
+
+    fn load(&mut self, snapshot: &mut Snapshot) {
+        unimplemented!()
     }
 }

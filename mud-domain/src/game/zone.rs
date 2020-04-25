@@ -1,10 +1,12 @@
 use crate::errors::{Error, Result};
+use commons::save::{Snapshot, SnapshotSupport};
 use commons::ObjId;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// should use live zone
 ///
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Zone {
     pub id: ObjId,
 }
@@ -49,5 +51,20 @@ impl Zones {
 
     pub fn list<'a>(&'a self) -> impl Iterator<Item = &ObjId> + 'a {
         self.index.keys()
+    }
+}
+
+impl SnapshotSupport for Zones {
+    fn save(&self, snapshot: &mut Snapshot) {
+        use serde_json::json;
+
+        for (id, comp) in &self.index {
+            let value = json!(comp);
+            snapshot.add(id.as_u32(), "zone", value);
+        }
+    }
+
+    fn load(&mut self, snapshot: &mut Snapshot) {
+        unimplemented!()
     }
 }

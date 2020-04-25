@@ -1,11 +1,13 @@
 use crate::utils::strinput::StrInput;
 use crate::utils::text;
+use commons::save::{Snapshot, SnapshotSupport};
 use commons::ObjId;
 use logs::*;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::panic::resume_unwind;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Label {
     pub id: ObjId,
     /// how we call it
@@ -236,5 +238,20 @@ mod test {
             "asteroid",
             vec![0, 1],
         );
+    }
+}
+
+impl SnapshotSupport for Labels {
+    fn save(&self, snapshot: &mut Snapshot) {
+        use serde_json::json;
+
+        for (id, comp) in &self.index {
+            let value = json!(comp);
+            snapshot.add(id.as_u32(), "label", value);
+        }
+    }
+
+    fn load(&mut self, snapshot: &mut Snapshot) {
+        unimplemented!()
     }
 }

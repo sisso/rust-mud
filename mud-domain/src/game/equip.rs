@@ -1,11 +1,13 @@
 use crate::game::item::ItemId;
 use crate::game::mob::MobId;
+use commons::save::{Snapshot, SnapshotSupport};
 use commons::ObjId;
 use logs::*;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Equip {
     pub obj_id: MobId,
     pub equipments: HashSet<ItemId>,
@@ -66,5 +68,20 @@ impl Equips {
                 debug!("{:?} remove equip", id);
             }
         });
+    }
+}
+
+impl SnapshotSupport for Equips {
+    fn save(&self, snapshot: &mut Snapshot) {
+        use serde_json::json;
+
+        for (id, comp) in &self.index {
+            let value = json!(comp);
+            snapshot.add(id.as_u32(), "equip", value);
+        }
+    }
+
+    fn load(&mut self, snapshot: &mut Snapshot) {
+        unimplemented!()
     }
 }

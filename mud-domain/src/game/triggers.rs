@@ -1,8 +1,10 @@
+use commons::save::{Snapshot, SnapshotSupport};
 use commons::ObjId;
 use logs::*;
+use serde::{Deserialize, Serialize};
 
 /// Numeric identifier of event type, used for query
-#[derive(Clone, Debug, Copy, PartialEq)]
+#[derive(Clone, Debug, Copy, PartialEq, Serialize, Deserialize)]
 pub enum EventKind {
     Spawn,
     Rest,
@@ -12,7 +14,7 @@ pub enum EventKind {
     Unknown,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Event {
     Obj { kind: EventKind, obj_id: ObjId },
 }
@@ -70,5 +72,17 @@ impl Triggers {
         for buffer in self.index.iter_mut() {
             buffer.clear();
         }
+    }
+}
+
+impl SnapshotSupport for Triggers {
+    fn save(&self, snapshot: &mut Snapshot) {
+        use serde_json::json;
+        let value = json!(self.index);
+        snapshot.add_header("triggers", value);
+    }
+
+    fn load(&mut self, snapshot: &mut Snapshot) {
+        unimplemented!()
     }
 }

@@ -1,7 +1,9 @@
+use commons::save::{Snapshot, SnapshotSupport};
 use commons::ObjId;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Serialize, Deserialize)]
 pub struct Money(pub u32);
 
 impl Money {
@@ -16,7 +18,7 @@ impl From<u32> for Money {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Price {
     pub id: ObjId,
     pub buy: Money,
@@ -60,5 +62,20 @@ impl Prices {
 
     pub fn list<'a>(&'a self) -> impl Iterator<Item = &Price> + 'a {
         self.index.values()
+    }
+}
+
+impl SnapshotSupport for Prices {
+    fn save(&self, snapshot: &mut Snapshot) {
+        use serde_json::json;
+
+        for (id, comp) in &self.index {
+            let value = json!(comp);
+            snapshot.add(id.as_u32(), "prices", value);
+        }
+    }
+
+    fn load(&mut self, snapshot: &mut Snapshot) {
+        unimplemented!()
     }
 }

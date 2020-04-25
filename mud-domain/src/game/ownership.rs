@@ -1,28 +1,33 @@
 use crate::errors::{Error, Result};
+use commons::save::{Snapshot, SnapshotSupport};
 use commons::ObjId;
 use logs::*;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Clone, Debug)]
+type Owner = ObjId;
+type Property = ObjId;
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Ownerships {
     /// key = obj, value = owner
-    owners: HashMap<ObjId, ObjId>,
+    owners: HashMap<Property, Owner>,
     /// key =owner, values = objects
-    goods: HashMap<ObjId, Vec<ObjId>>,
+    properties: HashMap<Owner, Vec<Property>>,
 }
 
 impl Ownerships {
     pub fn new() -> Self {
         Ownerships {
             owners: HashMap::new(),
-            goods: HashMap::new(),
+            properties: HashMap::new(),
         }
     }
 
     pub fn set_owner(&mut self, obj_id: ObjId, owner_id: ObjId) {
         self.remove_owner(obj_id);
         self.owners.insert(obj_id, owner_id);
-        self.goods
+        self.properties
             .entry(owner_id)
             .or_insert(Vec::new())
             .push(obj_id);
@@ -33,7 +38,10 @@ impl Ownerships {
     pub fn remove_owner(&mut self, obj_id: ObjId) -> Option<ObjId> {
         let last_owner = self.owners.remove(&obj_id);
         if let Some(owner) = last_owner {
-            self.goods.get_mut(&owner).unwrap().retain(|i| *i != obj_id);
+            self.properties
+                .get_mut(&owner)
+                .unwrap()
+                .retain(|i| *i != obj_id);
 
             debug!("{:?} owner removed, previous owner was {:?}", obj_id, owner);
         }
@@ -46,14 +54,32 @@ impl Ownerships {
     }
 
     pub fn list(&self, owner_id: ObjId) -> Vec<ObjId> {
-        self.goods.get(&owner_id).cloned().unwrap_or(Vec::new())
+        self.properties
+            .get(&owner_id)
+            .cloned()
+            .unwrap_or(Vec::new())
     }
 
     pub fn count(&self, owner_id: ObjId) -> usize {
-        self.goods
+        self.properties
             .get(&owner_id)
             .map(|list| list.len())
             .unwrap_or(0)
+    }
+}
+
+impl SnapshotSupport for Ownerships {
+    fn save(&self, snapshot: &mut Snapshot) {
+        use serde_json::json;
+
+        for (id, comp) in &self.owners {
+            let value = json!(comp);
+            snapshot.add(id.as_u32(), "ownership", value);
+        }
+    }
+
+    fn load(&mut self, snapshot: &mut Snapshot) {
+        unimplemented!()
     }
 }
 

@@ -58,6 +58,10 @@ impl<T> Timer<T> {
             .next()
             .map(|(reversed_time, _)| time_u64_to_time_f64(reversed_time.0))
     }
+
+    pub fn list<'a>(&'a self) -> impl Iterator<Item = &'a T> + 'a {
+        self.entries.values()
+    }
 }
 
 fn time_u64_to_time_f64(cap_time: u64) -> f64 {
