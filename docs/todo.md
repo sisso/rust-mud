@@ -11,16 +11,10 @@
 
 # Fantasy specific
 
-- casting
-- level up
-- improve combat
-  - dodge
-  - aggressive
-  - defensive
-
 # Features
 
 - commanding
+  - by "say". "say all follow me", "say mercenary.1 wait here"
 - teams
 - potions and food
 - advanced spawn

@@ -1,5 +1,8 @@
 # TODO
 
+- ship seller
+- multiple ships, to have something to do
+- trade, to make money
 - look/examine transport do not work
 - sector generator
 - wait time between ship operations
@@ -21,6 +24,46 @@
 - hire a crew
 - land and fly around
 - as factorio, everything that player do need to be automatized 
+
+## Ship components
+
+- each room can have attached ship components
+  - storage
+  - miner container
+  - hatch
+
+- cockpit
+  - to be ablet to control the ship you need to be in cocklpit
+  - big ships would require multiple controls and require crew
+    - how to run skeleton craw?
+
+## Working
+
+### Mining asteroids
+
+- prob
+- drill
+
+### Salvaging
+
+- detect debrirs
+- salvage
+
+
+### Landing mining
+
+- scan plannet for mining landing zone
+- land 
+- drop auto mine
+
+
+### Landing hunt
+
+- scan 
+
+### Combat
+
+### Gas harvesting
 
 ## Orbit travel stage
 

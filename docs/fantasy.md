@@ -2,6 +2,13 @@
 
 - Arena
 
+- casting
+- level up
+- improve combat
+  - dodge
+  - aggressive
+  - defensive
+
 # Idea 1
 
 Hack and slash like Diablo. You have some pre-defined structure  like villages and cities, and you have random generated 
