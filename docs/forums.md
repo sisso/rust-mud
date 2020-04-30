@@ -171,7 +171,70 @@ of any other spawn in distance of `max(this.space_distance, i.space_distance)`
 
 # CSV vs HOCON
 
+## CSV metadata
+
+Would be easier to use metadata to convert from CSV fieldname into the type than later parse the json structure all 
+into strings.
+
+But simple strings could be more flexible as input
+
+String values can be more customsize like receive number, formula and other variables, even references
+
+
+
+## But but
+
+Currently have no easy way to do a direct map to hocon format
+- complex deep structures
+- typed values
+
+I will require to define new metadata anyway, at minimum to convert string to types.
+
+
+
+## Jsonp vs Structured
+
+For save game we will use jsonp format
+
+Current csv we are using tables. That contains carrie the table name that could be used to customize the 
+values for very specific use cases.
+- this will be needed in case we want to use single properties to represent different thing
+    - that is not the best definition of sanity
+
+## 01
+
 List of CSV files that get converted into json looks much simpler to create/parse/manipulate over HOCON files. 
+
+Json objects deep objects help to keep mandatory fields togehter, for instance, Option<Item> where Item { weight: f32, size: f32 }
+
+How o read
+
+A) All ObjData need to be convert to a flat format like
+
+    Obj {
+        item_weapon_attack: Option<i32>
+    }
+
+
+B) Convert HOCON into flat format and read all from flat
+    
+C) We need to be able to create deep json from csv using some xpath metadainfomration
+
+    static_id,item.weapon.attack
+    item_0,3
+
+
+
+Conclusion:
+
+A json will always be batter over a flat structure. While CSV will help to manage data easy, there are no guarantees
+that it will be useful in the long run.
+
+So the CSV => Json need to deal with deep objects. 
+
+Ideally HOCON can be removed and a Hocon -> json will be used, and then, both loaders share same format.
+
+## static_id
 
 - how this improve ID? 
     - maybe using static_id in the scope of csv file

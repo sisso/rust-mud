@@ -1,5 +1,6 @@
 use serde_json::{json, Value};
 use std::collections::HashMap;
+use std::str::FromStr;
 
 pub fn parse_csv(data: &str) -> Vec<Vec<&str>> {
     let lines = data.split_terminator("\n").collect::<Vec<&str>>();
@@ -129,6 +130,59 @@ pub fn tables_to_json(tables: &Vec<Table>) -> Result<Value, String> {
     }
 
     Ok(json!(root))
+}
+
+#[derive(Clone, Copy, Debug)]
+pub enum FieldKind {
+    String,
+    U32,
+    F32,
+    I32,
+}
+
+pub fn tables_to_jsonp(
+    tables: &Vec<Table>,
+    parsers: &HashMap<&str, FieldKind>,
+) -> Result<Vec<Value>, String> {
+    let mut list = vec![];
+
+    for table in tables {
+        for (i, row) in table.rows.iter().enumerate() {
+            let mut obj = HashMap::new();
+
+            for (j, col) in table.columns.iter().enumerate() {
+                let value = table.rows[i][j].as_str();
+                let value = parsers
+                    .get(col.as_str())
+                    .map(|kind| parse_field(*kind, value))
+                    .unwrap_or_else(|| Ok(json!(value)))?;
+
+                obj.insert(col.as_str(), value);
+            }
+
+            list.push(json!(obj));
+        }
+    }
+
+    Ok(list)
+}
+
+pub fn parse_field(kind: FieldKind, value: &str) -> Result<Value, String> {
+    match kind {
+        FieldKind::String => Ok(json!(value)),
+        FieldKind::U32 => {
+            let v = u32::from_str(value).map_err(|e| format!("{:?}", e))?;
+            Ok(json!(v))
+        }
+        FieldKind::I32 => {
+            let v = i32::from_str(value).map_err(|e| format!("{:?}", e))?;
+            Ok(json!(v))
+        }
+        FieldKind::F32 => {
+            let v = f32::from_str(value).map_err(|e| format!("{:?}", e))?;
+            Ok(json!(v))
+        }
+    }
 }
 
 #[cfg(test)]

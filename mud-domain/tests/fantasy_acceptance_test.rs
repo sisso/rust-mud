@@ -16,7 +16,7 @@ impl TestScenery {
     pub fn new() -> Self {
         let mut container = Container::new();
         // loader::scenery_space::load(&mut container);
-        loader::Loader::load_folder(&mut container, &Path::new("../data/fantasy")).unwrap();
+        loader::Loader::load_hocon_folder(&mut container, &Path::new("../data/fantasy")).unwrap();
         TestScenery {
             game: Game::new(container),
             connection_id: ConnectionId(0),
@@ -111,6 +111,7 @@ impl TestScenery {
             .iter()
             .next()
             .unwrap();
+
         inventory::add_money(&mut self.game.container, player_id, Money(amount));
     }
 }

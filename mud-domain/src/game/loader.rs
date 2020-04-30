@@ -26,6 +26,7 @@ use commons::{DeltaTime, Either, ObjId, V2};
 use logs::*;
 use rand::random;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
@@ -244,6 +245,21 @@ impl Data {
             prefabs: Default::default(),
         }
     }
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct FlatData {
+    static_id: String,
+    label: Option<String>,
+    desc: Option<String>,
+    item_weapon_attack: Option<i32>,
+    item_weapon_defense: Option<i32>,
+    item_weapon_damage_min: Option<u32>,
+    item_weapon_damage_max: Option<u32>,
+    item_weapon_calmdown: Option<f32>,
+    price_buy: Option<i32>,
+    item_armor_defense: Option<i32>,
+    item_armor_rd: Option<u32>,
 }
 
 #[derive(Debug, Clone)]
@@ -614,7 +630,7 @@ impl Loader {
         Ok(())
     }
 
-    pub fn load_str(container: &mut Container, buffer: &str) -> errors::Result<()> {
+    pub fn load_hocon_str(container: &mut Container, buffer: &str) -> errors::Result<()> {
         let data: errors::Result<Data> = HParser::load_from_str(buffer).map_err(|e| {
             let msg = format!("{:?}", e);
             errors::Error::Error(msg)
@@ -623,13 +639,26 @@ impl Loader {
         Loader::load_data(container, data?)
     }
 
+    pub fn load_json(container: &mut Container, list: Vec<Value>) -> errors::Result<()> {
+        for value in list {
+            trace!(
+                "load_json {}",
+                serde_json::to_string(&value).unwrap_or("fail".to_string())
+            );
+            let data: FlatData = serde_json::from_value(value.clone())
+                .map_err(|err| errors::Error::Exception(format!("{} for {:?}", err, value)))?;
+            println!("{:?}", data);
+        }
+        Ok(())
+    }
+
     /// Algorithm
     ///
     /// 1. Load all files and resolve variables
     /// 2. Validate content
     /// 3. Add all prefabs
     /// 4. Instantiate all static data
-    pub fn load_folder(container: &mut Container, folder: &Path) -> errors::Result<()> {
+    pub fn load_hocon_folder(container: &mut Container, folder: &Path) -> errors::Result<()> {
         let data = Loader::read_folder(folder)?;
         Loader::load_data(container, data)
     }
@@ -780,7 +809,7 @@ prefabs.control_panel_command_2 {
 }"#;
 
         let mut container = Container::new();
-        Loader::load_str(&mut container, buffer).unwrap();
+        Loader::load_hocon_str(&mut container, buffer).unwrap();
 
         let landing_pad_id = ObjId(1);
 
