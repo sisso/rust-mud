@@ -100,6 +100,7 @@ pub struct Inventory {
     pub list: Vec<ItemId>,
 }
 
+#[derive(Debug, Clone)]
 pub struct ItemRepository {
     index: HashMap<ItemId, Item>,
 }

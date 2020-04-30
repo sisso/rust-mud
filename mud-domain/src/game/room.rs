@@ -50,6 +50,7 @@ impl Room {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct RoomRepository {
     index: HashMap<RoomId, Room>,
 }

@@ -30,29 +30,29 @@ use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct RoomExitData {
     pub dir: String,
     pub to: StaticId,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct RoomData {
     pub can_exit: Option<bool>,
     pub exits: Option<Vec<RoomExitData>>,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct AstroBodyData {
     pub kind: String,
     pub orbit_distance: f32,
     pub jump_target_id: Option<StaticId>,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct SectorData {}
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct MobData {
     pub attack: u32,
     pub defense: u32,
@@ -64,10 +64,10 @@ pub struct MobData {
     pub aggressive: Option<bool>,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct CraftData {}
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ItemFlagsData {
     pub money: Option<bool>,
     pub inventory: Option<bool>,
@@ -86,21 +86,22 @@ impl ItemFlagsData {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ItemWeaponData {
-    min: u32,
-    max: u32,
-    calm_down: f32,
-    attack: i32,
+    pub min: u32,
+    pub max: u32,
+    pub calm_down: f32,
+    pub attack: i32,
+    pub defense: i32,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ItemArmorData {
-    defense: i32,
-    rd: u32,
+    pub defense: i32,
+    pub rd: u32,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ItemData {
     pub flags: Option<ItemFlagsData>,
     pub amount: Option<u32>,
@@ -119,7 +120,7 @@ impl ItemData {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct PosData {
     pub x: f32,
     pub y: f32,
@@ -134,22 +135,22 @@ impl StaticId {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct PriceData {
     pub buy: u32,
     pub sell: u32,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct VendorData {}
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct RandomRoomsSpawnData {
     amount: u32,
     spawn: SpawnData,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct RandomRoomsData {
     entrance_room_id: StaticId,
     entrance_dir: String,
@@ -158,12 +159,12 @@ pub struct RandomRoomsData {
     spawns: Vec<RandomRoomsSpawnData>,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ZoneData {
     random_rooms: Option<RandomRoomsData>,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ObjData {
     pub id: StaticId,
     pub label: String,
@@ -210,7 +211,7 @@ impl ObjData {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct CfgData {
     pub initial_room: StaticId,
     pub avatar_mob: StaticId,
@@ -219,14 +220,14 @@ pub struct CfgData {
 }
 
 // TODO: remove HashMap, the key is probably never used
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Data {
     pub cfg: Option<CfgData>,
     pub objects: HashMap<StaticId, ObjData>,
     pub prefabs: HashMap<StaticId, ObjData>,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct SpawnData {
     pub prefab_id: StaticId,
     pub max: u32,
@@ -245,6 +246,7 @@ impl Data {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct Loader {
     index: HashMap<StaticId, ObjData>,
 }
@@ -314,13 +316,13 @@ impl Loader {
         static_id: StaticId,
         parent_id: ObjId,
     ) -> errors::Result<ObjId> {
-        let obj_id = Loader::spawn(container, static_id)?;
+        let obj_id = Loader::instantiate(container, static_id)?;
         container.locations.set(obj_id, parent_id);
         Ok(obj_id)
     }
 
-    pub fn spawn(container: &mut Container, static_id: StaticId) -> errors::Result<ObjId> {
-        debug!("spawn prefab {:?}", static_id);
+    pub fn instantiate(container: &mut Container, static_id: StaticId) -> errors::Result<ObjId> {
+        debug!("instantiate prefab {:?}", static_id);
 
         let mut references = HashMap::new();
 
@@ -333,7 +335,7 @@ impl Loader {
         for child_static_id in children_prefabs {
             let child_id = container.objects.create();
             trace!(
-                "spawning prefab {:?} child {:?} with id {:?}",
+                "instantiate prefab {:?} child {:?} with id {:?}",
                 static_id,
                 child_static_id,
                 child_id
@@ -479,7 +481,7 @@ impl Loader {
             if let Some(hire_cost) = mob_data.hire_cost {
                 let mut hire = Hire::new(obj_id);
                 hire.cost = Money(hire_cost);
-                container.hires.add(hire);
+                container.hires.add(hire).unwrap();
             }
         }
 
@@ -642,8 +644,8 @@ impl Loader {
         HParser::load_from_folder(folder).map_err(|e| Error::Error(format!("{:?}", e)))
     }
 
-    fn load_data(container: &mut Container, data: Data) -> errors::Result<()> {
-        let _ = Loader::validate(&data)?;
+    pub fn load_data(container: &mut Container, data: Data) -> errors::Result<()> {
+        Loader::validate(&data)?;
 
         // add prefabs
         for (_k, v) in data.prefabs {

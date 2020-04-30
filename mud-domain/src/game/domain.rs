@@ -103,6 +103,7 @@ pub struct PlayerCtx<'a> {
     pub room: &'a Room,
 }
 
+#[derive(Debug, Clone)]
 pub struct NextId {
     next: u32,
 }

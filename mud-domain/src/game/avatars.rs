@@ -59,7 +59,10 @@ pub fn create_player(container: &mut Container, login: &str) -> Result<PlayerId>
 
     container.labels.update(Label::new(mob_id, login));
 
-    container.mobs.update(mob_id, |mob| mob.is_avatar = true);
+    container
+        .mobs
+        .update(mob_id, |mob| mob.is_avatar = true)
+        .unwrap();
 
     // add player to game
     let player = container

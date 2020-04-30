@@ -1,3 +1,6 @@
+use serde_json::{json, Value};
+use std::collections::HashMap;
+
 pub fn parse_csv(data: &str) -> Vec<Vec<&str>> {
     let lines = data.split_terminator("\n").collect::<Vec<&str>>();
     let mut result = vec![];
@@ -51,11 +54,11 @@ impl Table {
     }
 }
 
-pub fn strings_to_table(data: &Vec<Vec<&str>>) -> Result<Vec<Table>, String> {
+pub fn csv_strings_to_tables(data: &Vec<Vec<&str>>) -> Result<Vec<Table>, String> {
     let mut result = vec![];
     let mut current = None;
     let mut parse_columns = false;
-    for row in data {
+    for (i, row) in data.iter().enumerate() {
         if row[0] == "#Table" {
             if let Some(current) = current.take() {
                 result.push(current);
@@ -77,7 +80,7 @@ pub fn strings_to_table(data: &Vec<Vec<&str>>) -> Result<Vec<Table>, String> {
                 current.rows.push(row_str);
             }
         } else {
-            return Err("No table header found".to_string());
+            return Err(format!("No table header found at line {:?}", i));
         }
     }
 
@@ -85,12 +88,52 @@ pub fn strings_to_table(data: &Vec<Vec<&str>>) -> Result<Vec<Table>, String> {
         result.push(current);
     }
 
+    for table in result.iter_mut() {
+        clear_empty_rows(table);
+    }
+
     Ok(result)
+}
+
+pub fn clear_empty_rows(rows: &mut Table) {
+    rows.rows.retain(|row| {
+        for i in row {
+            if !i.is_empty() {
+                return true;
+            }
+        }
+
+        return false;
+    });
+}
+
+pub fn tables_to_json(tables: &Vec<Table>) -> Result<Value, String> {
+    let mut root = HashMap::new();
+
+    for table in tables {
+        let key = &table.name;
+        let mut list = vec![];
+
+        for (i, row) in table.rows.iter().enumerate() {
+            let mut obj = HashMap::new();
+
+            for (j, col) in table.columns.iter().enumerate() {
+                let value = table.rows[i][j].as_str();
+                obj.insert(col.as_str(), value);
+            }
+
+            list.push(json!(obj));
+        }
+
+        root.insert(table.name.as_str(), list);
+    }
+
+    Ok(json!(root))
 }
 
 #[cfg(test)]
 mod test {
-    use crate::csv::{parse_csv, strings_to_table};
+    use crate::csv::{csv_strings_to_tables, parse_csv};
 
     #[test]
     fn test_parse_csv_with_simple() {
@@ -160,7 +203,7 @@ id,name,desc
 ";
 
         let data = parse_csv(csv);
-        let tables = strings_to_table(&data).unwrap();
+        let tables = csv_strings_to_tables(&data).unwrap();
 
         assert_eq!(tables.len(), 2);
         assert_eq!(tables[0].name, "Title");
@@ -175,5 +218,28 @@ id,name,desc
         assert_eq!(tables[1].columns, vec!["id", "name", "desc"]);
         assert_eq!(tables[1].rows[0], vec!["0", "", "that is a great thing"]);
         assert_eq!(tables[1].get(0, "name"), "");
+    }
+
+    #[test]
+    fn test_strings_to_table_should_ignore_all_empty_lines() {
+        let csv = r"#Table,Title
+id,name
+0,planet
+,
+1,armor
+,
+,
+,
+";
+
+        let data = parse_csv(csv);
+        let tables = csv_strings_to_tables(&data).unwrap();
+
+        assert_eq!(tables.len(), 1);
+        assert_eq!(tables[0].name, "Title");
+        assert_eq!(tables[0].columns, vec!["id", "name"]);
+        assert_eq!(tables[0].rows.len(), 2);
+        assert_eq!(tables[0].rows[0], vec!["0", "planet"]);
+        assert_eq!(tables[0].rows[1], vec!["1", "armor"]);
     }
 }
