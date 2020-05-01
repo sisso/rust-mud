@@ -123,6 +123,9 @@ impl Labels {
         let labels = self.resolve(ids);
         label_search(&labels, input)
     }
+
+    // TODO: this signature is horrible, we need a better way to store prefab ObjData.codes
+    pub fn get_code(label: &str, codes: &Option<Vec<String>>) {}
 }
 
 // TODO: search by multiple strings (drop sword shield bag)

@@ -193,10 +193,6 @@ pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<()> {
 
         "launch" => input_handle_space::launch(container, outputs, mob_id),
 
-        _ if input.has_command("list") => {
-            input_handle_vendors::list(container, outputs, mob_id, input)
-        }
-
         _ if input.has_command("buy") => {
             input_handle_vendors::buy(container, outputs, mob_id, input)
         }

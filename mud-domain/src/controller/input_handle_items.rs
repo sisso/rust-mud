@@ -20,6 +20,10 @@ pub fn parser_owned_item(
     owner_id: ObjId,
     args: StrInput,
 ) -> std::result::Result<ItemId, ParseItemError> {
+    if args.plain_arguments().is_empty() {
+        return Err(ParseItemError::ItemNotProvided);
+    }
+
     let item_label = args.plain_arguments();
 
     let founds = inventory::search(

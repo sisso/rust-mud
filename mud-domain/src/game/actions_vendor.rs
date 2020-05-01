@@ -2,6 +2,7 @@ use crate::errors::*;
 use crate::game::comm::VendorListItem;
 use crate::game::container::Container;
 use crate::game::item::ItemId;
+use crate::game::labels::Labels;
 use crate::game::loader::{Loader, StaticId};
 use crate::game::mob::MobId;
 use crate::game::prices::Money;
@@ -17,15 +18,17 @@ pub fn list(
     _vendor_id: MobId,
 ) -> Result<()> {
     let list = container
-        .prices
-        .list()
-        .map(|price| {
-            let label = container.labels.get_label_f(price.id);
-            VendorListItem {
+        .loader
+        .list_prefabs()
+        .flat_map(|prefab| {
+            let label = prefab.label.as_str();
+            let price = prefab.price.as_ref()?;
+
+            Some(VendorListItem {
                 label,
-                buy: price.buy,
-                sell: price.sell,
-            }
+                buy: (price.buy as u32).into(),
+                sell: (price.sell as u32).into(),
+            })
         })
         .collect();
 

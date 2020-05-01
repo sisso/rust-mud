@@ -259,7 +259,7 @@ pub struct FlatData {
     item_weapon_damage_min: Option<u32>,
     item_weapon_damage_max: Option<u32>,
     item_weapon_calmdown: Option<f32>,
-    price_buy: Option<i32>,
+    price_buy: Option<u32>,
     item_armor_defense: Option<i32>,
     item_armor_rd: Option<u32>,
 }
@@ -646,7 +646,7 @@ impl Loader {
         let mut flat_data = vec![];
 
         for file in files {
-            info!("reading file {:?}", file);
+            debug!("reading file {:?}", file);
             let buffer = std::fs::read_to_string(file).unwrap();
             let list = Loader::read_csv(buffer.as_str())?;
             flat_data.extend(list);
@@ -728,6 +728,14 @@ impl Loader {
                 obj.item = Some(item);
             }
 
+            if let Some(price_buy) = data.price_buy {
+                let price_sell = price_buy / 2;
+                obj.price = Some(PriceData {
+                    buy: price_buy,
+                    sell: price_sell,
+                });
+            }
+
             trace!("reading into {:?}", obj);
             root_data.prefabs.insert(obj.id, obj);
         }
@@ -773,7 +781,10 @@ impl Loader {
             .map(|p| Path::new(p.to_str().unwrap()))
             .collect();
 
-        HParser::load_files(&mut data, &conf_files).map_err(|e| Error::Error(format!("{:?}", e)))
+        HParser::load_files(&mut data, &conf_files)
+            .map_err(|e| Error::Error(format!("{:?}", e)))?;
+
+        Ok(data)
     }
 
     // TODO: make it recursive

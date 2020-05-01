@@ -49,6 +49,8 @@ pub fn help() -> String {
   out                - get out of something
   hire               - hire someone
   map                - show map of current zone
+  buy <item>         - list objecst to buy or buy a item
+  sell <item>        - list objecst to sell or sell a item
 -------------------------------------------------------------"#;
 
     str.to_string()

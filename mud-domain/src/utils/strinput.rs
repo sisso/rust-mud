@@ -1,6 +1,6 @@
 use std::iter::Iterator;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct StrInput<'a>(pub &'a str);
 
 impl<'a> StrInput<'a> {

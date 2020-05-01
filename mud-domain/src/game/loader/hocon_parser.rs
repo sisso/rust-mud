@@ -133,10 +133,12 @@ impl HParser {
         Ok(data)
     }
 
-    pub fn load_files(data: &mut LoaderData, files: &Vec<&Path>) -> Result<LoaderData, ParseError> {
+    pub fn load_files(data: &mut LoaderData, files: &Vec<&Path>) -> Result<(), ParseError> {
         let mut loader = HoconLoader::new().strict().no_system();
 
         for path in files {
+            debug!("reading file {:?}", path);
+
             loader = loader
                 .load_file(path)
                 .map_err(|error| ParseError::HoconError {
@@ -150,9 +152,8 @@ impl HParser {
             hint: format!("root_path'{:?}'", files),
         })?;
 
-        let mut data = LoaderData::new();
-        HParser::parse(&mut data, raw)?;
-        Ok(data)
+        HParser::parse(data, raw)?;
+        Ok(())
     }
 }
 

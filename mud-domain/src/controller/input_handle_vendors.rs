@@ -13,12 +13,7 @@ use crate::utils::strinput::StrInput;
 use crate::utils::text;
 use commons::ObjId;
 
-pub fn list(
-    container: &mut Container,
-    outputs: &mut dyn Outputs,
-    mob_id: MobId,
-    _input: StrInput,
-) -> Result<()> {
+pub fn list(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<()> {
     let vendor_id = find_vendor_at_mob_location(container, outputs, mob_id)?;
     actions_vendor::list(container, outputs, mob_id, vendor_id)
 }
@@ -33,8 +28,7 @@ pub fn buy(
 
     let plain_arguments = input.plain_arguments();
     if plain_arguments.is_empty() {
-        outputs.private(mob_id, comm::vendor_buy_item_not_found(plain_arguments));
-        return Err(Error::InvalidArgumentFailure);
+        return list(container, outputs, mob_id);
     }
 
     let static_id = match parse_vendor_item(container, vendor_id, plain_arguments) {
@@ -54,11 +48,17 @@ pub fn sell(
     mob_id: MobId,
     input: StrInput,
 ) -> Result<()> {
-    let _ = find_vendor_at_mob_location(container, outputs, mob_id)?;
-    let item = input_handle_items::parser_owned_item(container, mob_id, input);
-    let item_id = find_vendor_sell_item(outputs, mob_id, item)?;
+    let maybe_item = input_handle_items::parser_owned_item(container, mob_id, input);
+    match maybe_item {
+        Err(ParseItemError::ItemNotProvided) => list(container, outputs, mob_id),
 
-    actions_vendor::sell(container, outputs, mob_id, item_id)
+        Err(ParseItemError::ItemNotFound { label }) => {
+            outputs.private(mob_id, comm::vendor_sell_item_not_found(label.as_str()));
+            Err(Error::InvalidArgumentFailure)
+        }
+
+        Ok(item_id) => actions_vendor::sell(container, outputs, mob_id, item_id),
+    }
 }
 
 fn find_vendor_at_mob_location(

@@ -1,6 +1,7 @@
 extern crate mud_domain;
 
 use commons::{ConnectionId, DeltaTime};
+use logs::*;
 use mud_domain::game::container::Container;
 use mud_domain::game::prices::Money;
 use mud_domain::game::{inventory, loader, Game};
@@ -112,7 +113,11 @@ impl TestScenery {
             .next()
             .unwrap();
 
-        inventory::add_money(&mut self.game.container, player_id, Money(amount));
+        let mob_id = self.game.container.players.get_mob(player_id).unwrap();
+
+        debug!("{:?} receive cheat {:?} of money", mob_id, amount);
+
+        inventory::add_money(&mut self.game.container, mob_id, Money(amount));
     }
 }
 
@@ -171,14 +176,21 @@ fn test_fantasy_collect_money_should_be_merged() {
 }
 
 #[test]
-fn test_fantasy_steal_temple_and_buy_weapon() {
+fn test_fantasy_steal_temple() {
     let mut scenery = TestScenery::new();
     scenery.login();
     from_village_to_temple(&mut scenery);
     for _ in 0..5 {
         pick_money_from_chest(&mut scenery);
     }
-    from_temple_to_market(&mut scenery);
+}
+
+#[test]
+fn test_fantasy_buy_weapon() {
+    let mut scenery = TestScenery::new();
+    scenery.login();
+    scenery.give_money(1000);
+    from_village_to_market(&mut scenery);
     buy_sword(&mut scenery);
     equip_sword(&mut scenery);
 }
@@ -240,7 +252,7 @@ fn hire_mercenary(scenery: &mut TestScenery) {
 fn sell_meat(scenery: &mut TestScenery) {
     scenery.input("look");
     scenery.wait_for("- vendor");
-    scenery.input("list");
+    scenery.input("sell");
     scenery.wait_for("- meat");
     scenery.input("sell meat");
     scenery.wait_for("receive");
@@ -317,11 +329,12 @@ fn from_temple_to_market(scenery: &mut TestScenery) {
 }
 
 fn buy_sword(scenery: &mut TestScenery) {
-    scenery.input_and_wait("buy sword", "bought");
+    scenery.input_and_wait("buy", "Short Sword");
+    scenery.input_and_wait("buy short sword", "bought");
 }
 
 fn equip_sword(scenery: &mut TestScenery) {
-    scenery.input_and_wait("equip sword", "you equip");
+    scenery.input_and_wait("equip short sword", "you equip");
 }
 
 fn assert_money(scenery: &mut TestScenery, expected: u32) {

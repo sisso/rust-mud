@@ -10,6 +10,7 @@ use commons::ObjId;
 use logs::*;
 
 // TODO: Merge common code related with money
+// TODO: Money change should just be a +/- function
 
 /// Money items can cause to be merge if target inventory already contain it, this means that
 /// previous item can get deleted
@@ -38,8 +39,13 @@ pub fn add_money(container: &mut Container, obj_id: ObjId, amount: Money) -> Res
 pub fn get_money(container: &Container, obj_id: ObjId) -> Result<Money> {
     let item_id = match get_money_id(container, obj_id) {
         Some(item_id) => item_id,
-        None => return Ok(Money(0)),
+        None => {
+            trace!("{:?} get_money has no money item", obj_id);
+            return Ok(Money(0));
+        }
     };
+
+    trace!("{:?} get_money has money_id {:?}", obj_id, item_id);
 
     let item = container
         .items
@@ -57,6 +63,7 @@ pub fn get_money_id(container: &Container, obj_id: ObjId) -> Option<ItemId> {
     container
         .locations
         .list_at(obj_id)
+        // .filter(|&id| container.items.get(id).map(|item| item.flags.is_money).unwrap_or(false))
         .filter(|&id| container.objects.get_static_id(id) == Some(money_static_id))
         .next()
 }

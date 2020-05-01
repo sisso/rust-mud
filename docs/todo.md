@@ -13,6 +13,9 @@
 
 # Features
 
+- memory for the map
+- portal distance 
+- movements points
 - commanding
   - by "say". "say all follow me", "say mercenary.1 wait here"
 - teams
