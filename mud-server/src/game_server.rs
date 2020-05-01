@@ -67,7 +67,7 @@ pub fn run(module_path: &str) {
     );
 
     let mut container: Container = Container::new();
-    loader::Loader::load_hocon_folder(&mut container, &config_path).unwrap();
+    loader::Loader::load_folders(&mut container, &config_path).unwrap();
 
     let server = server_socket::SocketServer::new();
     let mut runner = ServerRunner::new(

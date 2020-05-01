@@ -11,7 +11,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 ///  * Exception - Something is wrong, invalid argument or the current state. The algorithm expected something that
 /// is true. It is recovery without side effects, but need to be logged and investigate.
 ///  * Error - Something bad happens like out of memory or disk error. Must cause system termination
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub enum Error {
     NotFoundFailure,
     NotFoundStaticId(StaticId),
@@ -24,10 +24,11 @@ pub enum Error {
     NotImplementedException,
     Exception(String),
     Error(String),
-    IOError(std::io::ErrorKind),
+    IOError(std::io::Error),
 }
 
 impl Error {
+    /// something is wrong
     pub fn is_exception(&self) -> bool {
         match self {
             Error::NotFoundException
@@ -79,5 +80,11 @@ pub trait AsResult<T> {
 impl<T> AsResult<T> for Option<T> {
     fn as_result(self) -> Result<T> {
         self.ok_or(Error::NotFoundFailure)
+    }
+}
+
+impl From<std::io::Error> for Error {
+    fn from(error: std::io::Error) -> Self {
+        Error::IOError(error)
     }
 }

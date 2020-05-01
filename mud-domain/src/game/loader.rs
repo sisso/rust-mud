@@ -13,6 +13,7 @@ use crate::game::labels::Label;
 use crate::game::loader::hocon_parser::HParser;
 use crate::game::mob::{Damage, Mob};
 use crate::game::obj::Objects;
+use crate::game::outputs::Output::LookedAt;
 use crate::game::pos::Pos;
 use crate::game::prices::{Money, Price};
 use crate::game::random_rooms::{RandomRoomsCfg, RandomRoomsRepository, RandomRoomsSpawnCfg};
@@ -22,6 +23,7 @@ use crate::game::spawn::{Spawn, SpawnBuilder};
 use crate::game::surfaces::Surface;
 use crate::game::vendors::Vendor;
 use crate::game::zone::Zone;
+use commons::csv::FieldKind;
 use commons::{DeltaTime, Either, ObjId, V2};
 use logs::*;
 use rand::random;
@@ -29,7 +31,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct RoomExitData {
@@ -222,7 +224,7 @@ pub struct CfgData {
 
 // TODO: remove HashMap, the key is probably never used
 #[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct Data {
+pub struct LoaderData {
     pub cfg: Option<CfgData>,
     pub objects: HashMap<StaticId, ObjData>,
     pub prefabs: HashMap<StaticId, ObjData>,
@@ -237,9 +239,9 @@ pub struct SpawnData {
     pub locations_id: Option<Vec<StaticId>>,
 }
 
-impl Data {
+impl LoaderData {
     pub fn new() -> Self {
-        Data {
+        LoaderData {
             cfg: None,
             objects: Default::default(),
             prefabs: Default::default(),
@@ -249,7 +251,7 @@ impl Data {
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct FlatData {
-    static_id: String,
+    static_id: u32,
     label: Option<String>,
     desc: Option<String>,
     item_weapon_attack: Option<i32>,
@@ -325,6 +327,7 @@ impl Loader {
     }
 }
 
+// TODO: organize fields, is a mess
 /// static fields
 impl Loader {
     pub fn spawn_at(
@@ -578,7 +581,7 @@ impl Loader {
         }
 
         if let Some(zone_data) = &data.zone {
-            container.zones.add(Zone { id: obj_id });
+            container.zones.add(Zone { id: obj_id }).unwrap();
 
             if let Some(rr_data) = &zone_data.random_rooms {
                 let entrance_id = Loader::get_by_static_id(
@@ -630,8 +633,8 @@ impl Loader {
         Ok(())
     }
 
-    pub fn load_hocon_str(container: &mut Container, buffer: &str) -> errors::Result<()> {
-        let data: errors::Result<Data> = HParser::load_from_str(buffer).map_err(|e| {
+    pub fn load_hocon(container: &mut Container, buffer: &str) -> errors::Result<()> {
+        let data: errors::Result<LoaderData> = HParser::load_from_str(buffer).map_err(|e| {
             let msg = format!("{:?}", e);
             errors::Error::Error(msg)
         });
@@ -639,22 +642,55 @@ impl Loader {
         Loader::load_data(container, data?)
     }
 
-    pub fn load_json_flat(container: &mut Container, list: Vec<Value>) -> errors::Result<()> {
-        let mut root_data = Data::new();
-        let mut next_id = 0;
+    pub fn read_csv_files(data: &mut LoaderData, files: &Vec<&Path>) -> errors::Result<()> {
+        let mut flat_data = vec![];
 
-        for value in list {
-            trace!(
-                "load_json {}",
-                serde_json::to_string(&value).unwrap_or("fail".to_string())
-            );
-            let data: FlatData = serde_json::from_value(value.clone())
-                .map_err(|err| errors::Error::Exception(format!("{} for {:?}", err, value)))?;
+        for file in files {
+            info!("reading file {:?}", file);
+            let buffer = std::fs::read_to_string(file).unwrap();
+            let list = Loader::read_csv(buffer.as_str())?;
+            flat_data.extend(list);
+        }
 
-            trace!("reading {:?}", data);
+        Loader::parse_flat_data(data, flat_data)
+    }
 
-            let static_id = StaticId(next_id);
-            next_id += 1;
+    pub fn read_csv(buffer: &str) -> errors::Result<Vec<FlatData>> {
+        let csv = commons::csv::parse_csv(buffer);
+        let tables = commons::csv::csv_strings_to_tables(&csv).expect("fail to parse tables");
+
+        let mut parsers = HashMap::new();
+        parsers.insert("static_id", FieldKind::U32);
+        parsers.insert("item_weapon_attack", FieldKind::I32);
+        parsers.insert("item_weapon_defense", FieldKind::I32);
+        parsers.insert("item_weapon_damage_max", FieldKind::U32);
+        parsers.insert("item_weapon_damage_min", FieldKind::U32);
+        parsers.insert("item_weapon_calmdown", FieldKind::F32);
+        parsers.insert("item_armor_defense", FieldKind::I32);
+        parsers.insert("item_armor_rd", FieldKind::I32);
+        parsers.insert("price_buy", FieldKind::U32);
+
+        let mut result = vec![];
+        let json_list = commons::csv::tables_to_jsonp(&tables, &parsers).unwrap();
+        for value in json_list {
+            let data: FlatData = serde_json::from_value(value)
+                .map_err(|err| errors::Error::Exception(format!("{}", err)))?;
+            result.push(data);
+        }
+
+        Ok(result)
+    }
+
+    pub fn load_from_csv(container: &mut Container, buffer: &str) -> errors::Result<()> {
+        let flat_values = Loader::read_csv(buffer)?;
+        let mut data = LoaderData::new();
+        Loader::parse_flat_data(&mut data, flat_values)?;
+        Loader::load_data(container, data)
+    }
+
+    pub fn parse_flat_data(root_data: &mut LoaderData, list: Vec<FlatData>) -> errors::Result<()> {
+        for data in list {
+            let static_id = StaticId(data.static_id);
             let mut obj = ObjData::new(static_id);
 
             if let Some(label) = data.label {
@@ -686,7 +722,7 @@ impl Loader {
                         rd: data.item_armor_rd.unwrap(),
                     };
 
-                    item.armor= Some(armor);
+                    item.armor = Some(armor);
                 }
 
                 obj.item = Some(item);
@@ -696,7 +732,7 @@ impl Loader {
             root_data.prefabs.insert(obj.id, obj);
         }
 
-        Loader::load_data(container, root_data)
+        Ok(())
     }
 
     /// Algorithm
@@ -705,22 +741,54 @@ impl Loader {
     /// 2. Validate content
     /// 3. Add all prefabs
     /// 4. Instantiate all static data
-    pub fn load_hocon_folder(container: &mut Container, folder: &Path) -> errors::Result<()> {
-        let data = Loader::read_folder(folder)?;
+    pub fn load_folders(container: &mut Container, folder: &Path) -> errors::Result<()> {
+        let data = Loader::read_folders(folder)?;
         Loader::load_data(container, data)
     }
 
-    pub fn read_folder(folder: &Path) -> errors::Result<Data> {
-        if !folder.exists() {
+    pub fn read_folders(root_path: &Path) -> errors::Result<LoaderData> {
+        if !root_path.exists() {
             return Err(Error::Error(
                 "configuration folder do not exists".to_string(),
             ));
         }
 
-        HParser::load_from_folder(folder).map_err(|e| Error::Error(format!("{:?}", e)))
+        let files = Loader::list_files(root_path)?;
+
+        let mut data = LoaderData::new();
+
+        // load csv files
+        let csv_files = files
+            .iter()
+            .filter(|path| path.to_string_lossy().ends_with(".csv"))
+            .map(|p| Path::new(p.to_str().unwrap()))
+            .collect::<Vec<_>>();
+
+        Loader::read_csv_files(&mut data, &csv_files)?;
+
+        // load hocon files
+        let conf_files = files
+            .iter()
+            .filter(|path| path.to_string_lossy().ends_with(".conf"))
+            .map(|p| Path::new(p.to_str().unwrap()))
+            .collect();
+
+        HParser::load_files(&mut data, &conf_files).map_err(|e| Error::Error(format!("{:?}", e)))
     }
 
-    pub fn load_data(container: &mut Container, data: Data) -> errors::Result<()> {
+    // TODO: make it recursive
+    fn list_files(root_path: &Path) -> errors::Result<Vec<PathBuf>> {
+        let mut result = vec![];
+        let list: std::fs::ReadDir = std::fs::read_dir(root_path)?;
+        for entry in list {
+            let path = entry?.path();
+            result.push(path);
+        }
+
+        Ok(result)
+    }
+
+    pub fn load_data(container: &mut Container, data: LoaderData) -> errors::Result<()> {
         Loader::validate(&data)?;
 
         // add prefabs
@@ -752,7 +820,7 @@ impl Loader {
         Ok(())
     }
 
-    fn validate(data: &Data) -> errors::Result<()> {
+    fn validate(data: &LoaderData) -> errors::Result<()> {
         let mut ids = HashSet::new();
 
         for (_static_id, data) in data.objects.iter() {
@@ -856,7 +924,7 @@ prefabs.control_panel_command_2 {
 }"#;
 
         let mut container = Container::new();
-        Loader::load_hocon_str(&mut container, buffer).unwrap();
+        Loader::load_hocon(&mut container, buffer).unwrap();
 
         let landing_pad_id = ObjId(1);
 
@@ -899,5 +967,25 @@ prefabs.control_panel_command_2 {
 
         let room = container.rooms.get(command2_id.unwrap()).unwrap();
         assert_eq!(command1_id.unwrap(), room.exits.first().unwrap().1);
+    }
+
+    fn list_data_folders_for_test() -> Vec<std::path::PathBuf> {
+        let mut result = vec![];
+        let path = Path::new("../data");
+        for file in std::fs::read_dir(path).unwrap() {
+            let file = file.unwrap();
+            if file.metadata().unwrap().is_dir() {
+                result.push(file.path());
+            }
+        }
+        result
+    }
+
+    #[test]
+    fn test_read_all_data_folders() {
+        for folder in list_data_folders_for_test() {
+            let mut container = Container::new();
+            Loader::load_folders(&mut container, &folder).unwrap();
+        }
     }
 }

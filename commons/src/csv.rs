@@ -2,6 +2,9 @@ use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::str::FromStr;
 
+const COMMENT_PREFIX: char = '#';
+const TABLE_TAG: &str = ">Table";
+
 pub fn parse_csv(data: &str) -> Vec<Vec<&str>> {
     let lines = data.split_terminator("\n").collect::<Vec<&str>>();
     let mut result = vec![];
@@ -9,6 +12,10 @@ pub fn parse_csv(data: &str) -> Vec<Vec<&str>> {
 
     // collect lines
     for line in lines {
+        if line.chars().next() == Some(*&COMMENT_PREFIX) {
+            continue;
+        }
+
         let mut row = vec![];
         let columns = line.split_terminator(",").collect::<Vec<&str>>();
         for r in columns {
@@ -60,7 +67,7 @@ pub fn csv_strings_to_tables(data: &Vec<Vec<&str>>) -> Result<Vec<Table>, String
     let mut current = None;
     let mut parse_columns = false;
     for (i, row) in data.iter().enumerate() {
-        if row[0] == "#Table" {
+        if row[0] == TABLE_TAG {
             if let Some(current) = current.take() {
                 result.push(current);
             }
@@ -191,7 +198,7 @@ mod test {
 
     #[test]
     fn test_parse_csv_with_simple() {
-        let csv = r"#Table,Title
+        let csv = r">Table,Title
 id,name
 0,planet
 1,armor";
@@ -202,7 +209,7 @@ id,name
             assert_eq!(data[row].len(), 2);
         }
 
-        assert_eq!("#Table", data[0][0]);
+        assert_eq!(">Table", data[0][0]);
         assert_eq!("Title", data[0][1]);
         assert_eq!("id", data[1][0]);
         assert_eq!("name", data[1][1]);
@@ -214,7 +221,7 @@ id,name
 
     #[test]
     fn test_parse_csv_with_sample() {
-        let csv = r###"#Table,Planets,,,,
+        let csv = r###">Table,Planets,,,,
 code,label,prob weight,breath prob perc,habitability,mining
 earth,Earth like,1,0.5,1,0.5
 aqua,Aquaworld,1,0.5,1,0.5
@@ -227,7 +234,7 @@ ice,Ice,10,0.5,0.1,1
 lava,Lava,10,0,0.1,1
 toxic,Toxic,10,0,0.1,1
 ,,,,,
-#Table,Zones,,,,
+>Table,Zones,,,,
 code,require_breath,min_hab,min_mining,landing,
 village,TRUE,0.25,0,0,
 landpad,FALSE,0.1,0,2,
@@ -246,12 +253,12 @@ land_zone,FALSE,0,0,1,
 
     #[test]
     fn test_strings_to_table() {
-        let csv = r"#Table,Title
+        let csv = r">Table,Title
 id,name
 0,planet
 1,armor
 ,
-#Table,Other
+>Table,Other
 id,name,desc
 0,,that is a great thing
 ";
@@ -276,7 +283,7 @@ id,name,desc
 
     #[test]
     fn test_strings_to_table_should_ignore_all_empty_lines() {
-        let csv = r"#Table,Title
+        let csv = r">Table,Title
 id,name
 0,planet
 ,
@@ -284,6 +291,30 @@ id,name
 ,
 ,
 ,
+";
+
+        let data = parse_csv(csv);
+        let tables = csv_strings_to_tables(&data).unwrap();
+
+        assert_eq!(tables.len(), 1);
+        assert_eq!(tables[0].name, "Title");
+        assert_eq!(tables[0].columns, vec!["id", "name"]);
+        assert_eq!(tables[0].rows.len(), 2);
+        assert_eq!(tables[0].rows[0], vec!["0", "planet"]);
+        assert_eq!(tables[0].rows[1], vec!["1", "armor"]);
+    }
+
+    #[test]
+    fn test_strings_to_table_should_ignore_comments() {
+        let csv = r"# first commment
+>Table,Title
+# other commnt
+id,name
+0,planet
+# why not more comments?
+# it always good #
+1,armor
+# done with this
 ";
 
         let data = parse_csv(csv);

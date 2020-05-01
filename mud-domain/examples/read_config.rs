@@ -35,7 +35,7 @@ fn main() {
         }
     });
 
-    let data = Loader::read_folder(Path::new(path.as_str())).unwrap();
+    let data = Loader::read_folders(Path::new(path.as_str())).unwrap();
 
     let mut data_by_id = HashMap::new();
     let mut roots = vec![];

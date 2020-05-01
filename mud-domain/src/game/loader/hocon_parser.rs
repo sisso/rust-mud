@@ -1,13 +1,13 @@
 use crate::errors::Result as EResult;
 use crate::game::domain::Dir;
-use crate::game::loader::{CfgData, Data, ObjData, StaticId};
+use crate::game::loader::{CfgData, LoaderData, ObjData, StaticId};
 use crate::game::obj::Obj;
 use hocon::{Error as HError, *};
 use logs::*;
 use std::collections::HashMap;
 use std::fs::ReadDir;
 use std::io::Error as IError;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
 pub enum ParseError {
@@ -38,7 +38,7 @@ impl HoconExtra for Hocon {
 pub struct HParser;
 
 impl HParser {
-    pub fn parse(hocon: Hocon) -> Result<Data, ParseError> {
+    pub fn parse(data: &mut LoaderData, hocon: Hocon) -> Result<(), ParseError> {
         let mut cfg = None;
         let mut objects = HashMap::new();
         let mut prefabs = HashMap::new();
@@ -67,11 +67,11 @@ impl HParser {
             }
         }
 
-        Ok(Data {
-            cfg,
-            objects,
-            prefabs,
-        })
+        assert!(data.cfg.is_none());
+        data.cfg = cfg;
+        data.objects.extend(objects);
+        data.prefabs.extend(prefabs);
+        Ok(())
     }
 
     fn load_cfg(hocon: Hocon) -> Result<CfgData, ParseError> {
@@ -114,7 +114,7 @@ impl HParser {
         Ok(())
     }
 
-    pub fn load_from_str(input: &str) -> Result<Data, ParseError> {
+    pub fn load_from_str(input: &str) -> Result<LoaderData, ParseError> {
         let loader = HoconLoader::new().strict().no_system();
         let loader = loader
             .load_str(input)
@@ -128,29 +128,31 @@ impl HParser {
             hint: format!("converting to hocon for {:?}", input),
         })?;
 
-        HParser::parse(raw)
+        let mut data = LoaderData::new();
+        HParser::parse(&mut data, raw)?;
+        Ok(data)
     }
 
-    pub fn load_from_folder(root_path: &Path) -> Result<Data, ParseError> {
+    pub fn load_files(data: &mut LoaderData, files: &Vec<&Path>) -> Result<LoaderData, ParseError> {
         let mut loader = HoconLoader::new().strict().no_system();
-        let list: ReadDir = std::fs::read_dir(root_path)?;
-        for entry in list {
-            let path = entry?.path();
-            info!("loading configuration file {:?}", path);
-            loader = loader.load_file(path.to_str().unwrap()).map_err(|error| {
-                ParseError::HoconError {
+
+        for path in files {
+            loader = loader
+                .load_file(path)
+                .map_err(|error| ParseError::HoconError {
                     error,
                     hint: format!("path '{:?}'", path),
-                }
-            })?;
+                })?;
         }
 
         let raw = loader.hocon().map_err(|error| ParseError::HoconError {
             error,
-            hint: format!("root_path'{:?}'", root_path),
+            hint: format!("root_path'{:?}'", files),
         })?;
 
-        HParser::parse(raw)
+        let mut data = LoaderData::new();
+        HParser::parse(&mut data, raw)?;
+        Ok(data)
     }
 }
 
@@ -158,27 +160,6 @@ impl HParser {
 mod test {
     use super::*;
     use std::fs;
-
-    // #[test]
-    // TODO: disable until we complete with csv
-    fn test_data_folders() {
-        let mut founds = 0u32;
-
-        let path = Path::new("../data");
-        for file in fs::read_dir(path).unwrap() {
-            let file = file.unwrap();
-
-            println!("{:?}", file.path());
-            if file.metadata().unwrap().is_dir() {
-                founds += 1;
-
-                let data = HParser::load_from_folder(&file.path()).unwrap();
-                assert!(!data.objects.is_empty());
-            }
-        }
-
-        assert!(founds > 0);
-    }
 
     #[test]
     fn test_load_config() {

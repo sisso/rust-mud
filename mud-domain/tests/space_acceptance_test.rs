@@ -14,7 +14,7 @@ impl TestScenery {
     pub fn new() -> Self {
         let mut container = Container::new();
         // loader::scenery_space::load(&mut container);
-        loader::Loader::load_hocon_folder(&mut container, &Path::new("../data/space")).unwrap();
+        loader::Loader::load_folders(&mut container, &Path::new("../data/space")).unwrap();
         TestScenery {
             game: Game::new(container),
             connection_id: ConnectionId(0),
