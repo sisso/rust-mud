@@ -27,7 +27,7 @@ pub fn find_surface_target(
     founds.first().cloned().ok_or(Error::NotFoundFailure)
 }
 
-#[deprecated]
+/// #[deprecated]
 pub fn get_objects_in_surface(
     container: &Container,
     craft_id: ObjId,

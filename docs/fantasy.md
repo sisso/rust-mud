@@ -1,5 +1,8 @@
 # TODO
 
+- changing index in map is horrible, maybe better have a index x,y like 
+- up and down in map is wrong
+
 - map memory
 - random dungeon z-level
 - do not allow to move when is in combat

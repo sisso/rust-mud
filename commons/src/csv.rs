@@ -119,10 +119,9 @@ pub fn tables_to_json(tables: &Vec<Table>) -> Result<Value, String> {
     let mut root = HashMap::new();
 
     for table in tables {
-        let key = &table.name;
         let mut list = vec![];
 
-        for (i, row) in table.rows.iter().enumerate() {
+        for (i, _row) in table.rows.iter().enumerate() {
             let mut obj = HashMap::new();
 
             for (j, col) in table.columns.iter().enumerate() {
@@ -154,7 +153,7 @@ pub fn tables_to_jsonp(
     let mut list = vec![];
 
     for table in tables {
-        for (i, row) in table.rows.iter().enumerate() {
+        for (i, _row) in table.rows.iter().enumerate() {
             let mut obj = HashMap::new();
 
             for (j, col) in table.columns.iter().enumerate() {

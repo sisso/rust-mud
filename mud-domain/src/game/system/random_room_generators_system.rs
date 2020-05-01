@@ -5,7 +5,7 @@ use crate::game::labels::{Label, Labels};
 use crate::game::location::Locations;
 use crate::game::obj::Objects;
 use crate::game::random_rooms::{RandomRoomsCfg, RandomRoomsSpawnCfg};
-use crate::game::random_rooms_generator::{RoomGrid, RoomGridCfg};
+use crate::game::random_rooms_generator::{LevelGrid, RandomLevels, RandomLevelsCfg};
 use crate::game::room::{Room, RoomId, RoomRepository};
 use crate::game::spawn::Spawns;
 use crate::game::system::SystemCtx;
@@ -18,6 +18,7 @@ use std::io::repeat;
 
 pub fn run(_ctx: &mut SystemCtx) {}
 
+/// it is implemented in a way that we can re-generate
 pub fn init(container: &mut Container) {
     let random_rooms_repo = &mut container.random_rooms;
     let objects = &mut container.objects;
@@ -33,45 +34,72 @@ pub fn init(container: &mut Container) {
 
         info!("{:?} generating random rooms", rr.cfg.id);
 
-        let cfg = RoomGridCfg {
+        let mut cfg = RandomLevelsCfg {
             rng: &mut rr.rng,
             width: rr.cfg.width as usize,
             height: rr.cfg.height as usize,
-            portal_prob: None,
+            portal_prob: 0.5,
+            deep_levels: 5,
         };
 
-        let rooms_grid = RoomGrid::new(cfg);
+        let levels = RandomLevels::new(&mut cfg);
 
-        let rooms_ids = match create_rooms(objects, rooms, labels, &rooms_grid) {
-            Err(err) => {
-                warn!(
-                    "{:?} error when generating rooms from grid {:?}",
-                    rr.cfg.id, err
-                );
-                continue;
+        let mut previous_down: Option<usize> = None;
+        let mut previous_rooms_ids: Option<Vec<ObjId>> = None;
+
+        for (deep, rooms_grid) in levels.levels.iter().enumerate() {
+            let rooms_ids = match create_rooms(objects, rooms, labels, rooms_grid) {
+                Err(err) => {
+                    warn!(
+                        "{:?} error when generating rooms from grid {:?}",
+                        rr.cfg.id, err
+                    );
+                    continue;
+                }
+                Ok(ids) => ids,
+            };
+
+            if deep == 0 {
+                connect_rooms_to_entrance(
+                    rooms,
+                    rr.cfg.entrance_id,
+                    rr.cfg.entrance_dir,
+                    &rooms_grid,
+                    &rooms_ids,
+                )
+                .unwrap();
+
+                // set down portal
+                assert!(rooms_grid.up_portal.is_none());
+            } else {
+                // resolve up and down portals
+                let up_index = rooms_grid.up_portal.unwrap();
+                let down_index = previous_down.unwrap();
+
+                let up_id = rooms_ids[up_index];
+                let down_id = previous_rooms_ids.unwrap()[down_index];
+
+                rooms.add_portal(down_id, up_id, Dir::D);
+
+                // update next down portal
+                previous_down = rooms_grid.down_portal;
             }
-            Ok(ids) => ids,
-        };
 
-        connect_rooms_to_entrance(
-            rooms,
-            rr.cfg.entrance_id,
-            rr.cfg.entrance_dir,
-            &rooms_grid,
-            &rooms_ids,
-        )
-        .unwrap();
+            create_spawns(
+                rr.cfg.id,
+                &mut rr.rng,
+                objects,
+                locations,
+                spawns,
+                &rooms_ids,
+                &rr.cfg.spawns,
+            )
+            .unwrap();
 
-        create_spawns(
-            rr.cfg.id,
-            &mut rr.rng,
-            objects,
-            locations,
-            spawns,
-            &rooms_ids,
-            &rr.cfg.spawns,
-        )
-        .unwrap();
+            // set variables for next iteration
+            previous_down = rooms_grid.down_portal;
+            previous_rooms_ids = Some(rooms_ids);
+        }
 
         rr.generated = true;
     }
@@ -121,7 +149,7 @@ fn connect_rooms_to_entrance(
     rooms: &mut RoomRepository,
     entrance_id: ObjId,
     dir: Dir,
-    rooms_grid: &RoomGrid,
+    rooms_grid: &LevelGrid,
     rooms_id: &Vec<RoomId>,
 ) -> Result<()> {
     let first_room_index = match dir {
@@ -138,7 +166,7 @@ fn create_rooms(
     objects: &mut Objects,
     rooms: &mut RoomRepository,
     labels: &mut Labels,
-    grid: &RoomGrid,
+    grid: &LevelGrid,
 ) -> Result<Vec<ObjId>> {
     let mut ids = vec![];
     // create rooms

@@ -30,7 +30,7 @@ pub fn show_startree(
     Ok(())
 }
 
-#[deprecated]
+/// deprecated
 pub fn show_surface_map(
     container: &Container,
     outputs: &mut dyn Outputs,
