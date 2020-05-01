@@ -134,7 +134,10 @@ pub fn attack(
     outputs.private(mob_id, player_msg);
     outputs.broadcast(Some(mob_id), location_id, room_msg);
 
-    container.mobs.set_mob_attack_target(mob_id, target_mob_id);
+    container
+        .mobs
+        .set_mob_attack_target(mob_id, target_mob_id)
+        .unwrap();
 
     Ok(())
 }
@@ -174,9 +177,12 @@ pub fn stand(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId
 
     outputs.private(mob_id, comm::stand_up());
     outputs.broadcast(Some(mob_id), ctx.room.id, comm::stand_up_others(mob_label));
-    container.mobs.update(mob_id, |mob| {
-        let _ = mob.stop_rest();
-    });
+    container
+        .mobs
+        .update(mob_id, |mob| {
+            let _ = mob.stop_rest();
+        })
+        .unwrap();
 
     Ok(())
 }
@@ -329,30 +335,24 @@ fn generate_room_maps(
     max_distance: u32,
     rooms: &RoomRepository,
 ) -> Result<RoomMap> {
-    let mut visited = HashMap::<ObjId, (i32, i32)>::new();
-    let mut portals = HashSet::new();
-
-    load_rooms_into_coords_map(location_id, max_distance, rooms, &mut visited, &mut portals)?;
-    room_map_from_rooms_coords(visited, portals)
+    let coords_map = load_rooms_into_coords_map(location_id, max_distance, rooms)?;
+    room_map_from_rooms_coords(coords_map)
 }
 
-fn room_map_from_rooms_coords(
-    mut visited: HashMap<ObjId, (i32, i32)>,
-    portals: HashSet<(ObjId, ObjId)>,
-) -> Result<RoomMap> {
+fn room_map_from_rooms_coords(mut coords_map: RoomsCoordsMap) -> Result<RoomMap> {
     // normalize in the top left corner
     let mut min_x = 0;
     let mut min_y = 0;
     let mut max_x = 0;
     let mut max_y = 0;
-    for (_id, (x, y)) in &visited {
+    for (_id, (x, y)) in &coords_map.visited {
         min_x = min_x.min(*x);
         min_y = min_y.min(*y);
         max_x = max_x.max(*x);
         max_y = max_y.max(*y);
     }
     // normalize
-    for (_id, (x, y)) in &mut visited {
+    for (_id, (x, y)) in &mut coords_map.visited {
         *x -= min_x;
         *y -= min_y;
     }
@@ -363,7 +363,8 @@ fn room_map_from_rooms_coords(
     let mut cells = vec![];
     // trace!("min {},{} max {},{} width {} height {}", min_x, min_y, max_x, max_y, width, height);
 
-    let rooms_by_coords = visited
+    let rooms_by_coords = coords_map
+        .visited
         .iter()
         .map(|(id, (x, y))| ((*x, *y), *id))
         .collect::<HashMap<_, _>>();
@@ -379,7 +380,7 @@ fn room_map_from_rooms_coords(
             _ => return false,
         };
 
-        portals.contains(&(id0, id1))
+        coords_map.portals.contains(&(id0, id1))
     };
 
     for y in 0..height {
@@ -419,16 +420,36 @@ fn room_map_from_rooms_coords(
         width: (width * 2 - 1) as u32,
         height: (height * 2 - 1) as u32,
         cells: cells,
+        portals_up: coords_map.portals_up,
+        portals_down: coords_map.portals_down,
     })
+}
+
+struct RoomsCoordsMap {
+    visited: HashMap<ObjId, (i32, i32)>,
+    portals: HashSet<(ObjId, ObjId)>,
+    portals_up: HashSet<ObjId>,
+    portals_down: HashSet<ObjId>,
+}
+
+impl RoomsCoordsMap {
+    pub fn new() -> Self {
+        RoomsCoordsMap {
+            visited: Default::default(),
+            portals: Default::default(),
+            portals_up: Default::default(),
+            portals_down: Default::default(),
+        }
+    }
 }
 
 fn load_rooms_into_coords_map(
     location_id: ObjId,
     max_distance: u32,
     rooms: &RoomRepository,
-    visited: &mut HashMap<ObjId, (i32, i32)>,
-    portals: &mut HashSet<(ObjId, ObjId)>,
-) -> Result<()> {
+) -> Result<RoomsCoordsMap> {
+    let mut coords_map = RoomsCoordsMap::new();
+
     let mut queue = vec![];
     queue.push((location_id, 0, 0));
     loop {
@@ -437,11 +458,11 @@ fn load_rooms_into_coords_map(
             _ => break,
         };
 
-        match visited.get(&id) {
+        match coords_map.visited.get(&id) {
             // new value is lower that already existent tone
             Some((x1, y1)) if x1 + y1 > x + y => {
                 // trace!("{:?} replace {},{} by {},{}", id, x1, y1, x, y);
-                visited.insert(id, (x, y));
+                coords_map.visited.insert(id, (x, y));
                 continue;
             }
             // skip already vistied
@@ -450,7 +471,7 @@ fn load_rooms_into_coords_map(
         };
 
         // trace!("{:?} adding at {},{}", id, x, y);
-        visited.insert(id, (x, y));
+        coords_map.visited.insert(id, (x, y));
 
         for (dir, target_id) in rooms.get_portals(id)? {
             let (tx, ty) = match dir {
@@ -458,14 +479,21 @@ fn load_rooms_into_coords_map(
                 Dir::S => (x, y + 1),
                 Dir::E => (x + 1, y),
                 Dir::W => (x - 1, y),
-                Dir::U | Dir::D => continue,
+                Dir::U => {
+                    coords_map.portals_up.insert(id);
+                    continue;
+                }
+                Dir::D => {
+                    coords_map.portals_down.insert(id);
+                    continue;
+                }
             };
 
             let tx: i32 = tx;
             let ty: i32 = ty;
 
-            portals.insert((id, *target_id));
-            portals.insert((*target_id, id));
+            coords_map.portals.insert((id, *target_id));
+            coords_map.portals.insert((*target_id, id));
 
             if tx.abs() as u32 > max_distance || ty.abs() as u32 > max_distance {
                 continue;
@@ -475,7 +503,7 @@ fn load_rooms_into_coords_map(
         }
     }
 
-    Ok(())
+    Ok(coords_map)
 }
 
 #[cfg(test)]

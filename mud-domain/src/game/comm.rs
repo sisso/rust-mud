@@ -10,7 +10,7 @@ use crate::game::room::Room;
 use crate::utils::text::{plot_points, PlotCfg, PlotPoint};
 use commons::{ObjId, TotalTime, V2};
 use logs::*;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 pub struct InventoryDesc<'a> {
     pub id: ItemId,
@@ -911,6 +911,8 @@ pub struct RoomMap {
     pub width: u32,
     pub height: u32,
     pub cells: Vec<RoomMapCell>,
+    pub portals_up: HashSet<ObjId>,
+    pub portals_down: HashSet<ObjId>,
 }
 
 pub fn print_room_map(
@@ -937,7 +939,9 @@ pub fn print_room_map(
                         current_label = label.as_str();
                         buffer.push_str("**");
                     } else {
-                        room_indexes.push(label);
+                        let to_up = room_map.portals_up.contains(obj_id);
+                        let to_down = room_map.portals_down.contains(obj_id);
+                        room_indexes.push((label, to_up, to_down));
                         let current = room_indexes.len();
                         buffer.push_str(format!("{:02}", current).as_str());
                     }
@@ -956,8 +960,14 @@ pub fn print_room_map(
     buffer.push_str(format!("** - {}\n", current_label).as_str());
 
     for index in 0..room_indexes.len() {
-        let label = room_indexes[index];
-        buffer.push_str(format!("{:02} - {}\n", index, label).as_str());
+        let (label, to_up, to_down) = room_indexes[index];
+        let up_down_str = match (to_up, to_down) {
+            (true, true) => " <>",
+            (true, false) => " >",
+            (false, true) => " <",
+            _ => "",
+        };
+        buffer.push_str(format!("{:02} - {}{}\n", index, label, up_down_str).as_str());
     }
 
     buffer

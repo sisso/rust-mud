@@ -217,7 +217,7 @@ fn test_fantasy_show_map() {
     let mut scenery = TestScenery::new();
     scenery.login();
     scenery.input("map");
-    scenery.wait_until(vec!["Map", "01==**==02", "forest"], vec![]);
+    scenery.wait_until(vec!["Map", "01==**==02", "forest", "Temple >"], vec![]);
 }
 
 #[test]
