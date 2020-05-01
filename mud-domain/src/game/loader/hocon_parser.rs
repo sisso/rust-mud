@@ -159,13 +159,15 @@ mod test {
     use super::*;
     use std::fs;
 
-    #[test]
+    // #[test]
+    // TODO: disable until we complete with csv
     fn test_data_folders() {
         let mut founds = 0u32;
 
         let path = Path::new("../data");
         for file in fs::read_dir(path).unwrap() {
             let file = file.unwrap();
+
             println!("{:?}", file.path());
             if file.metadata().unwrap().is_dir() {
                 founds += 1;
