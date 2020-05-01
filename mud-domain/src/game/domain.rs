@@ -60,6 +60,8 @@ pub enum Dir {
     S,
     W,
     E,
+    U,
+    D,
 }
 
 impl Dir {
@@ -69,6 +71,8 @@ impl Dir {
             Dir::S => Dir::N,
             Dir::E => Dir::W,
             Dir::W => Dir::E,
+            Dir::U => Dir::D,
+            Dir::D => Dir::U,
         }
     }
 
@@ -78,15 +82,19 @@ impl Dir {
             Dir::S => "s",
             Dir::E => "e",
             Dir::W => "w",
+            Dir::D => "d",
+            Dir::U => "u",
         }
     }
 
     pub fn parse(value: &str) -> errors::Result<Dir> {
         match value {
-            "n" => Ok(Dir::N),
-            "s" => Ok(Dir::S),
-            "e" => Ok(Dir::E),
-            "w" => Ok(Dir::W),
+            "n" | "north" => Ok(Dir::N),
+            "s" | "south" => Ok(Dir::S),
+            "e" | "east" => Ok(Dir::E),
+            "w" | "west" => Ok(Dir::W),
+            "u" | "up" => Ok(Dir::U),
+            "d" | "down" => Ok(Dir::D),
             _ => Err(Error::InvalidArgumentFailure),
         }
     }

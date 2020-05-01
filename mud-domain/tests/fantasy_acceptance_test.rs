@@ -117,7 +117,7 @@ impl TestScenery {
 
         debug!("{:?} receive cheat {:?} of money", mob_id, amount);
 
-        inventory::add_money(&mut self.game.container, mob_id, Money(amount));
+        inventory::add_money(&mut self.game.container, mob_id, Money(amount)).unwrap();
     }
 }
 

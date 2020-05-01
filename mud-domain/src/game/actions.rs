@@ -458,6 +458,7 @@ fn load_rooms_into_coords_map(
                 Dir::S => (x, y + 1),
                 Dir::E => (x + 1, y),
                 Dir::W => (x - 1, y),
+                Dir::U | Dir::D => continue,
             };
 
             let tx: i32 = tx;

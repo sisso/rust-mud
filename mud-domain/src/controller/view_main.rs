@@ -72,6 +72,10 @@ pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<()> {
 
         "w" => actions::mv(container, outputs, mob_id, Dir::W),
 
+        "u" => actions::mv(container, outputs, mob_id, Dir::U),
+
+        "d" => actions::mv(container, outputs, mob_id, Dir::D),
+
         "enter" => actions::enter(container, outputs, mob_id, ""),
 
         _ if input.has_commands(&["enter"]) => {

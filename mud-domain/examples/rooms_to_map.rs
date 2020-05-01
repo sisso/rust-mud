@@ -52,6 +52,7 @@ fn generate_map(initial: ObjId, max_distance: u32, rooms: &dyn Rooms) -> RoomsMa
                 Dir::S => (x, y + 1),
                 Dir::E => (x + 1, y),
                 Dir::W => (x - 1, y),
+                Dir::U | Dir::D => continue,
             };
 
             let tx: i32 = tx;

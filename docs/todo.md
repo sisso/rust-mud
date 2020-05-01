@@ -1,18 +1,8 @@
 # Main Todo
 
-# Design
-
-# usability
-
-- fix extra lines in output when look
-- intelligent creation of codes for a label
-
-# Space specific
-
-# Fantasy specific
-
 # Features
 
+- specs
 - memory for the map
 - portal distance 
 - movements points
@@ -39,6 +29,8 @@
 
 # usability
 
+- fix extra lines in output when look
+- intelligent creation of codes for a label
 - get usability by giving feedback with options when execute a get: get? get what? get what wher? get what in where?
 - there is no server buffering to send and receive messages, if user can not read, is possible that we lose output or stuck
 

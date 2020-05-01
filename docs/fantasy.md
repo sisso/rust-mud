@@ -1,13 +1,16 @@
 # TODO
 
-- Arena
-
-- casting
+- map memory
+- random dungeon z-level
+- do not allow to move when is in combat
+- persistency 
 - level up
+
 - improve combat
   - dodge
   - aggressive
   - defensive
+- casting
 
 # Idea 1
 

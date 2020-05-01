@@ -1,4 +1,4 @@
-use commons::csv::{csv_strings_to_tables, parse_csv, tables_to_json, tables_to_jsonp};
+use commons::csv::{csv_strings_to_tables, parse_csv, tables_to_jsonp};
 use std::collections::HashMap;
 use std::path::Path;
 
