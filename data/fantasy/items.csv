@@ -1,0 +1,27 @@
+>Table,weapons,,,,,,,,
+static_id,label,desc,item_weapon_attack,item_weapon_defense,item_weapon_damage_min,item_weapon_damage_max,item_weapon_calmdown,price_buy,dps
+31,Dagger,,0,2,1,3,1,10,5
+32,Short Sword,,0,0,2,4,1,300,6
+33,Axe,,0,0,2,6,2,50,3
+34,Mace,,0,0,2,6,2,100,3
+35,Sword,,0,0,2,4,1,400,6
+36,Lance,,2,0,1,8,1,150,5
+37,Quarterstaff,,0,3,1,2,1,50,5
+38,Halberd,,1,0,4,12,3,400,2.666666667
+39,Two hand Sword,,1,0,2,8,1,800,6
+40,Two hand Axe,,1,0,3,8,2,300,3.5
+41,Flail,,2,-1,2,4,2,200,3
+,,,,,,,,,
+>Table,shields,,,,,,,,
+static_id,label,desc,item_armor_defense,item_armor_rd,item_hp,price_buy,,,
+43,Buckler,,0,1,20,50,,,
+44,Shield,,1,2,20,100,,,
+45,Wall Shield,,2,2,20,200,,,
+,,,,,,,,,
+>Table,armors,,,,,,,,
+static_id,label,desc,item_armor_defense,item_armor_rd,price_buy,,,,
+47,Cap,,1,0,50,,,,
+48,Helm,,2,1,200,,,,
+49,Leather Armor,,2,2,200,,,,
+50,Chain Mail,,3,3,400,,,,
+51,Plate Mail,,4,4,800,,,,
