@@ -639,7 +639,10 @@ impl Loader {
         Loader::load_data(container, data?)
     }
 
-    pub fn load_json(container: &mut Container, list: Vec<Value>) -> errors::Result<()> {
+    pub fn load_json_flat(container: &mut Container, list: Vec<Value>) -> errors::Result<()> {
+        let mut root_data = Data::new();
+        let mut next_id = 0;
+
         for value in list {
             trace!(
                 "load_json {}",
@@ -647,9 +650,53 @@ impl Loader {
             );
             let data: FlatData = serde_json::from_value(value.clone())
                 .map_err(|err| errors::Error::Exception(format!("{} for {:?}", err, value)))?;
-            println!("{:?}", data);
+
+            trace!("reading {:?}", data);
+
+            let static_id = StaticId(next_id);
+            next_id += 1;
+            let mut obj = ObjData::new(static_id);
+
+            if let Some(label) = data.label {
+                obj.label = label;
+                obj.desc = data.desc;
+            }
+
+            let is_weapon = data.item_weapon_damage_min.is_some();
+            let is_armor = data.item_armor_rd.is_some();
+            let is_item = is_weapon || is_armor;
+            if is_item {
+                let mut item = ItemData::new();
+
+                if is_weapon {
+                    let weapon = ItemWeaponData {
+                        min: data.item_weapon_damage_min.unwrap(),
+                        max: data.item_weapon_damage_max.unwrap(),
+                        calm_down: data.item_weapon_calmdown.unwrap(),
+                        attack: data.item_weapon_attack.unwrap(),
+                        defense: data.item_weapon_defense.unwrap(),
+                    };
+
+                    item.weapon = Some(weapon);
+                }
+
+                if is_armor {
+                    let armor = ItemArmorData {
+                        defense: data.item_armor_defense.unwrap(),
+                        rd: data.item_armor_rd.unwrap(),
+                    };
+
+                    item.armor= Some(armor);
+                }
+
+                obj.item = Some(item);
+            }
+
+            trace!("reading into {:?}", obj);
+            root_data.prefabs.insert(obj.id, obj);
         }
-        Ok(())
+
+        Loader::load_data(container, root_data)
     }
 
     /// Algorithm
