@@ -41,7 +41,7 @@ fn run_combat(ctx: &mut SystemCtx) {
 
             match mob.set_action_attack(target_id) {
                 Ok(()) => info!("{:?} aggressive attack {:?}", mob_id, target_id),
-                Err(e) => warn!("{:?} fail to attack {:?}", mob_id, target_id),
+                Err(_e) => warn!("{:?} fail to attack {:?}", mob_id, target_id),
             }
 
             break;
