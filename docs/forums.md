@@ -1,3 +1,34 @@
+# Save style
+
+There are 2 ways of saving
+
+A) ALL 
+
+This create a perfect copy of current game and restoring will be unotice. 
+
+Require a lot of code to make everything perfect.
+
+Useful in case of hot restart
+
+Would be better to simple serialize using serde the Container over try to serialize each component.
+
+Pain in the ass to migrate, everything should be checked for migration.
+
+
+B) Only things tha matter
+
+Only what is relevant for the player, like his character, where he is items and followers. 
+
+need manual work, but is much less things
+
+is the only require thing to be migrated
+
+## Conclusion
+
+We will have snapshot by serialize the full container. Those snapshot will be not survive "database" changes.
+
+User data will be serialized by B, it will survivave and be migrate over game evolution
+
 
 # Spawn region
 

@@ -29,11 +29,7 @@ fn run_combat(ctx: &mut SystemCtx) {
         let location_id = unwrap_or_continue!(ctx.container.locations.get(mob_id));
 
         for target_id in ctx.container.locations.list_at(location_id) {
-            if target_id == mob_id {
-                continue;
-            }
-
-            if ctx.container.ownership.same_owner(mob_id, target_id) {
+            if !combat::is_valid_attack_target(&ctx.container, mob_id, target_id) {
                 continue;
             }
 
