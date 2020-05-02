@@ -81,6 +81,7 @@ pub struct ViewHandleCtx<'a> {
     pub container: &'a mut Container,
     pub outputs: &'a mut dyn Outputs,
     pub mob_id: MobId,
+    pub player_id: PlayerId,
 }
 
 /// Manage connectivity and messages to players through a socket.
@@ -155,6 +156,7 @@ impl Controller {
                 container: container,
                 outputs: &mut self.outputs,
                 mob_id,
+                player_id,
             };
 
             match view_main::handle(ctx, input) {

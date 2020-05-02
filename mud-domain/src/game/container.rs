@@ -8,6 +8,7 @@ use crate::game::item::ItemRepository;
 use crate::game::labels::Labels;
 use crate::game::loader::Loader;
 use crate::game::location::Locations;
+use crate::game::memory::Memories;
 use crate::game::mob::{MobId, MobRepository};
 use crate::game::obj::Objects;
 use crate::game::ownership::*;
@@ -61,6 +62,7 @@ pub struct Container {
     pub zones: Zones,
     pub hires: Hires,
     pub random_rooms: RandomRoomsRepository,
+    pub memories: Memories,
 }
 
 impl Container {
@@ -92,6 +94,7 @@ impl Container {
             zones: Zones::new(),
             hires: Hires::new(),
             random_rooms: RandomRoomsRepository::new(),
+            memories: Memories::new(),
         }
     }
 

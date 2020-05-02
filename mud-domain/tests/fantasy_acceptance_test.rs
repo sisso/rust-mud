@@ -218,8 +218,15 @@ fn test_fantasy_show_map() {
     let mut scenery = TestScenery::new();
     scenery.login();
     scenery.input("map");
-    assert_eq!(Vec::<String>::new(), scenery.take_outputs());
-    scenery.wait_until(vec!["Map", "01==**==02", "forest", "Temple >"], vec![]);
+    scenery.wait_until(vec!["Map", "**"], vec![]);
+    // move around
+    scenery.input_and_wait("w", "Temple");
+    scenery.input_and_wait("e", "Village");
+    scenery.input_and_wait("e", "Bar");
+    scenery.input_and_wait("w", "Village");
+    scenery.input("map");
+    scenery.wait_until(vec!["Map", "00==**==02", "Bar", "Temple >"], vec![]);
+    // assert_eq!(Vec::<String>::new(), scenery.take_outputs());
 }
 
 #[test]
@@ -228,7 +235,7 @@ fn test_fantasy_random_rooms() {
     scenery.login();
     from_village_to_dungeons(&mut scenery);
     scenery.input("map");
-    scenery.assert_output(vec!["Map", "05==**==06", "forest"]);
+    scenery.assert_output(vec!["Map", "04==**==06"]);
 }
 
 #[test]

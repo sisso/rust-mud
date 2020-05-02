@@ -1,3 +1,19 @@
+# PlayerId vs AvatarId vs MobId
+
+- A player can have multiple avatars
+
+- MobId is transient, but many information is attach to the mob so it can be apply to NPC. For instance memory 
+and owership.
+
+- Some information should be attached only to players
+    - and how to have sure that will never be aplied to non players
+    
+- How to deal with memory? In case of player change avatar? 
+    - a) copied
+    - b) moved
+    - c) ???
+
+
 # Static ID based savegame
 
 Everything created must have a static ID as reference. Only what differ from static ID must be load/saved.

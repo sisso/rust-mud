@@ -2,7 +2,7 @@
 
 # TODO
 
-- map memory
+- add know portals for unknown rooms to map memory
 - random dungeon z-level
 - do not allow to move when is in combat
 - persistency 

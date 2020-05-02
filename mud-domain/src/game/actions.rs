@@ -8,6 +8,7 @@ use crate::errors::{AsResult, Error, Result};
 use crate::game::comm::{RoomMap, RoomMapCell};
 use crate::game::item::ItemId;
 use crate::game::loader::StaticId;
+use crate::game::memory::Memories;
 use crate::game::room::RoomRepository;
 use crate::game::space_utils;
 use commons::{ObjId, PlayerId};
@@ -94,6 +95,7 @@ pub fn mv(
 
                 // change mob place
                 container.locations.set(mob_id, exit_room_id);
+                container.memories.add(mob_id, exit_room_id);
 
                 let mob_label = container.labels.get_label_f(mob_id);
 
@@ -315,7 +317,13 @@ pub fn out(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) 
 
 pub fn show_map(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<()> {
     let location_id = container.locations.get(mob_id).as_result()?;
-    let room_map = generate_room_maps(location_id, 3, &container.rooms)?;
+    let room_map = generate_room_maps(
+        mob_id,
+        location_id,
+        3,
+        &container.rooms,
+        &container.memories,
+    )?;
 
     let mut labels = HashMap::new();
 
@@ -331,11 +339,14 @@ pub fn show_map(container: &mut Container, outputs: &mut dyn Outputs, mob_id: Mo
 }
 
 fn generate_room_maps(
+    mob_id: MobId,
     location_id: ObjId,
     max_distance: u32,
     rooms: &RoomRepository,
+    memories: &Memories,
 ) -> Result<RoomMap> {
-    let coords_map = load_rooms_into_coords_map(location_id, max_distance, rooms)?;
+    let coords_map =
+        load_rooms_into_coords_map(mob_id, location_id, max_distance, rooms, memories)?;
     room_map_from_rooms_coords(coords_map)
 }
 
@@ -444,9 +455,11 @@ impl RoomsCoordsMap {
 }
 
 fn load_rooms_into_coords_map(
+    mob_id: MobId,
     location_id: ObjId,
     max_distance: u32,
     rooms: &RoomRepository,
+    memories: &Memories,
 ) -> Result<RoomsCoordsMap> {
     let mut coords_map = RoomsCoordsMap::new();
 
@@ -489,6 +502,11 @@ fn load_rooms_into_coords_map(
                 }
             };
 
+            // we still check for up and down portals, even if tarter room is unknown
+            if !memories.is_know(mob_id, *target_id) {
+                continue;
+            }
+
             let tx: i32 = tx;
             let ty: i32 = ty;
 
@@ -510,6 +528,8 @@ fn load_rooms_into_coords_map(
 mod test {
     use crate::game::comm::RoomMapCell;
     use crate::game::domain::Dir;
+    use crate::game::memory::Memories;
+    use crate::game::mob::MobId;
     use crate::game::room::{Room, RoomRepository};
     use commons::ObjId;
 
@@ -520,6 +540,8 @@ mod test {
             | | |
             3-4-5
         */
+        let mob_id = ObjId(0);
+        let mut memories = Memories::new();
 
         let mut rooms = RoomRepository::new();
         rooms.add(Room::new(ObjId(0)));
@@ -536,10 +558,42 @@ mod test {
         rooms.add_portal(3.into(), 4.into(), Dir::E);
         rooms.add_portal(4.into(), 5.into(), Dir::E);
 
+        // without memory, only know current room_id
+        // 0
+        let room_map = super::generate_room_maps(mob_id, 0.into(), 1, &rooms, &memories).unwrap();
+
+        assert_eq!(room_map.width, 1);
+        assert_eq!(room_map.height, 1);
+
+        // add memory of rooms 3 and 4
+        // 0
+        // |
+        // 3-4
+
+        memories.add(mob_id, 3.into()).unwrap();
+        memories.add(mob_id, 4.into()).unwrap();
+
+        let room_map = super::generate_room_maps(mob_id, 0.into(), 1, &rooms, &memories).unwrap();
+
+        assert_eq!(room_map.width, 3);
+        assert_eq!(room_map.height, 3);
+
+        let expected = vec![
+            RoomMapCell::Room(0.into()),
+            RoomMapCell::Empty,
+            RoomMapCell::Empty,
+            RoomMapCell::DoorVer,
+            RoomMapCell::Empty,
+            RoomMapCell::Empty,
+            RoomMapCell::Room(3.into()),
+            RoomMapCell::DoorHor,
+            RoomMapCell::Room(4.into()),
+        ];
         // 0 1
         // | |
         // 3-4
-        let room_map = super::generate_room_maps(0.into(), 1, &rooms).unwrap();
+        memories.add(mob_id, 1.into()).unwrap();
+        let room_map = super::generate_room_maps(mob_id, 0.into(), 1, &rooms, &memories).unwrap();
 
         assert_eq!(room_map.width, 3);
         assert_eq!(room_map.height, 3);
@@ -561,7 +615,9 @@ mod test {
         // 0 1-2
         // | | |
         // 3-4-5
-        let room_map = super::generate_room_maps(0.into(), 2, &rooms).unwrap();
+        memories.add(mob_id, 2.into()).unwrap();
+        memories.add(mob_id, 5.into()).unwrap();
+        let room_map = super::generate_room_maps(mob_id, 0.into(), 2, &rooms, &memories).unwrap();
 
         assert_eq!(room_map.width, 5);
         assert_eq!(room_map.height, 3);

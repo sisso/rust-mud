@@ -64,6 +64,9 @@ pub fn create_player(container: &mut Container, login: &str) -> Result<PlayerId>
         .update(mob_id, |mob| mob.is_avatar = true)
         .unwrap();
 
+    // add avatar location to memories
+    container.memories.add(mob_id, room_id).unwrap();
+
     // add player to game
     let player = container
         .players

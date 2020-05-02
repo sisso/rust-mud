@@ -34,6 +34,7 @@ pub mod labels;
 pub mod loader;
 pub mod location;
 pub mod main_loop;
+pub mod memory;
 pub mod mob;
 pub mod obj;
 pub mod outputs;
