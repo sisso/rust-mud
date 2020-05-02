@@ -151,7 +151,8 @@ fn test_fantasy_kill_wolf_and_sell_meat() {
     sell_meat(&mut scenery);
 }
 
-#[test]
+// TODO: wolfs are not aggressive anymore
+// #[test]
 fn test_fantasy_wolf_are_aggressive() {
     let mut scenery = TestScenery::new();
     scenery.login();

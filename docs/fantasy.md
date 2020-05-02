@@ -1,7 +1,10 @@
-# TODO
+# Bugs
 
+- rats should not attack bodies, ok, they can it, but not attackj
 - changing index in map is horrible, maybe better have a index x,y like 
-- up and down in map is wrong
+- up and down rooms in map is wrong
+
+# TODO
 
 - map memory
 - random dungeon z-level

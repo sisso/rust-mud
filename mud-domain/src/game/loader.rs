@@ -10,7 +10,7 @@ use crate::game::domain::{Dir, Modifier};
 use crate::game::hire::Hire;
 use crate::game::item::{Armor, Item, Weapon};
 use crate::game::labels::Label;
-use crate::game::loader::hocon_parser::HParser;
+use crate::game::loader::hocon_parser::{HParser, ParseError};
 use crate::game::mob::{Damage, Mob};
 use crate::game::obj::Objects;
 use crate::game::outputs::Output::LookedAt;
@@ -149,6 +149,8 @@ pub struct VendorData {}
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct RandomRoomsSpawnData {
+    level_min: Option<u32>,
+    level_max: Option<u32>,
     amount: u32,
     spawn: SpawnData,
 }
@@ -159,6 +161,7 @@ pub struct RandomRoomsData {
     entrance_dir: String,
     width: u32,
     height: u32,
+    levels: u32,
     spawns: Vec<RandomRoomsSpawnData>,
 }
 
@@ -603,6 +606,8 @@ impl Loader {
                         let spawn_builder = Loader::spawn_data_to_spawn_builder(&spawn_data.spawn);
                         RandomRoomsSpawnCfg {
                             amount: spawn_data.amount,
+                            level_min: spawn_data.level_min,
+                            level_max: spawn_data.level_max,
                             spawn_builder: spawn_builder,
                         }
                     })
@@ -781,8 +786,14 @@ impl Loader {
             .map(|p| Path::new(p.to_str().unwrap()))
             .collect();
 
-        HParser::load_files(&mut data, &conf_files)
-            .map_err(|e| Error::Error(format!("{:?}", e)))?;
+        HParser::load_files(&mut data, &conf_files).map_err(|e| match e {
+            ParseError::HoconError { error, hint } => {
+                warn!("Fail loading data {:?} {}", error, hint);
+                Error::Error(format!("Loading data {:?}: {}", error, hint))
+            }
+
+            e => Error::Error(format!("Fail loading data {:?}", e)),
+        })?;
 
         Ok(data)
     }

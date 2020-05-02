@@ -85,6 +85,13 @@ pub fn init(container: &mut Container) {
                 previous_down = rooms_grid.down_portal;
             }
 
+            let valid_spawns = rr
+                .cfg
+                .spawns
+                .iter()
+                .filter(|spawn| spawn.is_valid_for(deep as u32))
+                .collect();
+
             create_spawns(
                 rr.cfg.id,
                 &mut rr.rng,
@@ -92,7 +99,7 @@ pub fn init(container: &mut Container) {
                 locations,
                 spawns,
                 &rooms_ids,
-                &rr.cfg.spawns,
+                &valid_spawns,
             )
             .unwrap();
 
@@ -112,7 +119,7 @@ fn create_spawns(
     locations: &mut Locations,
     spawns: &mut Spawns,
     rooms_id: &Vec<RoomId>,
-    spawns_cfg: &Vec<RandomRoomsSpawnCfg>,
+    spawns_cfg: &Vec<&RandomRoomsSpawnCfg>,
 ) -> Result<()> {
     let mut availables = rooms_id.clone();
 

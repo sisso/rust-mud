@@ -10,7 +10,16 @@ use std::collections::HashMap;
 #[derive(Clone, Debug)]
 pub struct RandomRoomsSpawnCfg {
     pub amount: u32,
+    pub level_min: Option<u32>,
+    pub level_max: Option<u32>,
     pub spawn_builder: SpawnBuilder,
+}
+
+impl RandomRoomsSpawnCfg {
+    pub fn is_valid_for(&self, deep: u32) -> bool {
+        self.level_min.map(|min| deep >= min).unwrap_or(true)
+            && self.level_max.map(|max| deep <= max).unwrap_or(true)
+    }
 }
 
 #[derive(Clone, Debug)]

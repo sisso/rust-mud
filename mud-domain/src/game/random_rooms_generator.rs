@@ -255,18 +255,18 @@ impl LevelGrid {
     }
 }
 
-pub struct SpawnListCfg {
+pub struct RandomSpawnsCfg {
     spawns_to_add: Vec<u32>,
     seed: u64,
 }
 
-pub struct SpawnList {
+pub struct RandomSpawn {
     /// room index, x, y
     spawns: Vec<(u32, usize, usize)>,
 }
 
-impl SpawnList {
-    pub fn new(cfg: SpawnListCfg, rooms: &LevelGrid) -> Self {
+impl RandomSpawn {
+    pub fn new(cfg: RandomSpawnsCfg, rooms: &LevelGrid) -> Self {
         let mut rng: StdRng = SeedableRng::seed_from_u64(cfg.seed);
         let mut spawns: Vec<(u32, usize, usize)> = vec![];
 
@@ -289,7 +289,7 @@ impl SpawnList {
             }
         }
 
-        SpawnList { spawns }
+        RandomSpawn { spawns }
     }
 }
 
