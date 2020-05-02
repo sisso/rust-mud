@@ -33,7 +33,7 @@ use commons::save::{Snapshot, SnapshotSupport};
 use commons::{DeltaTime, ObjId, PlayerId};
 use logs::*;
 
-// #[derive(Debug, Clone)]
+// #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Container {
     pub config: Config,
     pub time: GameTime,
@@ -130,36 +130,36 @@ impl Container {
 }
 
 impl SnapshotSupport for Container {
-    fn save(&self, snapshot: &mut Snapshot) {
-        self.config.save(snapshot);
-        self.time.save(snapshot);
-        // self.objects.save(snapshot);
-        self.players.save(snapshot);
-        self.mobs.save(snapshot);
-        self.items.save(snapshot);
-        self.rooms.save(snapshot);
-        self.spawns.save(snapshot);
-        self.locations.save(snapshot);
-        self.equips.save(snapshot);
-        // self.tags.save(snapshot);
-        self.labels.save(snapshot);
-        // self.ships.save(snapshot);
-        // self.sectors.save(snapshot);
-        // self.astro_bodies.save(snapshot);
-        // self.pos.save(snapshot);
-        // self.surface_objects.save(snapshot);
-        // self.loader.save(snapshot);
-        self.vendors.save(snapshot);
-        self.prices.save(snapshot);
-        self.timer.save(snapshot);
-        self.triggers.save(snapshot);
-        self.ownership.save(snapshot);
-        self.zones.save(snapshot);
-        self.hires.save(snapshot);
-        // self.random_rooms.save(snapshot);
+    fn save_snapshot(&self, snapshot: &mut Snapshot) {
+        self.config.save_snapshot(snapshot);
+        self.time.save_snapshot(snapshot);
+        self.objects.save_snapshot(snapshot);
+        self.players.save_snapshot(snapshot);
+        self.mobs.save_snapshot(snapshot);
+        self.items.save_snapshot(snapshot);
+        self.rooms.save_snapshot(snapshot);
+        self.spawns.save_snapshot(snapshot);
+        self.locations.save_snapshot(snapshot);
+        self.equips.save_snapshot(snapshot);
+        // self.tags.save_snapshot(snapshot);
+        self.labels.save_snapshot(snapshot);
+        // self.ships.save_snapshot(snapshot);
+        // self.sectors.save_snapshot(snapshot);
+        // self.astro_bodies.save_snapshot(snapshot);
+        // self.pos.save_snapshot(snapshot);
+        // self.surface_objects.save_snapshot(snapshot);
+        // self.loader.save_snapshot(snapshot);
+        self.vendors.save_snapshot(snapshot);
+        self.prices.save_snapshot(snapshot);
+        self.timer.save_snapshot(snapshot);
+        self.triggers.save_snapshot(snapshot);
+        self.ownership.save_snapshot(snapshot);
+        self.zones.save_snapshot(snapshot);
+        self.hires.save_snapshot(snapshot);
+        // self.random_rooms.save_snapshot(snapshot);
     }
 
-    fn load(&mut self, _snapshot: &mut Snapshot) {
+    fn load_snapshot(&mut self, _snapshot: &mut Snapshot) {
         unimplemented!()
     }
 }

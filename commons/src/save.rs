@@ -1,4 +1,3 @@
-
 use serde_json::{json, Value};
 
 use std::fs::File;
@@ -13,12 +12,13 @@ use std::io::{BufRead, Write};
 
 */
 pub trait SnapshotSupport {
-    fn save(&self, snapshot: &mut Snapshot);
-    fn load(&mut self, snapshot: &mut Snapshot);
+    fn save_snapshot(&self, snapshot: &mut Snapshot) {}
+    fn load_snapshot(&mut self, snapshot: &mut Snapshot) {}
 }
 
 #[derive(Debug, Clone)]
 pub struct Snapshot {
+    version: u32,
     headers: HashMap<String, Value>,
     objects: HashMap<u32, HashMap<String, Value>>,
 }
@@ -26,6 +26,7 @@ pub struct Snapshot {
 impl Snapshot {
     pub fn new() -> Self {
         Snapshot {
+            version: 0,
             headers: Default::default(),
             objects: Default::default(),
         }
@@ -81,8 +82,7 @@ impl Snapshot {
     }
 
     pub fn load(file_path: &str) -> Self {
-        let file =
-            File::open(file_path).expect(&format!("failed to open file {:?}", file_path));
+        let file = File::open(file_path).expect(&format!("failed to open file {:?}", file_path));
 
         let lines = std::io::BufReader::new(file).lines();
 

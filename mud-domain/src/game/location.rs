@@ -121,7 +121,7 @@ mod test {
 }
 
 impl SnapshotSupport for Locations {
-    fn save(&self, snapshot: &mut Snapshot) {
+    fn save_snapshot(&self, snapshot: &mut Snapshot) {
         use serde_json::json;
 
         for (id, parent_id) in self.index.list_all() {
@@ -130,7 +130,7 @@ impl SnapshotSupport for Locations {
         }
     }
 
-    fn load(&mut self, _snapshot: &mut Snapshot) {
+    fn load_snapshot(&mut self, _snapshot: &mut Snapshot) {
         unimplemented!()
     }
 }

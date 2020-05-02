@@ -18,7 +18,7 @@ pub fn tick(
         debug!("tick {:?}", container.time);
 
         let mut snapshot = Snapshot::new();
-        container.save(&mut snapshot);
+        container.save_snapshot(&mut snapshot);
         snapshot.save_to_file("/tmp/mud.save");
         snapshot
             .save_to_file(format!("/tmp/mud_{}.snapshot", container.time.tick.as_u32()).as_str());

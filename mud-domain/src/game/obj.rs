@@ -1,6 +1,7 @@
 use crate::errors::{self, Error};
 use crate::game::domain::NextId;
 use crate::game::loader::StaticId;
+use commons::save::SnapshotSupport;
 use commons::ObjId;
 use logs::*;
 use std::collections::HashMap;
@@ -86,3 +87,5 @@ impl Objects {
         self.objects.keys()
     }
 }
+
+impl SnapshotSupport for Objects {}

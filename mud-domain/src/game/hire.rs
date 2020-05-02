@@ -60,7 +60,7 @@ impl Hires {
 }
 
 impl SnapshotSupport for Hires {
-    fn save(&self, snapshot: &mut Snapshot) {
+    fn save_snapshot(&self, snapshot: &mut Snapshot) {
         use serde_json::json;
 
         for (id, comp) in &self.index {
@@ -69,7 +69,7 @@ impl SnapshotSupport for Hires {
         }
     }
 
-    fn load(&mut self, _snapshot: &mut Snapshot) {
+    fn load_snapshot(&mut self, _snapshot: &mut Snapshot) {
         unimplemented!()
     }
 }

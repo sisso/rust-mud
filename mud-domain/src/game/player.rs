@@ -25,7 +25,11 @@ impl PlayerRepository {
     }
 
     pub fn list_players(&self) -> Vec<PlayerId> {
-        self.index.iter().into_iter().map(|(id, _)| *id).collect()
+        self.index.keys().copied().collect()
+    }
+
+    pub fn list<'a>(&'a self) -> impl Iterator<Item = &'a Player> + 'a {
+        self.index.values()
     }
 
     pub fn login(&self, login: &str) -> Option<PlayerId> {
@@ -71,14 +75,14 @@ impl PlayerRepository {
 }
 
 impl SnapshotSupport for PlayerRepository {
-    fn save(&self, snapshot: &mut Snapshot) {
+    fn save_snapshot(&self, snapshot: &mut Snapshot) {
         use serde_json::json;
         for (player_id, player) in &self.index {
             snapshot.add(player_id.as_u32(), "player", json!(player));
         }
     }
 
-    fn load(&mut self, _load: &mut Snapshot) {
+    fn load_snapshot(&mut self, _load: &mut Snapshot) {
         unimplemented!()
     }
 }

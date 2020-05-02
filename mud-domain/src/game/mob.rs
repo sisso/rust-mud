@@ -392,7 +392,7 @@ pub fn get_attributes_with_bonus(container: &Container, mob_id: MobId) -> Result
 }
 
 impl SnapshotSupport for MobRepository {
-    fn save(&self, snapshot: &mut Snapshot) {
+    fn save_snapshot(&self, snapshot: &mut Snapshot) {
         use serde_json::json;
 
         for (id, comp) in &self.index {
@@ -400,7 +400,7 @@ impl SnapshotSupport for MobRepository {
         }
     }
 
-    fn load(&mut self, _snapshot: &mut Snapshot) {
+    fn load_snapshot(&mut self, _snapshot: &mut Snapshot) {
         unimplemented!()
     }
 }

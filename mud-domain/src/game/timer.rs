@@ -29,14 +29,14 @@ impl Timer {
 }
 
 impl SnapshotSupport for Timer {
-    fn save(&self, snapshot: &mut Snapshot) {
+    fn save_snapshot(&self, snapshot: &mut Snapshot) {
         use serde_json::json;
         let entries: Vec<&Event> = self.index.list().collect();
         let value = json!(entries);
         snapshot.add_header("timer", value);
     }
 
-    fn load(&mut self, _snapshot: &mut Snapshot) {
+    fn load_snapshot(&mut self, _snapshot: &mut Snapshot) {
         unimplemented!()
     }
 }

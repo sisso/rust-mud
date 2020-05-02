@@ -76,13 +76,13 @@ impl Triggers {
 }
 
 impl SnapshotSupport for Triggers {
-    fn save(&self, snapshot: &mut Snapshot) {
+    fn save_snapshot(&self, snapshot: &mut Snapshot) {
         use serde_json::json;
         let value = json!(self.index);
         snapshot.add_header("triggers", value);
     }
 
-    fn load(&mut self, _snapshot: &mut Snapshot) {
+    fn load_snapshot(&mut self, _snapshot: &mut Snapshot) {
         unimplemented!()
     }
 }
