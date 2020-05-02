@@ -1,3 +1,18 @@
+# Static ID based savegame
+
+Everything created must have a static ID as reference. Only what differ from static ID must be load/saved.
+
+Player experience
+
+Mobs energy and location
+
+Spawn objects, etc
+
+# XP Modifier
+
+Instead every time player gain level we direct change the mob attributes, and require to do a full save. Avatar
+will be always based in a mob static id, and all other improvements are a list of upgrades.
+
 # Save style
 
 There are 2 ways of saving
@@ -29,6 +44,18 @@ We will have snapshot by serialize the full container. Those snapshot will be no
 
 User data will be serialized by B, it will survivave and be migrate over game evolution
 
+## Anti conclusion
+
+This idea will only work nice for fantasy, where player have a central avatar and most of things will
+be with the mob. In space or dungeon, almost everything need to saved.
+
+Maybe will be better a global save based on static id, and not re-save everything.
+
+## Save 
+
+Each object should save the static_id instead full persistency. This wiull help to reduce a lot of code.
+
+Player avatar should write the static ID + XP modifiers
 
 # Spawn region
 
