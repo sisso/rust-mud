@@ -925,7 +925,7 @@ pub fn print_room_map(
     buffer.push_str("Map\n");
 
     let mut room_indexes = vec![];
-    let mut current_label = "";
+    let mut current = 0;
 
     let mut index = 0;
     for _y in 0..room_map.height {
@@ -933,17 +933,18 @@ pub fn print_room_map(
             match &room_map.cells[index] {
                 RoomMapCell::Empty => buffer.push_str(".."),
                 RoomMapCell::Room(obj_id) => {
-                    let label = labels.get(obj_id).unwrap();
+                    let label = labels.get(obj_id).unwrap().as_str();
+
+                    let index = room_indexes.len();
+                    let to_up = room_map.portals_up.contains(obj_id);
+                    let to_down = room_map.portals_down.contains(obj_id);
+                    room_indexes.push((label, to_up, to_down));
 
                     if *obj_id == current_id {
-                        current_label = label.as_str();
+                        current = index;
                         buffer.push_str("**");
                     } else {
-                        let to_up = room_map.portals_up.contains(obj_id);
-                        let to_down = room_map.portals_down.contains(obj_id);
-                        room_indexes.push((label, to_up, to_down));
-                        let current = room_indexes.len();
-                        buffer.push_str(format!("{:02}", current).as_str());
+                        buffer.push_str(format!("{:02}", index).as_str());
                     }
                 }
                 RoomMapCell::DoorHor => buffer.push_str("=="),
@@ -957,17 +958,25 @@ pub fn print_room_map(
 
     buffer.push_str("labels:\n");
 
-    buffer.push_str(format!("** - {}\n", current_label).as_str());
+    // buffer.push_str(format!("** - {}\n", current_label).as_str());
 
     for index in 0..room_indexes.len() {
         let (label, to_up, to_down) = room_indexes[index];
+
         let up_down_str = match (to_up, to_down) {
             (true, true) => " <>",
             (true, false) => " >",
             (false, true) => " <",
             _ => "",
         };
-        buffer.push_str(format!("{:02} - {}{}\n", index, label, up_down_str).as_str());
+
+        let index_label = if index == current {
+            "**".to_string()
+        } else {
+            format!("{:02}", index)
+        };
+
+        buffer.push_str(format!("{:02} - {}{}\n", index_label, label, up_down_str).as_str());
     }
 
     buffer
