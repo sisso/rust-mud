@@ -320,7 +320,7 @@ pub fn show_map(container: &mut Container, outputs: &mut dyn Outputs, mob_id: Mo
     let room_map = generate_room_maps(
         mob_id,
         location_id,
-        3,
+        4,
         &container.rooms,
         &container.memories,
     )?;
@@ -351,19 +351,21 @@ fn generate_room_maps(
 }
 
 fn room_map_from_rooms_coords(mut coords_map: RoomsCoordsMap) -> Result<RoomMap> {
+    trace!("room_map_from_rooms_coords: {:?}", coords_map);
+
     // normalize in the top left corner
     let mut min_x = 0;
     let mut min_y = 0;
     let mut max_x = 0;
     let mut max_y = 0;
-    for (_id, (x, y)) in &coords_map.visited {
+    for (_id, (_, x, y)) in &coords_map.visited {
         min_x = min_x.min(*x);
         min_y = min_y.min(*y);
         max_x = max_x.max(*x);
         max_y = max_y.max(*y);
     }
     // normalize
-    for (_id, (x, y)) in &mut coords_map.visited {
+    for (_id, (_, x, y)) in &mut coords_map.visited {
         *x -= min_x;
         *y -= min_y;
     }
@@ -377,17 +379,14 @@ fn room_map_from_rooms_coords(mut coords_map: RoomsCoordsMap) -> Result<RoomMap>
     let rooms_by_coords = coords_map
         .visited
         .iter()
-        .map(|(id, (x, y))| ((*x, *y), *id))
+        .map(|(id, (is_know, x, y))| ((*x, *y), (*is_know, *id)))
         .collect::<HashMap<_, _>>();
 
-    let get_room = |x, y| -> Option<ObjId> { rooms_by_coords.get(&(x, y)).cloned() };
+    let get_room = |x, y| -> Option<(bool, ObjId)> { rooms_by_coords.get(&(x, y)).cloned() };
 
     let is_portal = |x0, y0, x1, y1| -> bool {
-        let id0 = get_room(x0, y0);
-        let id1 = get_room(x1, y1);
-
-        let (id0, id1) = match (id0, id1) {
-            (Some(id0), Some(id1)) => (id0, id1),
+        let (id0, id1) = match (get_room(x0, y0), get_room(x1, y1)) {
+            (Some((is_know0, id0)), Some((is_know1, id1))) if is_know0 || is_know1 => (id0, id1),
             _ => return false,
         };
 
@@ -418,11 +417,16 @@ fn room_map_from_rooms_coords(mut coords_map: RoomsCoordsMap) -> Result<RoomMap>
                 }
             }
 
-            if let Some(room_id) = get_room(x, y) {
-                cells.push(RoomMapCell::Room(room_id));
-            } else {
-                cells.push(RoomMapCell::Empty);
+            match get_room(x, y) {
+                Some((true, room_id)) => cells.push(RoomMapCell::Room(room_id)),
+                _ => cells.push(RoomMapCell::Empty),
             }
+            //
+            // if let Some((is_know, room_id)) = get_room(x, y) {
+            //     cells.push(RoomMapCell::Room(room_id));
+            // } else {
+            //     cells.push(RoomMapCell::Empty);
+            // }
         }
     }
 
@@ -436,8 +440,9 @@ fn room_map_from_rooms_coords(mut coords_map: RoomsCoordsMap) -> Result<RoomMap>
     })
 }
 
+#[derive(Debug, Clone)]
 struct RoomsCoordsMap {
-    visited: HashMap<ObjId, (i32, i32)>,
+    visited: HashMap<ObjId, (bool, i32, i32)>,
     portals: HashSet<(ObjId, ObjId)>,
     portals_up: HashSet<ObjId>,
     portals_down: HashSet<ObjId>,
@@ -465,6 +470,7 @@ fn load_rooms_into_coords_map(
 
     let mut queue = vec![];
     queue.push((location_id, 0, 0));
+
     loop {
         let (id, x, y) = match queue.pop() {
             Some(value) => value,
@@ -472,10 +478,10 @@ fn load_rooms_into_coords_map(
         };
 
         match coords_map.visited.get(&id) {
-            // new value is lower that already existent tone
-            Some((x1, y1)) if x1 + y1 > x + y => {
+            // found a short path
+            Some((is_know, x1, y1)) if x1 + y1 > x + y => {
                 // trace!("{:?} replace {},{} by {},{}", id, x1, y1, x, y);
-                coords_map.visited.insert(id, (x, y));
+                coords_map.visited.insert(id, (*is_know, x, y));
                 continue;
             }
             // skip already vistied
@@ -484,7 +490,8 @@ fn load_rooms_into_coords_map(
         };
 
         // trace!("{:?} adding at {},{}", id, x, y);
-        coords_map.visited.insert(id, (x, y));
+        let is_know = memories.is_know(mob_id, id);
+        coords_map.visited.insert(id, (is_know, x, y));
 
         for (dir, target_id) in rooms.get_portals(id)? {
             let (tx, ty) = match dir {
@@ -501,11 +508,6 @@ fn load_rooms_into_coords_map(
                     continue;
                 }
             };
-
-            // we still check for up and down portals, even if tarter room is unknown
-            if !memories.is_know(mob_id, *target_id) {
-                continue;
-            }
 
             let tx: i32 = tx;
             let ty: i32 = ty;
@@ -542,6 +544,7 @@ mod test {
         */
         let mob_id = ObjId(0);
         let mut memories = Memories::new();
+        memories.add(mob_id, 0.into());
 
         let mut rooms = RoomRepository::new();
         rooms.add(Room::new(ObjId(0)));
@@ -560,15 +563,29 @@ mod test {
 
         // without memory, only know current room_id
         // 0
+        // |
         let room_map = super::generate_room_maps(mob_id, 0.into(), 1, &rooms, &memories).unwrap();
 
-        assert_eq!(room_map.width, 1);
-        assert_eq!(room_map.height, 1);
+        assert_eq!(room_map.width, 3);
+        assert_eq!(room_map.height, 3);
+
+        let expected = vec![
+            RoomMapCell::Room(0.into()),
+            RoomMapCell::Empty,
+            RoomMapCell::Empty,
+            RoomMapCell::DoorVer, // l
+            RoomMapCell::Empty,
+            RoomMapCell::Empty,
+            RoomMapCell::Empty, // l
+            RoomMapCell::Empty,
+            RoomMapCell::Empty,
+        ];
+        assert_eq!(room_map.cells, expected);
 
         // add memory of rooms 3 and 4
         // 0
-        // |
-        // 3-4
+        // | |
+        // 3-4-
 
         memories.add(mob_id, 3.into()).unwrap();
         memories.add(mob_id, 4.into()).unwrap();
@@ -582,16 +599,18 @@ mod test {
             RoomMapCell::Room(0.into()),
             RoomMapCell::Empty,
             RoomMapCell::Empty,
+            RoomMapCell::DoorVer, // l
+            RoomMapCell::Empty,
             RoomMapCell::DoorVer,
-            RoomMapCell::Empty,
-            RoomMapCell::Empty,
-            RoomMapCell::Room(3.into()),
+            RoomMapCell::Room(3.into()), // l
             RoomMapCell::DoorHor,
             RoomMapCell::Room(4.into()),
         ];
-        // 0 1
+        assert_eq!(room_map.cells, expected);
+
+        // 0 1-
         // | |
-        // 3-4
+        // 3-4-
         memories.add(mob_id, 1.into()).unwrap();
         let room_map = super::generate_room_maps(mob_id, 0.into(), 1, &rooms, &memories).unwrap();
 
@@ -602,10 +621,10 @@ mod test {
             RoomMapCell::Room(0.into()),
             RoomMapCell::Empty,
             RoomMapCell::Room(1.into()),
-            RoomMapCell::DoorVer,
+            RoomMapCell::DoorVer, // l
             RoomMapCell::Empty,
             RoomMapCell::DoorVer,
-            RoomMapCell::Room(3.into()),
+            RoomMapCell::Room(3.into()), // l
             RoomMapCell::DoorHor,
             RoomMapCell::Room(4.into()),
         ];
