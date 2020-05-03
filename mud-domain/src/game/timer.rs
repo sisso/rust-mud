@@ -35,8 +35,4 @@ impl SnapshotSupport for Timer {
         let value = json!(entries);
         snapshot.add_header("timer", value);
     }
-
-    fn load_snapshot(&mut self, _snapshot: &mut Snapshot) {
-        unimplemented!()
-    }
 }

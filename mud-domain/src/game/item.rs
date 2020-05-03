@@ -156,39 +156,10 @@ impl SnapshotSupport for ItemRepository {
         use serde_json::json;
 
         for (id, comp) in &self.index {
+            if id.is_dynamic() {
+                continue;
+            }
             snapshot.add(id.as_u32(), "item", json!(comp));
         }
-
-        // for (id, obj) in self.index.iter() {
-        //     let obj_json = json!({
-        //         "kind": obj.kind.0,
-        //         "label": obj.label,
-        //         "decay": obj.decay.map(|i| i.0),
-        //         "amount": obj.amount,
-        //         "definition_id": obj.item_def_id.map(|i| i.0)
-        //     });
-        //
-        //     save.add(id.0, "item", obj_json);
-        // }
-        //
-        // for (id, (location, inventory)) in self.inventory.iter().enumerate() {
-        //     let location_json = match location {
-        //         ObjId::Limbo => json!({"kind": "limbo"}),
-        //         ObjId::Mob { mob_id } => json!({"kind": "mob", "mob_id": mob_id.0 }),
-        //         ObjId::Room { room_id } => json!({"kind": "room", "room_id": room_id.0 }),
-        //         ObjId::Item { item_id } => json!({"kind": "item", "item_id": item_id.0 }),
-        //     };
-        //
-        //     let obj_json = json!({
-        //         "location": location_json,
-        //         "items": inventory.list.iter().map(|i| i.0).collect::<Vec<u32>>()
-        //     });
-        //
-        //     save.add(id as u32, "inventory", obj_json);
-        // }
-    }
-
-    fn load_snapshot(&mut self, _snapshot: &mut Snapshot) {
-        unimplemented!()
     }
 }

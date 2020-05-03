@@ -120,12 +120,22 @@ impl Tick {
     }
 }
 
+pub const OBJ_ID_STATIC_RANGE: u32 = 100000;
+
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Serialize, Deserialize)]
 pub struct ObjId(pub u32);
 
 impl ObjId {
     pub fn as_u32(&self) -> u32 {
         self.0
+    }
+
+    pub fn is_static(&self) -> bool {
+        self.as_u32() < OBJ_ID_STATIC_RANGE
+    }
+
+    pub fn is_dynamic(&self) -> bool {
+        !self.is_static()
     }
 }
 

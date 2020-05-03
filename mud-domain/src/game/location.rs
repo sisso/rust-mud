@@ -125,12 +125,12 @@ impl SnapshotSupport for Locations {
         use serde_json::json;
 
         for (id, parent_id) in self.index.list_all() {
+            if id.is_dynamic() {
+                continue;
+            }
+
             let value = json!(parent_id);
             snapshot.add(id.as_u32(), "location", value);
         }
-    }
-
-    fn load_snapshot(&mut self, _snapshot: &mut Snapshot) {
-        unimplemented!()
     }
 }

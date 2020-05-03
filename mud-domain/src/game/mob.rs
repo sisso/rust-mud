@@ -396,6 +396,9 @@ impl SnapshotSupport for MobRepository {
         use serde_json::json;
 
         for (id, comp) in &self.index {
+            if id.is_dynamic() {
+                continue;
+            }
             snapshot.add(id.as_u32(), "mob", json!(comp));
         }
     }

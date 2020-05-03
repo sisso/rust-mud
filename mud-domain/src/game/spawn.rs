@@ -131,12 +131,11 @@ impl SnapshotSupport for Spawns {
         use serde_json::json;
 
         for (id, comp) in &self.index {
+            if id.is_dynamic() {
+                continue;
+            }
             let value = json!(comp);
             snapshot.add(id.as_u32(), "spawn", value);
         }
-    }
-
-    fn load_snapshot(&mut self, _snapshot: &mut Snapshot) {
-        unimplemented!()
     }
 }

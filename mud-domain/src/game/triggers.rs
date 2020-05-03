@@ -81,8 +81,4 @@ impl SnapshotSupport for Triggers {
         let value = json!(self.index);
         snapshot.add_header("triggers", value);
     }
-
-    fn load_snapshot(&mut self, _snapshot: &mut Snapshot) {
-        unimplemented!()
-    }
 }

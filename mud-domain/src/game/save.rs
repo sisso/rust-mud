@@ -6,7 +6,7 @@ use crate::game::player::Player;
 use commons::ObjId;
 use serde::{Deserialize, Serialize};
 
-// TODO: continue
+// TODO: remove
 pub fn save(container: &Container) -> Result<Save> {
     // let mut save = Save::new();
     //

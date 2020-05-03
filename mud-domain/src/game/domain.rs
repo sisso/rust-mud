@@ -48,10 +48,6 @@ impl SnapshotSupport for GameTime {
         use serde_json::json;
         snapshot.add_header("game_time", json!(self));
     }
-
-    fn load_snapshot(&mut self, _snapshot: &mut Snapshot) {
-        unimplemented!()
-    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Copy, Deserialize, Serialize)]

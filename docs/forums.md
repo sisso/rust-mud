@@ -1,3 +1,9 @@
+# ObjId enum
+
+Create Dynamic, Static and Prefab looks be nice, but simple have too many changes in tests to make things to work.
+
+We will keep using namespaces.
+
 # PlayerId vs AvatarId vs MobId
 
 - A player can have multiple avatars
@@ -12,7 +18,6 @@ and owership.
     - a) copied
     - b) moved
     - c) ???
-
 
 # Static ID based savegame
 
@@ -66,6 +71,13 @@ This idea will only work nice for fantasy, where player have a central avatar an
 be with the mob. In space or dungeon, almost everything need to saved.
 
 Maybe will be better a global save based on static id, and not re-save everything.
+
+## Conclusion 2
+
+We will save all non static objects. The load process will be
+
+load prefabs, init static objects, start game/load game
+- who this will work for space? only save rooms not static? So all need to based anyway
 
 ## Save 
 

@@ -160,6 +160,7 @@ impl SnapshotSupport for Container {
         self.zones.save_snapshot(snapshot);
         self.hires.save_snapshot(snapshot);
         // self.random_rooms.save_snapshot(snapshot);
+        self.memories.save_snapshot(snapshot);
     }
 
     fn load_snapshot(&mut self, _snapshot: &mut Snapshot) {

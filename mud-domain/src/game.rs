@@ -50,7 +50,6 @@ pub mod save;
 pub mod ships;
 pub mod space_utils;
 pub mod spawn;
-pub mod storages;
 pub mod surfaces;
 pub mod surfaces_object;
 pub mod system;

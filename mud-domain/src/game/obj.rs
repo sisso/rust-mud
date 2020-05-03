@@ -1,14 +1,14 @@
 use crate::errors::{self, Error};
 use crate::game::domain::NextId;
 use crate::game::loader::StaticId;
-use commons::save::SnapshotSupport;
-use commons::ObjId;
+use commons::save::{Snapshot, SnapshotSupport};
+use commons::{ObjId, OBJ_ID_STATIC_RANGE};
 use logs::*;
+use serde::{Deserialize, Serialize};
+use serde_json::json;
 use std::collections::HashMap;
 
-pub const NAMESPACE_RESERVED: u32 = 100000;
-
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Obj {
     id: ObjId,
     static_id: Option<StaticId>,
@@ -32,7 +32,7 @@ pub struct Objects {
 impl Objects {
     pub fn new() -> Self {
         Objects {
-            next_id: NextId::new_from(NAMESPACE_RESERVED),
+            next_id: NextId::new_from(OBJ_ID_STATIC_RANGE),
             objects: HashMap::new(),
         }
     }
@@ -88,4 +88,13 @@ impl Objects {
     }
 }
 
-impl SnapshotSupport for Objects {}
+impl SnapshotSupport for Objects {
+    fn save_snapshot(&self, snapshot: &mut Snapshot) {
+        for (id, obj) in &self.objects {
+            if id.is_dynamic() {
+                continue;
+            }
+            snapshot.add(id.as_u32(), "object", json!(obj));
+        }
+    }
+}
