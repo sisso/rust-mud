@@ -4,7 +4,7 @@ use commons::{ConnectionId, DeltaTime};
 use logs::*;
 use mud_domain::game::container::Container;
 use mud_domain::game::prices::Money;
-use mud_domain::game::{inventory, loader, Game};
+use mud_domain::game::{inventory, loader, Game, GameCfg};
 use std::path::Path;
 
 pub struct TestScenery {
@@ -19,7 +19,7 @@ impl TestScenery {
         // loader::scenery_space::load(&mut container);
         loader::Loader::load_folders(&mut container, &Path::new("../data/fantasy")).unwrap();
         TestScenery {
-            game: Game::new(container),
+            game: Game::new(GameCfg::new(None), container),
             connection_id: ConnectionId(0),
             timeout: 200,
         }

@@ -10,6 +10,7 @@ use crate::game::location::LocationId;
 use crate::game::mob::MobId;
 use crate::game::room::RoomId;
 use crate::game::system::{SystemCtx, Systems};
+use serde::Deserialize;
 
 pub mod actions;
 pub mod actions_admin;
@@ -70,18 +71,42 @@ pub trait Outputs {
     fn private(&mut self, mob_id: MobId, msg: String);
 }
 
+#[derive(Clone, Debug, Deserialize)]
+pub struct GameCfg {
+    profile: String,
+    persistent: bool,
+}
+
+impl GameCfg {
+    pub fn new(profile: Option<String>) -> GameCfg {
+        if let Some(profile) = profile {
+            GameCfg {
+                profile,
+                persistent: true,
+            }
+        } else {
+            GameCfg {
+                profile: "temporary".to_string(),
+                persistent: false,
+            }
+        }
+    }
+}
+
 /// Hold container and interface logic
 pub struct Game {
+    cfg: GameCfg,
     pub container: Container,
     controller: Controller,
     systems: Systems,
 }
 
 impl Game {
-    pub fn new(mut container: Container) -> Self {
+    pub fn new(cfg: GameCfg, mut container: Container) -> Self {
         let systems = Systems::new(&mut container);
 
         Game {
+            cfg,
             container,
             controller: Controller::new(),
             systems,
@@ -109,6 +134,7 @@ impl Game {
 
     pub fn tick(&mut self, delta_time: DeltaTime) {
         crate::game::main_loop::tick(
+            &self.cfg,
             delta_time,
             &mut self.container,
             &mut self.systems,
@@ -136,7 +162,7 @@ pub mod test {
     use crate::controller::OutputsBuffer;
     use crate::game::container::Container;
     use crate::game::system::Systems;
-    use crate::game::{builder, main_loop};
+    use crate::game::{builder, main_loop, GameCfg};
     use commons::{DeltaTime, TotalTime};
 
     pub struct TestScenery {
@@ -148,6 +174,7 @@ pub mod test {
     impl TestScenery {
         pub fn tick(&mut self, delta: f32) {
             main_loop::tick(
+                &GameCfg::new(None),
                 DeltaTime(delta),
                 &mut self.container,
                 &mut self.systems,

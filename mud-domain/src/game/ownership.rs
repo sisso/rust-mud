@@ -87,6 +87,7 @@ impl SnapshotSupport for Ownerships {
         use serde_json::json;
 
         for (id, comp) in &self.owners {
+            // need to keep track of static id properties
             let value = json!(comp);
             snapshot.add(id.as_u32(), "ownership", value);
         }

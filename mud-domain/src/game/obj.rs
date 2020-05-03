@@ -91,7 +91,7 @@ impl Objects {
 impl SnapshotSupport for Objects {
     fn save_snapshot(&self, snapshot: &mut Snapshot) {
         for (id, obj) in &self.objects {
-            if id.is_dynamic() {
+            if id.is_static() {
                 continue;
             }
             snapshot.add(id.as_u32(), "object", json!(obj));

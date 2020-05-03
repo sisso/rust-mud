@@ -2,10 +2,11 @@
 
 # TODO
 
-- add know portals for unknown rooms to map memory
-- random dungeon z-level
+- playr can have 0 PV
+- sometimes you can die without read any message what kill you
 - do not allow to move when is in combat
 - persistency 
+    - random rooms should be persist? how to deal with mobs and itens there?
 - level up
 
 - improve combat

@@ -125,7 +125,7 @@ impl SnapshotSupport for Locations {
         use serde_json::json;
 
         for (id, parent_id) in self.index.list_all() {
-            if id.is_dynamic() {
+            if id.is_static() {
                 continue;
             }
 

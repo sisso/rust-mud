@@ -49,7 +49,7 @@ impl Memories {
 impl SnapshotSupport for Memories {
     fn save_snapshot(&self, snapshot: &mut Snapshot) {
         for (id, obj) in &self.index {
-            if id.is_dynamic() {
+            if id.is_static() {
                 continue;
             }
             snapshot.add(id.as_u32(), "memory", json!(obj));

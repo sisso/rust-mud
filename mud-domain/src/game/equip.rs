@@ -76,7 +76,7 @@ impl SnapshotSupport for Equips {
         use serde_json::json;
 
         for (id, comp) in &self.index {
-            if id.is_dynamic() {
+            if id.is_static() {
                 continue;
             }
             let value = json!(comp);
