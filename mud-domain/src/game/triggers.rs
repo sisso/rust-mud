@@ -38,6 +38,7 @@ impl Event {
 /// Just keep a buffer for events filter by type
 ///
 /// gc need to be called in the end of loop to clear it.
+#[derive(Debug, Clone)]
 pub struct Triggers {
     index: Vec<Vec<Event>>,
 }

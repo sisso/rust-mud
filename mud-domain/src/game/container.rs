@@ -34,7 +34,7 @@ use commons::save::{Snapshot, SnapshotSupport};
 use commons::{DeltaTime, ObjId, PlayerId};
 use logs::*;
 
-// #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct Container {
     pub config: Config,
     pub time: GameTime,

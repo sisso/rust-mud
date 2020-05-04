@@ -15,7 +15,7 @@ impl TestScenery {
         let mut container = Container::new();
         loader::Loader::load_folders(&mut container, &Path::new("../data/space")).unwrap();
         TestScenery {
-            game: Game::new(GameCfg::new(None), container),
+            game: Game::new(GameCfg::new(), container),
             connection_id: ConnectionId(0),
         }
     }

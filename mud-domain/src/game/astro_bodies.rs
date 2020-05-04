@@ -336,7 +336,9 @@ mod test {
         scenery_2(&mut locations, &mut astros);
         // put ship in orbit of main body
         locations.set(2.into(), 0.into());
-        astros.update(AstroBody::new(2.into(), 14.0, AstroBodyKind::Ship));
+        astros
+            .update(AstroBody::new(2.into(), 14.0, AstroBodyKind::Ship))
+            .unwrap();
 
         // compute travel to planet 1
         let plan = travel_plan(&locations, &astros, 2.into(), 1.into()).unwrap();

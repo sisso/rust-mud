@@ -72,7 +72,7 @@ impl Spawn {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Spawns {
     index: HashMap<SpawnId, Spawn>,
     // TODO: remove added

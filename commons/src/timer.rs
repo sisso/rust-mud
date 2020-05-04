@@ -5,6 +5,7 @@ type Index = u64;
 type Time = u64;
 type EntryKey = (Reverse<Time>, Index);
 
+#[derive(Debug, Clone)]
 pub struct Timer<T> {
     next_index: Index,
     current: Time,

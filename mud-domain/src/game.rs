@@ -10,6 +10,7 @@ use crate::game::location::LocationId;
 use crate::game::mob::MobId;
 use crate::game::room::RoomId;
 use crate::game::system::{SystemCtx, Systems};
+use commons::save::{Snapshot, SnapshotSupport};
 use serde::Deserialize;
 
 pub mod actions;
@@ -72,24 +73,11 @@ pub trait Outputs {
 }
 
 #[derive(Clone, Debug, Deserialize)]
-pub struct GameCfg {
-    profile: String,
-    persistent: bool,
-}
+pub struct GameCfg {}
 
 impl GameCfg {
-    pub fn new(profile: Option<String>) -> GameCfg {
-        if let Some(profile) = profile {
-            GameCfg {
-                profile,
-                persistent: true,
-            }
-        } else {
-            GameCfg {
-                profile: "temporary".to_string(),
-                persistent: false,
-            }
-        }
+    pub fn new() -> Self {
+        GameCfg {}
     }
 }
 
@@ -134,7 +122,6 @@ impl Game {
 
     pub fn tick(&mut self, delta_time: DeltaTime) {
         crate::game::main_loop::tick(
-            &self.cfg,
             delta_time,
             &mut self.container,
             &mut self.systems,
@@ -174,7 +161,6 @@ pub mod test {
     impl TestScenery {
         pub fn tick(&mut self, delta: f32) {
             main_loop::tick(
-                &GameCfg::new(None),
                 DeltaTime(delta),
                 &mut self.container,
                 &mut self.systems,

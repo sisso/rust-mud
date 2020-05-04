@@ -20,5 +20,5 @@ fn main() {
     let module = arguments.get(1).unwrap();
     let profile = arguments.get(2).cloned();
 
-    crate::game_server::run(module, profile);
+    crate::game_server::start_server(module, profile);
 }

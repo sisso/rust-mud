@@ -19,7 +19,7 @@ impl TestScenery {
         // loader::scenery_space::load(&mut container);
         loader::Loader::load_folders(&mut container, &Path::new("../data/fantasy")).unwrap();
         TestScenery {
-            game: Game::new(GameCfg::new(None), container),
+            game: Game::new(GameCfg::new(), container),
             connection_id: ConnectionId(0),
             timeout: 200,
         }

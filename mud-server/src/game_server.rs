@@ -1,14 +1,15 @@
 use commons::{DeltaTime, TimeTrigger, TotalTime};
 use logs::*;
 use mud_domain::game::container::Container;
+use mud_domain::game::save::{load_from_file, save_to_file};
 use mud_domain::game::Game;
 use mud_domain::game::{loader, GameCfg};
 use socket_server::*;
 use std::path::Path;
 
 pub struct ServerRunner {
-    server: Box<dyn Server>,
-    game: Game,
+    pub server: Box<dyn Server>,
+    pub game: Game,
 }
 
 impl ServerRunner {
@@ -40,7 +41,7 @@ impl ServerRunner {
     }
 }
 
-pub fn run(module_path: &str, profile: Option<String>) {
+pub fn start_server(module_path: &str, profile: Option<String>) {
     let config_path = Path::new(module_path);
 
     info!(
@@ -48,10 +49,15 @@ pub fn run(module_path: &str, profile: Option<String>) {
         config_path.canonicalize().unwrap()
     );
 
+    let profile_file = profile.map(|profile| format!("/tmp/{}", profile));
+
     let mut container: Container = Container::new();
     loader::Loader::load_folders(&mut container, &config_path).unwrap();
+    // if let Some(profile_file) = &profile_file {
+    //     load_from_file(&mut container, profile_file.as_str()).unwrap();
+    // }
 
-    let cfg = GameCfg::new(profile);
+    let cfg = GameCfg::new();
     let game = Game::new(cfg, container);
 
     let server = server_socket::SocketServer::new();
@@ -60,5 +66,13 @@ pub fn run(module_path: &str, profile: Option<String>) {
     loop {
         std::thread::sleep(::std::time::Duration::from_millis(100));
         runner.run(DeltaTime(0.1));
+
+        if profile_file.is_some() && runner.game.container.time.tick.as_u32() % 100 == 0 {
+            save_to_file(
+                &runner.game.container,
+                profile_file.as_ref().unwrap().as_str(),
+            )
+            .unwrap();
+        }
     }
 }
