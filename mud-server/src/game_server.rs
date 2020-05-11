@@ -1,5 +1,6 @@
 use commons::{DeltaTime, TimeTrigger, TotalTime};
 use logs::*;
+use mud_domain::errors::Error;
 use mud_domain::game::container::Container;
 use mud_domain::game::save::{load_from_file, save_to_file};
 use mud_domain::game::Game;
@@ -53,9 +54,13 @@ pub fn start_server(module_path: &str, profile: Option<String>) {
 
     let mut container: Container = Container::new();
     loader::Loader::load_folders(&mut container, &config_path).unwrap();
-    // if let Some(profile_file) = &profile_file {
-    //     load_from_file(&mut container, profile_file.as_str()).unwrap();
-    // }
+    if let Some(profile_file) = &profile_file {
+        match load_from_file(&mut container, profile_file.as_str()) {
+            Ok(_) => {}
+            Err(Error::NotFoundFailure) => {}
+            Err(other) => panic!(other),
+        }
+    }
 
     let cfg = GameCfg::new();
     let game = Game::new(cfg, container);

@@ -5,6 +5,16 @@ use std::fs::File;
 use std::collections::HashMap;
 use std::io::{BufRead, Write};
 
+#[derive(Debug)]
+pub enum Error {
+    FileNotFound { path: String },
+    Io(std::io::Error),
+    Parser(serde_json::Error),
+    Other(String),
+}
+
+type Result<T> = std::result::Result<T, Error>;
+
 /*
 
 { header: $key, [$property: $value]* }
@@ -13,7 +23,7 @@ use std::io::{BufRead, Write};
 */
 pub trait SnapshotSupport {
     fn save_snapshot(&self, snapshot: &mut Snapshot) {}
-    fn load_snapshot(&mut self, snapshot: &mut Snapshot) {}
+    fn load_snapshot(&mut self, snapshot: &Snapshot) {}
 }
 
 #[derive(Debug, Clone)]
@@ -81,15 +91,18 @@ impl Snapshot {
         file.flush().unwrap();
     }
 
-    pub fn load(file_path: &str) -> Self {
-        let file = File::open(file_path).expect(&format!("failed to open file {:?}", file_path));
+    pub fn load(file_path: &str) -> Result<Snapshot> {
+        let file = File::open(file_path).map_err(|e| Error::FileNotFound {
+            path: file_path.to_string(),
+        })?;
 
         let lines = std::io::BufReader::new(file).lines();
 
         let mut save = Snapshot::new();
         for line in lines {
-            let line = line.unwrap();
-            let mut value: HashMap<String, Value> = serde_json::from_str(line.as_str()).unwrap();
+            let line = line.map_err(|e| Error::Io(e))?;
+            let mut value: HashMap<String, Value> =
+                serde_json::from_str(line.as_str()).map_err(|e| Error::Parser(e))?;
 
             if let Some(header) = value.remove("header") {
                 let value = value.remove("value").unwrap();
@@ -104,7 +117,7 @@ impl Snapshot {
             }
         }
 
-        save
+        Ok(save)
     }
 }
 
@@ -159,7 +172,7 @@ mod test {
         }
 
         {
-            let load = Snapshot::load(file_path);
+            let load = Snapshot::load(file_path).unwrap();
             let labels = load.get_components("label");
 
             assert_eq!(

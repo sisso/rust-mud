@@ -81,8 +81,4 @@ impl SnapshotSupport for PlayerRepository {
             snapshot.add(player_id.as_u32(), "player", json!(player));
         }
     }
-
-    fn load_snapshot(&mut self, _load: &mut Snapshot) {
-        unimplemented!()
-    }
 }

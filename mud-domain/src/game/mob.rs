@@ -402,8 +402,4 @@ impl SnapshotSupport for MobRepository {
             snapshot.add(id.as_u32(), "mob", json!(comp));
         }
     }
-
-    fn load_snapshot(&mut self, _snapshot: &mut Snapshot) {
-        unimplemented!()
-    }
 }

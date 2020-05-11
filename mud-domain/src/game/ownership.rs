@@ -92,10 +92,6 @@ impl SnapshotSupport for Ownerships {
             snapshot.add(id.as_u32(), "ownership", value);
         }
     }
-
-    fn load_snapshot(&mut self, _snapshot: &mut Snapshot) {
-        unimplemented!()
-    }
 }
 
 #[cfg(test)]

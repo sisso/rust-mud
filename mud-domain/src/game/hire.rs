@@ -71,8 +71,4 @@ impl SnapshotSupport for Hires {
             snapshot.add(id.as_u32(), "hire", value);
         }
     }
-
-    fn load_snapshot(&mut self, _snapshot: &mut Snapshot) {
-        unimplemented!()
-    }
 }

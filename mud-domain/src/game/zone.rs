@@ -66,8 +66,4 @@ impl SnapshotSupport for Zones {
             snapshot.add(id.as_u32(), "zone", value);
         }
     }
-
-    fn load_snapshot(&mut self, _snapshot: &mut Snapshot) {
-        unimplemented!()
-    }
 }
