@@ -1,7 +1,7 @@
 use crate::errors::Error;
 use crate::errors::Result;
 use crate::game::container::Container;
-use commons::save::{Snapshot, SnapshotSupport};
+use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use logs::*;
 
 pub fn save_to_file(container: &Container, path_and_file_prefix: &str) -> Result<()> {
@@ -26,7 +26,7 @@ pub fn save_to_file(container: &Container, path_and_file_prefix: &str) -> Result
 pub fn load_from_file(container: &mut Container, path_and_file_prefix: &str) -> Result<()> {
     let snapshot =
         Snapshot::load(format!("{}.save", path_and_file_prefix).as_str()).map_err(|e| match e {
-            commons::save::Error::FileNotFound { path } => {
+            crate::game::snapshot::Error::FileNotFound { path } => {
                 info!("skipping loading, profile file not found at {}", path);
                 Error::NotFoundFailure
             }

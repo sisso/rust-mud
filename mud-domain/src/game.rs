@@ -9,8 +9,8 @@ use crate::errors::*;
 use crate::game::location::LocationId;
 use crate::game::mob::MobId;
 use crate::game::room::RoomId;
+use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use crate::game::system::{SystemCtx, Systems};
-use commons::save::{Snapshot, SnapshotSupport};
 use serde::Deserialize;
 
 pub mod actions;
@@ -50,6 +50,7 @@ pub mod room;
 pub mod rooms_zones;
 pub mod save;
 pub mod ships;
+pub mod snapshot;
 pub mod space_utils;
 pub mod spawn;
 pub mod surfaces;

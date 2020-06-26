@@ -1,8 +1,9 @@
 use serde_json::{json, Value};
 
-use std::fs::File;
-
+use commons::ObjId;
+use logs::*;
 use std::collections::HashMap;
+use std::fs::File;
 use std::io::{BufRead, Write};
 
 #[derive(Debug)]
@@ -21,11 +22,6 @@ type Result<T> = std::result::Result<T, Error>;
 { id: $id, [$property: $value]* }
 
 */
-pub enum GetAsResult<T> {
-    Ok(T),
-    NotFound,
-    FailToParse,
-}
 
 #[derive(Debug, Clone)]
 pub struct Snapshot {
@@ -62,22 +58,47 @@ impl Snapshot {
         m.insert(component.to_string(), value);
     }
 
-    pub fn get_header_as<T>(&self, header: &str) -> GetAsResult<T>
+    pub fn get_header_as<T>(&self, header: &str) -> Option<T>
     where
         T: serde::de::DeserializeOwned,
     {
         match self.headers.get(header) {
             Some(value) => match serde_json::from_value(value.clone()) {
-                Ok(value) => GetAsResult::Ok(value),
-                Err(e) => GetAsResult::FailToParse,
+                Ok(value) => Some(value),
+                Err(e) => {
+                    warn!("fail to parse header {:?}: {:?}", header, e);
+                    None
+                }
             },
-            None => GetAsResult::NotFound,
+            None => None,
         }
     }
 
     // TODO: replace by take to remove clone?
     pub fn get_headers(&self, header: &str) -> Option<Value> {
         self.headers.get(header).cloned()
+    }
+
+    pub fn get_components_as<T>(&self, component: &str) -> Vec<(ObjId, T)>
+    where
+        T: serde::de::DeserializeOwned,
+    {
+        self.objects
+            .iter()
+            .flat_map(|(id, hash_map)| match hash_map.get(component) {
+                Some(value) => match serde_json::from_value(value.clone()) {
+                    Ok(obj) => Some((ObjId(*id), obj)),
+                    Err(e) => {
+                        warn!(
+                            "fail to parse id {:?}, component {:?}: {:?}",
+                            id, component, e
+                        );
+                        None
+                    }
+                },
+                None => None,
+            })
+            .collect()
     }
 
     // TODO: replace by take to remove clone?

@@ -1,5 +1,5 @@
 use crate::game::labels::Labels;
-use commons::save::{Snapshot, SnapshotSupport};
+use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use commons::tree::Tree;
 use commons::ObjId;
 use logs::*;

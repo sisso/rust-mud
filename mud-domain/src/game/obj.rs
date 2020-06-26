@@ -1,11 +1,12 @@
 use crate::errors::{self, Error};
 use crate::game::domain::NextId;
 use crate::game::loader::StaticId;
-use commons::save::{Snapshot, SnapshotSupport};
+use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use commons::{ObjId, OBJ_ID_STATIC_RANGE};
 use logs::*;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use serde_json::value::Value::Object;
 use std::collections::HashMap;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -95,6 +96,13 @@ impl SnapshotSupport for Objects {
                 continue;
             }
             snapshot.add(id.as_u32(), "object", json!(obj));
+        }
+    }
+
+    fn load_snapshot(&mut self, snapshot: &Snapshot) {
+        for (id, obj) in snapshot.get_components_as::<Obj>("object") {
+            self.objects.insert(id.into(), obj);
+            self.next_id.set_max(id.as_u32());
         }
     }
 }

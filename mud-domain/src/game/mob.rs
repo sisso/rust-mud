@@ -14,10 +14,10 @@ use crate::game::labels::Labels;
 use crate::game::location;
 use crate::game::location::Locations;
 use crate::game::room::RoomId;
+use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use crate::game::system::SystemCtx;
 use crate::game::Outputs;
 use crate::game::{avatars, combat, comm};
-use commons::save::{Snapshot, SnapshotSupport};
 use serde::{Deserialize, Serialize};
 
 pub type MobId = ObjId;

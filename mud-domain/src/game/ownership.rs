@@ -1,5 +1,5 @@
 use crate::errors::{Error, Result};
-use commons::save::{Snapshot, SnapshotSupport};
+use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use commons::ObjId;
 use logs::*;
 use serde::{Deserialize, Serialize};

@@ -1,6 +1,6 @@
+use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use crate::utils::strinput::StrInput;
 use crate::utils::text;
-use commons::save::{Snapshot, SnapshotSupport};
 use commons::ObjId;
 use logs::*;
 use serde::{Deserialize, Serialize};

@@ -18,6 +18,7 @@ use crate::game::prices::Prices;
 use crate::game::random_rooms::RandomRoomsRepository;
 use crate::game::room::RoomRepository;
 use crate::game::ships::Ships;
+use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use crate::game::spawn::Spawns;
 use crate::game::surfaces::Surfaces;
 use crate::game::surfaces_object::SurfaceObjects;
@@ -30,7 +31,6 @@ use crate::game::triggers::*;
 use crate::game::vendors::Vendors;
 use crate::game::zone::Zones;
 use crate::game::{item, mob, spawn, system, Outputs};
-use commons::save::{Snapshot, SnapshotSupport};
 use commons::{DeltaTime, ObjId, PlayerId};
 use logs::*;
 

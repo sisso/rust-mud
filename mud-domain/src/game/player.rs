@@ -1,5 +1,5 @@
 use super::mob::MobId;
-use commons::save::{Snapshot, SnapshotSupport};
+use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use commons::*;
 use logs::*;
 use serde::{Deserialize, Serialize};

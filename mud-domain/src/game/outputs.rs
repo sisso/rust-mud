@@ -2,9 +2,11 @@ use crate::game::domain::Dir;
 use crate::game::item::ItemId;
 use crate::game::location::LocationId;
 use crate::game::mob::{Damage, MobId};
+use crate::game::outputs::Output::LookedAt;
 use crate::game::room::RoomId;
 use commons::ObjId;
 
+// TODO: use or delete
 #[derive(Debug, Clone)]
 pub enum Output {
     LookedAt {

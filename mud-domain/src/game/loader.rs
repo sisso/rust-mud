@@ -13,7 +13,6 @@ use crate::game::labels::Label;
 use crate::game::loader::hocon_parser::{HParser, ParseError};
 use crate::game::mob::{Damage, Mob};
 use crate::game::obj::Objects;
-use crate::game::outputs::Output::LookedAt;
 use crate::game::pos::Pos;
 use crate::game::prices::{Money, Price};
 use crate::game::random_rooms::{RandomRoomsCfg, RandomRoomsRepository, RandomRoomsSpawnCfg};

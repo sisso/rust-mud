@@ -1,5 +1,5 @@
+use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use crate::game::triggers::{Event, Triggers};
-use commons::save::{Snapshot, SnapshotSupport};
 use commons::{timer::Timer as CTimer, TotalTime};
 use logs::*;
 use serde::{Deserialize, Serialize};
