@@ -21,9 +21,10 @@ type Result<T> = std::result::Result<T, Error>;
 { id: $id, [$property: $value]* }
 
 */
-pub trait SnapshotSupport {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {}
-    fn load_snapshot(&mut self, snapshot: &Snapshot) {}
+pub enum GetAsResult<T> {
+    Ok(T),
+    NotFound,
+    FailToParse,
 }
 
 #[derive(Debug, Clone)]
@@ -31,6 +32,11 @@ pub struct Snapshot {
     version: u32,
     headers: HashMap<String, Value>,
     objects: HashMap<u32, HashMap<String, Value>>,
+}
+
+pub trait SnapshotSupport {
+    fn save_snapshot(&self, snapshot: &mut Snapshot) {}
+    fn load_snapshot(&mut self, snapshot: &Snapshot) {}
 }
 
 impl Snapshot {
@@ -56,15 +62,30 @@ impl Snapshot {
         m.insert(component.to_string(), value);
     }
 
-    pub fn get_headers(&self, header: &str) -> Option<&Value> {
-        self.headers.get(header)
+    pub fn get_header_as<T>(&self, header: &str) -> GetAsResult<T>
+    where
+        T: serde::de::DeserializeOwned,
+    {
+        match self.headers.get(header) {
+            Some(value) => match serde_json::from_value(value.clone()) {
+                Ok(value) => GetAsResult::Ok(value),
+                Err(e) => GetAsResult::FailToParse,
+            },
+            None => GetAsResult::NotFound,
+        }
     }
 
-    pub fn get_components(&self, component: &str) -> Vec<(u32, &Value)> {
+    // TODO: replace by take to remove clone?
+    pub fn get_headers(&self, header: &str) -> Option<Value> {
+        self.headers.get(header).cloned()
+    }
+
+    // TODO: replace by take to remove clone?
+    pub fn get_components(&self, component: &str) -> Vec<(u32, Value)> {
         self.objects
             .iter()
             .flat_map(|(id, value)| match value.get(component) {
-                Some(value) => Some((*id, value)),
+                Some(value) => Some((*id, value.clone())),
                 None => None,
             })
             .collect()
