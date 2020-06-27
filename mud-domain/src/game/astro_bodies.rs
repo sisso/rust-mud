@@ -29,6 +29,20 @@ pub enum AstroBodyKind {
     Station,
 }
 
+impl AstroBodyKind {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            AstroBodyKind::Star => "star",
+            AstroBodyKind::Planet => "planet",
+            AstroBodyKind::Moon => "moon",
+            AstroBodyKind::JumpGate => "jump_gate",
+            AstroBodyKind::Ship => "ship",
+            AstroBodyKind::AsteroidField => "asteroid_field",
+            AstroBodyKind::Station => "station",
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct AstroBody {
     pub id: AstroBodyId,

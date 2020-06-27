@@ -134,6 +134,18 @@ impl StaticId {
     }
 }
 
+impl From<ObjId> for StaticId {
+    fn from(id: ObjId) -> Self {
+        StaticId(id.as_u32())
+    }
+}
+
+impl From<&ObjId> for StaticId {
+    fn from(id: &ObjId) -> Self {
+        StaticId(id.as_u32())
+    }
+}
+
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct PriceData {
     pub buy: u32,

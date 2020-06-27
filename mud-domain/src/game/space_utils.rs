@@ -114,7 +114,7 @@ pub fn get_ship_and_sector(
         .locations
         .list_parents(ship_id)
         .into_iter()
-        .find(|&obj_id| container.sectors.exists(obj_id));
+        .find(|&obj_id| container.surfaces.exists(obj_id));
 
     let sector_id = sector.ok_or_else(|| {
         outputs.private(mob_id, comm::space_not_in_craft());

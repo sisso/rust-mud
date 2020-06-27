@@ -1,7 +1,6 @@
 mod hocon_parser;
 
-use crate::errors;
-use crate::errors::Error;
+use crate::errors::{Error, Result};
 use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
 use crate::game::comm::vendor_buy_item_not_found;
 use crate::game::config::Config;
@@ -35,6 +34,7 @@ use std::path::{Path, PathBuf};
 pub mod dto;
 
 use dto::*;
+use std::io::Write;
 
 #[derive(Debug, Clone)]
 pub struct Loader {
@@ -106,13 +106,13 @@ impl Loader {
         container: &mut Container,
         static_id: StaticId,
         parent_id: ObjId,
-    ) -> errors::Result<ObjId> {
+    ) -> Result<ObjId> {
         let obj_id = Loader::instantiate(container, static_id)?;
         container.locations.set(obj_id, parent_id);
         Ok(obj_id)
     }
 
-    pub fn instantiate(container: &mut Container, static_id: StaticId) -> errors::Result<ObjId> {
+    pub fn instantiate(container: &mut Container, static_id: StaticId) -> Result<ObjId> {
         debug!("instantiate prefab {:?}", static_id);
 
         let mut references = HashMap::new();
@@ -147,7 +147,7 @@ impl Loader {
         objects: &Objects,
         ref_map: &HashMap<StaticId, ObjId>,
         static_id: StaticId,
-    ) -> errors::Result<ObjId> {
+    ) -> Result<ObjId> {
         // search from map and fallback to real ObjId
         ref_map
             .get(&static_id)
@@ -169,7 +169,7 @@ impl Loader {
         obj_id: ObjId,
         data: Either<&ObjData, StaticId>,
         references: &HashMap<StaticId, ObjId>,
-    ) -> errors::Result<()> {
+    ) -> Result<()> {
         let data: &ObjData = match data {
             Either::Left(data) => data,
             Either::Right(static_id) => container
@@ -250,7 +250,7 @@ impl Loader {
         }
 
         if let Some(_surfaces) = &data.sector {
-            container.sectors.add(Surface {
+            container.surfaces.add(Surface {
                 id: obj_id,
                 size: 10,
                 is_3d: false,
@@ -407,16 +407,16 @@ impl Loader {
         Ok(())
     }
 
-    pub fn load_hocon(container: &mut Container, buffer: &str) -> errors::Result<()> {
-        let data: errors::Result<LoaderData> = HParser::load_from_str(buffer).map_err(|e| {
+    pub fn load_hocon(container: &mut Container, buffer: &str) -> Result<()> {
+        let data: Result<LoaderData> = HParser::load_from_str(buffer).map_err(|e| {
             let msg = format!("{:?}", e);
-            errors::Error::Error(msg)
+            Error::Error(msg)
         });
 
         Loader::load_data(container, data?)
     }
 
-    pub fn read_csv_files(data: &mut LoaderData, files: &Vec<&Path>) -> errors::Result<()> {
+    pub fn read_csv_files(data: &mut LoaderData, files: &Vec<&Path>) -> Result<()> {
         let mut flat_data = vec![];
 
         for file in files {
@@ -429,7 +429,7 @@ impl Loader {
         Loader::parse_flat_data(data, flat_data)
     }
 
-    pub fn read_csv(buffer: &str) -> errors::Result<Vec<FlatData>> {
+    pub fn read_csv(buffer: &str) -> Result<Vec<FlatData>> {
         let csv = commons::csv::parse_csv(buffer);
         let tables = commons::csv::csv_strings_to_tables(&csv).expect("fail to parse tables");
 
@@ -448,21 +448,21 @@ impl Loader {
         let json_list = commons::csv::tables_to_jsonp(&tables, &parsers).unwrap();
         for value in json_list {
             let data: FlatData = serde_json::from_value(value)
-                .map_err(|err| errors::Error::Exception(format!("{}", err)))?;
+                .map_err(|err| Error::Exception(format!("{}", err)))?;
             result.push(data);
         }
 
         Ok(result)
     }
 
-    pub fn load_from_csv(container: &mut Container, buffer: &str) -> errors::Result<()> {
+    pub fn load_from_csv(container: &mut Container, buffer: &str) -> Result<()> {
         let flat_values = Loader::read_csv(buffer)?;
         let mut data = LoaderData::new();
         Loader::parse_flat_data(&mut data, flat_values)?;
         Loader::load_data(container, data)
     }
 
-    pub fn parse_flat_data(root_data: &mut LoaderData, list: Vec<FlatData>) -> errors::Result<()> {
+    pub fn parse_flat_data(root_data: &mut LoaderData, list: Vec<FlatData>) -> Result<()> {
         for data in list {
             let static_id = StaticId(data.static_id);
             let mut obj = ObjData::new(static_id);
@@ -523,22 +523,25 @@ impl Loader {
     /// 2. Validate content
     /// 3. Add all prefabs
     /// 4. Instantiate all static data
-    pub fn load_folders(container: &mut Container, folder: &Path) -> errors::Result<()> {
+    pub fn load_folders(container: &mut Container, folder: &Path) -> Result<()> {
         let data = Loader::read_folders(folder)?;
         Loader::load_data(container, data)
     }
 
-    pub fn read_snapshot(snapshot_file: &Path) -> errors::Result<LoaderData> {
+    pub fn read_snapshot(snapshot_file: &Path) -> Result<LoaderData> {
         let file = std::fs::File::open(snapshot_file)?;
         let data = serde_json::from_reader(std::io::BufReader::new(file))?;
         Ok(data)
     }
 
-    pub fn write_snapshot(_snapshot_file: &Path, _data: &LoaderData) -> errors::Result<()> {
-        unimplemented!()
+    pub fn write_snapshot(snapshot_file: &Path, data: &LoaderData) -> Result<()> {
+        let value = serde_json::to_string_pretty(data)?;
+        let mut file = std::fs::File::open(snapshot_file)?;
+        file.write_all(value.as_bytes())?;
+        Ok(())
     }
 
-    pub fn read_folders(root_path: &Path) -> errors::Result<LoaderData> {
+    pub fn read_folders(root_path: &Path) -> Result<LoaderData> {
         if !root_path.exists() {
             return Err(Error::Error(
                 "configuration folder do not exists".to_string(),
@@ -588,7 +591,7 @@ impl Loader {
     }
 
     // TODO: to fs-utils?
-    fn list_files(root_path: &Path) -> errors::Result<Vec<PathBuf>> {
+    fn list_files(root_path: &Path) -> Result<Vec<PathBuf>> {
         let mut result = vec![];
         let list: std::fs::ReadDir = std::fs::read_dir(root_path)?;
         for entry in list {
@@ -599,11 +602,91 @@ impl Loader {
         Ok(result)
     }
 
-    pub fn create_snapshot(_container: &Container) -> errors::Result<LoaderData> {
-        unimplemented!()
+    pub fn create_snapshot(container: &Container) -> Result<LoaderData> {
+        let mut data = LoaderData::new();
+
+        data.cfg = Some(CfgData {
+            // TODO should be option
+            initial_room: container.config.initial_room.unwrap().into(),
+            // TODO should be option
+            avatar_mob: container.config.avatar_id.unwrap(),
+            // TODO: where it is configured?
+            initial_craft: None,
+            money_id: container.config.money_id,
+        });
+
+        for prefab in container.loader.list_prefabs() {
+            data.prefabs.insert(prefab.id, prefab.clone());
+        }
+
+        for obj_id in container.objects.list() {
+            let obj_data = Loader::snapshot_obj(&container, *obj_id)?;
+            data.objects.insert(obj_id.into(), obj_data);
+        }
+
+        Ok(data)
     }
 
-    pub fn load_data(container: &mut Container, data: LoaderData) -> errors::Result<()> {
+    pub fn snapshot_obj(container: &Container, id: ObjId) -> Result<ObjData> {
+        let mut obj_data = ObjData::new(id.into());
+
+        if let Some(label) = container.labels.get(id) {
+            // Hack some fields to make it compatible with original values
+            obj_data.label = label.label.clone();
+            if !label.desc.is_empty() {
+                obj_data.desc = Some(label.desc.clone());
+            }
+
+            if label.code != label.label {
+                obj_data.code = Some(vec![label.code.clone()]);
+            }
+        }
+
+        if let Some(room) = container.rooms.get(id) {
+            let exits = room
+                .exits
+                .iter()
+                .map(|(dir, room_id)| RoomExitData {
+                    dir: dir.as_str().to_string(),
+                    to: room_id.into(),
+                })
+                .collect();
+
+            obj_data.room = Some(RoomData {
+                // TODO: hack for migration
+                can_exit: if room.can_exit { Some(true) } else { None },
+                exits: Some(exits),
+            });
+        }
+
+        if let Some(sector) = container.surfaces.get(id) {
+            obj_data.sector = Some(SectorData {});
+        }
+
+        if let Some(parent) = container.locations.get(id) {
+            obj_data.parent = Some(parent.into());
+        }
+
+        if let Some(zone) = container.zones.get(id) {
+            obj_data.zone = Some(ZoneData { random_rooms: None });
+        }
+
+        if let Some(pos) = container.pos.get_pos(id) {
+            obj_data.pos = Some(PosData { x: pos.x, y: pos.y });
+        }
+
+        if let Some(astro_body) = container.astro_bodies.get(id) {
+            obj_data.astro_body = Some(AstroBodyData {
+                kind: astro_body.kind.as_str().to_string(),
+                orbit_distance: astro_body.orbit_distance,
+                jump_target_id: astro_body.jump_target_id.map(|value| value.into()),
+            })
+        }
+
+        Ok(obj_data)
+    }
+
+    pub fn load_data(container: &mut Container, data: LoaderData) -> Result<()> {
         Loader::validate(&data)?;
 
         // add prefabs
@@ -635,7 +718,7 @@ impl Loader {
         Ok(())
     }
 
-    fn validate(data: &LoaderData) -> errors::Result<()> {
+    fn validate(data: &LoaderData) -> Result<()> {
         let mut ids = HashSet::new();
 
         for (_static_id, data) in data.objects.iter() {
@@ -656,7 +739,7 @@ impl Loader {
     fn initialize_all(
         container: &mut Container,
         objects: HashMap<StaticId, ObjData>,
-    ) -> errors::Result<()> {
+    ) -> Result<()> {
         for (key, _) in &objects {
             container.objects.insert(ObjId(key.as_u32()))?;
         }
@@ -803,5 +886,31 @@ prefabs.control_panel_command_2 {
             let error_msg = format!("fail to parse {:?}", folder);
             Loader::load_folders(&mut container, &folder).expect(error_msg.as_str());
         }
+    }
+
+    #[test]
+    fn test_snapshot_all_objects() -> std::result::Result<(), Box<dyn std::error::Error>> {
+        for folder in list_data_folders_for_test() {
+            let data = Loader::read_folders(&folder)?;
+
+            let mut container = Container::new();
+            Loader::load_data(&mut container, data.clone())?;
+
+            for (id, obj_data) in data.objects {
+                let new_obj_data = Loader::snapshot_obj(&container, ObjId(id.as_u32()))?;
+
+                assert_data_eq(new_obj_data, obj_data);
+            }
+        }
+
+        Ok(())
+    }
+
+    fn assert_data_eq(mut value: ObjData, mut expected: ObjData) {
+        // Manually check for fields that will not match in a simple jvalue check
+        expected.children = None;
+
+        // check all other fields to be equals
+        crate::utils::test::assert_json_eq(&value, &expected);
     }
 }

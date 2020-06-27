@@ -1,5 +1,10 @@
 # Main Todo
 
+- new load system
+    - save snapshot
+- add save version of file
+- add save version migration
+
 # Features
 
 - specs

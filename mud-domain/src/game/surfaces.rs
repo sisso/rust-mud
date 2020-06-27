@@ -44,8 +44,8 @@ impl Surfaces {
         self.index.remove(&id)
     }
 
-    pub fn get(&self, id: SurfaceId) -> Result<&Surface, ()> {
-        self.index.get(&id).ok_or(())
+    pub fn get(&self, id: SurfaceId) -> Option<&Surface> {
+        self.index.get(&id)
     }
 
     pub fn exists(&self, id: ObjId) -> bool {

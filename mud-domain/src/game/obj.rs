@@ -83,7 +83,7 @@ impl Objects {
         return self.objects.contains_key(&obj_id);
     }
 
-    pub fn list<'a>(&'a mut self) -> impl Iterator<Item = &ObjId> + 'a {
+    pub fn list<'a>(&'a self) -> impl Iterator<Item = &ObjId> + 'a {
         self.objects.keys()
     }
 }
