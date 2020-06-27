@@ -47,7 +47,6 @@ pub mod random_rooms;
 pub mod random_rooms_generator;
 pub mod room;
 pub mod rooms_zones;
-pub mod save;
 pub mod ships;
 pub mod space_utils;
 pub mod spawn;

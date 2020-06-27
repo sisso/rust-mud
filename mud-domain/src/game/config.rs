@@ -1,4 +1,4 @@
-use crate::game::loader::StaticId;
+use crate::game::loader::dto::StaticId;
 use crate::game::room::RoomId;
 use commons::ObjId;
 use serde::{Deserialize, Serialize};

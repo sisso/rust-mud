@@ -1,4 +1,4 @@
-use mud_domain::game::loader::{Loader, ObjData};
+use mud_domain::game::loader::Loader;
 
 use commons::tree::Tree;
 use serde_json;

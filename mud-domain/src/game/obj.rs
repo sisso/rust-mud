@@ -1,6 +1,6 @@
 use crate::errors::{self, Error};
 use crate::game::domain::NextId;
-use crate::game::loader::StaticId;
+use crate::game::loader::dto::StaticId;
 use commons::{ObjId, OBJ_ID_STATIC_RANGE};
 use logs::*;
 use serde::{Deserialize, Serialize};

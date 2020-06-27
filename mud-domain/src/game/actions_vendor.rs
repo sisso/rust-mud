@@ -3,7 +3,7 @@ use crate::game::comm::VendorListItem;
 use crate::game::container::Container;
 use crate::game::item::ItemId;
 use crate::game::labels::Labels;
-use crate::game::loader::{Loader, StaticId};
+use crate::game::loader::{dto::StaticId, Loader};
 use crate::game::mob::MobId;
 use crate::game::prices::Money;
 use crate::game::{comm, inventory, Outputs};

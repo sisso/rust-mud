@@ -205,7 +205,7 @@ pub fn search_one(
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::game::loader::{ItemData, ItemFlagsData, ObjData, StaticId};
+    use crate::game::loader::dto::{ItemData, ItemFlagsData, ObjData, StaticId};
     use crate::game::obj::Obj;
 
     // not require, bug was foudn

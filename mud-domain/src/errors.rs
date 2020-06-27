@@ -1,4 +1,4 @@
-use crate::game::loader::StaticId;
+use crate::game::loader::dto::StaticId;
 use serde::export::Formatter;
 use std::any::Any;
 use std::path::Display;

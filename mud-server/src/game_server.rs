@@ -4,7 +4,6 @@ use commons::{DeltaTime, TimeTrigger, TotalTime};
 use logs::*;
 use mud_domain::errors::Error;
 use mud_domain::game::container::Container;
-use mud_domain::game::save::{load_from_file, save_to_file};
 use mud_domain::game::Game;
 use mud_domain::game::{loader, GameCfg};
 use socket_server::*;
@@ -55,13 +54,14 @@ pub fn start_server(module_path: &str, profile: Option<String>) {
 
     let mut container: Container = Container::new();
     loader::Loader::load_folders(&mut container, &config_path).unwrap();
-    if let Some(profile_file) = &profile_file {
-        match load_from_file(&mut container, profile_file.as_str()) {
-            Ok(_) => {}
-            Err(Error::NotFoundFailure) => {}
-            Err(other) => panic!(other),
-        }
-    }
+
+    // if let Some(profile_file) = &profile_file {
+    //     match load_from_file(&mut container, profile_file.as_str()) {
+    //         Ok(_) => {}
+    //         Err(Error::NotFoundFailure) => {}
+    //         Err(other) => panic!(other),
+    //     }
+    // }
 
     let cfg = GameCfg::new();
     let game = Game::new(cfg, container);
@@ -74,11 +74,11 @@ pub fn start_server(module_path: &str, profile: Option<String>) {
         runner.run(DeltaTime(0.1));
 
         if profile_file.is_some() && runner.game.container.time.tick.as_u32() % 100 == 0 {
-            save_to_file(
-                &runner.game.container,
-                profile_file.as_ref().unwrap().as_str(),
-            )
-            .unwrap();
+            // save_to_file(
+            //     &runner.game.container,
+            //     profile_file.as_ref().unwrap().as_str(),
+            // )
+            // .unwrap();
         }
     }
 }

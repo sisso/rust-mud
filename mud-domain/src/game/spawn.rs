@@ -3,7 +3,7 @@ use super::mob::*;
 use super::room::RoomId;
 use super::Outputs;
 use crate::errors::{Error, Result};
-use crate::game::loader::{Loader, StaticId};
+use crate::game::loader::{dto::StaticId, Loader};
 use crate::game::location::LocationId;
 use crate::game::system::SystemCtx;
 use commons::*;

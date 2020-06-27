@@ -7,7 +7,7 @@ use crate::errors::Error::NotFoundFailure;
 use crate::errors::{AsResult, Error, Result};
 use crate::game::comm::{RoomMap, RoomMapCell};
 use crate::game::item::ItemId;
-use crate::game::loader::StaticId;
+use crate::game::loader::dto::StaticId;
 use crate::game::memory::Memories;
 use crate::game::room::RoomRepository;
 use crate::game::space_utils;
