@@ -5,6 +5,7 @@ use serde_json;
 use std::collections::HashMap;
 use std::env;
 use std::path::Path;
+use std::io::Write;
 
 // TODO: refactory everything, it got ugly,
 // TODO: support commands
@@ -25,6 +26,7 @@ fn main() {
         std::process::exit(1);
     }
 
+    // TODO: require a proper argument parser
     let path = env::args().nth(1).unwrap_or("data/space".to_string());
     let dump_id: Option<u32> = env::args().nth(2).map(|s| match s.parse() {
         Ok(id) => id,
@@ -34,8 +36,16 @@ fn main() {
             std::process::exit(1);
         }
     });
+    let to_json = false;
 
     let data = Loader::read_folders(Path::new(path.as_str())).unwrap();
+
+    if to_json {
+        let mut file = std::fs::File::create("/tmp/file01.json").unwrap();
+        let json_str = serde_json::to_string_pretty(&data).unwrap();
+        file.write_all(json_str.as_bytes());
+        return;
+    }
 
     let mut data_by_id = HashMap::new();
     let mut roots = vec![];
