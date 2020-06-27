@@ -17,6 +17,7 @@ macro_rules! unwrap_or_continue {
 }
 
 // TODO: probably don't belongs here anymore
+/// Represents a connected user, not necessary is playing or have a avatar
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ConnectionId(pub u32);
 
@@ -144,6 +145,7 @@ impl From<u32> for ObjId {
     }
 }
 
+/// Represent someone playing the game, is attached to a login, not necessary has a avatar
 pub type PlayerId = ObjId;
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
