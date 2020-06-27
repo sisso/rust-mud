@@ -758,6 +758,12 @@ impl Loader {
         Loader::load_data(container, data)
     }
 
+    pub fn read_snapshot(snapshot_file: &Path) -> errors::Result<LoaderData> {
+        let file = std::fs::File::open(snapshot_file)?;
+        let data = serde_json::from_reader(std::io::BufReader::new(file))?;
+        Ok(data)
+    }
+
     pub fn read_folders(root_path: &Path) -> errors::Result<LoaderData> {
         if !root_path.exists() {
             return Err(Error::Error(
@@ -768,6 +774,16 @@ impl Loader {
         let files = Loader::list_files(root_path)?;
 
         let mut data = LoaderData::new();
+
+        let json = files
+            .iter()
+            .filter(|path| path.to_string_lossy().ends_with(".json"))
+            .map(|p| Path::new(p.to_str().unwrap()))
+            .next();
+
+        if let Some(json_file) = json {
+            return Loader::read_snapshot(json_file);
+        }
 
         // load csv files
         let csv_files = files
@@ -797,7 +813,7 @@ impl Loader {
         Ok(data)
     }
 
-    // TODO: make it recursive
+    // TODO: to fs-utils?
     fn list_files(root_path: &Path) -> errors::Result<Vec<PathBuf>> {
         let mut result = vec![];
         let list: std::fs::ReadDir = std::fs::read_dir(root_path)?;
@@ -1006,7 +1022,8 @@ prefabs.control_panel_command_2 {
     fn test_read_all_data_folders() {
         for folder in list_data_folders_for_test() {
             let mut container = Container::new();
-            Loader::load_folders(&mut container, &folder).unwrap();
+            let error_msg = format!("fail to parse {:?}", folder);
+            Loader::load_folders(&mut container, &folder).expect(error_msg.as_str());
         }
     }
 }

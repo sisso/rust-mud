@@ -26,6 +26,7 @@ pub enum Error {
     Exception(String),
     Error(String),
     IOError(std::io::Error),
+    ParserError(serde_json::Error),
 }
 
 impl Error {
@@ -97,5 +98,11 @@ impl<T> AsResult<T> for Option<T> {
 impl From<std::io::Error> for Error {
     fn from(error: std::io::Error) -> Self {
         Error::IOError(error)
+    }
+}
+
+impl From<serde_json::Error> for Error {
+    fn from(error: serde_json::Error) -> Self {
+        Error::ParserError(error)
     }
 }
