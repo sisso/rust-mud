@@ -43,7 +43,7 @@ pub struct SpawnBuilder {
 
 impl SpawnBuilder {
     pub fn create_spawn(&self, id: ObjId) -> Spawn {
-        Spawn::new(id, self.prefab_id, self.delay_min, self.delay_max)
+        Spawn::new(id, self.prefab_id, self.max, self.delay_min, self.delay_max)
     }
 }
 
@@ -59,11 +59,20 @@ pub struct Spawn {
 }
 
 impl Spawn {
-    pub fn new(id: SpawnId, prefab_id: StaticId, min: DeltaTime, max: DeltaTime) -> Self {
+    pub fn new(
+        id: SpawnId,
+        prefab_id: StaticId,
+        max: u32,
+        min_time: DeltaTime,
+        max_time: DeltaTime,
+    ) -> Self {
         Spawn {
             id,
-            max: 1,
-            delay: SpawnDelay { min: min, max: max },
+            max: max,
+            delay: SpawnDelay {
+                min: min_time,
+                max: max_time,
+            },
             prefab_id: prefab_id,
             next: TotalTime(0.0),
             locations_id: vec![],

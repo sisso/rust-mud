@@ -15,6 +15,10 @@ impl Modifier {
     pub fn apply(&self, value: Attribute) -> Attribute {
         0.min(value as i32 + self.0) as u32
     }
+
+    pub fn as_i32(&self) -> i32 {
+        self.0
+    }
 }
 
 pub type Attribute = u32;

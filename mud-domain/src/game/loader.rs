@@ -261,8 +261,8 @@ impl Loader {
             let mut mob = Mob::new(obj_id);
             mob.attributes.attack = mob_data.attack;
             mob.attributes.defense = mob_data.defense;
-            mob.attributes.pv.current = mob_data.pv as i32;
-            mob.attributes.pv.max = mob_data.pv;
+            mob.attributes.pv.current = mob_data.pv;
+            mob.attributes.pv.max = mob_data.pv_max;
             mob.attributes.damage.max = mob_data.damage_max;
             mob.attributes.damage.min = mob_data.damage_min;
             mob.xp = mob_data.xp;
@@ -369,7 +369,7 @@ impl Loader {
                     .map(|spawn_data| {
                         assert!(
                             spawn_data.spawn.locations_id.is_none(),
-                            "locations_id is not supported for spawn in random maps"
+                            "locations_id is not supported for spawn in random maps, it should be empty"
                         );
 
                         let spawn_builder = Loader::spawn_data_to_spawn_builder(&spawn_data.spawn);
@@ -384,10 +384,12 @@ impl Loader {
 
                 container
                     .random_rooms
+                    // TODO: deep?
                     .add(RandomRoomsCfg {
                         id: obj_id,
                         entrance_id: entrance_id,
                         entrance_dir: Dir::parse(rr_data.entrance_dir.as_str()).unwrap(),
+                        // TODO: add seed
                         seed: 0,
                         width: rr_data.width,
                         height: rr_data.height,
@@ -395,6 +397,10 @@ impl Loader {
                     })
                     .unwrap();
             }
+        }
+
+        if let Some(pos) = &data.pos {
+            container.pos.set(obj_id, V2::new(pos.x, pos.y));
         }
 
         if let Some(children) = data.children.clone() {
@@ -628,6 +634,15 @@ impl Loader {
     }
 
     pub fn snapshot_obj(container: &Container, id: ObjId) -> Result<ObjData> {
+        macro_rules! true_or_none {
+            ($res:expr) => {
+                if $res {
+                    Some(true)
+                } else {
+                    None
+                }
+            };
+        }
         let mut obj_data = ObjData::new(id.into());
 
         if let Some(label) = container.labels.get(id) {
@@ -643,7 +658,7 @@ impl Loader {
         }
 
         if let Some(room) = container.rooms.get(id) {
-            let exits = room
+            let exits: Vec<_> = room
                 .exits
                 .iter()
                 .map(|(dir, room_id)| RoomExitData {
@@ -655,7 +670,7 @@ impl Loader {
             obj_data.room = Some(RoomData {
                 // TODO: hack for migration
                 can_exit: if room.can_exit { Some(true) } else { None },
-                exits: Some(exits),
+                exits: Some(exits), // if exits.is_empty() { None } else { Some(exits) },
             });
         }
 
@@ -668,7 +683,40 @@ impl Loader {
         }
 
         if let Some(zone) = container.zones.get(id) {
-            obj_data.zone = Some(ZoneData { random_rooms: None });
+            let random_room_data = if let Some(random_room) = container.random_rooms.get(id) {
+                let spanws = random_room
+                    .spawns
+                    .iter()
+                    .map(|i| RandomRoomsSpawnData {
+                        level_min: i.level_min,
+                        level_max: i.level_max,
+                        amount: i.amount,
+                        spawn: SpawnData {
+                            prefab_id: i.spawn_builder.prefab_id,
+                            max: i.spawn_builder.max,
+                            time_min: i.spawn_builder.delay_min.as_seconds_f32(),
+                            time_max: i.spawn_builder.delay_max.as_seconds_f32(),
+                            // random maps have empty locaitnos
+                            locations_id: None,
+                        },
+                    })
+                    .collect();
+
+                Some(RandomRoomsData {
+                    entrance_room_id: random_room.entrance_id.into(),
+                    entrance_dir: random_room.entrance_dir.as_str().to_string(),
+                    width: random_room.width,
+                    height: random_room.height,
+                    levels: 0,
+                    spawns: spanws,
+                })
+            } else {
+                None
+            };
+
+            obj_data.zone = Some(ZoneData {
+                random_rooms: random_room_data,
+            });
         }
 
         if let Some(pos) = container.pos.get_pos(id) {
@@ -681,6 +729,80 @@ impl Loader {
                 orbit_distance: astro_body.orbit_distance,
                 jump_target_id: astro_body.jump_target_id.map(|value| value.into()),
             })
+        }
+
+        if let Some(spawn) = container.spawns.get(id) {
+            let spawn_data = SpawnData {
+                prefab_id: spawn.prefab_id,
+                max: spawn.max,
+                time_min: spawn.delay.min.as_seconds_f32(),
+                time_max: spawn.delay.max.as_seconds_f32(),
+                locations_id: Some(spawn.locations_id.iter().map(|id| id.into()).collect()),
+            };
+
+            obj_data.spawn = Some(spawn_data);
+        }
+
+        if let Some(mob) = container.mobs.get(id) {
+            let hire_cost = if let Some(hire) = container.hires.get(id) {
+                Some(hire.cost.as_u32())
+            } else {
+                None
+            };
+
+            obj_data.mob = Some(MobData {
+                attack: mob.attributes.attack,
+                defense: mob.attributes.defense,
+                damage_min: mob.attributes.damage.min,
+                damage_max: mob.attributes.damage.max,
+                pv: mob.attributes.pv.current,
+                pv_max: mob.attributes.pv.max,
+                xp: mob.xp,
+                hire_cost: hire_cost,
+                // TODO: rmeove hack
+                aggressive: if mob.aggressive {
+                    Some(mob.aggressive)
+                } else {
+                    None
+                },
+            })
+        }
+
+        if let Some(item) = container.items.get(id) {
+            let flags = ItemFlagsData {
+                money: true_or_none!(item.flags.is_money),
+                inventory: true_or_none!(item.flags.is_inventory),
+                stuck: true_or_none!(item.flags.is_stuck),
+                body: true_or_none!(item.flags.is_corpse),
+            };
+
+            let weapon = if let Some(weapon) = &item.weapon {
+                Some(ItemWeaponData {
+                    min: weapon.damage.min,
+                    max: weapon.damage.max,
+                    calm_down: weapon.calm_down.as_seconds_f32(),
+                    attack: weapon.attack.as_i32(),
+                    defense: 0,
+                })
+            } else {
+                None
+            };
+
+            let armor = if let Some(armor) = &item.armor {
+                Some(ItemArmorData {
+                    defense: armor.defense.as_i32(),
+                    rd: armor.rd,
+                })
+            } else {
+                None
+            };
+
+            obj_data.item = Some(ItemData {
+                flags: Some(flags),
+                amount: Some(item.amount),
+                weapon: weapon,
+                armor: armor,
+            });
         }
 
         Ok(obj_data)
@@ -909,6 +1031,12 @@ prefabs.control_panel_command_2 {
     fn assert_data_eq(mut value: ObjData, mut expected: ObjData) {
         // Manually check for fields that will not match in a simple jvalue check
         expected.children = None;
+
+        if let Some(room) = &mut expected.room {
+            if room.exits.is_none() {
+                room.exits = Some(vec![]);
+            }
+        }
 
         // check all other fields to be equals
         crate::utils::test::assert_json_eq(&value, &expected);

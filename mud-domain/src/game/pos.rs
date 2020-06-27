@@ -22,6 +22,7 @@ impl PosRepo {
     }
 
     pub fn set(&mut self, id: ObjId, value: V2) {
+        info!("{:?} set_pos {:?}", id, new_pos);
         self.index.insert(id, Pos { id, pos: value });
     }
 
