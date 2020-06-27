@@ -1,6 +1,7 @@
 use crate::game::loader::StaticId;
 use serde::export::Formatter;
 use std::any::Any;
+use std::path::Display;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -60,6 +61,16 @@ impl Error {
         }
 
         self
+    }
+}
+
+impl std::error::Error for Error {}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let value = format!("{:?}", self);
+        write!(f, "{}", value);
+        Ok(())
     }
 }
 
