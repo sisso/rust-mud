@@ -18,7 +18,6 @@ use crate::game::prices::Prices;
 use crate::game::random_rooms::RandomRoomsRepository;
 use crate::game::room::RoomRepository;
 use crate::game::ships::Ships;
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use crate::game::spawn::Spawns;
 use crate::game::surfaces::Surfaces;
 use crate::game::surfaces_object::SurfaceObjects;
@@ -129,68 +128,6 @@ impl Container {
         let room = self.rooms.get(room_id)?;
 
         Some(PlayerCtx { player, mob, room })
-    }
-}
-
-impl SnapshotSupport for Container {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {
-        self.config.save_snapshot(snapshot);
-        self.time.save_snapshot(snapshot);
-        self.objects.save_snapshot(snapshot);
-        self.players.save_snapshot(snapshot);
-        self.mobs.save_snapshot(snapshot);
-        self.items.save_snapshot(snapshot);
-        self.rooms.save_snapshot(snapshot);
-        self.spawns.save_snapshot(snapshot);
-        self.locations.save_snapshot(snapshot);
-        self.equips.save_snapshot(snapshot);
-        // self.tags.save_snapshot(snapshot);
-        self.labels.save_snapshot(snapshot);
-        // self.ships.save_snapshot(snapshot);
-        // self.sectors.save_snapshot(snapshot);
-        // self.astro_bodies.save_snapshot(snapshot);
-        // self.pos.save_snapshot(snapshot);
-        // self.surface_objects.save_snapshot(snapshot);
-        // self.loader.save_snapshot(snapshot);
-        self.vendors.save_snapshot(snapshot);
-        self.prices.save_snapshot(snapshot);
-        self.timer.save_snapshot(snapshot);
-        self.triggers.save_snapshot(snapshot);
-        self.ownership.save_snapshot(snapshot);
-        self.zones.save_snapshot(snapshot);
-        self.hires.save_snapshot(snapshot);
-        // self.random_rooms.save_snapshot(snapshot);
-        self.memories.save_snapshot(snapshot);
-    }
-
-    fn load_snapshot(&mut self, snapshot: &Snapshot) {
-        self.config.load_snapshot(snapshot);
-        self.time.load_snapshot(snapshot);
-        self.objects.load_snapshot(snapshot);
-        self.players.load_snapshot(snapshot);
-        self.mobs.load_snapshot(snapshot);
-        self.items.load_snapshot(snapshot);
-        self.rooms.load_snapshot(snapshot);
-        self.spawns.load_snapshot(snapshot);
-        self.locations.load_snapshot(snapshot);
-        self.equips.load_snapshot(snapshot);
-        // self.tags.load_snapshot(snapshot);
-        self.labels.load_snapshot(snapshot);
-        // self.ships.load_snapshot(snapshot);
-        // self.sectors.load_snapshot(snapshot);
-        // self.astro_bodies.load_snapshot(snapshot);
-        // self.pos.load_snapshot(snapshot);
-        // self.surface_objects.load_snapshot(snapshot);
-        // self.loader.load_snapshot(snapshot);
-        self.vendors.load_snapshot(snapshot);
-        self.prices.load_snapshot(snapshot);
-        self.timer.load_snapshot(snapshot);
-        self.triggers.load_snapshot(snapshot);
-        self.ownership.load_snapshot(snapshot);
-        self.zones.load_snapshot(snapshot);
-        self.hires.load_snapshot(snapshot);
-        // self.random_rooms.load_snapshot(snapshot);
-        self.memories.load_snapshot(snapshot);
     }
 }
 

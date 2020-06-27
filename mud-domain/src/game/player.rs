@@ -1,5 +1,4 @@
 use super::mob::MobId;
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use commons::*;
 use logs::*;
 use serde::{Deserialize, Serialize};
@@ -71,14 +70,5 @@ impl PlayerRepository {
 
     pub fn get_mob(&self, player_id: PlayerId) -> Option<MobId> {
         self.index.get(&player_id).map(|player| player.mob_id)
-    }
-}
-
-impl SnapshotSupport for PlayerRepository {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {
-        use serde_json::json;
-        for (player_id, player) in &self.index {
-            snapshot.add(player_id.as_u32(), "player", json!(player));
-        }
     }
 }

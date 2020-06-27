@@ -1,4 +1,3 @@
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use commons::ObjId;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -41,19 +40,5 @@ impl Vendors {
 
     pub fn exist(&self, id: ObjId) -> bool {
         self.index.contains_key(&id)
-    }
-}
-
-impl SnapshotSupport for Vendors {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {
-        use serde_json::json;
-
-        for (id, comp) in &self.index {
-            if id.is_static() {
-                continue;
-            }
-            let value = json!(comp);
-            snapshot.add(id.as_u32(), "vendor", value);
-        }
     }
 }

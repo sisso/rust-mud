@@ -1,5 +1,4 @@
 use crate::errors::Result;
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use commons::ObjId;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -43,16 +42,5 @@ impl Memories {
         let memory = self.index.entry(obj_id).or_insert(Memory::new(obj_id));
         memory.know_ids.insert(other_id);
         Ok(())
-    }
-}
-
-impl SnapshotSupport for Memories {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {
-        for (id, obj) in &self.index {
-            if id.is_static() {
-                continue;
-            }
-            snapshot.add(id.as_u32(), "memory", json!(obj));
-        }
     }
 }

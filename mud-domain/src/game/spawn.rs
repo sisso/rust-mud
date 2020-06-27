@@ -5,7 +5,6 @@ use super::Outputs;
 use crate::errors::{Error, Result};
 use crate::game::loader::{Loader, StaticId};
 use crate::game::location::LocationId;
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use crate::game::system::SystemCtx;
 use commons::*;
 use logs::*;
@@ -123,19 +122,5 @@ impl Spawns {
 
     pub fn get_mut(&mut self, id: ObjId) -> Option<&mut Spawn> {
         self.index.get_mut(&id)
-    }
-}
-
-impl SnapshotSupport for Spawns {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {
-        use serde_json::json;
-
-        for (id, comp) in &self.index {
-            if id.is_static() {
-                continue;
-            }
-            let value = json!(comp);
-            snapshot.add(id.as_u32(), "spawn", value);
-        }
     }
 }

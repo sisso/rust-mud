@@ -1,6 +1,5 @@
 use super::domain::Dir;
 use crate::errors::{Error, Result};
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use commons::ObjId;
 use logs::*;
 use serde::{Deserialize, Serialize};
@@ -142,18 +141,5 @@ impl RoomRepository {
         self.index
             .get(&room1_id)
             .and_then(|room| room.get_exit_for(room2_id))
-    }
-}
-
-impl SnapshotSupport for RoomRepository {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {
-        use serde_json::json;
-
-        for (id, comp) in &self.index {
-            if id.is_static() {
-                continue;
-            }
-            snapshot.add(id.as_u32(), "room", json!(comp));
-        }
     }
 }

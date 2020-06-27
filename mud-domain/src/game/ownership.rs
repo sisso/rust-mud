@@ -1,5 +1,4 @@
 use crate::errors::{Error, Result};
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use commons::ObjId;
 use logs::*;
 use serde::{Deserialize, Serialize};
@@ -78,18 +77,6 @@ impl Ownerships {
             (_, Some(owner_b_id)) if *owner_b_id == obj_id_a => true,
             (Some(owner_a_id), Some(owner_b_id)) => owner_a_id == owner_b_id,
             _ => false,
-        }
-    }
-}
-
-impl SnapshotSupport for Ownerships {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {
-        use serde_json::json;
-
-        for (id, comp) in &self.owners {
-            // need to keep track of static id properties
-            let value = json!(comp);
-            snapshot.add(id.as_u32(), "ownership", value);
         }
     }
 }

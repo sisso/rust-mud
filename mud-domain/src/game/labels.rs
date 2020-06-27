@@ -1,4 +1,3 @@
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use crate::utils::strinput::StrInput;
 use crate::utils::text;
 use commons::ObjId;
@@ -241,19 +240,5 @@ mod test {
             "asteroid",
             vec![0, 1],
         );
-    }
-}
-
-impl SnapshotSupport for Labels {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {
-        use serde_json::json;
-
-        for (id, comp) in &self.index {
-            if id.is_static() {
-                continue;
-            }
-            let value = json!(comp);
-            snapshot.add(id.as_u32(), "label", value);
-        }
     }
 }

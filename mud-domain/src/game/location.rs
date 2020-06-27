@@ -1,5 +1,4 @@
 use crate::game::labels::Labels;
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use commons::tree::Tree;
 use commons::ObjId;
 use logs::*;
@@ -117,20 +116,5 @@ mod test {
         let sb = b.into_iter().collect::<HashSet<_>>();
 
         assert_eq!(sa, sb);
-    }
-}
-
-impl SnapshotSupport for Locations {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {
-        use serde_json::json;
-
-        for (id, parent_id) in self.index.list_all() {
-            if id.is_static() {
-                continue;
-            }
-
-            let value = json!(parent_id);
-            snapshot.add(id.as_u32(), "location", value);
-        }
     }
 }

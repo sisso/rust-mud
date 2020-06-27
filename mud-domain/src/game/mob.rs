@@ -14,7 +14,6 @@ use crate::game::labels::Labels;
 use crate::game::location;
 use crate::game::location::Locations;
 use crate::game::room::RoomId;
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use crate::game::system::SystemCtx;
 use crate::game::Outputs;
 use crate::game::{avatars, combat, comm};
@@ -389,17 +388,4 @@ pub fn get_attributes_with_bonus(container: &Container, mob_id: MobId) -> Result
         });
 
     Ok(attributes)
-}
-
-impl SnapshotSupport for MobRepository {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {
-        use serde_json::json;
-
-        for (id, comp) in &self.index {
-            if id.is_static() {
-                continue;
-            }
-            snapshot.add(id.as_u32(), "mob", json!(comp));
-        }
-    }
 }

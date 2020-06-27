@@ -1,4 +1,3 @@
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use commons::ObjId;
 use logs::*;
 use serde::{Deserialize, Serialize};
@@ -73,13 +72,5 @@ impl Triggers {
         for buffer in self.index.iter_mut() {
             buffer.clear();
         }
-    }
-}
-
-impl SnapshotSupport for Triggers {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {
-        use serde_json::json;
-        let value = json!(self.index);
-        snapshot.add_header("triggers", value);
     }
 }

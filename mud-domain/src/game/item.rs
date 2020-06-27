@@ -2,7 +2,6 @@ use super::comm;
 use crate::errors::{AsResult, Error, Result};
 use crate::game::domain::{Modifier, Rd};
 use crate::game::mob::Damage;
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use crate::game::system::SystemCtx;
 use commons::*;
 use logs::*;
@@ -148,18 +147,5 @@ impl ItemRepository {
 
     pub fn list(&self) -> Vec<ItemId> {
         self.index.keys().map(|i| *i).collect()
-    }
-}
-
-impl SnapshotSupport for ItemRepository {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {
-        use serde_json::json;
-
-        for (id, comp) in &self.index {
-            if id.is_static() {
-                continue;
-            }
-            snapshot.add(id.as_u32(), "item", json!(comp));
-        }
     }
 }

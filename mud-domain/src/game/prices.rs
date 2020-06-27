@@ -1,4 +1,3 @@
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use commons::ObjId;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -62,19 +61,5 @@ impl Prices {
 
     pub fn list<'a>(&'a self) -> impl Iterator<Item = &Price> + 'a {
         self.index.values()
-    }
-}
-
-impl SnapshotSupport for Prices {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {
-        use serde_json::json;
-
-        for (id, comp) in &self.index {
-            if id.is_static() {
-                continue;
-            }
-            let value = json!(comp);
-            snapshot.add(id.as_u32(), "prices", value);
-        }
     }
 }

@@ -1,6 +1,5 @@
 use crate::game::item::ItemId;
 use crate::game::mob::MobId;
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use commons::ObjId;
 use logs::*;
 use serde::{Deserialize, Serialize};
@@ -68,19 +67,5 @@ impl Equips {
                 debug!("{:?} remove equip", id);
             }
         });
-    }
-}
-
-impl SnapshotSupport for Equips {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {
-        use serde_json::json;
-
-        for (id, comp) in &self.index {
-            if id.is_static() {
-                continue;
-            }
-            let value = json!(comp);
-            snapshot.add(id.as_u32(), "equip", value);
-        }
     }
 }

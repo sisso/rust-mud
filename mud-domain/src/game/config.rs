@@ -1,6 +1,5 @@
 use crate::game::loader::StaticId;
 use crate::game::room::RoomId;
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use commons::ObjId;
 use serde::{Deserialize, Serialize};
 
@@ -19,8 +18,4 @@ impl Config {
             money_id: None,
         }
     }
-}
-
-impl SnapshotSupport for Config {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {}
 }

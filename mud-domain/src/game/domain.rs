@@ -3,7 +3,6 @@ use super::player::*;
 use super::room::*;
 use crate::errors;
 use crate::errors::Error;
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use crate::game::GameCfg;
 use commons::{DeltaTime, Tick, TotalTime};
 use serde::{Deserialize, Serialize};
@@ -41,22 +40,6 @@ impl GameTime {
         self.tick = self.tick.next();
         self.total = self.total + delta;
         self.delta = delta;
-    }
-}
-
-impl SnapshotSupport for GameTime {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {
-        use serde_json::json;
-        snapshot.add_header("game_time", json!(self));
-    }
-
-    fn load_snapshot(&mut self, snapshot: &Snapshot) {
-        use serde_json::json;
-
-        match snapshot.get_header_as::<GameTime>("game_time") {
-            Some(value) => *self = value,
-            _ => {}
-        }
     }
 }
 

@@ -1,4 +1,3 @@
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use crate::game::triggers::{Event, Triggers};
 use commons::{timer::Timer as CTimer, TotalTime};
 use logs::*;
@@ -26,14 +25,5 @@ impl Timer {
         for event in events {
             triggers.push(event);
         }
-    }
-}
-
-impl SnapshotSupport for Timer {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {
-        use serde_json::json;
-        let entries: Vec<&Event> = self.index.list().collect();
-        let value = json!(entries);
-        snapshot.add_header("timer", value);
     }
 }

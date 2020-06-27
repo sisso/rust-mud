@@ -1,7 +1,6 @@
 use crate::errors::{self, Error};
 use crate::game::domain::NextId;
 use crate::game::loader::StaticId;
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use commons::{ObjId, OBJ_ID_STATIC_RANGE};
 use logs::*;
 use serde::{Deserialize, Serialize};
@@ -86,23 +85,5 @@ impl Objects {
 
     pub fn list<'a>(&'a mut self) -> impl Iterator<Item = &ObjId> + 'a {
         self.objects.keys()
-    }
-}
-
-impl SnapshotSupport for Objects {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {
-        for (id, obj) in &self.objects {
-            if id.is_static() {
-                continue;
-            }
-            snapshot.add(id.as_u32(), "object", json!(obj));
-        }
-    }
-
-    fn load_snapshot(&mut self, snapshot: &Snapshot) {
-        for (id, obj) in snapshot.get_components_as::<Obj>("object") {
-            self.objects.insert(id.into(), obj);
-            self.next_id.set_max(id.as_u32());
-        }
     }
 }

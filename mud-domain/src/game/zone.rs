@@ -1,5 +1,4 @@
 use crate::errors::{Error, Result};
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use commons::ObjId;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -51,19 +50,5 @@ impl Zones {
 
     pub fn list<'a>(&'a self) -> impl Iterator<Item = &ObjId> + 'a {
         self.index.keys()
-    }
-}
-
-impl SnapshotSupport for Zones {
-    fn save_snapshot(&self, snapshot: &mut Snapshot) {
-        use serde_json::json;
-
-        for (id, comp) in &self.index {
-            if id.is_static() {
-                continue;
-            }
-            let value = json!(comp);
-            snapshot.add(id.as_u32(), "zone", value);
-        }
     }
 }

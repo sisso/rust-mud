@@ -1,5 +1,4 @@
 use crate::game::container::Container;
-use crate::game::snapshot::{Snapshot, SnapshotSupport};
 use crate::game::system::{SystemCtx, Systems};
 use crate::game::Outputs;
 use crate::game::{system, GameCfg};
