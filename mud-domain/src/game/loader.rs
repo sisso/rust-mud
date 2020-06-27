@@ -534,6 +534,10 @@ impl Loader {
         Ok(data)
     }
 
+    pub fn write_snapshot(_snapshot_file: &Path, _data: &LoaderData) -> errors::Result<()> {
+        unimplemented!()
+    }
+
     pub fn read_folders(root_path: &Path) -> errors::Result<LoaderData> {
         if !root_path.exists() {
             return Err(Error::Error(
@@ -593,6 +597,10 @@ impl Loader {
         }
 
         Ok(result)
+    }
+
+    pub fn create_snapshot(_container: &Container) -> errors::Result<LoaderData> {
+        unimplemented!()
     }
 
     pub fn load_data(container: &mut Container, data: LoaderData) -> errors::Result<()> {

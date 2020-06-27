@@ -12,6 +12,7 @@ pub struct SocketServer {
     connections: HashMap<ConnectionId, Connection>,
     listener: Option<TcpListener>,
     pending_outputs: Option<Vec<ServerOutput>>,
+    port: u32,
 }
 
 struct Connection {
@@ -62,12 +63,13 @@ impl SocketServer {
         ConnectionId(id)
     }
 
-    pub fn new() -> Self {
+    pub fn new(port: u32) -> Self {
         let mut ins = SocketServer {
             next_connection_id: 0,
             connections: HashMap::new(),
             listener: None,
             pending_outputs: None,
+            port,
         };
 
         ins.start();
@@ -75,7 +77,7 @@ impl SocketServer {
     }
 
     fn start(&mut self) {
-        let listener = TcpListener::bind("0.0.0.0:3333").unwrap();
+        let listener = TcpListener::bind(format!("0.0.0.0:{}", self.port)).unwrap();
         listener.set_nonblocking(true).expect("non blocking failed");
         // accept connections and process them, spawning a new thread for each one
         info!("server - listening on port 3333");

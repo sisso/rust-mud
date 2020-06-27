@@ -4,7 +4,7 @@ use commons::tree::Tree;
 use serde_json;
 use std::collections::HashMap;
 use std::env;
-use std::io::Write;
+
 use std::path::Path;
 
 // TODO: refactory everything, it got ugly,
