@@ -1,5 +1,5 @@
 use crate::game::triggers::{Event, Triggers};
-use commons::{timer::Timer as CTimer, TotalTime};
+use commons::{timer::Timer as CTimer, Tick, TotalTime};
 use logs::*;
 use serde::{Deserialize, Serialize};
 

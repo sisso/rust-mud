@@ -45,6 +45,11 @@ impl GameTime {
         self.total = self.total + delta;
         self.delta = delta;
     }
+
+    pub fn set(&mut self, tick: Tick, total_time: TotalTime) {
+        self.tick = tick;
+        self.total = total_time;
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Copy, Deserialize, Serialize)]

@@ -10,5 +10,5 @@ fn main() {
     let json = tables_to_jsonp(&tables, &HashMap::new()).unwrap();
     let json_str = serde_json::to_string_pretty(&json).unwrap();
     println!("{}", json_str);
-    std::fs::write(Path::new("/tmp/01.json"), json_str.as_str());
+    std::fs::write(Path::new("/tmp/01.json"), json_str.as_str()).unwrap();
 }

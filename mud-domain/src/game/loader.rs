@@ -22,7 +22,7 @@ use crate::game::surfaces::Surface;
 use crate::game::vendors::Vendor;
 use crate::game::zone::Zone;
 use commons::csv::FieldKind;
-use commons::{DeltaTime, Either, ObjId, V2};
+use commons::{DeltaTime, Either, ObjId, Tick, TotalTime, V2};
 use logs::*;
 use rand::random;
 use serde::{Deserialize, Serialize};
@@ -170,6 +170,12 @@ impl Loader {
         data: Either<&ObjData, StaticId>,
         references: &HashMap<StaticId, ObjId>,
     ) -> Result<()> {
+        macro_rules! get_ref {
+            ($res:expr) => {
+                Loader::get_by_static_id(&container.objects, &references, $res).unwrap()
+            };
+        }
+
         let data: &ObjData = match data {
             Either::Left(data) => data,
             Either::Right(static_id) => container
@@ -404,6 +410,21 @@ impl Loader {
             container.pos.set(obj_id, V2::new(pos.x, pos.y));
         }
 
+        if let Some(owned_id) = &data.owned_by {
+            let owner_id = get_ref!(*owned_id);
+
+            container.ownership.set_owner(obj_id, owner_id);
+        }
+
+        if let Some(player_data) = &data.player {
+            let player_id = get_ref!(player_data.id);
+            let avatar_id = get_ref!(player_data.avatar_id);
+
+            container
+                .players
+                .create(player_id, player_data.login.clone(), avatar_id);
+        }
+
         if let Some(children) = data.children.clone() {
             for static_id in children.into_iter() {
                 trace!("{:?} spawn children {:?}", obj_id, static_id);
@@ -620,6 +641,8 @@ impl Loader {
             // TODO: where it is configured?
             initial_craft: None,
             money_id: container.config.money_id,
+            tick: Some(container.time.tick.as_u32()),
+            total_time: Some(container.time.total.as_seconds_f64()),
         });
 
         for prefab in container.loader.list_prefabs() {
@@ -825,6 +848,18 @@ impl Loader {
             });
         }
 
+        if let Some(owner) = container.ownership.get_owner(id) {
+            obj_data.owned_by = Some(owner.into());
+        }
+
+        if let Some(player) = container.players.get(id) {
+            obj_data.player = Some(PlayerData {
+                id: StaticId(player.id.0),
+                login: player.login.clone(),
+                avatar_id: player.mob_id.into(),
+            });
+        }
+
         Ok(obj_data)
     }
 
@@ -846,10 +881,20 @@ impl Loader {
                 avatar_mob,
                 initial_craft: _,
                 money_id,
+                tick,
+                total_time,
             }) => {
                 container.config.initial_room = Some(ObjId(initial_room.as_u32()));
                 container.config.avatar_id = Some(avatar_mob);
                 container.config.money_id = money_id;
+
+                match (tick, total_time) {
+                    (Some(tick), Some(total_time)) => {
+                        container.time.set(Tick(tick), TotalTime(total_time));
+                    }
+                    (None, None) => {}
+                    other => panic!("Unexpect time configuration {:?}", data.cfg),
+                }
             }
             _ => {}
         }

@@ -270,13 +270,27 @@ mod test {
         locations.set(6.into(), 1.into());
         locations.set(4.into(), 0.into());
         locations.set(5.into(), 4.into());
-        astros.insert(AstroBody::new(0.into(), 0.0, AstroBodyKind::Star));
-        astros.insert(AstroBody::new(1.into(), 10.0, AstroBodyKind::Planet));
-        astros.insert(AstroBody::new(2.into(), 2.0, AstroBodyKind::Moon));
-        astros.insert(AstroBody::new(3.into(), 1.0, AstroBodyKind::Ship));
-        astros.insert(AstroBody::new(4.into(), 20.0, AstroBodyKind::Planet));
-        astros.insert(AstroBody::new(5.into(), 2.0, AstroBodyKind::Station));
-        astros.insert(AstroBody::new(6.into(), 4.0, AstroBodyKind::Moon));
+        astros
+            .insert(AstroBody::new(0.into(), 0.0, AstroBodyKind::Star))
+            .unwrap();
+        astros
+            .insert(AstroBody::new(1.into(), 10.0, AstroBodyKind::Planet))
+            .unwrap();
+        astros
+            .insert(AstroBody::new(2.into(), 2.0, AstroBodyKind::Moon))
+            .unwrap();
+        astros
+            .insert(AstroBody::new(3.into(), 1.0, AstroBodyKind::Ship))
+            .unwrap();
+        astros
+            .insert(AstroBody::new(4.into(), 20.0, AstroBodyKind::Planet))
+            .unwrap();
+        astros
+            .insert(AstroBody::new(5.into(), 2.0, AstroBodyKind::Station))
+            .unwrap();
+        astros
+            .insert(AstroBody::new(6.into(), 4.0, AstroBodyKind::Moon))
+            .unwrap();
     }
 
     /// 0 - star (0)

@@ -54,7 +54,7 @@ impl ServerRunner {
 }
 
 pub fn start_server(server_cfg: ServerConfig) -> Result<()> {
-    let container = if let Some(profile) = &server_cfg.profile {
+    let container = if server_cfg.profile.is_some() {
         setup_profile_folder(&server_cfg)?;
         let profile_file = snapshot_filename(&server_cfg, None)?;
         if profile_file.exists() {
@@ -84,7 +84,7 @@ pub fn start_server(server_cfg: ServerConfig) -> Result<()> {
         // maintenance tasks
         if tick % 100 == 0 {
             // create snapshot
-            if let Some(profile) = &server_cfg.profile {
+            if server_cfg.profile.is_some() {
                 let data = Loader::create_snapshot(&runner.game.container)?;
 
                 let snapshot_file = snapshot_filename(&server_cfg, None)?;

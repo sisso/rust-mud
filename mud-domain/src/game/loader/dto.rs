@@ -8,7 +8,7 @@ use crate::game::domain::{Dir, Modifier};
 use crate::game::hire::Hire;
 use crate::game::item::{Armor, Item, Weapon};
 use crate::game::labels::Label;
-use crate::game::mob::{Damage, Mob};
+use crate::game::mob::{Damage, Mob, MobId};
 use crate::game::obj::Objects;
 use crate::game::pos::Pos;
 use crate::game::prices::{Money, Price};
@@ -20,7 +20,7 @@ use crate::game::surfaces::Surface;
 use crate::game::vendors::Vendor;
 use crate::game::zone::Zone;
 use commons::csv::FieldKind;
-use commons::{DeltaTime, Either, ObjId, V2};
+use commons::{DeltaTime, Either, ObjId, PlayerId, V2};
 use logs::*;
 use rand::random;
 use serde::{Deserialize, Serialize};
@@ -183,23 +183,42 @@ pub struct ZoneData {
 pub struct ObjData {
     pub id: StaticId,
     pub label: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub code: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub desc: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub owned_by: Option<StaticId>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub room: Option<RoomData>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub astro_body: Option<AstroBodyData>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub sector: Option<SectorData>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub mob: Option<MobData>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub pos: Option<PosData>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub spawn: Option<SpawnData>,
     /// Is instantiate in same context of parent, ID is mapped
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub parent: Option<StaticId>,
     /// Are instantiate in own context, unique ID and place as children
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub children: Option<Vec<StaticId>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub craft: Option<CraftData>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub item: Option<ItemData>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub price: Option<PriceData>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub vendor: Option<VendorData>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub zone: Option<ZoneData>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub player: Option<PlayerData>,
 }
 
 impl ObjData {
@@ -209,6 +228,7 @@ impl ObjData {
             label: "".to_string(),
             code: None,
             desc: None,
+            owned_by: None,
             room: None,
             astro_body: None,
             sector: None,
@@ -222,6 +242,7 @@ impl ObjData {
             price: None,
             vendor: None,
             zone: None,
+            player: None,
         }
     }
 }
@@ -232,15 +253,8 @@ pub struct CfgData {
     pub avatar_mob: StaticId,
     pub initial_craft: Option<StaticId>,
     pub money_id: Option<StaticId>,
-}
-
-// TODO: replace HashMap by vector, it should not be used and ID is currently serialized as
-//       string key
-#[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct LoaderData {
-    pub cfg: Option<CfgData>,
-    pub objects: HashMap<StaticId, ObjData>,
-    pub prefabs: HashMap<StaticId, ObjData>,
+    pub tick: Option<u32>,
+    pub total_time: Option<f64>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -250,16 +264,6 @@ pub struct SpawnData {
     pub time_min: f32,
     pub time_max: f32,
     pub locations_id: Option<Vec<StaticId>>,
-}
-
-impl LoaderData {
-    pub fn new() -> Self {
-        LoaderData {
-            cfg: None,
-            objects: Default::default(),
-            prefabs: Default::default(),
-        }
-    }
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -275,4 +279,31 @@ pub struct FlatData {
     pub price_buy: Option<u32>,
     pub item_armor_defense: Option<i32>,
     pub item_armor_rd: Option<u32>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct PlayerData {
+    pub id: StaticId,
+    pub login: String,
+    pub avatar_id: StaticId,
+}
+
+// TODO: replace HashMap by vector, it should not be used and ID is currently serialized as
+//       string key
+// TODO: cfg doesn't need to be option anymore
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct LoaderData {
+    pub cfg: Option<CfgData>,
+    pub objects: HashMap<StaticId, ObjData>,
+    pub prefabs: HashMap<StaticId, ObjData>,
+}
+
+impl LoaderData {
+    pub fn new() -> Self {
+        LoaderData {
+            cfg: None,
+            objects: Default::default(),
+            prefabs: Default::default(),
+        }
+    }
 }
