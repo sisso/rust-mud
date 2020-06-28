@@ -91,7 +91,7 @@ pub fn do_launch(
     let body = AstroBody::new(ship_id, orbit_distance, AstroBodyKind::Ship);
 
     // put ship in low orbit
-    if let Err(_error) = container.astro_bodies.insert(body) {
+    if let Err(error) = container.astro_bodies.insert(body) {
         warn!(
             "{:?} launch {:?} fail to set ship orbit: {:?}",
             mob_id, ship_id, error

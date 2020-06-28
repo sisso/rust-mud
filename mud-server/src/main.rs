@@ -23,8 +23,8 @@ fn main() {
 
     crate::game_server::start_server(ServerConfig {
         port: 3333,
-        data_folder: std::path::PathBuf::from(module),
-        module_path: std::path::PathBuf::from("/tmp/mud"),
+        data_folder: std::path::PathBuf::from("/tmp/mud"),
+        module_path: std::path::PathBuf::from(module),
         profile: profile.cloned(),
     })
     .expect("fail to open server");

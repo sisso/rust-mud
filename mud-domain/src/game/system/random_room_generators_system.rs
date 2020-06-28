@@ -49,7 +49,7 @@ pub fn init(container: &mut Container) {
 
         for (deep, rooms_grid) in levels.levels.iter().enumerate() {
             let rooms_ids = match create_rooms(objects, rooms, labels, rooms_grid) {
-                Err(_err) => {
+                Err(err) => {
                     warn!(
                         "{:?} error when generating rooms from grid {:?}",
                         rr.cfg.id, err
@@ -113,7 +113,7 @@ pub fn init(container: &mut Container) {
 }
 
 fn create_spawns(
-    _rr_id: ObjId,
+    rr_id: ObjId,
     rng: &mut StdRng,
     objects: &mut Objects,
     locations: &mut Locations,
@@ -124,7 +124,7 @@ fn create_spawns(
     let mut availables = rooms_id.clone();
 
     for spawn in spawns_cfg {
-        for _i in 0..spawn.amount {
+        for i in 0..spawn.amount {
             if availables.is_empty() {
                 break;
             }

@@ -208,7 +208,7 @@ fn return_attack(
         outputs.broadcast(Some(mob_id), location_id, msg);
 
         match mob.set_action_attack(target_id) {
-            Err(_err) => warn!(
+            Err(err) => warn!(
                 "{:?} fail to execute return attack to {:?}: {:?}",
                 mob_id, target_id, err
             ),
@@ -218,7 +218,7 @@ fn return_attack(
 
     for follower_id in mob.followers.clone() {
         match return_attack(container, outputs, follower_id, target_id) {
-            Err(_err) => warn!(
+            Err(err) => warn!(
                 "{:?} fail to execute return attack from {:?} to {:?}: {:?}",
                 follower_id, mob_id, target_id, err
             ),

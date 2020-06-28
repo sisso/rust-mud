@@ -72,7 +72,7 @@ pub fn run(ctx: &mut SystemCtx) {
     for (spawn_id, room_id, mob_prefab_id) in mob_spawns {
         let mob_id = match Loader::spawn_at(&mut ctx.container, mob_prefab_id, room_id) {
             Ok(mob_id) => mob_id,
-            Err(_e) => {
+            Err(e) => {
                 warn!(
                     "{:?} fail to spawn a {:?}: {:?}",
                     spawn_id, mob_prefab_id, e

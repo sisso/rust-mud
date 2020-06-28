@@ -234,7 +234,8 @@ pub struct CfgData {
     pub money_id: Option<StaticId>,
 }
 
-// TODO: remove HashMap, the key is probably never used
+// TODO: replace HashMap by vector, it should not be used and ID is currently serialized as
+//       string key
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct LoaderData {
     pub cfg: Option<CfgData>,

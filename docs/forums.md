@@ -1,3 +1,13 @@
+# UID
+
+This is an admin identifier used in files for development reference some objects.
+
+This code is user defined to easy access or reference.
+
+Maybe this is a good use for tags. Or better, EditorTags?
+
+!admin ls enemy fly
+
 # Persistent State
 
 Much of cause by trying to have a mix between static and persistent data. As mostly of MUD, is easy to 

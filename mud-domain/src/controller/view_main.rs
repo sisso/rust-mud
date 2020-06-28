@@ -43,7 +43,7 @@ pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<()> {
     match result {
         Ok(()) => return Ok(()),
         Err(NotFoundFailure) => {}
-        Err(_other) => {
+        Err(other) => {
             warn!("{:?} fail processing command {:?}", ctx.mob_id, other);
         }
     }
@@ -52,7 +52,7 @@ pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<()> {
     match result {
         Ok(()) => return Ok(()),
         Err(NotFoundFailure) => {}
-        Err(_other) => {
+        Err(other) => {
             warn!("{:?} fail processing command {:?}", ctx.mob_id, other);
         }
     }

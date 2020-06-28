@@ -90,7 +90,7 @@ pub fn tick(ctx: &mut SystemCtx) {
                         match astro_bodies::travel_plan(locations, astros, ship_id, *target_id) {
                             Ok(travel_plan) => travel_plan,
 
-                            Err(_err) => {
+                            Err(err) => {
                                 warn!(
                                     "{:?} can not find travel plan to {:?}: {:?}",
                                     ship_id, target_id, err
