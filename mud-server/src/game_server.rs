@@ -1,13 +1,16 @@
 use std::fs;
-use std::path::{PathBuf};
+use std::path::{Path, PathBuf};
 
-use commons::{DeltaTime};
+use commons::DeltaTime;
 use logs::*;
+use mud_domain::errors::Error;
 use mud_domain::game::container::Container;
 use mud_domain::game::loader::Loader;
 use mud_domain::game::Game;
 use mud_domain::game::{loader, GameCfg};
 use socket_server::*;
+
+type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 pub struct ServerConfig {
     pub port: u32,
@@ -50,70 +53,99 @@ impl ServerRunner {
     }
 }
 
-pub fn start_server(server_cfg: ServerConfig) -> Result<(), Box<dyn std::error::Error>> {
-    let snapshot_filename = "snapshot.json";
-
-    let path_snapshot_file = if let Some(profile) = server_cfg.profile {
-        let profile_folder = server_cfg.data_folder.join(profile.as_str());
-
-        fs::create_dir_all(&profile_folder)?;
-
-        if !fs::metadata(&profile_folder)?.is_dir() {
-            panic!("profile path at {:?} is not a folder", profile_folder);
+pub fn start_server(server_cfg: ServerConfig) -> Result<()> {
+    let container = if let Some(profile) = &server_cfg.profile {
+        setup_profile_folder(&server_cfg)?;
+        let profile_file = snapshot_filename(&server_cfg, None)?;
+        if profile_file.exists() {
+            load_snapshot(&profile_file)?
+        } else {
+            load_module(&server_cfg)?
         }
-
-        Some(profile_folder.join(snapshot_filename))
     } else {
-        None
+        load_module(&server_cfg)?
     };
 
-    let mut container: Container = Container::new();
-
-    match &path_snapshot_file {
-        // if has a snapshot
-        Some(path) if path.exists() => {
-            info!("loading from {:?}", path.canonicalize()?);
-            let data = Loader::read_snapshot(path)?;
-            Loader::load_data(&mut container, data)?;
-        }
-
-        // profile has no snapshot or no snapshot was provided
-        _ => {
-            info!(
-                "loading configuration: {:?}",
-                server_cfg.module_path.canonicalize()?,
-            );
-
-            loader::Loader::load_folders(&mut container, &server_cfg.module_path)?;
-        }
-    }
-
+    // create game
     let game_cfg = GameCfg::new();
     let game = Game::new(game_cfg, container);
 
+    // create server
     let server = server_socket::SocketServer::new(server_cfg.port);
     let mut runner = ServerRunner::new(Box::new(server), game);
 
+    // main loop
     loop {
         std::thread::sleep(::std::time::Duration::from_millis(100));
         runner.run(DeltaTime(0.1));
 
         let tick = runner.game.container.time.tick.as_u32();
+
+        // maintenance tasks
         if tick % 100 == 0 {
-            if let Some(snapshot_path) = &path_snapshot_file {
+            // create snapshot
+            if let Some(profile) = &server_cfg.profile {
                 let data = Loader::create_snapshot(&runner.game.container)?;
 
-                info!("saving snapshot: {:?}", snapshot_path.canonicalize()?,);
-                Loader::write_snapshot(snapshot_path, &data)?;
+                let snapshot_file = snapshot_filename(&server_cfg, None)?;
+                info!("saving snapshot: {:?}", snapshot_file);
+                Loader::write_snapshot(&snapshot_file, &data)?;
 
-                let snapshot_history = snapshot_path
-                    .parent()
-                    .unwrap()
-                    .join(format!("snapshot_{}.json", tick));
-
-                info!("saving snapshot: {:?}", snapshot_history.canonicalize()?,);
+                let snapshot_history = snapshot_filename(&server_cfg, Some(tick))?;
+                info!("saving snapshot: {:?}", snapshot_history);
                 Loader::write_snapshot(&snapshot_history, &data)?;
             }
         }
     }
+}
+
+fn setup_profile_folder(server_cfg: &ServerConfig) -> Result<()> {
+    let profile_folder = resolve_profile_path(server_cfg)?;
+    fs::create_dir_all(&profile_folder)?;
+
+    if !fs::metadata(&profile_folder)?.is_dir() {
+        panic!("profile path at {:?} is not a folder", profile_folder);
+    }
+
+    info!("profile folder at {:?}", profile_folder.canonicalize()?);
+    Ok(())
+}
+
+fn load_snapshot(snapshot_filename: &Path) -> Result<Container> {
+    let mut container: Container = Container::new();
+    info!("loading from {:?}", snapshot_filename.canonicalize()?);
+    let data = Loader::read_snapshot(snapshot_filename)?;
+    Loader::load_data(&mut container, data)?;
+    Ok(container)
+}
+
+fn load_module(server_cfg: &ServerConfig) -> Result<Container> {
+    info!(
+        "loading configuration: {:?}",
+        server_cfg.module_path.canonicalize()?,
+    );
+
+    let mut container: Container = Container::new();
+    loader::Loader::load_folders(&mut container, &server_cfg.module_path)?;
+    Ok(container)
+}
+
+fn snapshot_filename(cfg: &ServerConfig, tick: Option<u32>) -> Result<PathBuf> {
+    let profile_path = resolve_profile_path(cfg)?;
+
+    let path = match tick {
+        Some(tick) => profile_path.join(&format!("snapshot_{}.json", tick)),
+        None => profile_path.join("snapshot.json"),
+    };
+
+    Ok(path)
+}
+
+fn resolve_profile_path(server_cfg: &ServerConfig) -> Result<PathBuf> {
+    let profile = server_cfg
+        .profile
+        .as_ref()
+        .ok_or(Error::NotFoundException)?;
+
+    Ok(server_cfg.data_folder.join(profile.as_str()))
 }

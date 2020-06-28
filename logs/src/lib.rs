@@ -104,12 +104,12 @@ macro_rules! info {
 // ```
 #[macro_export]
 macro_rules! debug {
-    (target: $target:expr, $($arg:tt)+) => (
-        log!(target: $target, "DEBUG", $($arg)+);
-    );
-    ($($arg:tt)+) => (
-        log!("DEBUG", $($arg)+);
-    )
+    (target: $target:expr, $($arg:tt)+) => {
+        // log!(target: $target, "DEBUG", $($arg)+);
+    };
+    ($($arg:tt)+) => {
+        // log!("DEBUG", $($arg)+);
+    };
 }
 
 // Logs a message at the trace level.
@@ -131,10 +131,10 @@ macro_rules! debug {
 // ```
 #[macro_export]
 macro_rules! trace {
-    (target: $target:expr, $($arg:tt)+) => (
-        log!(target: $target, "TRACE", $($arg)+);
-    );
-    ($($arg:tt)+) => (
-        log!("TRACE", $($arg)+);
-    )
+    (target: $target:expr, $($arg:tt)+) => {
+        // log!(target: $target, "TRACE", $($arg)+);
+    };
+    ($($arg:tt)+) => {
+        // log!("TRACE", $($arg)+);
+    };
 }

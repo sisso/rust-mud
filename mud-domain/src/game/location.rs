@@ -18,12 +18,12 @@ impl Locations {
     }
 
     pub fn set(&mut self, obj_id: ObjId, location: ObjId) {
-        info!("{:?} set location {:?}", obj_id, location);
+        debug!("{:?} set location {:?}", obj_id, location);
         self.index.insert(obj_id, location);
     }
 
     pub fn remove(&mut self, obj_id: ObjId) {
-        info!("{:?} remove location", obj_id);
+        debug!("{:?} remove location", obj_id);
         self.index.remove(obj_id);
     }
 

@@ -543,7 +543,7 @@ impl Loader {
 
     pub fn write_snapshot(snapshot_file: &Path, data: &LoaderData) -> Result<()> {
         let value = serde_json::to_string_pretty(data)?;
-        let mut file = std::fs::File::open(snapshot_file)?;
+        let mut file = std::fs::File::create(snapshot_file)?;
         file.write_all(value.as_bytes())?;
         Ok(())
     }

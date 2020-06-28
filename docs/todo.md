@@ -1,6 +1,11 @@
+# Bug
+
+- random rooms is generating multiples doors
+- spawn objects lose ownership
+- player lose its avatar when reconnect
+
 # Main Todo
 
-- new load system
 - add save version of file
 - add save version migration
 
