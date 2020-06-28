@@ -47,7 +47,7 @@ fn run_combat(ctx: &mut SystemCtx) {
     // execute attacks
     for (mob_id, target_id) in &attacks {
         match combat::tick_attack(ctx.container, ctx.outputs, *mob_id, *target_id) {
-            Err(err) => warn!("{:?} fail to execute attack: {:?}", mob_id, err),
+            Err(_err) => warn!("{:?} fail to execute attack: {:?}", mob_id, err),
             _ => {}
         };
     }

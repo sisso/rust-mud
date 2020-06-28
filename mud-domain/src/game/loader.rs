@@ -391,6 +391,7 @@ impl Loader {
                         entrance_dir: Dir::parse(rr_data.entrance_dir.as_str()).unwrap(),
                         // TODO: add seed
                         seed: 0,
+                        levels: rr_data.levels,
                         width: rr_data.width,
                         height: rr_data.height,
                         spawns: spawns,
@@ -643,6 +644,17 @@ impl Loader {
                 }
             };
         }
+
+        macro_rules! nonempty_or_none {
+            ($res:expr) => {
+                if $res.is_empty() {
+                    None
+                } else {
+                    Some($res)
+                }
+            };
+        }
+
         let mut obj_data = ObjData::new(id.into());
 
         if let Some(label) = container.labels.get(id) {
@@ -674,7 +686,7 @@ impl Loader {
             });
         }
 
-        if let Some(sector) = container.surfaces.get(id) {
+        if let Some(_sector) = container.surfaces.get(id) {
             obj_data.sector = Some(SectorData {});
         }
 
@@ -682,7 +694,7 @@ impl Loader {
             obj_data.parent = Some(parent.into());
         }
 
-        if let Some(zone) = container.zones.get(id) {
+        if let Some(_zone) = container.zones.get(id) {
             let random_room_data = if let Some(random_room) = container.random_rooms.get(id) {
                 let spanws = random_room
                     .spawns
@@ -696,7 +708,7 @@ impl Loader {
                             max: i.spawn_builder.max,
                             time_min: i.spawn_builder.delay_min.as_seconds_f32(),
                             time_max: i.spawn_builder.delay_max.as_seconds_f32(),
-                            // random maps have empty locaitnos
+                            // random maps have empty locations
                             locations_id: None,
                         },
                     })
@@ -707,7 +719,7 @@ impl Loader {
                     entrance_dir: random_room.entrance_dir.as_str().to_string(),
                     width: random_room.width,
                     height: random_room.height,
-                    levels: 0,
+                    levels: random_room.levels,
                     spawns: spanws,
                 })
             } else {
@@ -732,12 +744,14 @@ impl Loader {
         }
 
         if let Some(spawn) = container.spawns.get(id) {
+            let locations: Vec<_> = spawn.locations_id.iter().map(|id| id.into()).collect();
+
             let spawn_data = SpawnData {
                 prefab_id: spawn.prefab_id,
                 max: spawn.max,
                 time_min: spawn.delay.min.as_seconds_f32(),
                 time_max: spawn.delay.max.as_seconds_f32(),
-                locations_id: Some(spawn.locations_id.iter().map(|id| id.into()).collect()),
+                locations_id: nonempty_or_none!(locations),
             };
 
             obj_data.spawn = Some(spawn_data);
@@ -797,9 +811,15 @@ impl Loader {
                 None
             };
 
+            let amount = if item.amount == 1 {
+                None
+            } else {
+                Some(item.amount)
+            };
+
             obj_data.item = Some(ItemData {
                 flags: Some(flags),
-                amount: Some(item.amount),
+                amount: amount,
                 weapon: weapon,
                 armor: armor,
             });
@@ -1036,6 +1056,14 @@ prefabs.control_panel_command_2 {
             if room.exits.is_none() {
                 room.exits = Some(vec![]);
             }
+        }
+
+        // Hardcoded situations
+
+        // 1) Random room will create a new entrance. Maybe should not be dynamic? Still space would have it
+        if expected.label == "Dungeon Entrance" {
+            expected.room.as_mut().unwrap().exits = None;
+            value.room.as_mut().unwrap().exits = None;
         }
 
         // check all other fields to be equals

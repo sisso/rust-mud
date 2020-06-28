@@ -39,7 +39,7 @@ pub fn init(container: &mut Container) {
             width: rr.cfg.width as usize,
             height: rr.cfg.height as usize,
             portal_prob: 0.5,
-            deep_levels: 5,
+            deep_levels: rr.cfg.levels,
         };
 
         let levels = RandomLevels::new(&mut cfg);
@@ -49,7 +49,7 @@ pub fn init(container: &mut Container) {
 
         for (deep, rooms_grid) in levels.levels.iter().enumerate() {
             let rooms_ids = match create_rooms(objects, rooms, labels, rooms_grid) {
-                Err(err) => {
+                Err(_err) => {
                     warn!(
                         "{:?} error when generating rooms from grid {:?}",
                         rr.cfg.id, err
@@ -113,7 +113,7 @@ pub fn init(container: &mut Container) {
 }
 
 fn create_spawns(
-    rr_id: ObjId,
+    _rr_id: ObjId,
     rng: &mut StdRng,
     objects: &mut Objects,
     locations: &mut Locations,

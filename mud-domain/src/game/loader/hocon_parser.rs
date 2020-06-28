@@ -60,7 +60,7 @@ impl HParser {
                     HParser::load_all(value, &mut prefabs)?;
                 }
 
-                key => {
+                _key => {
                     // any other key is ignored
                     debug!("ignoring key {:?} in config files", key);
                 }

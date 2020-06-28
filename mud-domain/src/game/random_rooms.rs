@@ -30,6 +30,7 @@ pub struct RandomRoomsCfg {
     pub seed: u64,
     pub width: u32,
     pub height: u32,
+    pub levels: u32,
     pub spawns: Vec<RandomRoomsSpawnCfg>,
 }
 

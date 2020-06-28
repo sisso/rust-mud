@@ -93,7 +93,7 @@ impl SocketServer {
         let listener = self.listener.as_ref().expect("server not started!");
 
         // accept new connections
-        if let Ok((stream, addr)) = listener.accept() {
+        if let Ok((stream, _addr)) = listener.accept() {
             let id = self.next_connection_id();
 
             info!(
@@ -121,7 +121,7 @@ impl SocketServer {
                     msg,
                 }),
                 Err(ref err) if err.kind() == std::io::ErrorKind::WouldBlock => (),
-                Err(e) => {
+                Err(_e) => {
                     warn!("{:?} failed: {}", connection_id, e);
                     disconnects.push(*connection_id)
                 }
@@ -138,7 +138,7 @@ impl SocketServer {
 
             match self.connections.get_mut(&output.connection_id) {
                 Some(connection) => {
-                    if let Err(err) = connection.write(output.msg.as_str()) {
+                    if let Err(_err) = connection.write(output.msg.as_str()) {
                         warn!("{:?} failed: {}", connection.id, err);
                         disconnects.push(connection.id);
                     }
