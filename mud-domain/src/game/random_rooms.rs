@@ -32,12 +32,12 @@ pub struct RandomRoomsCfg {
     pub height: u32,
     pub levels: u32,
     pub spawns: Vec<RandomRoomsSpawnCfg>,
+    pub generated: bool,
 }
 
 #[derive(Clone, Debug)]
 pub struct RandomRoomsState {
     pub cfg: RandomRoomsCfg,
-    pub generated: bool,
     pub rng: StdRng,
 }
 
@@ -47,7 +47,6 @@ impl RandomRoomsState {
 
         RandomRoomsState {
             cfg,
-            generated: false,
             rng: SeedableRng::seed_from_u64(seed),
         }
     }

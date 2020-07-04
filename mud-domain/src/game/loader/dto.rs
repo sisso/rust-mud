@@ -172,6 +172,7 @@ pub struct RandomRoomsData {
     pub height: u32,
     pub levels: u32,
     pub spawns: Vec<RandomRoomsSpawnData>,
+    pub generated: bool,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]

@@ -401,6 +401,7 @@ impl Loader {
                         width: rr_data.width,
                         height: rr_data.height,
                         spawns: spawns,
+                        generated: rr_data.generated,
                     })
                     .unwrap();
             }
@@ -744,6 +745,8 @@ impl Loader {
                     height: random_room.height,
                     levels: random_room.levels,
                     spawns: spanws,
+                    // entrance is always created during load
+                    generated: random_room.generated,
                 })
             } else {
                 None
@@ -1105,10 +1108,23 @@ prefabs.control_panel_command_2 {
 
         // Hardcoded situations
 
-        // 1) Random room will create a new entrance. Maybe should not be dynamic? Still space would have it
+        // Random room will create a new entrance. Maybe should not be dynamic? Still space would have it
         if expected.label == "Dungeon Entrance" {
+            // should have 1 entrance in config
             expected.room.as_mut().unwrap().exits = None;
+            // should have 2 entrance, the one from config + the new random rooms
             value.room.as_mut().unwrap().exits = None;
+        }
+
+        if expected.label == "Dungeon area" {
+            expected
+                .zone
+                .as_mut()
+                .unwrap()
+                .random_rooms
+                .as_mut()
+                .unwrap()
+                .generated = true;
         }
 
         // check all other fields to be equals

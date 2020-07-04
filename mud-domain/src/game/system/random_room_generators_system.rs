@@ -28,7 +28,7 @@ pub fn init(container: &mut Container) {
     let spawns = &mut container.spawns;
 
     for rr in random_rooms_repo.list_states_mut() {
-        if rr.generated {
+        if rr.cfg.generated {
             continue;
         }
 
@@ -108,7 +108,7 @@ pub fn init(container: &mut Container) {
             previous_rooms_ids = Some(rooms_ids);
         }
 
-        rr.generated = true;
+        rr.cfg.generated = true;
     }
 }
 

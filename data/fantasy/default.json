@@ -331,6 +331,7 @@
           "width": 3,
           "height": 3,
           "levels": 5,
+          "generated": false,
           "spawns": [
             {
               "level_min": null,
