@@ -2,9 +2,6 @@
 
 # Main Todo
 
-- add save version of file
-- add save version migration
-
 # Features
 
 - specs

@@ -292,8 +292,10 @@ pub struct PlayerData {
 // TODO: replace HashMap by vector, it should not be used and ID is currently serialized as
 //       string key
 // TODO: cfg doesn't need to be option anymore
+// TODO: rename to snapshot data?
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct LoaderData {
+    pub version: u32,
     pub cfg: Option<CfgData>,
     pub objects: HashMap<StaticId, ObjData>,
     pub prefabs: HashMap<StaticId, ObjData>,
@@ -302,6 +304,7 @@ pub struct LoaderData {
 impl LoaderData {
     pub fn new() -> Self {
         LoaderData {
+            version: 0,
             cfg: None,
             objects: Default::default(),
             prefabs: Default::default(),

@@ -1,63 +1,25 @@
 {
+  "version": 0,
   "cfg": {
     "initial_room": 2,
     "avatar_mob": 6,
     "initial_craft": 12,
-    "money_id": null
+    "money_id": null,
+    "tick": null,
+    "total_time": null
   },
   "objects": {
-    "4": {
-      "id": 4,
-      "label": "City center",
-      "code": null,
-      "desc": "The deserts market and city center",
-      "room": {
-        "can_exit": null,
-        "exits": [
-          {
-            "dir": "n",
-            "to": 3
-          }
-        ]
-      },
-      "astro_body": null,
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": 16,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
-    },
-    "24": {
-      "id": 24,
-      "label": "Sector 2",
+    "0": {
+      "id": 0,
+      "label": "Sector 1",
       "code": [
-        "sector2"
+        "sector1"
       ],
-      "desc": null,
-      "room": null,
-      "astro_body": null,
-      "sector": {},
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": null,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
+      "sector": {}
     },
     "3": {
       "id": 3,
       "label": "Landing Pad",
-      "code": null,
       "desc": "City landing pad.",
       "room": {
         "can_exit": true,
@@ -72,221 +34,10 @@
           }
         ]
       },
-      "astro_body": null,
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
       "parent": 16,
       "children": [
         12
-      ],
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
-    },
-    "1": {
-      "id": 1,
-      "label": "Dune",
-      "code": null,
-      "desc": null,
-      "room": null,
-      "astro_body": {
-        "kind": "planet",
-        "orbit_distance": 150.0,
-        "jump_target_id": null
-      },
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": 19,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
-    },
-    "26": {
-      "id": 26,
-      "label": "Asteroid Field",
-      "code": null,
-      "desc": null,
-      "room": null,
-      "astro_body": {
-        "kind": "asteroid_field",
-        "orbit_distance": 40.0,
-        "jump_target_id": null
-      },
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": 25,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
-    },
-    "19": {
-      "id": 19,
-      "label": "Red Star",
-      "code": null,
-      "desc": null,
-      "room": null,
-      "astro_body": {
-        "kind": "star",
-        "orbit_distance": 0.0,
-        "jump_target_id": null
-      },
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": 0,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
-    },
-    "27": {
-      "id": 27,
-      "label": "Asteroid Field Zone",
-      "code": null,
-      "desc": null,
-      "room": null,
-      "astro_body": null,
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": 26,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": {
-        "random_rooms": null
-      }
-    },
-    "22": {
-      "id": 22,
-      "label": "Asteroid Field Zone",
-      "code": null,
-      "desc": null,
-      "room": null,
-      "astro_body": null,
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": 17,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": {
-        "random_rooms": null
-      }
-    },
-    "16": {
-      "id": 16,
-      "label": "Palace zone",
-      "code": null,
-      "desc": null,
-      "room": null,
-      "astro_body": null,
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": 1,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": {
-        "random_rooms": null
-      }
-    },
-    "21": {
-      "id": 21,
-      "label": "Station hangar",
-      "code": null,
-      "desc": null,
-      "room": {
-        "can_exit": true,
-        "exits": []
-      },
-      "astro_body": null,
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": 20,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
-    },
-    "23": {
-      "id": 23,
-      "label": "Asteroid",
-      "code": null,
-      "desc": null,
-      "room": {
-        "can_exit": true,
-        "exits": null
-      },
-      "astro_body": null,
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": 22,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
-    },
-    "29": {
-      "id": 29,
-      "label": "Jump Point",
-      "code": [
-        "jump"
-      ],
-      "desc": null,
-      "room": null,
-      "astro_body": {
-        "kind": "jump_gate",
-        "orbit_distance": 200.0,
-        "jump_target_id": 18
-      },
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": 25,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
+      ]
     },
     "18": {
       "id": 18,
@@ -294,144 +45,80 @@
       "code": [
         "jump"
       ],
-      "desc": null,
-      "room": null,
       "astro_body": {
         "kind": "jump_gate",
         "orbit_distance": 200.0,
         "jump_target_id": 29
       },
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": 19,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
+      "parent": 19
     },
-    "25": {
-      "id": 25,
-      "label": "Yellow Star",
-      "code": null,
-      "desc": null,
-      "room": null,
+    "27": {
+      "id": 27,
+      "label": "Asteroid Field Zone",
+      "parent": 26,
+      "zone": {
+        "random_rooms": null
+      }
+    },
+    "29": {
+      "id": 29,
+      "label": "Jump Point",
+      "code": [
+        "jump"
+      ],
+      "astro_body": {
+        "kind": "jump_gate",
+        "orbit_distance": 200.0,
+        "jump_target_id": 18
+      },
+      "parent": 25
+    },
+    "26": {
+      "id": 26,
+      "label": "Asteroid Field",
+      "astro_body": {
+        "kind": "asteroid_field",
+        "orbit_distance": 40.0,
+        "jump_target_id": null
+      },
+      "parent": 25
+    },
+    "4": {
+      "id": 4,
+      "label": "City center",
+      "desc": "The deserts market and city center",
+      "room": {
+        "can_exit": null,
+        "exits": [
+          {
+            "dir": "n",
+            "to": 3
+          }
+        ]
+      },
+      "parent": 16
+    },
+    "16": {
+      "id": 16,
+      "label": "Palace zone",
+      "parent": 1,
+      "zone": {
+        "random_rooms": null
+      }
+    },
+    "19": {
+      "id": 19,
+      "label": "Red Star",
       "astro_body": {
         "kind": "star",
         "orbit_distance": 0.0,
         "jump_target_id": null
       },
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": 24,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
-    },
-    "20": {
-      "id": 20,
-      "label": "Station",
-      "code": null,
-      "desc": null,
-      "room": null,
-      "astro_body": {
-        "kind": "station",
-        "orbit_distance": 2.0,
-        "jump_target_id": null
-      },
-      "sector": null,
-      "mob": null,
-      "pos": {
-        "x": 1.0,
-        "y": 0.0
-      },
-      "spawn": null,
-      "parent": 1,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
-    },
-    "17": {
-      "id": 17,
-      "label": "Asteroid Field",
-      "code": null,
-      "desc": null,
-      "room": null,
-      "astro_body": {
-        "kind": "asteroid_field",
-        "orbit_distance": 80.0,
-        "jump_target_id": null
-      },
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": 19,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
-    },
-    "28": {
-      "id": 28,
-      "label": "Asteroid",
-      "code": null,
-      "desc": null,
-      "room": {
-        "can_exit": true,
-        "exits": null
-      },
-      "astro_body": null,
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": 27,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
-    },
-    "0": {
-      "id": 0,
-      "label": "Sector 1",
-      "code": [
-        "sector1"
-      ],
-      "desc": null,
-      "room": null,
-      "astro_body": null,
-      "sector": {},
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": null,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
+      "parent": 0
     },
     "2": {
       "id": 2,
       "label": "Palace",
-      "code": null,
       "desc": "The greate Palace of Dune",
       "room": {
         "can_exit": null,
@@ -442,93 +129,116 @@
           }
         ]
       },
-      "astro_body": null,
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": 16,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
-    }
-  },
-  "prefabs": {
-    "10": {
-      "id": 10,
-      "label": "Shuttle",
-      "code": [
-        "shuttle"
-      ],
-      "desc": "Small shuttle",
-      "room": null,
-      "astro_body": null,
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": null,
-      "children": null,
-      "craft": {},
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
+      "parent": 16
     },
-    "12": {
-      "id": 12,
-      "label": "Light Transport",
-      "code": [
-        "transport"
-      ],
-      "desc": "Small cargo craft designed to deliver small amount of cargo",
-      "room": null,
-      "astro_body": null,
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": null,
-      "children": null,
-      "craft": {},
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
+    "20": {
+      "id": 20,
+      "label": "Station",
+      "astro_body": {
+        "kind": "station",
+        "orbit_distance": 2.0,
+        "jump_target_id": null
+      },
+      "pos": {
+        "x": 1.0,
+        "y": 0.0
+      },
+      "parent": 1
     },
-    "11": {
-      "id": 11,
-      "label": "Cockpit",
-      "code": null,
-      "desc": "Small cockpit used to control the craft",
+    "28": {
+      "id": 28,
+      "label": "Asteroid",
       "room": {
         "can_exit": true,
         "exits": null
       },
-      "astro_body": null,
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": 10,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
+      "parent": 27
+    },
+    "1": {
+      "id": 1,
+      "label": "Dune",
+      "astro_body": {
+        "kind": "planet",
+        "orbit_distance": 150.0,
+        "jump_target_id": null
+      },
+      "parent": 19
+    },
+    "21": {
+      "id": 21,
+      "label": "Station hangar",
+      "room": {
+        "can_exit": true,
+        "exits": []
+      },
+      "parent": 20
+    },
+    "25": {
+      "id": 25,
+      "label": "Yellow Star",
+      "astro_body": {
+        "kind": "star",
+        "orbit_distance": 0.0,
+        "jump_target_id": null
+      },
+      "parent": 24
+    },
+    "22": {
+      "id": 22,
+      "label": "Asteroid Field Zone",
+      "parent": 17,
+      "zone": {
+        "random_rooms": null
+      }
+    },
+    "23": {
+      "id": 23,
+      "label": "Asteroid",
+      "room": {
+        "can_exit": true,
+        "exits": null
+      },
+      "parent": 22
+    },
+    "24": {
+      "id": 24,
+      "label": "Sector 2",
+      "code": [
+        "sector2"
+      ],
+      "sector": {}
+    },
+    "17": {
+      "id": 17,
+      "label": "Asteroid Field",
+      "astro_body": {
+        "kind": "asteroid_field",
+        "orbit_distance": 80.0,
+        "jump_target_id": null
+      },
+      "parent": 19
+    }
+  },
+  "prefabs": {
+    "13": {
+      "id": 13,
+      "label": "Bridge",
+      "desc": "Craft bridge.",
+      "room": {
+        "can_exit": null,
+        "exits": [
+          {
+            "dir": "s",
+            "to": 14
+          }
+        ]
+      },
+      "parent": 12
     },
     "6": {
       "id": 6,
       "label": "Human",
-      "code": null,
       "desc": "A normal and boring human being",
-      "room": null,
-      "astro_body": null,
-      "sector": null,
       "mob": {
         "attack": 10,
         "defense": 10,
@@ -539,21 +249,36 @@
         "xp": 0,
         "hire_cost": null,
         "aggressive": null
+      }
+    },
+    "11": {
+      "id": 11,
+      "label": "Cockpit",
+      "desc": "Small cockpit used to control the craft",
+      "room": {
+        "can_exit": true,
+        "exits": null
       },
-      "pos": null,
-      "spawn": null,
-      "parent": null,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
+      "parent": 10
+    },
+    "15": {
+      "id": 15,
+      "label": "Airlock",
+      "desc": "Craft airlock",
+      "room": {
+        "can_exit": true,
+        "exits": [
+          {
+            "dir": "n",
+            "to": 14
+          }
+        ]
+      },
+      "parent": 12
     },
     "14": {
       "id": 14,
       "label": "Cargo Storage",
-      "code": null,
       "desc": "Cargo storage.",
       "room": {
         "can_exit": null,
@@ -568,72 +293,25 @@
           }
         ]
       },
-      "astro_body": null,
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": 12,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
+      "parent": 12
     },
-    "13": {
-      "id": 13,
-      "label": "Bridge",
-      "code": null,
-      "desc": "Craft bridge.",
-      "room": {
-        "can_exit": null,
-        "exits": [
-          {
-            "dir": "s",
-            "to": 14
-          }
-        ]
-      },
-      "astro_body": null,
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": 12,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
+    "12": {
+      "id": 12,
+      "label": "Light Transport",
+      "code": [
+        "transport"
+      ],
+      "desc": "Small cargo craft designed to deliver small amount of cargo",
+      "craft": {}
     },
-    "15": {
-      "id": 15,
-      "label": "Airlock",
-      "code": null,
-      "desc": "Craft airlock",
-      "room": {
-        "can_exit": true,
-        "exits": [
-          {
-            "dir": "n",
-            "to": 14
-          }
-        ]
-      },
-      "astro_body": null,
-      "sector": null,
-      "mob": null,
-      "pos": null,
-      "spawn": null,
-      "parent": 12,
-      "children": null,
-      "craft": null,
-      "item": null,
-      "price": null,
-      "vendor": null,
-      "zone": null
+    "10": {
+      "id": 10,
+      "label": "Shuttle",
+      "code": [
+        "shuttle"
+      ],
+      "desc": "Small shuttle",
+      "craft": {}
     }
   }
 }

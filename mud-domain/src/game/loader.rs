@@ -36,6 +36,8 @@ pub mod dto;
 use dto::*;
 use std::io::Write;
 
+const CURRENT_VERSION: u32 = 0;
+
 #[derive(Debug, Clone)]
 pub struct Loader {
     index: HashMap<StaticId, ObjData>,
@@ -866,8 +868,9 @@ impl Loader {
         Ok(obj_data)
     }
 
-    pub fn load_data(container: &mut Container, data: LoaderData) -> Result<()> {
+    pub fn load_data(container: &mut Container, mut data: LoaderData) -> Result<()> {
         Loader::validate(&data)?;
+        Loader::migrate(&mut data);
 
         // add prefabs
         for (_k, v) in data.prefabs {
@@ -911,6 +914,13 @@ impl Loader {
     fn validate(data: &LoaderData) -> Result<()> {
         let mut ids = HashSet::new();
 
+        if data.version != CURRENT_VERSION {
+            return Err(Error::Error(format!(
+                "invalid data version {}",
+                data.version
+            )));
+        }
+
         for (_static_id, data) in data.objects.iter() {
             if !ids.insert(data.id) {
                 return Err(Error::Error(format!("duplicate object id {:?}", data.id)));
@@ -924,6 +934,18 @@ impl Loader {
         }
 
         Ok(())
+    }
+
+    fn migrate(data: &mut LoaderData) -> Result<()> {
+        match data.version {
+            0 => Ok(()),
+            other => {
+                return Err(Error::Error(format!(
+                    "invalid data version {}",
+                    data.version
+                )));
+            }
+        }
     }
 
     fn initialize_all(
