@@ -184,41 +184,24 @@ pub struct ZoneData {
 pub struct ObjData {
     pub id: StaticId,
     pub label: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub code: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub desc: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub owned_by: Option<StaticId>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub room: Option<RoomData>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub astro_body: Option<AstroBodyData>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub sector: Option<SectorData>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub mob: Option<MobData>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub pos: Option<PosData>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub spawn: Option<SpawnData>,
     /// Is instantiate in same context of parent, ID is mapped
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub parent: Option<StaticId>,
     /// Are instantiate in own context, unique ID and place as children
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub children: Option<Vec<StaticId>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub craft: Option<CraftData>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub item: Option<ItemData>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub price: Option<PriceData>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub vendor: Option<VendorData>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub zone: Option<ZoneData>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub player: Option<PlayerData>,
 }
 

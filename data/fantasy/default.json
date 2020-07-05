@@ -1,47 +1,35 @@
 {
-  "version": 0,
   "cfg": {
-    "initial_room": 2,
     "avatar_mob": 0,
-    "initial_craft": null,
-    "money_id": 17,
-    "tick": null,
-    "total_time": null
+    "initial_room": 2,
+    "money_id": 17
   },
   "objects": {
-    "24": {
-      "id": 24,
-      "label": "donation chest gold spawn",
-      "spawn": {
-        "prefab_id": 17,
-        "max": 10,
-        "time_min": 10.0,
-        "time_max": 60.0,
-        "locations_id": null
-      },
-      "parent": 23
+    "1": {
+      "id": 1,
+      "label": "Village area",
+      "zone": {}
     },
-    "52": {
-      "id": 52,
-      "label": "Temple Tower",
-      "desc": "A 100m heigh tower, a nice place to look arond. At distance you can see the florest, montain and far away ants.",
-      "room": {
-        "can_exit": null,
-        "exits": [
-          {
-            "dir": "d",
-            "to": 6
-          }
-        ]
-      },
-      "parent": 1
+    "16": {
+      "id": 16,
+      "label": "Wolf spawn",
+      "parent": 1,
+      "spawn": {
+        "locations_id": [
+          5
+        ],
+        "max": 4,
+        "prefab_id": 15,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
     },
     "2": {
+      "desc": "Village center",
       "id": 2,
       "label": "Village",
-      "desc": "Village center",
+      "parent": 1,
       "room": {
-        "can_exit": null,
         "exits": [
           {
             "dir": "e",
@@ -56,47 +44,142 @@
             "to": 4
           }
         ]
-      },
-      "parent": 1
-    },
-    "26": {
-      "id": 26,
-      "label": "mercenary spawn",
-      "spawn": {
-        "prefab_id": 25,
-        "max": 2,
-        "time_min": 60.0,
-        "time_max": 180.0,
-        "locations_id": null
-      },
-      "parent": 2
+      }
     },
     "23": {
-      "id": 23,
-      "label": "donation chest",
       "code": [
         "chest"
       ],
       "desc": "Chest used to receive donations from the beliver",
-      "parent": 6,
+      "id": 23,
       "item": {
         "flags": {
-          "money": null,
-          "inventory": true,
-          "stuck": null,
-          "body": null
-        },
-        "amount": null,
-        "weapon": null,
-        "armor": null
+          "inventory": true
+        }
+      },
+      "label": "donation chest",
+      "parent": 6
+    },
+    "24": {
+      "id": 24,
+      "label": "donation chest gold spawn",
+      "parent": 23,
+      "spawn": {
+        "max": 10,
+        "prefab_id": 17,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "26": {
+      "id": 26,
+      "label": "mercenary spawn",
+      "parent": 2,
+      "spawn": {
+        "max": 2,
+        "prefab_id": 25,
+        "time_max": 180.0,
+        "time_min": 60.0
+      }
+    },
+    "27": {
+      "desc": "This is the entrance of an old and dangerous dengeon.\\n\\nIn a small sign you can read: Archtung!",
+      "id": 27,
+      "label": "Dungeon Entrance",
+      "parent": 1,
+      "room": {
+        "exits": [
+          {
+            "dir": "w",
+            "to": 5
+          }
+        ]
+      }
+    },
+    "28": {
+      "id": 28,
+      "label": "Dungeon area",
+      "zone": {
+        "random_rooms": {
+          "entrance_dir": "e",
+          "entrance_room_id": 27,
+          "generated": false,
+          "height": 3,
+          "levels": 5,
+          "spawns": [
+            {
+              "amount": 2,
+              "level_max": 0,
+              "spawn": {
+                "max": 4,
+                "prefab_id": 53,
+                "time_max": 60.0,
+                "time_min": 10.0
+              }
+            },
+            {
+              "amount": 5,
+              "level_max": 3,
+              "level_min": 1,
+              "spawn": {
+                "max": 4,
+                "prefab_id": 53,
+                "time_max": 60.0,
+                "time_min": 10.0
+              }
+            },
+            {
+              "amount": 10,
+              "level_min": 2,
+              "spawn": {
+                "max": 4,
+                "prefab_id": 29,
+                "time_max": 60.0,
+                "time_min": 10.0
+              }
+            }
+          ],
+          "width": 3
+        }
+      }
+    },
+    "3": {
+      "desc": "Place where drunk people find they equals",
+      "id": 3,
+      "label": "Bar",
+      "parent": 1,
+      "room": {
+        "exits": [
+          {
+            "dir": "w",
+            "to": 2
+          }
+        ]
+      }
+    },
+    "30": {
+      "desc": "Dark forest where gardening guild make a very good work",
+      "id": 30,
+      "label": "Forest deep",
+      "parent": 1,
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 5
+          }
+        ]
       }
     },
     "4": {
+      "children": [
+        19
+      ],
+      "desc": "Village market center is where people can buy and sell stuff",
       "id": 4,
       "label": "Market",
-      "desc": "Village market center is where people can buy and sell stuff",
+      "parent": 1,
       "room": {
-        "can_exit": null,
         "exits": [
           {
             "dir": "n",
@@ -107,140 +190,14 @@
             "to": 5
           }
         ]
-      },
-      "parent": 1,
-      "children": [
-        19
-      ]
-    },
-    "27": {
-      "id": 27,
-      "label": "Dungeon Entrance",
-      "desc": "This is the entrance of an old and dangerous dengeon.\\n\\nIn a small sign you can read: Archtung!",
-      "room": {
-        "can_exit": null,
-        "exits": [
-          {
-            "dir": "w",
-            "to": 5
-          }
-        ]
-      },
-      "parent": 1
-    },
-    "1": {
-      "id": 1,
-      "label": "Village area",
-      "zone": {
-        "random_rooms": null
       }
-    },
-    "28": {
-      "id": 28,
-      "label": "Dungeon area",
-      "zone": {
-        "random_rooms": {
-          "entrance_room_id": 27,
-          "entrance_dir": "e",
-          "width": 3,
-          "height": 3,
-          "levels": 5,
-          "spawns": [
-            {
-              "level_min": null,
-              "level_max": 0,
-              "amount": 2,
-              "spawn": {
-                "prefab_id": 53,
-                "max": 4,
-                "time_min": 10.0,
-                "time_max": 60.0,
-                "locations_id": null
-              }
-            },
-            {
-              "level_min": 1,
-              "level_max": 3,
-              "amount": 5,
-              "spawn": {
-                "prefab_id": 53,
-                "max": 4,
-                "time_min": 10.0,
-                "time_max": 60.0,
-                "locations_id": null
-              }
-            },
-            {
-              "level_min": 2,
-              "level_max": null,
-              "amount": 10,
-              "spawn": {
-                "prefab_id": 29,
-                "max": 4,
-                "time_min": 10.0,
-                "time_max": 60.0,
-                "locations_id": null
-              }
-            }
-          ],
-          "generated": false
-        }
-      }
-    },
-    "6": {
-      "id": 6,
-      "label": "Temple",
-      "desc": "The village temple is a place of resting and recovery",
-      "room": {
-        "can_exit": null,
-        "exits": [
-          {
-            "dir": "e",
-            "to": 2
-          },
-          {
-            "dir": "u",
-            "to": 52
-          }
-        ]
-      },
-      "parent": 1
-    },
-    "16": {
-      "id": 16,
-      "label": "Wolf spawn",
-      "spawn": {
-        "prefab_id": 15,
-        "max": 4,
-        "time_min": 10.0,
-        "time_max": 60.0,
-        "locations_id": [
-          5
-        ]
-      },
-      "parent": 1
-    },
-    "30": {
-      "id": 30,
-      "label": "Forest deep",
-      "desc": "Dark forest where gardening guild make a very good work",
-      "room": {
-        "can_exit": null,
-        "exits": [
-          {
-            "dir": "n",
-            "to": 5
-          }
-        ]
-      },
-      "parent": 1
     },
     "5": {
+      "desc": "Dark forest where gardening guild make a very good work",
       "id": 5,
       "label": "forest",
-      "desc": "Dark forest where gardening guild make a very good work",
+      "parent": 1,
       "room": {
-        "can_exit": null,
         "exits": [
           {
             "dir": "n",
@@ -251,253 +208,115 @@
             "to": 27
           }
         ]
-      },
-      "parent": 1
+      }
     },
-    "3": {
-      "id": 3,
-      "label": "Bar",
-      "desc": "Place where drunk people find they equals",
+    "52": {
+      "desc": "A 100m heigh tower, a nice place to look arond. At distance you can see the florest, montain and far away ants.",
+      "id": 52,
+      "label": "Temple Tower",
+      "parent": 1,
       "room": {
-        "can_exit": null,
         "exits": [
           {
-            "dir": "w",
-            "to": 2
+            "dir": "d",
+            "to": 6
           }
         ]
-      },
-      "parent": 1
+      }
+    },
+    "6": {
+      "desc": "The village temple is a place of resting and recovery",
+      "id": 6,
+      "label": "Temple",
+      "parent": 1,
+      "room": {
+        "exits": [
+          {
+            "dir": "e",
+            "to": 2
+          },
+          {
+            "dir": "u",
+            "to": 52
+          }
+        ]
+      }
     }
   },
   "prefabs": {
-    "17": {
-      "id": 17,
-      "label": "gold",
-      "item": {
-        "flags": {
-          "money": true,
-          "inventory": null,
-          "stuck": null,
-          "body": null
-        },
-        "amount": 1,
-        "weapon": null,
-        "armor": null
-      }
-    },
-    "8": {
-      "id": 8,
-      "label": "Iron Ore",
-      "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": null,
-        "armor": null
-      }
-    },
-    "9": {
-      "id": 9,
-      "label": "Iron",
-      "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": null,
-        "armor": null
-      }
-    },
-    "40": {
-      "id": 40,
-      "label": "Two hand Axe",
-      "desc": "",
-      "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": {
-          "min": 3,
-          "max": 8,
-          "calm_down": 2.0,
-          "attack": 1,
-          "defense": 0
-        },
-        "armor": null
-      },
-      "price": {
-        "buy": 300,
-        "sell": 150
-      }
-    },
-    "31": {
-      "id": 31,
-      "label": "Dagger",
-      "desc": "",
-      "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": {
-          "min": 1,
-          "max": 3,
-          "calm_down": 1.0,
-          "attack": 0,
-          "defense": 2
-        },
-        "armor": null
-      },
-      "price": {
-        "buy": 10,
-        "sell": 5
-      }
-    },
-    "35": {
-      "id": 35,
-      "label": "Sword",
-      "desc": "",
-      "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": {
-          "min": 2,
-          "max": 4,
-          "calm_down": 1.0,
-          "attack": 0,
-          "defense": 0
-        },
-        "armor": null
-      },
-      "price": {
-        "buy": 400,
-        "sell": 200
-      }
-    },
-    "33": {
-      "id": 33,
-      "label": "Axe",
-      "desc": "",
-      "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": {
-          "min": 2,
-          "max": 6,
-          "calm_down": 2.0,
-          "attack": 0,
-          "defense": 0
-        },
-        "armor": null
-      },
-      "price": {
-        "buy": 50,
-        "sell": 25
-      }
-    },
-    "39": {
-      "id": 39,
-      "label": "Two hand Sword",
-      "desc": "",
-      "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": {
-          "min": 2,
-          "max": 8,
-          "calm_down": 1.0,
-          "attack": 1,
-          "defense": 0
-        },
-        "armor": null
-      },
-      "price": {
-        "buy": 800,
-        "sell": 400
-      }
-    },
-    "29": {
-      "id": 29,
-      "label": "skeleton",
+    "0": {
+      "desc": "A super geil human being",
+      "id": 0,
+      "label": "avatar",
       "mob": {
-        "attack": 9,
-        "defense": 9,
-        "damage_min": 1,
-        "damage_max": 2,
-        "pv": 6,
-        "pv_max": 6,
-        "xp": 5,
-        "hire_cost": null,
-        "aggressive": true
-      }
-    },
-    "11": {
-      "id": 11,
-      "label": "Tree",
-      "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": null,
-        "armor": null
-      }
-    },
-    "15": {
-      "id": 15,
-      "label": "wolf",
-      "mob": {
-        "attack": 9,
-        "defense": 8,
-        "damage_min": 1,
-        "damage_max": 2,
-        "pv": 4,
-        "pv_max": 4,
-        "xp": 5,
-        "hire_cost": null,
-        "aggressive": false
-      },
-      "children": [
-        18
-      ]
-    },
-    "49": {
-      "id": 49,
-      "label": "Leather Armor",
-      "desc": "",
-      "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": null,
-        "armor": {
-          "defense": 2,
-          "rd": 2
-        }
-      },
-      "price": {
-        "buy": 200,
-        "sell": 100
-      }
-    },
-    "50": {
-      "id": 50,
-      "label": "Chain Mail",
-      "desc": "",
-      "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": null,
-        "armor": {
-          "defense": 3,
-          "rd": 3
-        }
-      },
-      "price": {
-        "buy": 400,
-        "sell": 200
+        "attack": 10,
+        "damage_max": 4,
+        "damage_min": 2,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 0
       }
     },
     "10": {
       "id": 10,
-      "label": "Coal",
+      "item": {},
+      "label": "Coal"
+    },
+    "11": {
+      "id": 11,
+      "item": {},
+      "label": "Tree"
+    },
+    "12": {
+      "id": 12,
+      "item": {},
+      "label": "Ore mine"
+    },
+    "13": {
+      "id": 13,
+      "item": {},
+      "label": "Burner"
+    },
+    "14": {
+      "id": 14,
+      "item": {},
+      "label": "Forge"
+    },
+    "15": {
+      "children": [
+        18
+      ],
+      "id": 15,
+      "label": "wolf",
+      "mob": {
+        "aggressive": false,
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 8,
+        "pv": 4,
+        "pv_max": 4,
+        "xp": 5
+      }
+    },
+    "17": {
+      "id": 17,
       "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": null,
-        "armor": null
+        "amount": 1,
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "gold"
+    },
+    "18": {
+      "id": 18,
+      "item": {},
+      "label": "meat",
+      "price": {
+        "buy": 2,
+        "sell": 1
       }
     },
     "19": {
@@ -505,367 +324,405 @@
       "label": "vendor",
       "mob": {
         "attack": 10,
-        "defense": 10,
-        "damage_min": 1,
         "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
         "pv": 10,
         "pv_max": 10,
-        "xp": 10,
-        "hire_cost": null,
-        "aggressive": null
+        "xp": 10
       },
       "vendor": {}
     },
-    "53": {
-      "id": 53,
-      "label": "rat",
+    "20": {
+      "desc": "A normal and boring human being",
+      "id": 20,
+      "label": "human",
       "mob": {
-        "attack": 6,
-        "defense": 6,
-        "damage_min": 1,
+        "attack": 10,
         "damage_max": 2,
-        "pv": 2,
-        "pv_max": 2,
-        "xp": 1,
-        "hire_cost": null,
-        "aggressive": true
-      }
-    },
-    "41": {
-      "id": 41,
-      "label": "Flail",
-      "desc": "",
-      "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": {
-          "min": 2,
-          "max": 4,
-          "calm_down": 2.0,
-          "attack": 2,
-          "defense": -1
-        },
-        "armor": null
-      },
-      "price": {
-        "buy": 200,
-        "sell": 100
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 10
       }
     },
     "25": {
+      "desc": "Sword for sell",
       "id": 25,
       "label": "mercenary",
-      "desc": "Sword for sell",
       "mob": {
         "attack": 10,
-        "defense": 10,
-        "damage_min": 2,
         "damage_max": 4,
+        "damage_min": 2,
+        "defense": 10,
+        "hire_cost": 10,
         "pv": 10,
         "pv_max": 10,
-        "xp": 10,
-        "hire_cost": 10,
-        "aggressive": null
+        "xp": 10
+      }
+    },
+    "29": {
+      "id": 29,
+      "label": "skeleton",
+      "mob": {
+        "aggressive": true,
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      }
+    },
+    "31": {
+      "desc": "",
+      "id": 31,
+      "item": {
+        "weapon": {
+          "attack": 0,
+          "calm_down": 1.0,
+          "defense": 2,
+          "max": 3,
+          "min": 1
+        }
+      },
+      "label": "Dagger",
+      "price": {
+        "buy": 10,
+        "sell": 5
+      }
+    },
+    "32": {
+      "desc": "",
+      "id": 32,
+      "item": {
+        "weapon": {
+          "attack": 0,
+          "calm_down": 1.0,
+          "defense": 0,
+          "max": 4,
+          "min": 2
+        }
+      },
+      "label": "Short Sword",
+      "price": {
+        "buy": 300,
+        "sell": 150
+      }
+    },
+    "33": {
+      "desc": "",
+      "id": 33,
+      "item": {
+        "weapon": {
+          "attack": 0,
+          "calm_down": 2.0,
+          "defense": 0,
+          "max": 6,
+          "min": 2
+        }
+      },
+      "label": "Axe",
+      "price": {
+        "buy": 50,
+        "sell": 25
       }
     },
     "34": {
-      "id": 34,
-      "label": "Mace",
       "desc": "",
+      "id": 34,
       "item": {
-        "flags": null,
-        "amount": null,
         "weapon": {
-          "min": 2,
-          "max": 6,
-          "calm_down": 2.0,
           "attack": 0,
-          "defense": 0
-        },
-        "armor": null
+          "calm_down": 2.0,
+          "defense": 0,
+          "max": 6,
+          "min": 2
+        }
       },
+      "label": "Mace",
       "price": {
         "buy": 100,
         "sell": 50
       }
     },
-    "7": {
-      "id": 7,
-      "label": "Wood",
+    "35": {
+      "desc": "",
+      "id": 35,
       "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": null,
-        "armor": null
+        "weapon": {
+          "attack": 0,
+          "calm_down": 1.0,
+          "defense": 0,
+          "max": 4,
+          "min": 2
+        }
+      },
+      "label": "Sword",
+      "price": {
+        "buy": 400,
+        "sell": 200
       }
     },
     "36": {
-      "id": 36,
-      "label": "Lance",
       "desc": "",
+      "id": 36,
       "item": {
-        "flags": null,
-        "amount": null,
         "weapon": {
-          "min": 1,
-          "max": 8,
-          "calm_down": 1.0,
           "attack": 2,
-          "defense": 0
-        },
-        "armor": null
+          "calm_down": 1.0,
+          "defense": 0,
+          "max": 8,
+          "min": 1
+        }
       },
+      "label": "Lance",
       "price": {
         "buy": 150,
         "sell": 75
       }
     },
-    "18": {
-      "id": 18,
-      "label": "meat",
-      "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": null,
-        "armor": null
-      },
-      "price": {
-        "buy": 2,
-        "sell": 1
-      }
-    },
-    "12": {
-      "id": 12,
-      "label": "Ore mine",
-      "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": null,
-        "armor": null
-      }
-    },
-    "51": {
-      "id": 51,
-      "label": "Plate Mail",
-      "desc": "",
-      "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": null,
-        "armor": {
-          "defense": 4,
-          "rd": 4
-        }
-      },
-      "price": {
-        "buy": 800,
-        "sell": 400
-      }
-    },
-    "43": {
-      "id": 43,
-      "label": "Buckler",
-      "desc": "",
-      "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": null,
-        "armor": {
-          "defense": 0,
-          "rd": 1
-        }
-      },
-      "price": {
-        "buy": 50,
-        "sell": 25
-      }
-    },
-    "47": {
-      "id": 47,
-      "label": "Cap",
-      "desc": "",
-      "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": null,
-        "armor": {
-          "defense": 1,
-          "rd": 0
-        }
-      },
-      "price": {
-        "buy": 50,
-        "sell": 25
-      }
-    },
     "37": {
-      "id": 37,
-      "label": "Quarterstaff",
       "desc": "",
+      "id": 37,
       "item": {
-        "flags": null,
-        "amount": null,
         "weapon": {
-          "min": 1,
-          "max": 2,
-          "calm_down": 1.0,
           "attack": 0,
-          "defense": 3
-        },
-        "armor": null
+          "calm_down": 1.0,
+          "defense": 3,
+          "max": 2,
+          "min": 1
+        }
       },
+      "label": "Quarterstaff",
       "price": {
         "buy": 50,
         "sell": 25
       }
     },
     "38": {
-      "id": 38,
-      "label": "Halberd",
       "desc": "",
+      "id": 38,
       "item": {
-        "flags": null,
-        "amount": null,
         "weapon": {
-          "min": 4,
-          "max": 12,
-          "calm_down": 3.0,
           "attack": 1,
-          "defense": 0
-        },
-        "armor": null
+          "calm_down": 3.0,
+          "defense": 0,
+          "max": 12,
+          "min": 4
+        }
       },
+      "label": "Halberd",
       "price": {
         "buy": 400,
         "sell": 200
       }
     },
-    "48": {
-      "id": 48,
-      "label": "Helm",
+    "39": {
       "desc": "",
+      "id": 39,
       "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": null,
-        "armor": {
-          "defense": 2,
-          "rd": 1
+        "weapon": {
+          "attack": 1,
+          "calm_down": 1.0,
+          "defense": 0,
+          "max": 8,
+          "min": 2
         }
       },
+      "label": "Two hand Sword",
+      "price": {
+        "buy": 800,
+        "sell": 400
+      }
+    },
+    "40": {
+      "desc": "",
+      "id": 40,
+      "item": {
+        "weapon": {
+          "attack": 1,
+          "calm_down": 2.0,
+          "defense": 0,
+          "max": 8,
+          "min": 3
+        }
+      },
+      "label": "Two hand Axe",
+      "price": {
+        "buy": 300,
+        "sell": 150
+      }
+    },
+    "41": {
+      "desc": "",
+      "id": 41,
+      "item": {
+        "weapon": {
+          "attack": 2,
+          "calm_down": 2.0,
+          "defense": -1,
+          "max": 4,
+          "min": 2
+        }
+      },
+      "label": "Flail",
       "price": {
         "buy": 200,
         "sell": 100
       }
     },
-    "44": {
-      "id": 44,
-      "label": "Shield",
+    "43": {
       "desc": "",
+      "id": 43,
       "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": null,
+        "armor": {
+          "defense": 0,
+          "rd": 1
+        }
+      },
+      "label": "Buckler",
+      "price": {
+        "buy": 50,
+        "sell": 25
+      }
+    },
+    "44": {
+      "desc": "",
+      "id": 44,
+      "item": {
         "armor": {
           "defense": 1,
           "rd": 2
         }
       },
+      "label": "Shield",
       "price": {
         "buy": 100,
         "sell": 50
       }
     },
-    "20": {
-      "id": 20,
-      "label": "human",
-      "desc": "A normal and boring human being",
-      "mob": {
-        "attack": 10,
-        "defense": 10,
-        "damage_min": 1,
-        "damage_max": 2,
-        "pv": 10,
-        "pv_max": 10,
-        "xp": 10,
-        "hire_cost": null,
-        "aggressive": null
-      }
-    },
-    "13": {
-      "id": 13,
-      "label": "Burner",
-      "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": null,
-        "armor": null
-      }
-    },
     "45": {
-      "id": 45,
-      "label": "Wall Shield",
       "desc": "",
+      "id": 45,
       "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": null,
         "armor": {
           "defense": 2,
           "rd": 2
         }
       },
+      "label": "Wall Shield",
       "price": {
         "buy": 200,
         "sell": 100
       }
     },
-    "0": {
-      "id": 0,
-      "label": "avatar",
-      "desc": "A super geil human being",
-      "mob": {
-        "attack": 10,
-        "defense": 10,
-        "damage_min": 2,
-        "damage_max": 4,
-        "pv": 10,
-        "pv_max": 10,
-        "xp": 0,
-        "hire_cost": null,
-        "aggressive": null
-      }
-    },
-    "14": {
-      "id": 14,
-      "label": "Forge",
-      "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": null,
-        "armor": null
-      }
-    },
-    "32": {
-      "id": 32,
-      "label": "Short Sword",
+    "47": {
       "desc": "",
+      "id": 47,
       "item": {
-        "flags": null,
-        "amount": null,
-        "weapon": {
-          "min": 2,
-          "max": 4,
-          "calm_down": 1.0,
-          "attack": 0,
-          "defense": 0
-        },
-        "armor": null
+        "armor": {
+          "defense": 1,
+          "rd": 0
+        }
       },
+      "label": "Cap",
       "price": {
-        "buy": 300,
-        "sell": 150
+        "buy": 50,
+        "sell": 25
       }
+    },
+    "48": {
+      "desc": "",
+      "id": 48,
+      "item": {
+        "armor": {
+          "defense": 2,
+          "rd": 1
+        }
+      },
+      "label": "Helm",
+      "price": {
+        "buy": 200,
+        "sell": 100
+      }
+    },
+    "49": {
+      "desc": "",
+      "id": 49,
+      "item": {
+        "armor": {
+          "defense": 2,
+          "rd": 2
+        }
+      },
+      "label": "Leather Armor",
+      "price": {
+        "buy": 200,
+        "sell": 100
+      }
+    },
+    "50": {
+      "desc": "",
+      "id": 50,
+      "item": {
+        "armor": {
+          "defense": 3,
+          "rd": 3
+        }
+      },
+      "label": "Chain Mail",
+      "price": {
+        "buy": 400,
+        "sell": 200
+      }
+    },
+    "51": {
+      "desc": "",
+      "id": 51,
+      "item": {
+        "armor": {
+          "defense": 4,
+          "rd": 4
+        }
+      },
+      "label": "Plate Mail",
+      "price": {
+        "buy": 800,
+        "sell": 400
+      }
+    },
+    "53": {
+      "id": 53,
+      "label": "rat",
+      "mob": {
+        "aggressive": true,
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      }
+    },
+    "7": {
+      "id": 7,
+      "item": {},
+      "label": "Wood"
+    },
+    "8": {
+      "id": 8,
+      "item": {},
+      "label": "Iron Ore"
+    },
+    "9": {
+      "id": 9,
+      "item": {},
+      "label": "Iron"
     }
-  }
+  },
+  "version": 0
 }

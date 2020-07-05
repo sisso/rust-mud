@@ -1,26 +1,175 @@
 {
-  "version": 0,
   "cfg": {
-    "initial_room": 2,
     "avatar_mob": 6,
     "initial_craft": 12,
-    "money_id": null,
-    "tick": null,
-    "total_time": null
+    "initial_room": 2
   },
   "objects": {
     "0": {
-      "id": 0,
-      "label": "Sector 1",
       "code": [
         "sector1"
       ],
+      "id": 0,
+      "label": "Sector 1",
       "sector": {}
     },
+    "1": {
+      "astro_body": {
+        "kind": "planet",
+        "orbit_distance": 150.0
+      },
+      "id": 1,
+      "label": "Dune",
+      "parent": 19
+    },
+    "16": {
+      "id": 16,
+      "label": "Palace zone",
+      "parent": 1,
+      "zone": {}
+    },
+    "17": {
+      "astro_body": {
+        "kind": "asteroid_field",
+        "orbit_distance": 80.0
+      },
+      "id": 17,
+      "label": "Asteroid Field",
+      "parent": 19
+    },
+    "18": {
+      "astro_body": {
+        "jump_target_id": 29,
+        "kind": "jump_gate",
+        "orbit_distance": 200.0
+      },
+      "code": [
+        "jump"
+      ],
+      "id": 18,
+      "label": "Jump point",
+      "parent": 19
+    },
+    "19": {
+      "astro_body": {
+        "kind": "star",
+        "orbit_distance": 0.0
+      },
+      "id": 19,
+      "label": "Red Star",
+      "parent": 0
+    },
+    "2": {
+      "desc": "The greate Palace of Dune",
+      "id": 2,
+      "label": "Palace",
+      "parent": 16,
+      "room": {
+        "exits": [
+          {
+            "dir": "s",
+            "to": 3
+          }
+        ]
+      }
+    },
+    "20": {
+      "astro_body": {
+        "kind": "station",
+        "orbit_distance": 2.0
+      },
+      "id": 20,
+      "label": "Station",
+      "parent": 1,
+      "pos": {
+        "x": 1.0,
+        "y": 0.0
+      }
+    },
+    "21": {
+      "id": 21,
+      "label": "Station hangar",
+      "parent": 20,
+      "room": {
+        "can_exit": true,
+        "exits": []
+      }
+    },
+    "22": {
+      "id": 22,
+      "label": "Asteroid Field Zone",
+      "parent": 17,
+      "zone": {}
+    },
+    "23": {
+      "id": 23,
+      "label": "Asteroid",
+      "parent": 22,
+      "room": {
+        "can_exit": true
+      }
+    },
+    "24": {
+      "code": [
+        "sector2"
+      ],
+      "id": 24,
+      "label": "Sector 2",
+      "sector": {}
+    },
+    "25": {
+      "astro_body": {
+        "kind": "star",
+        "orbit_distance": 0.0
+      },
+      "id": 25,
+      "label": "Yellow Star",
+      "parent": 24
+    },
+    "26": {
+      "astro_body": {
+        "kind": "asteroid_field",
+        "orbit_distance": 40.0
+      },
+      "id": 26,
+      "label": "Asteroid Field",
+      "parent": 25
+    },
+    "27": {
+      "id": 27,
+      "label": "Asteroid Field Zone",
+      "parent": 26,
+      "zone": {}
+    },
+    "28": {
+      "id": 28,
+      "label": "Asteroid",
+      "parent": 27,
+      "room": {
+        "can_exit": true
+      }
+    },
+    "29": {
+      "astro_body": {
+        "jump_target_id": 18,
+        "kind": "jump_gate",
+        "orbit_distance": 200.0
+      },
+      "code": [
+        "jump"
+      ],
+      "id": 29,
+      "label": "Jump Point",
+      "parent": 25
+    },
     "3": {
+      "children": [
+        12
+      ],
+      "desc": "City landing pad.",
       "id": 3,
       "label": "Landing Pad",
-      "desc": "City landing pad.",
+      "parent": 16,
       "room": {
         "can_exit": true,
         "exits": [
@@ -33,255 +182,71 @@
             "to": 4
           }
         ]
-      },
-      "parent": 16,
-      "children": [
-        12
-      ]
-    },
-    "18": {
-      "id": 18,
-      "label": "Jump point",
-      "code": [
-        "jump"
-      ],
-      "astro_body": {
-        "kind": "jump_gate",
-        "orbit_distance": 200.0,
-        "jump_target_id": 29
-      },
-      "parent": 19
-    },
-    "27": {
-      "id": 27,
-      "label": "Asteroid Field Zone",
-      "parent": 26,
-      "zone": {
-        "random_rooms": null
       }
     },
-    "29": {
-      "id": 29,
-      "label": "Jump Point",
-      "code": [
-        "jump"
-      ],
-      "astro_body": {
-        "kind": "jump_gate",
-        "orbit_distance": 200.0,
-        "jump_target_id": 18
-      },
-      "parent": 25
-    },
-    "26": {
-      "id": 26,
-      "label": "Asteroid Field",
-      "astro_body": {
-        "kind": "asteroid_field",
-        "orbit_distance": 40.0,
-        "jump_target_id": null
-      },
-      "parent": 25
-    },
     "4": {
+      "desc": "The deserts market and city center",
       "id": 4,
       "label": "City center",
-      "desc": "The deserts market and city center",
+      "parent": 16,
       "room": {
-        "can_exit": null,
         "exits": [
           {
             "dir": "n",
             "to": 3
           }
         ]
-      },
-      "parent": 16
-    },
-    "16": {
-      "id": 16,
-      "label": "Palace zone",
-      "parent": 1,
-      "zone": {
-        "random_rooms": null
       }
-    },
-    "19": {
-      "id": 19,
-      "label": "Red Star",
-      "astro_body": {
-        "kind": "star",
-        "orbit_distance": 0.0,
-        "jump_target_id": null
-      },
-      "parent": 0
-    },
-    "2": {
-      "id": 2,
-      "label": "Palace",
-      "desc": "The greate Palace of Dune",
-      "room": {
-        "can_exit": null,
-        "exits": [
-          {
-            "dir": "s",
-            "to": 3
-          }
-        ]
-      },
-      "parent": 16
-    },
-    "20": {
-      "id": 20,
-      "label": "Station",
-      "astro_body": {
-        "kind": "station",
-        "orbit_distance": 2.0,
-        "jump_target_id": null
-      },
-      "pos": {
-        "x": 1.0,
-        "y": 0.0
-      },
-      "parent": 1
-    },
-    "28": {
-      "id": 28,
-      "label": "Asteroid",
-      "room": {
-        "can_exit": true,
-        "exits": null
-      },
-      "parent": 27
-    },
-    "1": {
-      "id": 1,
-      "label": "Dune",
-      "astro_body": {
-        "kind": "planet",
-        "orbit_distance": 150.0,
-        "jump_target_id": null
-      },
-      "parent": 19
-    },
-    "21": {
-      "id": 21,
-      "label": "Station hangar",
-      "room": {
-        "can_exit": true,
-        "exits": []
-      },
-      "parent": 20
-    },
-    "25": {
-      "id": 25,
-      "label": "Yellow Star",
-      "astro_body": {
-        "kind": "star",
-        "orbit_distance": 0.0,
-        "jump_target_id": null
-      },
-      "parent": 24
-    },
-    "22": {
-      "id": 22,
-      "label": "Asteroid Field Zone",
-      "parent": 17,
-      "zone": {
-        "random_rooms": null
-      }
-    },
-    "23": {
-      "id": 23,
-      "label": "Asteroid",
-      "room": {
-        "can_exit": true,
-        "exits": null
-      },
-      "parent": 22
-    },
-    "24": {
-      "id": 24,
-      "label": "Sector 2",
-      "code": [
-        "sector2"
-      ],
-      "sector": {}
-    },
-    "17": {
-      "id": 17,
-      "label": "Asteroid Field",
-      "astro_body": {
-        "kind": "asteroid_field",
-        "orbit_distance": 80.0,
-        "jump_target_id": null
-      },
-      "parent": 19
     }
   },
   "prefabs": {
+    "10": {
+      "code": [
+        "shuttle"
+      ],
+      "craft": {},
+      "desc": "Small shuttle",
+      "id": 10,
+      "label": "Shuttle"
+    },
+    "11": {
+      "desc": "Small cockpit used to control the craft",
+      "id": 11,
+      "label": "Cockpit",
+      "parent": 10,
+      "room": {
+        "can_exit": true
+      }
+    },
+    "12": {
+      "code": [
+        "transport"
+      ],
+      "craft": {},
+      "desc": "Small cargo craft designed to deliver small amount of cargo",
+      "id": 12,
+      "label": "Light Transport"
+    },
     "13": {
+      "desc": "Craft bridge.",
       "id": 13,
       "label": "Bridge",
-      "desc": "Craft bridge.",
+      "parent": 12,
       "room": {
-        "can_exit": null,
         "exits": [
           {
             "dir": "s",
             "to": 14
           }
         ]
-      },
-      "parent": 12
-    },
-    "6": {
-      "id": 6,
-      "label": "Human",
-      "desc": "A normal and boring human being",
-      "mob": {
-        "attack": 10,
-        "defense": 10,
-        "damage_min": 1,
-        "damage_max": 2,
-        "pv": 10,
-        "pv_max": 10,
-        "xp": 0,
-        "hire_cost": null,
-        "aggressive": null
       }
     },
-    "11": {
-      "id": 11,
-      "label": "Cockpit",
-      "desc": "Small cockpit used to control the craft",
-      "room": {
-        "can_exit": true,
-        "exits": null
-      },
-      "parent": 10
-    },
-    "15": {
-      "id": 15,
-      "label": "Airlock",
-      "desc": "Craft airlock",
-      "room": {
-        "can_exit": true,
-        "exits": [
-          {
-            "dir": "n",
-            "to": 14
-          }
-        ]
-      },
-      "parent": 12
-    },
     "14": {
+      "desc": "Cargo storage.",
       "id": 14,
       "label": "Cargo Storage",
-      "desc": "Cargo storage.",
+      "parent": 12,
       "room": {
-        "can_exit": null,
         "exits": [
           {
             "dir": "n",
@@ -292,26 +257,37 @@
             "to": 15
           }
         ]
-      },
-      "parent": 12
+      }
     },
-    "12": {
-      "id": 12,
-      "label": "Light Transport",
-      "code": [
-        "transport"
-      ],
-      "desc": "Small cargo craft designed to deliver small amount of cargo",
-      "craft": {}
+    "15": {
+      "desc": "Craft airlock",
+      "id": 15,
+      "label": "Airlock",
+      "parent": 12,
+      "room": {
+        "can_exit": true,
+        "exits": [
+          {
+            "dir": "n",
+            "to": 14
+          }
+        ]
+      }
     },
-    "10": {
-      "id": 10,
-      "label": "Shuttle",
-      "code": [
-        "shuttle"
-      ],
-      "desc": "Small shuttle",
-      "craft": {}
+    "6": {
+      "desc": "A normal and boring human being",
+      "id": 6,
+      "label": "Human",
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 0
+      }
     }
-  }
+  },
+  "version": 0
 }

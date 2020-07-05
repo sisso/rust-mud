@@ -1,6 +1,5 @@
 use mud_domain::game::loader::Loader;
 
-
 use serde_json;
 
 use std::env;
@@ -54,8 +53,7 @@ fn clean_up(folder: &str) -> Result<(), Box<dyn Error>> {
 
 fn generate(path: &str, to_folder: &str) -> Result<(), Box<dyn Error>> {
     let data = Loader::read_folders(Path::new(path))?;
-    let mut file = std::fs::File::create(Path::new(to_folder).join("default.json"))?;
-    let json_str = serde_json::to_string_pretty(&data)?;
-    file.write_all(json_str.as_bytes())?;
+    let path = Path::new(to_folder).join("default.json");
+    Loader::write_snapshot(&path, &data);
     Ok(())
 }
