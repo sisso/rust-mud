@@ -5,7 +5,7 @@ use crate::game::item::{ItemId, ItemRepository};
 use crate::game::labels::Labels;
 use crate::game::location::Locations;
 use crate::game::mob::MobId;
-use crate::game::{comm, inventory, Outputs};
+use crate::game::{comm, inventory};
 use crate::utils::strinput::StrInput;
 use commons::{ObjId, PlayerId};
 
@@ -82,12 +82,7 @@ pub fn parse_not_owned_item(
     }
 }
 
-pub fn pickup(
-    container: &mut Container,
-    outputs: &mut dyn Outputs,
-    mob_id: MobId,
-    args: StrInput,
-) -> Result<()> {
+pub fn pickup(container: &mut Container, mob_id: MobId, args: StrInput) -> Result<()> {
     let room_id = container.locations.get(mob_id).as_result()?;
 
     match parse_not_owned_item(
@@ -98,76 +93,67 @@ pub fn pickup(
         args,
     ) {
         Ok((item_id, maybe_container)) => {
-            let _ = do_pickup(container, outputs, mob_id, item_id, maybe_container);
+            let _ = do_pickup(container, mob_id, item_id, maybe_container);
         }
-        Err(ParseItemError::ItemNotProvided) => outputs.private(mob_id, comm::pick_what()),
-        Err(ParseItemError::ItemNotFound { label }) => {
-            outputs.private(mob_id, comm::pick_where_not_found(label.as_str()))
+        Err(ParseItemError::ItemNotProvided) => {
+            container.outputs.private(mob_id, comm::pick_what())
         }
+        Err(ParseItemError::ItemNotFound { label }) => container
+            .outputs
+            .private(mob_id, comm::pick_where_not_found(label.as_str())),
     }
 
     Ok(())
 }
 
-pub fn equip(
-    container: &mut Container,
-    outputs: &mut dyn Outputs,
-    mob_id: MobId,
-    args: StrInput,
-) -> Result<()> {
+pub fn equip(container: &mut Container, mob_id: MobId, args: StrInput) -> Result<()> {
     match parser_owned_item(&container, mob_id, args) {
-        Ok(item_id) => do_equip(container, outputs, mob_id, item_id),
+        Ok(item_id) => do_equip(container, mob_id, item_id),
         Err(ParseItemError::ItemNotProvided) => {
-            outputs.private(mob_id, comm::equip_what());
+            container.outputs.private(mob_id, comm::equip_what());
             Err(Error::InvalidArgumentFailure)
         }
         Err(ParseItemError::ItemNotFound { label }) => {
-            outputs.private(mob_id, comm::equip_item_not_found(label.as_str()));
+            container
+                .outputs
+                .private(mob_id, comm::equip_item_not_found(label.as_str()));
             Err(Error::InvalidArgumentFailure)
         }
     }
 }
 
-pub fn drop(
-    container: &mut Container,
-    outputs: &mut dyn Outputs,
-    mob_id: MobId,
-    args: StrInput,
-) -> Result<()> {
+pub fn drop(container: &mut Container, mob_id: MobId, args: StrInput) -> Result<()> {
+    parser_owned_item(&container, mob_id, args)
+        .map_err(|err| {
+            match err {
+                ParseItemError::ItemNotProvided => container
+                    .outputs
+                    .private(mob_id, comm::drop_item_no_target()),
+                ParseItemError::ItemNotFound { label } => container
+                    .outputs
+                    .private(mob_id, comm::drop_item_not_found(label.as_str())),
+            };
+
+            Error::InvalidArgumentFailure
+        })
+        .and_then(|item_id| do_drop(container, mob_id, item_id))
+}
+
+pub fn strip(container: &mut Container, mob_id: MobId, args: StrInput) -> Result<()> {
     parser_owned_item(&container, mob_id, args)
         .map_err(|err| {
             match err {
                 ParseItemError::ItemNotProvided => {
-                    outputs.private(mob_id, comm::drop_item_no_target())
+                    container.outputs.private(mob_id, comm::strip_what())
                 }
-                ParseItemError::ItemNotFound { label } => {
-                    outputs.private(mob_id, comm::drop_item_not_found(label.as_str()))
-                }
+                ParseItemError::ItemNotFound { label } => container
+                    .outputs
+                    .private(mob_id, comm::strip_item_not_found(label.as_str())),
             };
 
             Error::InvalidArgumentFailure
         })
-        .and_then(|item_id| do_drop(container, outputs, mob_id, item_id))
-}
-
-pub fn strip(
-    container: &mut Container,
-    outputs: &mut dyn Outputs,
-    mob_id: MobId,
-    args: StrInput,
-) -> Result<()> {
-    parser_owned_item(&container, mob_id, args)
-        .map_err(|err| {
-            match err {
-                ParseItemError::ItemNotProvided => outputs.private(mob_id, comm::strip_what()),
-                ParseItemError::ItemNotFound { label } => {
-                    outputs.private(mob_id, comm::strip_item_not_found(label.as_str()))
-                }
-            };
-
-            Error::InvalidArgumentFailure
-        })
-        .and_then(|item_id| do_strip(container, outputs, mob_id, item_id))
+        .and_then(|item_id| do_strip(container, mob_id, item_id))
 }
 
 #[cfg(test)]

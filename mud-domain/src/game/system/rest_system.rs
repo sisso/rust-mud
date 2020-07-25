@@ -1,13 +1,13 @@
 use crate::errors::*;
 use crate::game::comm;
+use crate::game::container::Container;
 use crate::game::mob::Mob;
-use crate::game::system::SystemCtx;
 use commons::{TimeTrigger, TotalTime};
 
-pub fn run(ctx: &mut SystemCtx) {
-    let total_time = ctx.container.time.total;
+pub fn run(container: &mut Container) {
+    let total_time = container.time.total;
 
-    for mob in ctx.container.mobs.list_mut() {
+    for mob in container.mobs.list_mut() {
         if !mob.is_resting() {
             continue;
         }
@@ -17,9 +17,9 @@ pub fn run(ctx: &mut SystemCtx) {
         if update_resting(mob, total_time) {
             if mob.attributes.pv.is_damaged() {
                 let msg = comm::rest_healing(mob.attributes.pv.current);
-                ctx.outputs.private(mob_id, msg);
+                container.outputs.private(mob_id, msg);
             } else {
-                ctx.outputs.private(mob_id, comm::rest_healed());
+                container.outputs.private(mob_id, comm::rest_healed());
             }
         }
     }

@@ -1,7 +1,8 @@
 use crate::errors::*;
 use crate::game::comm;
+use crate::game::container::Container;
 use crate::game::item::ItemId;
-use crate::game::system::{System, SystemCtx};
+use crate::game::system::System;
 use crate::game::triggers::*;
 use commons::ObjId;
 use logs::*;
@@ -15,9 +16,8 @@ impl DecaySystem {
 }
 
 impl System for DecaySystem {
-    fn tick<'a>(&mut self, ctx: &mut SystemCtx<'a>) -> Result<()> {
-        let to_remove: Vec<ObjId> = ctx
-            .container
+    fn tick(&mut self, container: &mut Container) -> Result<()> {
+        let to_remove: Vec<ObjId> = container
             .triggers
             .list(EventKind::Decay)
             .map(|event| match event {
@@ -28,14 +28,14 @@ impl System for DecaySystem {
 
         for obj_id in to_remove {
             info!("{:?} removed by decay", obj_id);
-            if let Some(location_id) = ctx.container.locations.get(obj_id) {
-                let label = ctx.container.labels.get_label_f(obj_id);
+            if let Some(location_id) = container.locations.get(obj_id) {
+                let label = container.labels.get_label_f(obj_id);
                 let msg = comm::item_body_disappears(label);
-                ctx.outputs.broadcast(None, location_id, msg);
+                container.outputs.broadcast(None, location_id, msg);
             }
 
-            ctx.container.remove(obj_id);
-            ctx.container.items.remove(obj_id);
+            container.remove(obj_id);
+            container.items.remove(obj_id);
         }
 
         Ok(())
@@ -45,7 +45,6 @@ impl System for DecaySystem {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::controller::OutputsBuffer;
     use crate::game::container::Container;
     use crate::game::system::Systems;
     use crate::game::{builder, main_loop};

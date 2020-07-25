@@ -2,7 +2,6 @@ use super::comm;
 use super::container::*;
 use super::item::*;
 use super::mob::*;
-use super::Outputs;
 use crate::game::inventory;
 use crate::game::labels::Label;
 use crate::game::triggers::*;
@@ -11,7 +10,7 @@ use logs::*;
 
 const DECAY_TIME: DeltaTime = DeltaTime(20.0);
 
-pub fn create_corpse(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) {
+pub fn create_corpse(container: &mut Container, mob_id: MobId) {
     let corpse_id = container.objects.create();
     let room_id = container.locations.get(mob_id).unwrap();
     let mob_label = container.labels.get_label(mob_id).unwrap();
@@ -48,5 +47,5 @@ pub fn create_corpse(container: &mut Container, outputs: &mut dyn Outputs, mob_i
     );
 
     let msg = comm::item_corpse_appears_in_room(corpse_label.as_str());
-    outputs.broadcast(None, room_id, msg);
+    container.outputs.broadcast(None, room_id, msg);
 }

@@ -2,7 +2,6 @@ use super::comm;
 use crate::errors::{AsResult, Error, Result};
 use crate::game::domain::{Modifier, Rd};
 use crate::game::mob::Damage;
-use crate::game::system::SystemCtx;
 use commons::*;
 use logs::*;
 use serde::{Deserialize, Serialize};

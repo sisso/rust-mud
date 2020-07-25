@@ -165,7 +165,7 @@ impl SocketServer {
         }
     }
 
-    fn clean_output_to_log(s: &String) -> String {
+    fn clean_output_to_log(s: &str) -> String {
         s.replace("\n", "\\n")
     }
 }

@@ -9,7 +9,7 @@ use crate::errors::*;
 use crate::game::location::LocationId;
 use crate::game::mob::MobId;
 use crate::game::room::RoomId;
-use crate::game::system::{SystemCtx, Systems};
+use crate::game::system::Systems;
 use serde::Deserialize;
 
 pub mod actions;
@@ -60,15 +60,15 @@ pub mod triggers;
 pub mod vendors;
 pub mod zone;
 
-/// TODO: replace by buffer? looks a like of extra work keep this abstraction as reference
-pub trait Outputs {
-    /// For all mobs recursive inside the location
-    fn broadcast_all(&mut self, exclude: Option<MobId>, location_id: LocationId, msg: String);
-    /// For all mobs in current location
-    fn broadcast(&mut self, exclude: Option<MobId>, location_id: LocationId, msg: String);
-    /// Just to a specific mob
-    fn private(&mut self, mob_id: MobId, msg: String);
-}
+// /// TODO: replace by buffer? looks a like of extra work keep this abstraction as reference
+// pub trait Outputs {
+//     /// For all mobs recursive inside the location
+//     fn broadcast_all(&mut self, exclude: Option<MobId>, location_id: LocationId, msg: String);
+//     /// For all mobs in current location
+//     fn broadcast(&mut self, exclude: Option<MobId>, location_id: LocationId, msg: String);
+//     /// Just to a specific mob
+//     fn private(&mut self, mob_id: MobId, msg: String);
+// }
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct GameCfg {}
@@ -119,16 +119,11 @@ impl Game {
     }
 
     pub fn tick(&mut self, delta_time: DeltaTime) {
-        crate::game::main_loop::tick(
-            delta_time,
-            &mut self.container,
-            &mut self.systems,
-            self.controller.get_outputs(),
-        );
+        crate::game::main_loop::tick(delta_time, &mut self.container, &mut self.systems);
     }
 
     pub fn flush_outputs(&mut self) -> Vec<(ConnectionId, String)> {
-        self.controller.flush_outputs(&self.container)
+        self.controller.flush_outputs(&mut self.container)
     }
 
     pub fn admin_kill_avatar_from_connection(&mut self, connection_id: ConnectionId) -> Result<()> {
@@ -138,13 +133,12 @@ impl Game {
             .as_result()?;
         let avatar_id = self.container.players.get(player_id).as_result()?;
         let mob_id = avatar_id.mob_id;
-        actions_admin::force_kill(&mut self.container, self.controller.get_outputs(), mob_id)
+        actions_admin::force_kill(&mut self.container, mob_id)
     }
 }
 
 #[cfg(test)]
 pub mod test {
-    use crate::controller::OutputsBuffer;
     use crate::game::container::Container;
     use crate::game::system::Systems;
     use crate::game::{builder, main_loop, GameCfg};
@@ -153,29 +147,18 @@ pub mod test {
     pub struct TestScenery {
         pub container: Container,
         pub systems: Systems,
-        pub outputs: OutputsBuffer,
     }
 
     impl TestScenery {
         pub fn tick(&mut self, delta: f32) {
-            main_loop::tick(
-                DeltaTime(delta),
-                &mut self.container,
-                &mut self.systems,
-                &mut self.outputs,
-            );
+            main_loop::tick(DeltaTime(delta), &mut self.container, &mut self.systems);
         }
     }
 
     pub fn scenery() -> TestScenery {
         let mut container = Container::new();
         let systems = Systems::new(&mut container);
-        let outputs = OutputsBuffer::new();
 
-        TestScenery {
-            container,
-            systems,
-            outputs,
-        }
+        TestScenery { container, systems }
     }
 }

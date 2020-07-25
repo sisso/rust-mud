@@ -11,6 +11,7 @@ use crate::game::location::Locations;
 use crate::game::memory::Memories;
 use crate::game::mob::{MobId, MobRepository};
 use crate::game::obj::Objects;
+use crate::game::outputs::Outputs;
 use crate::game::ownership::*;
 use crate::game::player::PlayerRepository;
 use crate::game::pos::PosRepo;
@@ -21,15 +22,13 @@ use crate::game::ships::Ships;
 use crate::game::spawn::Spawns;
 use crate::game::surfaces::Surfaces;
 use crate::game::surfaces_object::SurfaceObjects;
-use crate::game::system::{
-    combat_system, item_system, rest_system, ship_system, spawn_system, SystemCtx,
-};
+use crate::game::system::{combat_system, item_system, rest_system, ship_system, spawn_system};
 use crate::game::tags::Tags;
 use crate::game::timer::*;
 use crate::game::triggers::*;
 use crate::game::vendors::Vendors;
 use crate::game::zone::Zones;
-use crate::game::{item, mob, spawn, system, Outputs};
+use crate::game::{item, mob, spawn, system};
 use commons::{DeltaTime, ObjId, PlayerId};
 use logs::*;
 
@@ -62,6 +61,7 @@ pub struct Container {
     pub hires: Hires,
     pub random_rooms: RandomRoomsRepository,
     pub memories: Memories,
+    pub outputs: Outputs,
 }
 
 impl Container {
@@ -94,6 +94,7 @@ impl Container {
             hires: Hires::new(),
             random_rooms: RandomRoomsRepository::new(),
             memories: Memories::new(),
+            outputs: Outputs::new(),
         }
     }
 

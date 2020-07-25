@@ -3,10 +3,10 @@ use rand::Rng;
 use super::comm;
 use super::container::*;
 use super::mob::*;
-use super::Outputs;
 use crate::errors::Error::InvalidStateFailure;
 use crate::errors::{AsResult, Error, Result};
 use crate::game::mob;
+use crate::game::outputs::Outputs;
 use commons::ObjId;
 use logs::*;
 
@@ -26,12 +26,7 @@ pub fn is_valid_attack_target(container: &Container, mob_id: MobId, target_id: O
     return true;
 }
 
-pub fn tick_attack(
-    container: &mut Container,
-    outputs: &mut dyn Outputs,
-    mob_id: MobId,
-    target_id: MobId,
-) -> Result<()> {
+pub fn tick_attack(container: &mut Container, mob_id: MobId, target_id: MobId) -> Result<()> {
     let attacker = container.mobs.get(mob_id).ok_or(Error::NotFoundFailure)?;
     let defender = container.mobs.get(target_id);
 
@@ -40,15 +35,15 @@ pub fn tick_attack(
         let defender_room_id = container.locations.get(defender.id).as_result()?;
 
         if attacker_room_id != defender_room_id {
-            cancel_attack(container, outputs, mob_id, Some(&target_id));
+            cancel_attack(container, mob_id, Some(&target_id));
             return Err(Error::InvalidArgumentFailure);
         }
 
         if attacker.is_read_to_attack(container.time.total) {
-            execute_attack(container, outputs, mob_id, target_id)?;
+            execute_attack(container, mob_id, target_id)?;
         }
 
-        match return_attack(container, outputs, target_id, mob_id) {
+        match return_attack(container, target_id, mob_id) {
             Err(_err) => warn!(
                 "fail to execute return attack from {:?} to {:?}",
                 mob_id, target_id
@@ -58,17 +53,12 @@ pub fn tick_attack(
 
         Ok(())
     } else {
-        cancel_attack(container, outputs, mob_id, None);
+        cancel_attack(container, mob_id, None);
         Ok(())
     }
 }
 
-fn cancel_attack(
-    container: &mut Container,
-    _outputs: &mut dyn Outputs,
-    mob_id: MobId,
-    _target: Option<&MobId>,
-) {
+fn cancel_attack(container: &mut Container, mob_id: MobId, _target: Option<&MobId>) {
     //    let attacker = container.get_mob(&mob_id.0);
 
     //    let msg_others = comm::kill_cancel(attacker, defender);
@@ -76,10 +66,10 @@ fn cancel_attack(
     //    if attacker.is_avatar {
     //        let player = container.find_player_from_avatar_mob_id(&MobId(attacker.id)).unwrap();
     //        let msg_player = comm::kill_player_cancel(defender);
-    //        outputs.private(player.id.clone(), msg_player);
-    //        outputs.room(player.id.clone(), attacker.room_id,msg_others);
+    //        container.outputs.private(player.id.clone(), msg_player);
+    //        container.outputs.room(player.id.clone(), attacker.room_id,msg_others);
     //    } else {
-    //        outputs.room_all( attacker.room_id, msg_others);
+    //        container.outputs.room_all( attacker.room_id, msg_others);
     //    }
 
     //    let mut mob = attacker.clone();
@@ -88,12 +78,7 @@ fn cancel_attack(
 
 // TODO: fix multiples get from get two mutable
 // TODO: log errors, like can not get attribute?
-fn execute_attack(
-    container: &mut Container,
-    outputs: &mut dyn Outputs,
-    mob_id: MobId,
-    target_id: MobId,
-) -> Result<()> {
+fn execute_attack(container: &mut Container, mob_id: MobId, target_id: MobId) -> Result<()> {
     let attacker_attributes = mob::get_attributes_with_bonus(container, mob_id)?;
     let attacker_room_id = container.locations.get(mob_id).as_result()?;
     let attacker_label = container.labels.get_label_f(mob_id);
@@ -112,8 +97,10 @@ fn execute_attack(
         comm::kill_mob_execute_attack(attacker_label, defender_label, &attack_result);
 
     let player_attack_msg = comm::kill_player_execute_attack(defender_label, &attack_result);
-    outputs.private(mob_id, player_attack_msg);
-    outputs.broadcast(Some(mob_id), attacker_room_id, room_attack_msg);
+    container.outputs.private(mob_id, player_attack_msg);
+    container
+        .outputs
+        .broadcast(Some(mob_id), attacker_room_id, room_attack_msg);
 
     if attack_result.success {
         // deduct pv
@@ -133,7 +120,7 @@ fn execute_attack(
                 mob.xp += defender_xp;
             })?;
 
-            execute_attack_killed(container, outputs, mob_id, target_id, defender_xp)?;
+            execute_attack_killed(container, mob_id, target_id, defender_xp)?;
         }
     }
 
@@ -148,7 +135,6 @@ fn execute_attack(
 
 fn execute_attack_killed(
     container: &mut Container,
-    outputs: &mut dyn Outputs,
     mob_id: MobId,
     target_id: MobId,
     xp: Xp,
@@ -156,10 +142,14 @@ fn execute_attack_killed(
     let room_id = container.locations.get(mob_id).as_result()?;
     let defender_label = container.labels.get_label_f(target_id);
 
-    outputs.private(mob_id, comm::killed_by_player(defender_label, xp));
-    outputs.broadcast(Some(mob_id), room_id, comm::killed(defender_label));
+    container
+        .outputs
+        .private(mob_id, comm::killed_by_player(defender_label, xp));
+    container
+        .outputs
+        .broadcast(Some(mob_id), room_id, comm::killed(defender_label));
 
-    mob::kill_mob(container, outputs, target_id)
+    mob::kill_mob(container, target_id)
 }
 
 fn roll_attack(attack: u32, damage: &Damage, defense: u32, rd: u32) -> AttackResult {
@@ -189,12 +179,7 @@ fn roll_damage(damage: &Damage) -> u32 {
 
 /// mob_id is the mob that receive the attack
 /// target_id is the mob that executed the attack
-fn return_attack(
-    container: &mut Container,
-    outputs: &mut dyn Outputs,
-    mob_id: MobId,
-    target_id: MobId,
-) -> Result<()> {
+fn return_attack(container: &mut Container, mob_id: MobId, target_id: MobId) -> Result<()> {
     let mob = container.mobs.get_mut(mob_id).as_result()?;
 
     if !mob.is_combat() {
@@ -202,10 +187,12 @@ fn return_attack(
         let mob_label = container.labels.get_label_f(mob_id);
         let aggressor_mob_label = container.labels.get_label_f(target_id);
 
-        outputs.private(mob_id, comm::kill_return_attack_self(aggressor_mob_label));
+        container
+            .outputs
+            .private(mob_id, comm::kill_return_attack_self(aggressor_mob_label));
 
         let msg = comm::kill_return_attack(mob_label, aggressor_mob_label);
-        outputs.broadcast(Some(mob_id), location_id, msg);
+        container.outputs.broadcast(Some(mob_id), location_id, msg);
 
         match mob.set_action_attack(target_id) {
             Err(err) => warn!(
@@ -217,7 +204,7 @@ fn return_attack(
     }
 
     for follower_id in mob.followers.clone() {
-        match return_attack(container, outputs, follower_id, target_id) {
+        match return_attack(container, follower_id, target_id) {
             Err(err) => warn!(
                 "{:?} fail to execute return attack from {:?} to {:?}: {:?}",
                 follower_id, mob_id, target_id, err

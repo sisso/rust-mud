@@ -874,7 +874,7 @@ impl Loader {
 
     pub fn load_data(container: &mut Container, mut data: LoaderData) -> Result<()> {
         Loader::validate(&data)?;
-        Loader::migrate(&mut data);
+        Loader::migrate(&mut data)?;
 
         // add prefabs
         for (_k, v) in data.prefabs {

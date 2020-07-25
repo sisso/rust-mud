@@ -5,23 +5,15 @@ use crate::game::loader::Loader;
 use crate::game::location::LocationId;
 use crate::game::mob::{Attributes, Damage, Mob, MobId, Pv};
 use crate::game::player::Player;
-use crate::game::{comm, Outputs};
+use crate::game::{comm, outputs::Outputs};
 use commons::{DeltaTime, PlayerId};
 
-pub fn on_player_disconnect(
-    _container: &mut Container,
-    _outputs: &mut dyn Outputs,
-    _player_id: PlayerId,
-) {
+pub fn on_player_disconnect(_container: &mut Container, _player_id: PlayerId) {
     // let player = container.players.get(player_id).as_result()?;
     // let _mob_id = player.mob_id;
 }
 
-pub fn on_player_login(
-    container: &mut Container,
-    _outputs: &mut dyn Outputs,
-    login: &str,
-) -> Result<PlayerId> {
+pub fn on_player_login(container: &mut Container, login: &str) -> Result<PlayerId> {
     match container.players.login(login) {
         Some(player_id) => Ok(player_id),
         None => create_player(container, login),
@@ -29,11 +21,7 @@ pub fn on_player_login(
 }
 
 // TODO: use trigger
-pub fn respawn_avatar(
-    container: &mut Container,
-    outputs: &mut dyn Outputs,
-    mob_id: MobId,
-) -> Result<()> {
+pub fn respawn_avatar(container: &mut Container, mob_id: MobId) -> Result<()> {
     container.mobs.update(mob_id, |mob| {
         assert!(mob.is_avatar);
         mob.attributes.pv.current = 1;
@@ -44,8 +32,12 @@ pub fn respawn_avatar(
 
     container.locations.set(mob_id, room_id);
 
-    outputs.private(mob_id, comm::mob_you_resurrected());
-    outputs.broadcast(Some(mob_id), room_id, comm::mob_resurrected(mob_label));
+    container
+        .outputs
+        .private(mob_id, comm::mob_you_resurrected());
+    container
+        .outputs
+        .broadcast(Some(mob_id), room_id, comm::mob_resurrected(mob_label));
 
     Ok(())
 }

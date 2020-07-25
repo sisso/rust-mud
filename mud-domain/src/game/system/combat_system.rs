@@ -1,6 +1,6 @@
 use crate::errors::*;
+use crate::game::container::Container;
 use crate::game::mob::MobCommand;
-use crate::game::system::SystemCtx;
 use crate::game::triggers::EventKind;
 use crate::game::{combat, comm};
 use commons::unwrap_or_continue;
@@ -8,15 +8,15 @@ use logs::*;
 use std::sync::atomic::Ordering::AcqRel;
 
 // TODO: we should not have issues where the mob get deleted
-pub fn run(ctx: &mut SystemCtx) {
-    run_combat(ctx);
+pub fn run(container: &mut Container) {
+    run_combat(container);
 }
 
-fn run_combat(ctx: &mut SystemCtx) {
+pub fn run_combat(container: &mut Container) {
     let mut attacks = vec![];
     let mut aggressive = vec![];
 
-    for mob in ctx.container.mobs.list() {
+    for mob in container.mobs.list() {
         match mob.command {
             MobCommand::None if mob.aggressive && !mob.is_combat() => aggressive.push(mob.id),
             MobCommand::None => {}
@@ -26,14 +26,14 @@ fn run_combat(ctx: &mut SystemCtx) {
 
     // check aggressive for target
     for mob_id in aggressive {
-        let location_id = unwrap_or_continue!(ctx.container.locations.get(mob_id));
+        let location_id = unwrap_or_continue!(container.locations.get(mob_id));
 
-        for target_id in ctx.container.locations.list_at(location_id) {
-            if !combat::is_valid_attack_target(&ctx.container, mob_id, target_id) {
+        for target_id in container.locations.list_at(location_id) {
+            if !combat::is_valid_attack_target(&container, mob_id, target_id) {
                 continue;
             }
 
-            let mob = unwrap_or_continue!(ctx.container.mobs.get_mut(mob_id));
+            let mob = unwrap_or_continue!(container.mobs.get_mut(mob_id));
 
             match mob.set_action_attack(target_id) {
                 Ok(()) => info!("{:?} aggressive attack {:?}", mob_id, target_id),
@@ -46,7 +46,7 @@ fn run_combat(ctx: &mut SystemCtx) {
 
     // execute attacks
     for (mob_id, target_id) in &attacks {
-        match combat::tick_attack(ctx.container, ctx.outputs, *mob_id, *target_id) {
+        match combat::tick_attack(container, *mob_id, *target_id) {
             Err(err) => warn!("{:?} fail to execute attack: {:?}", mob_id, err),
             _ => {}
         };

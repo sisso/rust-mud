@@ -13,9 +13,8 @@ use crate::game::item::ItemPrefabId;
 use crate::game::labels::Labels;
 use crate::game::location;
 use crate::game::location::Locations;
+use crate::game::outputs::Outputs;
 use crate::game::room::RoomId;
-use crate::game::system::SystemCtx;
-use crate::game::Outputs;
 use crate::game::{avatars, combat, comm};
 use serde::{Deserialize, Serialize};
 
@@ -331,15 +330,15 @@ impl MobRepository {
 
 // TODO: move game rules with output outside of mobs module
 // TODO: become a trigger?
-pub fn kill_mob(container: &mut Container, outputs: &mut dyn Outputs, mob_id: MobId) -> Result<()> {
+pub fn kill_mob(container: &mut Container, mob_id: MobId) -> Result<()> {
     info!("{:?} was killed", mob_id);
 
-    let _ = create_corpse(container, outputs, mob_id);
+    let _ = create_corpse(container, mob_id);
 
     // remove mob
     let mob = container.mobs.get(mob_id).unwrap();
     if mob.is_avatar {
-        avatars::respawn_avatar(container, outputs, mob_id)?;
+        avatars::respawn_avatar(container, mob_id)?;
     } else {
         container.remove(mob_id);
     }

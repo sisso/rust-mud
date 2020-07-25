@@ -23,7 +23,7 @@
 //    }
 //
 //    pub fn get_outputs_pointer(&self) -> Rc<RefCell<Vec<String>>> {
-//        self.outputs.clone()
+//        self.container.outputs.clone()
 //    }
 //
 //    pub fn get_inputs_pointer(&self) -> Rc<RefCell<Vec<String>>> {
@@ -33,7 +33,7 @@
 //
 //impl Server for ServerDummy {
 //    fn append_output(&mut self, pending_outputs: Vec<ServerOutput>) {
-//        self.outputs.borrow_mut().extend(pending_outputs.into_iter().map(|i| i.output));
+//        self.container.outputs.borrow_mut().extend(pending_outputs.into_iter().map(|i| i.output));
 //    }
 //
 //    fn run(&mut self) -> ServerChanges {
@@ -42,7 +42,7 @@
 //        // TODO: validate only connnections to 0
 //        // if pending_outputs.iter().find(|i| i.dest_connections_id.)
 ////        let output_messages: Vec<String> = pending_outputs.into_iter().map(|i| i.output).collect();
-////        self.outputs.borrow_mut().extend(output_messages);
+////        self.container.outputs.borrow_mut().extend(output_messages);
 //
 //        let connects: Vec<ConnectionId> =
 //            if self.connected {

@@ -245,7 +245,7 @@ If mostly of cases Event will be just a obj_id, why I can not just use Event { k
 
 A common flow simplify how things works. For instance, you don't need one advanced listener/trigger if we know that all messages are always processed later.
 
-To create a commons flow, we should back to previous implementation where tick is Input -> Output. In previous impl Input contains new connections, inputs, time elapsed, everything. Output contains diconnects, commands and outputs.
+To create a commons flow, we should back to previous implementation where tick is Input -> Output. In previous impl Input contains new connections, inputs, time elapsed, everything. Output contains diconnects, commands and container.outputs.
 
 Some operations like receive inputs and collect outputs are more user friendly by have direct commands, like connect()
 
@@ -714,7 +714,7 @@ The same code will be require using our model
 
 # Reusable actions 
 
-Currently all inputs are forward to actions that parse input, forward to internal command and map into outputs. For instance
+Currently all inputs are forward to actions that parse input, forward to internal command and map into container.outputs. For instance
 equip(player, arguments), forward to do_equip
 do_equip receive again (player, arguments) -> Result
 equip then match the result and output messages.
@@ -731,7 +731,7 @@ This impl have the following issues:
 Solution
 
 All inputs should be forward to a parser with the user, and arguments. The parser should then forward to a action with
-the avatar mob, exactly require arguments. The action will be responsible to apply the change and generate the outputs.
+the avatar mob, exactly require arguments. The action will be responsible to apply the change and generate the container.outputs.
 - require what? like item_id? how should do a search the search?
   - probably a different parser method, in normal input we chain both. Internally we could decide between one
     or other.

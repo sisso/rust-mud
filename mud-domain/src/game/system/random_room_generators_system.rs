@@ -8,7 +8,6 @@ use crate::game::random_rooms::{RandomRoomsCfg, RandomRoomsSpawnCfg};
 use crate::game::random_rooms_generator::{LevelGrid, RandomLevels, RandomLevelsCfg};
 use crate::game::room::{Room, RoomId, RoomRepository};
 use crate::game::spawn::Spawns;
-use crate::game::system::SystemCtx;
 use commons::ObjId;
 use logs::*;
 use rand::prelude::StdRng;
@@ -16,7 +15,7 @@ use rand::{Rng, SeedableRng};
 use std::collections::HashSet;
 use std::io::repeat;
 
-pub fn run(_ctx: &mut SystemCtx) {}
+pub fn run(_: &mut Container) {}
 
 /// it is implemented in a way that we can re-generate
 pub fn init(container: &mut Container) {

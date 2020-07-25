@@ -1,8 +1,9 @@
 use crate::controller::view_login::LoginResult;
+use crate::game::avatars;
 use crate::game::container::Container;
 use crate::game::location::LocationId;
 use crate::game::mob::MobId;
-use crate::game::{avatars, Outputs};
+use crate::game::outputs::{OutputInternal, Outputs};
 use commons::*;
 use logs::*;
 use std::collections::{HashMap, HashSet};
@@ -20,66 +21,8 @@ struct ConnectionState {
     pub player_id: Option<PlayerId>,
 }
 
-#[derive(Debug)]
-enum Output {
-    Private {
-        mob_id: MobId,
-        msg: String,
-    },
-
-    Broadcast {
-        /// usually the mob that originate the message
-        exclude: Option<MobId>,
-        /// RoomId or ZoneId, all children mobs will receive the message
-        location_id: LocationId,
-        /// recursive search for mobs to send message
-        recursive: bool,
-        msg: String,
-    },
-}
-
-#[derive(Debug)]
-pub struct OutputsBuffer {
-    list: Vec<Output>,
-}
-
-impl OutputsBuffer {
-    pub fn new() -> Self {
-        OutputsBuffer { list: vec![] }
-    }
-
-    fn take(&mut self) -> Vec<Output> {
-        std::mem::replace(&mut self.list, vec![])
-    }
-}
-
-impl Outputs for OutputsBuffer {
-    fn broadcast_all(&mut self, exclude: Option<ObjId>, location_id: ObjId, msg: String) {
-        self.list.push(Output::Broadcast {
-            exclude,
-            location_id,
-            msg,
-            recursive: true,
-        })
-    }
-
-    fn broadcast(&mut self, exclude: Option<ObjId>, location_id: ObjId, msg: String) {
-        self.list.push(Output::Broadcast {
-            exclude,
-            location_id,
-            msg,
-            recursive: false,
-        })
-    }
-
-    fn private(&mut self, mob_id: MobId, msg: String) {
-        self.list.push(Output::Private { mob_id, msg })
-    }
-}
-
 pub struct ViewHandleCtx<'a> {
     pub container: &'a mut Container,
-    pub outputs: &'a mut dyn Outputs,
     pub mob_id: MobId,
     pub player_id: PlayerId,
 }
@@ -89,7 +32,6 @@ pub struct Controller {
     connections: HashMap<ConnectionId, ConnectionState>,
     connection_id_by_player_id: HashMap<PlayerId, ConnectionId>,
     server_outputs: Vec<(ConnectionId, String)>,
-    outputs: OutputsBuffer,
     connections_with_input: HashSet<ConnectionId>,
 }
 
@@ -99,7 +41,6 @@ impl Controller {
             connections: Default::default(),
             connection_id_by_player_id: Default::default(),
             server_outputs: Default::default(),
-            outputs: OutputsBuffer::new(),
             connections_with_input: Default::default(),
         }
     }
@@ -124,7 +65,7 @@ impl Controller {
 
         if let Some(player_id) = state.player_id {
             info!("{:?} disconnecting player {:?}", connection_id, player_id);
-            avatars::on_player_disconnect(container, &mut self.outputs, player_id);
+            avatars::on_player_disconnect(container, player_id);
         } else {
             info!("{:?} disconnecting", connection_id);
         }
@@ -154,7 +95,6 @@ impl Controller {
 
             let ctx = ViewHandleCtx {
                 container: container,
-                outputs: &mut self.outputs,
                 mob_id,
                 player_id,
             };
@@ -176,9 +116,7 @@ impl Controller {
                     self.server_outputs
                         .push((connection_id, view_login::on_login_success(login.as_str())));
                     // TODO: add login fail
-                    let player_id =
-                        avatars::on_player_login(container, &mut self.outputs, login.as_str())
-                            .unwrap();
+                    let player_id = avatars::on_player_login(container, login.as_str()).unwrap();
 
                     debug!("{:?} login complete for {:?}", connection_id, player_id);
                     self.set_state(ConnectionState {
@@ -190,11 +128,7 @@ impl Controller {
         }
     }
 
-    pub fn get_outputs(&mut self) -> &mut dyn Outputs {
-        &mut self.outputs
-    }
-
-    pub fn flush_outputs(&mut self, container: &Container) -> Vec<(ConnectionId, String)> {
+    pub fn flush_outputs(&mut self, container: &mut Container) -> Vec<(ConnectionId, String)> {
         self.convert_to_connections_output(container);
         self.normalize_connection_outputs(container);
 
@@ -250,12 +184,12 @@ impl Controller {
     /// in room connections.
     ///
     /// game output will be empty after this process
-    fn convert_to_connections_output(&mut self, container: &Container) {
-        let outputs = self.outputs.take();
+    fn convert_to_connections_output(&mut self, container: &mut Container) {
+        let outputs = container.outputs.take();
 
         for game_output in outputs {
             match game_output {
-                Output::Private { mob_id, msg } => {
+                OutputInternal::Private { mob_id, msg } => {
                     let connection_id = container
                         .players
                         .find_from_mob(mob_id)
@@ -268,7 +202,7 @@ impl Controller {
                     }
                 }
 
-                Output::Broadcast {
+                OutputInternal::Broadcast {
                     exclude,
                     location_id,
                     recursive,

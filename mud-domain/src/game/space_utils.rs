@@ -8,7 +8,7 @@ use crate::game::container::Container;
 use crate::game::location::LocationId;
 use crate::game::mob::MobId;
 use crate::game::ships::ShipId;
-use crate::game::{comm, rooms_zones, Outputs};
+use crate::game::{comm, rooms_zones};
 use commons::{ObjId, PlayerId, MIN_DISTANCE, V2};
 use logs::*;
 
@@ -97,15 +97,13 @@ pub fn search_landing_sites(container: &Container, ship_id: ObjId) -> Vec<ObjId>
     sites
 }
 
-pub fn get_ship_and_sector(
-    container: &Container,
-    outputs: &mut dyn Outputs,
-    mob_id: MobId,
-) -> Result<(ShipId, ObjId)> {
+pub fn get_ship_and_sector(container: &mut Container, mob_id: MobId) -> Result<(ShipId, ObjId)> {
     let ship_id = match get_ship(container, mob_id) {
         Some(craft_id) => craft_id,
         None => {
-            outputs.private(mob_id, comm::space_not_in_craft());
+            container
+                .outputs
+                .private(mob_id, comm::space_not_in_craft());
             return Err(Error::NotFoundFailure);
         }
     };
@@ -117,7 +115,9 @@ pub fn get_ship_and_sector(
         .find(|&obj_id| container.surfaces.exists(obj_id));
 
     let sector_id = sector.ok_or_else(|| {
-        outputs.private(mob_id, comm::space_not_in_craft());
+        container
+            .outputs
+            .private(mob_id, comm::space_not_in_craft());
         Error::NotFoundFailure
     })?;
 
