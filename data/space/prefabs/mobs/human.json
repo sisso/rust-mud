@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "prefabs": {
+    "human": {
+      "desc": "A normal and boring human being",
+      "label": "Human",
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 0
+      }
+    }
+  }
+}

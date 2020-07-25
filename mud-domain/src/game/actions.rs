@@ -42,6 +42,57 @@ use std::process::id;
 //    pub mob_id: MobId,
 //    pub action: Action,
 //}
+// #[derive(Clone, Debug)]
+// pub enum Action{
+//     LookedAt {
+//         target: ObjId,
+//     },
+//     Examined {
+//         target: ObjId,
+//     },
+//     MovedDir {
+//         from: LocationId,
+//         to: LocationId,
+//         from_dir: Dir,
+//     },
+//     Enter {
+//         at: ObjId,
+//         to: RoomId,
+//     },
+//     Rested,
+//     Stand,
+//     StatsReport,
+//     Pick {
+//         item: ItemId,
+//     },
+//     Equip {
+//         item: ItemId,
+//     },
+//     Remove {
+//         item: ItemId,
+//     },
+//     Kill {
+//         mob_id: MobId,
+//     },
+//     Hit {
+//         mob_id: MobId,
+//         amount: Damage,
+//     },
+//     ReceiveDamage {
+//         amount: Damage,
+//     },
+//     Said {
+//         msg: String,
+//     },
+//     Landed,
+//     Launch,
+//     Bough {
+//         target: ObjId,
+//     },
+//     Sell {
+//         target: ObjId,
+//     },
+// }
 
 pub fn look(container: &mut Container, mob_id: MobId) -> Result<()> {
     container

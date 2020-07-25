@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "prefabs": {
+    "ship_transport_light": {
+      "label": "Light Transport",
+      "desc": "Small cargo craft designed to deliver small amount of cargo",
+      "craft": {}
+    },
+    "ship_transport_light_bridge": {
+      "label": "Bridge",
+      "desc": "Craft bridge.",
+      "parent": "ship_transport_light",
+      "room": {
+        "exits_map": {
+          "s": "ship_transport_light_storage"
+        }
+      }
+    },
+    "ship_transport_light_storage": {
+      "desc": "Cargo storage.",
+      "label": "Cargo Storage",
+      "parent": "ship_transport_light",
+      "room": {
+        "exits_map": {
+          "n": "ship_transport_light_cockpit",
+          "s": "ship_transport_light_airlock"
+        }
+      }
+    },
+    "ship_transport_light_airlock": {
+      "desc": "Craft airlock",
+      "label": "Airlock",
+      "parent": "ship_transport_light",
+      "room": {
+        "can_exit": true,
+        "exits_map": {
+          "n": "ship_transport_light_cargo"
+        }
+      }
+    }
+  }
+}

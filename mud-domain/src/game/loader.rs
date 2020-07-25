@@ -440,7 +440,7 @@ impl Loader {
     }
 
     pub fn load_hocon(container: &mut Container, buffer: &str) -> Result<()> {
-        let data: Result<LoaderData> = HParser::load_from_str(buffer).map_err(|e| {
+        let data: Result<LoaderData> = HParser::load_hocon_str(buffer).map_err(|e| {
             let msg = format!("{:?}", e);
             Error::Error(msg)
         });
@@ -448,7 +448,7 @@ impl Loader {
         Loader::load_data(container, data?)
     }
 
-    pub fn read_csv_files(data: &mut LoaderData, files: &Vec<&Path>) -> Result<()> {
+    pub fn read_csv_files<T: AsRef<Path>>(data: &mut LoaderData, files: &Vec<T>) -> Result<()> {
         let mut flat_data = vec![];
 
         for file in files {
@@ -560,12 +560,20 @@ impl Loader {
         Loader::load_data(container, data)
     }
 
+    pub fn read_json(data: &mut LoaderData, json_file: &Path) -> Result<()> {
+        let file = std::fs::File::open(json_file)?;
+        let new_data = serde_json::from_reader(std::io::BufReader::new(file))?;
+        data.extends(new_data)
+    }
+
+    /// Read a snapshot file
     pub fn read_snapshot(snapshot_file: &Path) -> Result<LoaderData> {
         let file = std::fs::File::open(snapshot_file)?;
         let data = serde_json::from_reader(std::io::BufReader::new(file))?;
         Ok(data)
     }
 
+    /// Write data as snapshot file
     pub fn write_snapshot(snapshot_file: &Path, data: &LoaderData) -> Result<()> {
         let mut jvalue = serde_json::to_value(data)?;
         jvalue.strip_nulls();
@@ -584,24 +592,21 @@ impl Loader {
         }
 
         let files = Loader::list_files(root_path)?;
-
         let mut data = LoaderData::new();
 
-        let json = files
+        let json_files = files
             .iter()
             .filter(|path| path.to_string_lossy().ends_with(".json"))
-            .map(|p| Path::new(p.to_str().unwrap()))
-            .next();
+            .collect::<Vec<_>>();
 
-        if let Some(json_file) = json {
-            return Loader::read_snapshot(json_file);
+        for json_file in json_files {
+            Loader::read_json(&mut data, json_file)?;
         }
 
         // load csv files
         let csv_files = files
             .iter()
             .filter(|path| path.to_string_lossy().ends_with(".csv"))
-            .map(|p| Path::new(p.to_str().unwrap()))
             .collect::<Vec<_>>();
 
         Loader::read_csv_files(&mut data, &csv_files)?;
@@ -610,10 +615,9 @@ impl Loader {
         let conf_files = files
             .iter()
             .filter(|path| path.to_string_lossy().ends_with(".conf"))
-            .map(|p| Path::new(p.to_str().unwrap()))
             .collect();
 
-        HParser::load_files(&mut data, &conf_files).map_err(|e| match e {
+        HParser::load_hocon_files(&mut data, &conf_files).map_err(|e| match e {
             ParseError::HoconError { error, hint } => {
                 warn!("Fail loading data {:?} {}", error, hint);
                 Error::Error(format!("Loading data {:?}: {}", error, hint))
@@ -631,7 +635,11 @@ impl Loader {
         let list: std::fs::ReadDir = std::fs::read_dir(root_path)?;
         for entry in list {
             let path = entry?.path();
-            result.push(path);
+            if path.is_dir() {
+                result.extend(Loader::list_files(&path)?);
+            } else {
+                result.push(path);
+            }
         }
 
         Ok(result)

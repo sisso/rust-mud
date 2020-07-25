@@ -95,6 +95,18 @@ impl<T> AsResult<T> for Option<T> {
     }
 }
 
+impl From<&str> for Error {
+    fn from(s: &str) -> Self {
+        Error::Exception(s.to_string())
+    }
+}
+
+impl From<String> for Error {
+    fn from(s: String) -> Self {
+        Error::Exception(s)
+    }
+}
+
 impl From<std::io::Error> for Error {
     fn from(error: std::io::Error) -> Self {
         Error::IOError(error)

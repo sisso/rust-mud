@@ -1,5 +1,4 @@
-use crate::errors;
-use crate::errors::Error;
+use crate::errors::{Error, Result};
 use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
 use crate::game::comm::vendor_buy_item_not_found;
 use crate::game::config::Config;
@@ -292,5 +291,35 @@ impl LoaderData {
             objects: Default::default(),
             prefabs: Default::default(),
         }
+    }
+
+    /// This basic implementation only extends objects that don't exists in self, any conflict
+    /// will cause a error
+    pub fn extends(&mut self, data: LoaderData) -> Result<()> {
+        if self.version != data.version {
+            return Err("Data version mismatch".into());
+        }
+
+        if data.cfg.is_some() && self.cfg.is_some() {
+            return Err("Data already contains cfg".into());
+        }
+
+        for (static_id, prefab) in data.prefabs {
+            if self.prefabs.contains_key(&static_id) {
+                return Err(format!("Data already contain prefab {:?}", static_id).into());
+            }
+
+            self.prefabs.insert(static_id, prefab);
+        }
+
+        for (static_id, obj) in data.objects {
+            if self.objects.contains_key(&static_id) {
+                return Err(format!("Data already contain object {:?}", static_id).into());
+            }
+
+            self.objects.insert(static_id, obj);
+        }
+
+        Ok(())
     }
 }

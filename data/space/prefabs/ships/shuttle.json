@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "prefabs": {
+    "ship_shuttle": {
+      "ship": {},
+      "label": "Shuttle",
+      "desc": "A small shuttle capable to go to space and land in planets."
+    },
+    "ship_shuttle_cockpit": {
+      "parent": "ship_shuttle",
+      "label": "Cockpit",
+      "desc": "Small cockpit used to control the craft",
+      "room": {
+        "can_exit": true
+      }
+    }
+  }
+}

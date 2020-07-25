@@ -1,6 +1,7 @@
 use crate::errors::Result as EResult;
 use crate::game::domain::Dir;
-use crate::game::loader::{CfgData, LoaderData, ObjData, StaticId};
+use crate::game::loader::dto::LoaderData;
+use crate::game::loader::{CfgData, ObjData, StaticId};
 use crate::game::obj::Obj;
 use hocon::{Error as HError, *};
 use logs::*;
@@ -114,7 +115,7 @@ impl HParser {
         Ok(())
     }
 
-    pub fn load_from_str(input: &str) -> Result<LoaderData, ParseError> {
+    pub fn load_hocon_str(input: &str) -> Result<LoaderData, ParseError> {
         let loader = HoconLoader::new().strict().no_system();
         let loader = loader
             .load_str(input)
@@ -133,7 +134,10 @@ impl HParser {
         Ok(data)
     }
 
-    pub fn load_files(data: &mut LoaderData, files: &Vec<&Path>) -> Result<(), ParseError> {
+    pub fn load_hocon_files<T: AsRef<Path>>(
+        data: &mut LoaderData,
+        files: &Vec<T>,
+    ) -> Result<(), ParseError> {
         let mut loader = HoconLoader::new().strict().no_system();
 
         for path in files {
@@ -143,13 +147,16 @@ impl HParser {
                 .load_file(path)
                 .map_err(|error| ParseError::HoconError {
                     error,
-                    hint: format!("path '{:?}'", path),
+                    hint: format!("path '{:?}'", path.as_ref()),
                 })?;
         }
 
         let raw = loader.hocon().map_err(|error| ParseError::HoconError {
             error,
-            hint: format!("root_path'{:?}'", files),
+            hint: format!(
+                "root_path'{:?}'",
+                files.iter().map(|i| i.as_ref()).collect::<Vec<_>>()
+            ),
         })?;
 
         HParser::parse(data, raw)?;
@@ -170,7 +177,7 @@ mod test {
     initial_craft: 2
 }"##;
 
-        let data = HParser::load_from_str(sample).unwrap();
+        let data = HParser::load_hocon_str(sample).unwrap();
         let cfg = data.cfg.expect("cfg field is not defined");
         assert_eq!(cfg.initial_room.as_u32(), 0);
         assert_eq!(cfg.avatar_mob.as_u32(), 1);
@@ -235,7 +242,7 @@ mod test {
   }
 }"##;
 
-        let data = HParser::load_from_str(sample).unwrap();
+        let data = HParser::load_hocon_str(sample).unwrap();
         assert!(data.prefabs.is_empty());
         assert_eq!(5, data.objects.len());
 
@@ -269,7 +276,7 @@ mod test {
   }
 }"##;
 
-        let data = HParser::load_from_str(sample).unwrap();
+        let data = HParser::load_hocon_str(sample).unwrap();
         assert!(data.objects.is_empty());
         assert_eq!(2, data.prefabs.len());
     }

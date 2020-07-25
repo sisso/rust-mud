@@ -19,6 +19,7 @@ fn usage() {
     println!();
 }
 
+/// Generate json config from HOCON
 fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<_> = env::args().collect();
     let (from_folder, to_folder) = match args.len() {

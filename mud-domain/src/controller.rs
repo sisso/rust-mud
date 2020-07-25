@@ -3,7 +3,7 @@ use crate::game::avatars;
 use crate::game::container::Container;
 use crate::game::location::LocationId;
 use crate::game::mob::MobId;
-use crate::game::outputs::{OutputInternal, Outputs};
+use crate::game::outputs::{Output, Outputs};
 use commons::*;
 use logs::*;
 use std::collections::{HashMap, HashSet};
@@ -189,7 +189,7 @@ impl Controller {
 
         for game_output in outputs {
             match game_output {
-                OutputInternal::Private { mob_id, msg } => {
+                Output::Private { mob_id, msg } => {
                     let connection_id = container
                         .players
                         .find_from_mob(mob_id)
@@ -202,7 +202,7 @@ impl Controller {
                     }
                 }
 
-                OutputInternal::Broadcast {
+                Output::Broadcast {
                     exclude,
                     location_id,
                     recursive,
