@@ -1,6 +1,5 @@
 use serde_json::{json, Value};
 use std::error::Error;
-use std::fs::File;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 type UpdateValue = fn(&mut Value);

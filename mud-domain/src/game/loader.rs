@@ -452,7 +452,7 @@ impl Loader {
         let mut flat_data = vec![];
 
         for file in files {
-            debug!("reading file {:?}", file);
+            info!("reading file {:?}", file.as_ref());
             let buffer = std::fs::read_to_string(file).unwrap();
             let list = Loader::read_csv(buffer.as_str())?;
             flat_data.extend(list);
@@ -561,6 +561,7 @@ impl Loader {
     }
 
     pub fn read_json(data: &mut LoaderData, json_file: &Path) -> Result<()> {
+        info!("reading file {:?}", json_file);
         let file = std::fs::File::open(json_file)?;
         let new_data = serde_json::from_reader(std::io::BufReader::new(file))?;
         data.extends(new_data)

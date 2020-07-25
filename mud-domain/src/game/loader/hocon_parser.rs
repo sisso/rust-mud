@@ -1,7 +1,7 @@
 use crate::errors::Result as EResult;
 use crate::game::domain::Dir;
-use crate::game::loader::dto::LoaderData;
-use crate::game::loader::{CfgData, ObjData, StaticId};
+use crate::game::loader::dto::{LoaderData, ObjData};
+use crate::game::loader::{CfgData, StaticId};
 use crate::game::obj::Obj;
 use hocon::{Error as HError, *};
 use logs::*;
@@ -68,10 +68,12 @@ impl HParser {
             }
         }
 
-        assert!(data.cfg.is_none());
-        data.cfg = cfg;
-        data.objects.extend(objects);
-        data.prefabs.extend(prefabs);
+        let mut new_data = LoaderData::new();
+        new_data.cfg = cfg;
+        new_data.objects = objects;
+        new_data.prefabs = prefabs;
+        data.extends(new_data).unwrap();
+
         Ok(())
     }
 
@@ -141,7 +143,7 @@ impl HParser {
         let mut loader = HoconLoader::new().strict().no_system();
 
         for path in files {
-            debug!("reading file {:?}", path);
+            info!("reading file {:?}", path.as_ref());
 
             loader = loader
                 .load_file(path)

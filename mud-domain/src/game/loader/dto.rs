@@ -300,8 +300,12 @@ impl LoaderData {
             return Err("Data version mismatch".into());
         }
 
-        if data.cfg.is_some() && self.cfg.is_some() {
-            return Err("Data already contains cfg".into());
+        if data.cfg.is_some() {
+            if self.cfg.is_some() {
+                return Err("Data already contains cfg".into());
+            }
+
+            self.cfg = data.cfg;
         }
 
         for (static_id, prefab) in data.prefabs {
