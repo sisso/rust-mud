@@ -1,3 +1,96 @@
+# Timed actions
+
+Conclusion: We keep option A) as it show it is less error prone and the flexibility provided by B) is to shallow to 
+be usefull.
+
+A)
+
+    struct Obj {
+        action: Action,
+    }
+    
+    impl Obj { 
+        fn is_complete(&self, time: TotalTime) -> bool { 
+            self.action.is_complete(time)
+        }
+    }
+    
+    enum Actions {
+        Move { end_time: TotalTime },
+        Wait { end_time: TotalTime },
+        Idle { },
+    }
+
+    impl Actions {
+        fn is_complete(&self, time: TotalTime) -> bool { 
+            match self {
+                Action::Move { end_time } => end_time < time,
+                Action::Wait { end_time } => end_time < time,
+                _ => true,
+            }
+        }
+    }
+    
+The more correct model, timing is attach to the action, only actions with time should deal with it. 
+
+B)
+
+    struct Obj {
+        action: Action,
+        end_time: Option<TotalTime>
+    }
+
+    enum Action { Idle, Move, Wait }
+
+    impl Obj {
+        fn is_complete(&self, time: TotalTime) -> bool { 
+            self.end_time.map(|t| t < time).unwrap_or_else(false)
+        }
+    }
+    
+Dummy and flexible approach. The concept of end_time leaked outside of actions, actions that should have no time 
+can have time, timed task can have no time.
+
+This model can make sense if end_time is not part of action. As a busy time.
+
+As usually we want all tasks to take a little time, it is a temptation. 
+
+What if want to introduce a stunned time?
+- we can just use the end_time to represent it even in the case of non timed actions
+    - what happens if I am still doing some timed action?
+        - only if we have it in different fields self.time and self.action.time allow full customization
+        - still will be broken, since we stored total time, if a stunned effect is active it will cause a delay until
+          we check for action timer, but the timer will finish in next tick
+        - this completes kill the idea of use any scheduler
+    - 
+
+C)
+
+    enum ActionKind {
+        Timed { action: Action, end: TotalTime },
+        Instant { action: Action }
+    }
+
+    struct Obj {
+        action: ActionKind,
+    }
+
+    impl Obj {
+        fn get_action(&self) -> Action { 
+            self.action.get_action()
+        }
+    
+        fn is_complete(&self, time: TotalTime) -> bool { 
+            match self.action {
+                ActionKind::Timed { action, end } => end < time,
+                _ => true,
+            }
+        }
+    }
+
+Looks like the magic... and engineering. To fetch a action you need to deal with time, while mostly of times you want
+to know the action and are not interested in the timing.
+
 # UID
 
 This is an admin identifier used in files for development reference some objects.

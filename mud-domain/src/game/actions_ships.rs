@@ -6,7 +6,7 @@ use crate::game::mob::MobId;
 use crate::game::outputs::Outputs;
 use crate::game::room::RoomId;
 use crate::game::ships::{ShipCommand, ShipId};
-use crate::game::{comm, space_utils};
+use crate::game::{astro_bodies, comm, space_utils};
 use commons::{DeltaTime, ObjId, PlayerId};
 use logs::*;
 
@@ -58,62 +58,90 @@ pub fn do_land_at(container: &mut Container, craft_id: ShipId, room_id: RoomId) 
 }
 
 pub fn do_launch(container: &mut Container, mob_id: MobId, ship_id: ShipId) -> Result<()> {
-    let parents = container.locations.list_parents(ship_id);
-    let landing_pad_id = parents.get(0).cloned().unwrap();
+    let can_launch = space_utils::can_ship_launch(container, ship_id);
+    let target_orbit_id = space_utils::get_ship_body_on_lunch(container, ship_id);
 
-    // search current body
-    let parent_body = parents
-        .iter()
-        .flat_map(|&id| container.astro_bodies.get(id))
-        .next();
-
-    let parent_body = match parent_body {
-        Some(body) => body,
-        None => {
-            warn!(
-                "{:?} launch {:?} fail, ship is not in astrobody",
-                mob_id, ship_id
-            );
+    match (can_launch, target_orbit_id) {
+        (true, Some(target_id)) => {
+            if container
+                .ships
+                .set_command(ship_id, ShipCommand::launch(target_id))
+                .is_ok()
+            {
+                container
+                    .outputs
+                    .private(mob_id, comm::space_launch_prepare());
+                Ok(())
+            } else {
+                container
+                    .outputs
+                    .private(mob_id, comm::space_launch_failed());
+                Err(Error::InvalidArgumentFailure)
+            }
+        }
+        _ => {
             container
                 .outputs
                 .private(mob_id, comm::space_launch_failed());
-            return Err(Error::InvalidArgumentFailure);
+            Err(Error::InvalidArgumentFailure)
         }
-    };
-
-    let parent_body_id = parent_body.id;
-    let orbit_distance = parent_body.get_low_orbit();
-
-    let body = AstroBody::new(ship_id, orbit_distance, AstroBodyKind::Ship);
-
-    // put ship in low orbit
-    if let Err(error) = container.astro_bodies.insert(body) {
-        warn!(
-            "{:?} launch {:?} fail to set ship orbit: {:?}",
-            mob_id, ship_id, error
-        );
-        container
-            .outputs
-            .private(mob_id, comm::space_launch_failed());
-        return Err(Error::InvalidArgumentFailure);
-    };
-
-    container.locations.set(ship_id, parent_body_id);
-
-    // collect labels
-    let craft_label = container.labels.get_label(ship_id).unwrap();
-
-    // emit events
-    container
-        .outputs
-        .broadcast_all(None, ship_id, comm::space_launch_complete());
-    container.outputs.broadcast_all(
-        None,
-        landing_pad_id,
-        comm::space_launch_complete_others(craft_label),
-    );
-
-    Ok(())
+    }
+    // let parents = container.locations.list_parents(ship_id);
+    // let landing_pad_id = parents.get(0).cloned().unwrap();
+    //
+    // // search current body
+    // let parent_body = parents
+    //     .iter()
+    //     .flat_map(|&id| container.astro_bodies.get(id))
+    //     .next();
+    //
+    // let parent_body = match parent_body {
+    //     Some(body) => body,
+    //     None => {
+    //         warn!(
+    //             "{:?} launch {:?} fail, ship is not in astrobody",
+    //             mob_id, ship_id
+    //         );
+    //         container
+    //             .outputs
+    //             .private(mob_id, comm::space_launch_failed());
+    //         return Err(Error::InvalidArgumentFailure);
+    //     }
+    // };
+    //
+    // let parent_body_id = parent_body.id;
+    // let orbit_distance = parent_body.get_low_orbit();
+    //
+    // let body = AstroBody::new(ship_id, orbit_distance, AstroBodyKind::Ship);
+    //
+    // // put ship in low orbit
+    // if let Err(error) = container.astro_bodies.insert(body) {
+    //     warn!(
+    //         "{:?} launch {:?} fail to set ship orbit: {:?}",
+    //         mob_id, ship_id, error
+    //     );
+    //     container
+    //         .outputs
+    //         .private(mob_id, comm::space_launch_failed());
+    //     return Err(Error::InvalidArgumentFailure);
+    // };
+    //
+    // container.locations.set(ship_id, parent_body_id);
+    //
+    // // collect labels
+    // let craft_label = container.labels.get_label(ship_id).unwrap();
+    //
+    // // emit events
+    // container
+    //     .outputs
+    //     .broadcast_all(None, ship_id, comm::space_launch_complete());
+    // container.outputs.broadcast_all(
+    //     None,
+    //     landing_pad_id,
+    //     comm::space_launch_complete_others(craft_label),
+    // );
+    //
+    // Ok(())
 }
 
 pub fn do_jump(container: &mut Container, mob_id: MobId, ship_id: ShipId) -> Result<()> {

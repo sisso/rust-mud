@@ -173,9 +173,10 @@ impl Controller {
                 .insert(0, (connection_id, "\n".to_string()));
         }
 
-        for connection_id in append_cursor_ids {
-            self.server_outputs.push((connection_id, "\n".to_string()));
-        }
+        // A $ symbol can be added to indicate user input
+        // for connection_id in append_cursor_ids {
+        //     self.server_outputs.push((connection_id, "$ ".to_string()));
+        // }
     }
 
     /// Convert game output into connection output.

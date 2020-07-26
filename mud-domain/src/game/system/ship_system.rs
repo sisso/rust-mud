@@ -1,10 +1,10 @@
 use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
 use crate::game::container::Container;
-use crate::game::ships::{MoveState, ShipCommand};
+use crate::game::ships::{LaunchState, MoveState, ShipCommand};
 use crate::game::{astro_bodies, comm};
 use crate::utils;
 use crate::utils::geometry;
-use commons::DeltaTime;
+use commons::{DeltaTime, TotalTime};
 use logs::*;
 use std::env::current_exe;
 
@@ -18,6 +18,7 @@ pub fn tick(container: &mut Container) {
     let ships = &mut container.ships;
     let locations = &mut container.locations;
     let astros = &mut container.astro_bodies;
+    let labels = &mut container.labels;
 
     for ship in ships.list_all_mut() {
         let ship_id = ship.id;
@@ -44,8 +45,9 @@ pub fn tick(container: &mut Container) {
 
                     astros.update_orbit(ship_id, pos).unwrap();
                 }
-
-                _ => {}
+                _ => {
+                    // warn!("running an unexpected ship command {:?}", ship.command);
+                }
             };
             continue;
         } else {
@@ -160,6 +162,82 @@ pub fn tick(container: &mut Container) {
                     let msg = comm::space_fly_complete();
                     container.outputs.broadcast_all(None, ship_id, msg);
                 }
+
+                ShipCommand::Launch { target_id, state } => match state {
+                    LaunchState::NotStarted => {
+                        // update ship command
+                        ship.command = ShipCommand::Launch {
+                            target_id: *target_id,
+                            state: LaunchState::Ignition {
+                                complete_time: total_time + DeltaTime(0.5),
+                            },
+                        };
+
+                        // send messages
+                        let msg = comm::space_launch_ignition();
+                        container.outputs.broadcast_all(None, ship_id, msg);
+                    }
+                    LaunchState::Ignition { .. } => {
+                        // set into parent orbit
+                        let landing_pad_id = locations.get(ship.id).unwrap();
+                        locations.set(ship.id, *target_id);
+
+                        // TODO: create zero orbit and update until low orbit
+                        // create astro body
+                        let parent_body = astros.get(*target_id).unwrap();
+                        let orbit_distance = parent_body.get_low_orbit();
+                        let body = AstroBody::new(ship_id, orbit_distance, AstroBodyKind::Ship);
+
+                        if let Err(error) = astros.insert(body) {
+                            warn!("{:?} launch fail to set ship orbit: {:?}", ship_id, error);
+                            // container
+                            //     .outputs
+                            //     .private(mob_id, comm::space_launch_failed());
+                            continue;
+                        };
+
+                        // update command
+                        ship.command = ShipCommand::Launch {
+                            target_id: *target_id,
+                            state: LaunchState::Ascending {
+                                complete_time: total_time + DeltaTime(0.5),
+                            },
+                        };
+
+                        // emit events
+                        let msg = comm::space_launch_ascending();
+                        container.outputs.broadcast_all(None, ship_id, msg);
+
+                        let craft_label = labels.get_label_f(ship_id);
+                        container.outputs.broadcast_all(
+                            None,
+                            landing_pad_id,
+                            comm::space_launch_complete_others(craft_label),
+                        );
+                    }
+                    LaunchState::Ascending { .. } => {
+                        // update ship command
+                        ship.command = ShipCommand::Launch {
+                            target_id: *target_id,
+                            state: LaunchState::Circularization {
+                                complete_time: total_time + DeltaTime(0.5),
+                            },
+                        };
+
+                        // send messages
+                        let msg = comm::space_launch_burning_circularization();
+                        container.outputs.broadcast_all(None, ship_id, msg);
+                    }
+                    LaunchState::Circularization { .. } => {
+                        ship.command = ShipCommand::Idle;
+                        let msg = comm::space_launch_complete();
+                        container.outputs.broadcast_all(None, ship_id, msg);
+                    }
+                },
+
+                ShipCommand::Land { target_id, state } => unimplemented!(),
+
+                ShipCommand::Jump { target_id, state } => unimplemented!(),
             }
         }
     }

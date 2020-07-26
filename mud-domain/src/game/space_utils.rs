@@ -198,3 +198,30 @@ pub fn to_showsectortreebody<'a>(
         is_self: Some(obj_id) == self_id,
     }
 }
+
+/// Check if ship can be launched into space by checking if ship is in a exit area and the parent
+/// is a valid astronomic body
+pub fn can_ship_launch(container: &Container, ship_id: ShipId) -> bool {
+    let parents = container.locations.list_parents(ship_id);
+    let landing_pad_id = parents.get(0).cloned().unwrap();
+
+    let valid_exit_room = container
+        .rooms
+        .get(landing_pad_id)
+        .map(|room| room.can_exit)
+        .unwrap_or(false);
+
+    valid_exit_room
+}
+
+/// In the case of a ship launch, return the astronomic body that it will be orbiting
+pub fn get_ship_body_on_lunch(container: &Container, ship_id: ShipId) -> Option<ObjId> {
+    let parents = container.locations.list_parents(ship_id);
+
+    let parent_body = parents
+        .iter()
+        .filter(|&id| container.astro_bodies.exists(*id))
+        .next();
+
+    parent_body.cloned()
+}

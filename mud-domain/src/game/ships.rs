@@ -8,6 +8,17 @@ use std::collections::HashMap;
 
 pub type ShipId = ObjId;
 
+trait TimedState {
+    fn is_running(&self, total_time: TotalTime) -> bool {
+        self.get_complete_time()
+            .map(|time| time.is_after(total_time))
+            .unwrap_or(false)
+    }
+
+    fn get_complete_time(&self) -> Option<TotalTime>;
+}
+
+/// Require a initial state to allow to be set but first step will be managed by the system.
 #[derive(Clone, Debug)]
 pub enum MoveState {
     NotStarted,
@@ -31,14 +42,8 @@ pub enum MoveState {
     },
 }
 
-impl MoveState {
-    pub fn is_running(&self, total_time: TotalTime) -> bool {
-        self.get_complete_time()
-            .map(|time| time.is_after(total_time))
-            .unwrap_or(false)
-    }
-
-    pub fn get_complete_time(&self) -> Option<TotalTime> {
+impl TimedState for MoveState {
+    fn get_complete_time(&self) -> Option<TotalTime> {
         match self {
             MoveState::NotStarted => None,
             MoveState::Alignment { complete_time, .. } => Some(*complete_time),
@@ -50,10 +55,89 @@ impl MoveState {
     }
 }
 
+/// Require a initial state to allow to be set but first step will be managed by the system.
+#[derive(Clone, Debug)]
+pub enum LaunchState {
+    NotStarted,
+    Ignition { complete_time: TotalTime },
+    Ascending { complete_time: TotalTime },
+    Circularization { complete_time: TotalTime },
+}
+
+impl TimedState for LaunchState {
+    fn get_complete_time(&self) -> Option<TotalTime> {
+        match self {
+            LaunchState::NotStarted => None,
+            LaunchState::Ignition { complete_time, .. } => Some(*complete_time),
+            LaunchState::Ascending { complete_time, .. } => Some(*complete_time),
+            LaunchState::Circularization { complete_time, .. } => Some(*complete_time),
+        }
+    }
+}
+
+/// Require a initial state to allow to be set but first step will be managed by the system.
+#[derive(Clone, Debug)]
+pub enum LandState {
+    NotStarted,
+    Retroburn { complete_time: TotalTime },
+    Deorbiting { complete_time: TotalTime },
+    AeroBraking { complete_time: TotalTime },
+    Approach { complete_time: TotalTime },
+    Landing { complete_time: TotalTime },
+}
+
+impl TimedState for LandState {
+    fn get_complete_time(&self) -> Option<TotalTime> {
+        match self {
+            LandState::NotStarted => None,
+            LandState::Retroburn { complete_time, .. } => Some(*complete_time),
+            LandState::Deorbiting { complete_time, .. } => Some(*complete_time),
+            LandState::AeroBraking { complete_time, .. } => Some(*complete_time),
+            LandState::Approach { complete_time, .. } => Some(*complete_time),
+            LandState::Landing { complete_time, .. } => Some(*complete_time),
+        }
+    }
+}
+
+/// Require a initial state to allow to be set but first step will be managed by the system.
+#[derive(Clone, Debug)]
+pub enum JumpState {
+    NotStarted,
+    Align { complete_time: TotalTime },
+    RechargingCapacitors { complete_time: TotalTime },
+    Jumping { complete_time: TotalTime },
+}
+
+impl TimedState for JumpState {
+    fn get_complete_time(&self) -> Option<TotalTime> {
+        match self {
+            JumpState::NotStarted => None,
+            JumpState::Align { complete_time, .. } => Some(*complete_time),
+            JumpState::RechargingCapacitors { complete_time, .. } => Some(*complete_time),
+            JumpState::Jumping { complete_time, .. } => Some(*complete_time),
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub enum ShipCommand {
     Idle,
-    MoveTo { target_id: ObjId, state: MoveState },
+    MoveTo {
+        target_id: ObjId,
+        state: MoveState,
+    },
+    Launch {
+        target_id: ObjId,
+        state: LaunchState,
+    },
+    Land {
+        target_id: ObjId,
+        state: LandState,
+    },
+    Jump {
+        target_id: ObjId,
+        state: JumpState,
+    },
 }
 
 impl ShipCommand {
@@ -64,10 +148,34 @@ impl ShipCommand {
         }
     }
 
+    pub fn launch(target_id: ObjId) -> Self {
+        ShipCommand::Launch {
+            target_id,
+            state: LaunchState::NotStarted,
+        }
+    }
+
+    pub fn land(target_id: ObjId) -> Self {
+        ShipCommand::Land {
+            target_id,
+            state: LandState::NotStarted,
+        }
+    }
+
+    pub fn jump(target_id: ObjId) -> Self {
+        ShipCommand::Jump {
+            target_id,
+            state: JumpState::NotStarted,
+        }
+    }
+
     pub fn is_running(&self, total_time: TotalTime) -> bool {
         match self {
             ShipCommand::Idle => false,
             ShipCommand::MoveTo { state, .. } => state.is_running(total_time),
+            ShipCommand::Land { state, .. } => state.is_running(total_time),
+            ShipCommand::Launch { state, .. } => state.is_running(total_time),
+            ShipCommand::Jump { state, .. } => state.is_running(total_time),
         }
     }
 }
@@ -132,9 +240,9 @@ impl Ships {
     }
 
     pub fn set_command(&mut self, craft_id: ShipId, command: ShipCommand) -> Result<()> {
-        if let Some(craft) = self.index.get_mut(&craft_id) {
+        if let Some(ship) = self.index.get_mut(&craft_id) {
             info!("{:?} set command to {:?}", craft_id, command);
-            craft.command = command;
+            ship.command = command;
             Ok(())
         } else {
             Err(Error::InvalidArgumentFailure)

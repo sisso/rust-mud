@@ -1,6 +1,8 @@
 use crate::errors::Error::NotFoundFailure;
 use crate::errors::{AsResult, Error, Result};
+use crate::game::container::Container;
 use crate::game::location::Locations;
+use crate::game::ships::ShipId;
 use commons::{DeltaTime, ObjId};
 use logs::*;
 use std::collections::HashMap;

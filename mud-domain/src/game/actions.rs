@@ -137,7 +137,7 @@ pub fn mv(container: &mut Container, mob_id: MobId, dir: Dir) -> Result<()> {
 
                 // change mob place
                 container.locations.set(mob_id, exit_room_id);
-                container.memories.add(mob_id, exit_room_id);
+                container.memories.add(mob_id, exit_room_id)?;
 
                 let mob_label = container.labels.get_label_f(mob_id);
 

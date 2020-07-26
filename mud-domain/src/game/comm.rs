@@ -568,12 +568,28 @@ pub fn space_land_complete_others(_craft_label: &str) -> String {
     "The {} come from orbit and land".to_string()
 }
 
+pub fn space_launch_prepare() -> String {
+    "preparing for launch".to_string()
+}
+
+pub fn space_launch_ignition() -> String {
+    "ignite main engines, you fell the pressure while ship burns up".to_string()
+}
+
+pub fn space_launch_ascending() -> String {
+    "burning horizontally to acquire horizontal speed".to_string()
+}
+
+pub fn space_launch_burning_circularization() -> String {
+    "desired AP reached, circularizing the orbit".to_string()
+}
+
 pub fn space_launch_failed() -> String {
     "fail to launch, you can not launch from here".to_string()
 }
 
 pub fn space_launch_complete() -> String {
-    "launch complete, you are in space now".to_string()
+    "launch complete, you are in space now into a stable orbit".to_string()
 }
 
 pub fn space_launch_complete_others(_craft_label: &str) -> String {
