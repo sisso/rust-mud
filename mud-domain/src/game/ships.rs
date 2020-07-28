@@ -1,7 +1,7 @@
 use crate::errors::{Error, Result};
 use crate::game::astro_bodies::DistanceMkm;
 use crate::game::container::Container;
-use commons::{ObjId, TotalTime};
+use commons::{DeltaTime, ObjId, TotalTime};
 use logs::*;
 use serde_json::ser::State;
 use std::collections::HashMap;
@@ -79,22 +79,33 @@ impl TimedState for LaunchState {
 #[derive(Clone, Debug)]
 pub enum LandState {
     NotStarted,
-    Retroburn { complete_time: TotalTime },
-    Deorbiting { complete_time: TotalTime },
-    AeroBraking { complete_time: TotalTime },
-    Approach { complete_time: TotalTime },
-    Landing { complete_time: TotalTime },
+    Running {
+        stage: u32,
+        complete_time: TotalTime,
+    },
+}
+
+impl LandState {
+    // TODO: useless, we need to catch each step anyway to print messages
+    // fn next(&self, total_time: TotalTime) -> Option<Self> {
+    //     let complete_time = total_time + DeltaTime(0.5);
+    //
+    //     match self {
+    //         LandState::NotStarted => Some(LandState::Retroburn { complete_time }),
+    //         LandState::Retroburn { .. } => Some(LandState::Deorbiting { complete_time }),
+    //         LandState::Deorbiting { .. } => Some(LandState::AeroBraking { complete_time }),
+    //         LandState::AeroBraking { .. } => Some(LandState::Approach { complete_time }),
+    //         LandState::Approach { .. } => Some(LandState::Landing { complete_time }),
+    //         LandState::Landing { .. } => None,
+    //     }
+    // }
 }
 
 impl TimedState for LandState {
     fn get_complete_time(&self) -> Option<TotalTime> {
         match self {
             LandState::NotStarted => None,
-            LandState::Retroburn { complete_time, .. } => Some(*complete_time),
-            LandState::Deorbiting { complete_time, .. } => Some(*complete_time),
-            LandState::AeroBraking { complete_time, .. } => Some(*complete_time),
-            LandState::Approach { complete_time, .. } => Some(*complete_time),
-            LandState::Landing { complete_time, .. } => Some(*complete_time),
+            LandState::Running { complete_time, .. } => Some(*complete_time),
         }
     }
 }

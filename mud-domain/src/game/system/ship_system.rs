@@ -1,12 +1,11 @@
 use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
 use crate::game::container::Container;
-use crate::game::ships::{LaunchState, MoveState, ShipCommand};
+use crate::game::ships::{LandState, LaunchState, MoveState, ShipCommand};
 use crate::game::{astro_bodies, comm};
 use crate::utils;
 use crate::utils::geometry;
 use commons::{DeltaTime, TotalTime};
 use logs::*;
-use std::env::current_exe;
 
 const TRANSFER_TIME: f32 = 2.0;
 const SHIP_SPEED: f32 = 5.0;
@@ -235,7 +234,67 @@ pub fn tick(container: &mut Container) {
                     }
                 },
 
-                ShipCommand::Land { target_id, state } => unimplemented!(),
+                ShipCommand::Land { target_id, state } => {
+                    match state {
+                        LandState::NotStarted => {
+                            // update command
+                            ship.command = ShipCommand::Land {
+                                target_id: *target_id,
+                                state: LandState::Running {
+                                    stage: 0,
+                                    complete_time: total_time + DeltaTime(0.5),
+                                },
+                            };
+                        }
+
+                        LandState::Running { stage: stage, .. } if *stage >= 4 => {
+                            // update location
+                            locations.set(ship_id, *target_id);
+
+                            // collect labels
+                            let ship_label = labels.get_label(ship_id).unwrap();
+
+                            // emit events
+                            container.outputs.broadcast_all(
+                                None,
+                                ship_id,
+                                comm::space_land_complete(),
+                            );
+                            container.outputs.broadcast(
+                                None,
+                                *target_id,
+                                comm::space_land_complete_others(ship_label),
+                            );
+                        }
+
+                        LandState::Running { stage: stage, .. } => {
+                            let stage = *stage;
+
+                            // update command
+                            ship.command = ShipCommand::Land {
+                                target_id: *target_id,
+                                state: LandState::Running {
+                                    stage: stage + 1,
+                                    complete_time: total_time + DeltaTime(0.5),
+                                },
+                            };
+
+                            // send messages
+                            let msg = match stage {
+                                0 => comm::space_land_retroburn(),
+                                1 => comm::space_land_deorbit(),
+                                2 => comm::space_land_aerobraking(),
+                                3 => comm::space_land_approach(),
+                                other => {
+                                    warn!("{:?} unexpected land state stage {:?}", ship_id, other);
+                                    continue;
+                                }
+                            };
+
+                            container.outputs.broadcast_all(None, ship_id, msg);
+                        }
+                    }
+                }
 
                 ShipCommand::Jump { target_id, state } => unimplemented!(),
             }

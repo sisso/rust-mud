@@ -105,10 +105,10 @@ macro_rules! info {
 #[macro_export]
 macro_rules! debug {
     (target: $target:expr, $($arg:tt)+) => {
-        // log!(target: $target, "DEBUG", $($arg)+);
+        log!(target: $target, "DEBUG", $($arg)+);
     };
     ($($arg:tt)+) => {
-        // log!("DEBUG", $($arg)+);
+        log!("DEBUG", $($arg)+);
     };
 }
 

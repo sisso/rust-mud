@@ -125,7 +125,7 @@ fn check_output(outputs: &Vec<String>, contains: &Vec<&str>, exclude: &Vec<&str>
 }
 
 #[test]
-fn test_fly_to_asteroid_field() {
+fn test_fly_to_asteroid_field_and_land() {
     let mut scenery = TestScenery::new_landed_with_ship();
     scenery.login();
 

@@ -55,6 +55,6 @@ fn clean_up(folder: &str) -> Result<(), Box<dyn Error>> {
 fn generate(path: &str, to_folder: &str) -> Result<(), Box<dyn Error>> {
     let data = Loader::read_folders(Path::new(path))?;
     let path = Path::new(to_folder).join("default.json");
-    Loader::write_snapshot(&path, &data);
+    Loader::write_snapshot(&path, &data)?;
     Ok(())
 }

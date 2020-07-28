@@ -560,6 +560,31 @@ pub fn space_needs_to_be_in_space() -> String {
     "you need to be in space to do it".to_string()
 }
 
+pub fn space_land_started() -> String {
+    "Landing procedures starting, reverting the ship and waiting for retro-burn position"
+        .to_string()
+}
+
+pub fn space_land_retroburn() -> String {
+    "retro-burn started, reducing our PE to landing point, engage engines!".to_string()
+}
+
+pub fn space_land_deorbit() -> String {
+    "retro-burn complete, turning ship forward and descending to aero braking altitude".to_string()
+}
+
+pub fn space_land_aerobraking() -> String {
+    "aerobraking to low altitude speeds".to_string()
+}
+
+pub fn space_land_approach() -> String {
+    "approaching the landing pad".to_string()
+}
+
+pub fn space_land_landing() -> String {
+    "starting landing procedures, preparing for touch down".to_string()
+}
+
 pub fn space_land_complete() -> String {
     "landing complete".to_string()
 }
