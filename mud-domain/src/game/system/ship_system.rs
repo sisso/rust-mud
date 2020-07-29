@@ -50,7 +50,7 @@ pub fn tick(container: &mut Container) {
             };
             continue;
         } else {
-            match &ship.command {
+            match &mut ship.command {
                 ShipCommand::Idle => {}
 
                 ShipCommand::MoveTo {
@@ -189,9 +189,6 @@ pub fn tick(container: &mut Container) {
 
                         if let Err(error) = astros.insert(body) {
                             warn!("{:?} launch fail to set ship orbit: {:?}", ship_id, error);
-                            // container
-                            //     .outputs
-                            //     .private(mob_id, comm::space_launch_failed());
                             continue;
                         };
 
@@ -265,22 +262,21 @@ pub fn tick(container: &mut Container) {
                                 *target_id,
                                 comm::space_land_complete_others(ship_label),
                             );
+
+                            // set command to idle
+                            ship.command = ShipCommand::Idle;
                         }
 
-                        LandState::Running { stage: stage, .. } => {
-                            let stage = *stage;
-
+                        LandState::Running {
+                            stage: stage,
+                            complete_time,
+                        } => {
                             // update command
-                            ship.command = ShipCommand::Land {
-                                target_id: *target_id,
-                                state: LandState::Running {
-                                    stage: stage + 1,
-                                    complete_time: total_time + DeltaTime(0.5),
-                                },
-                            };
+                            *stage += 1;
+                            *complete_time = total_time + DeltaTime(0.5);
 
                             // send messages
-                            let msg = match stage {
+                            let msg = match *stage {
                                 0 => comm::space_land_retroburn(),
                                 1 => comm::space_land_deorbit(),
                                 2 => comm::space_land_aerobraking(),
@@ -296,7 +292,39 @@ pub fn tick(container: &mut Container) {
                     }
                 }
 
-                ShipCommand::Jump { target_id, state } => unimplemented!(),
+                ShipCommand::Jump {
+                    target_id,
+                    stage,
+                    complete_time,
+                } => {
+                    let msg = match *stage {
+                        0 => comm::space_jump_start(),
+                        1 => comm::space_jump_recharging_capacitors(),
+                        2 => comm::space_jump_do(),
+                        3 => comm::space_jump_complete(),
+                        other => {
+                            warn!("{:?} unexpected jump stage {:?}", ship_id, other);
+                            continue;
+                        }
+                    };
+
+                    container.outputs.broadcast_all(None, ship_id, msg);
+
+                    if *stage == 3 {
+                        let location_id = locations.get(ship_id).unwrap();
+                        let astro_location = astros.get(location_id).unwrap();
+                        let target_jump_id = astro_location.jump_target_id.unwrap();
+
+                        // get target jump point
+                        locations.set(ship_id, target_jump_id);
+
+                        // set command to idle
+                        ship.command = ShipCommand::Idle;
+                    } else {
+                        *stage += 1;
+                        *complete_time = total_time + DeltaTime(0.5);
+                    }
+                }
             }
         }
     }

@@ -90,32 +90,15 @@ pub fn do_launch(container: &mut Container, mob_id: MobId, ship_id: ShipId) -> R
 pub fn do_jump(container: &mut Container, mob_id: MobId, ship_id: ShipId) -> Result<()> {
     let location_id = container.locations.get(ship_id).as_result()?;
     let astro_location = container.astro_bodies.get(location_id).as_result()?;
+    let total_time = container.time.total;
 
     if astro_location.kind != AstroBodyKind::JumpGate {
-        warn!("{:?} jump {:?} fail, invalid paretn", mob_id, ship_id);
+        warn!("{:?} jump {:?} fail, invalid parent", mob_id, ship_id);
         container.outputs.private(mob_id, comm::space_jump_failed());
         return Err(Error::InvalidArgumentFailure);
     }
 
-    let target_jump_id = match astro_location.jump_target_id {
-        Some(id) => id,
-        None => {
-            warn!(
-                "{:?} can not jump, jump {:?} has no target",
-                mob_id, astro_location
-            );
-            container.outputs.private(mob_id, comm::space_jump_failed());
-            return Err(Error::InvalidArgumentFailure);
-        }
-    };
-
-    // get target jump point
-    container.locations.set(ship_id, target_jump_id);
-
-    // emit events
     container
-        .outputs
-        .broadcast_all(None, ship_id, comm::space_jump_complete());
-
-    Ok(())
+        .ships
+        .set_command(ship_id, ShipCommand::jump(location_id, total_time))
 }

@@ -1027,6 +1027,15 @@ pub fn space_jump_failed() -> String {
     "jump fail!".to_string()
 }
 
+pub fn space_jump_start() -> String {
+    "starting jump procedures".to_string()
+}
+pub fn space_jump_recharging_capacitors() -> String {
+    "recharging capacitors".to_string()
+}
+pub fn space_jump_do() -> String {
+    "jumping".to_string()
+}
 pub fn space_jump_complete() -> String {
     "jump complete!".to_string()
 }

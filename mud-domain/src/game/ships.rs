@@ -111,24 +111,24 @@ impl TimedState for LandState {
 }
 
 /// Require a initial state to allow to be set but first step will be managed by the system.
-#[derive(Clone, Debug)]
-pub enum JumpState {
-    NotStarted,
-    Align { complete_time: TotalTime },
-    RechargingCapacitors { complete_time: TotalTime },
-    Jumping { complete_time: TotalTime },
-}
-
-impl TimedState for JumpState {
-    fn get_complete_time(&self) -> Option<TotalTime> {
-        match self {
-            JumpState::NotStarted => None,
-            JumpState::Align { complete_time, .. } => Some(*complete_time),
-            JumpState::RechargingCapacitors { complete_time, .. } => Some(*complete_time),
-            JumpState::Jumping { complete_time, .. } => Some(*complete_time),
-        }
-    }
-}
+// #[derive(Clone, Debug)]
+// pub enum JumpState {
+//     NotStarted,
+//     Align { complete_time: TotalTime },
+//     RechargingCapacitors { complete_time: TotalTime },
+//     Jumping { complete_time: TotalTime },
+// }
+//
+// impl TimedState for JumpState {
+//     fn get_complete_time(&self) -> Option<TotalTime> {
+//         match self {
+//             JumpState::NotStarted => None,
+//             JumpState::Align { complete_time, .. } => Some(*complete_time),
+//             JumpState::RechargingCapacitors { complete_time, .. } => Some(*complete_time),
+//             JumpState::Jumping { complete_time, .. } => Some(*complete_time),
+//         }
+//     }
+// }
 
 #[derive(Clone, Debug)]
 pub enum ShipCommand {
@@ -147,7 +147,8 @@ pub enum ShipCommand {
     },
     Jump {
         target_id: ObjId,
-        state: JumpState,
+        stage: u32,
+        complete_time: TotalTime,
     },
 }
 
@@ -173,10 +174,11 @@ impl ShipCommand {
         }
     }
 
-    pub fn jump(target_id: ObjId) -> Self {
+    pub fn jump(target_id: ObjId, total_time: TotalTime) -> Self {
         ShipCommand::Jump {
             target_id,
-            state: JumpState::NotStarted,
+            stage: 0,
+            complete_time: total_time + DeltaTime(0.5),
         }
     }
 
@@ -186,7 +188,7 @@ impl ShipCommand {
             ShipCommand::MoveTo { state, .. } => state.is_running(total_time),
             ShipCommand::Land { state, .. } => state.is_running(total_time),
             ShipCommand::Launch { state, .. } => state.is_running(total_time),
-            ShipCommand::Jump { state, .. } => state.is_running(total_time),
+            ShipCommand::Jump { complete_time, .. } => complete_time.is_after(total_time),
         }
     }
 }
