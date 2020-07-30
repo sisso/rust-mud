@@ -99,29 +99,24 @@ pub fn land_list(container: &mut Container, mob_id: MobId) -> Result<()> {
         })
 }
 
-pub fn land_at(container: &mut Container, mob_id: MobId, input: Vec<&str>) -> Result<()> {
-    let result = match (input.get(1), get_ship(container, mob_id)) {
-        (Some(input), Some(craft_id)) => {
+pub fn land_at(container: &mut Container, mob_id: MobId, input: &StrInput) -> Result<()> {
+    get_ship(container, mob_id)
+        .ok_or_else(|| Error::InvalidArgumentFailure)
+        .and_then(|craft_id| {
             let sites = search_landing_sites(container, craft_id);
-            let labels = container.labels.resolve_codes(&sites);
+            let founds = container.labels.search(&sites, input.plain_arguments());
 
-            match text::search_label(input, &labels).first().cloned() {
-                Some(index) => {
-                    let landing_room = sites[index];
-                    do_land_at(container, craft_id, landing_room)
-                }
+            match founds.into_iter().next() {
+                Some(landing_room) => do_land_at(container, craft_id, landing_room),
                 None => Err(Error::InvalidArgumentFailure),
             }
-        }
-        _ => Err(Error::InvalidArgumentFailure),
-    };
-
-    result.map_err(|e| {
-        container
-            .outputs
-            .private(mob_id, comm::space_land_invalid());
-        e
-    })
+        })
+        .map_err(|err| {
+            container
+                .outputs
+                .private(mob_id, comm::space_land_invalid());
+            err
+        })
 }
 
 pub fn launch(container: &mut Container, mob_id: MobId) -> Result<()> {

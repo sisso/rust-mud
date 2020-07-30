@@ -31,7 +31,7 @@
     "17": {
       "astro_body": {
         "kind": "asteroid_field",
-        "orbit_distance": 80.0
+        "orbit_distance": 180.0
       },
       "id": 17,
       "label": "Asteroid Field",
@@ -95,20 +95,6 @@
         "exits": []
       }
     },
-    "22": {
-      "id": 22,
-      "label": "Asteroid Field Zone",
-      "parent": 17,
-      "zone": {}
-    },
-    "23": {
-      "id": 23,
-      "label": "Asteroid",
-      "parent": 22,
-      "room": {
-        "can_exit": true
-      }
-    },
     "24": {
       "code": [
         "sector2"
@@ -134,20 +120,6 @@
       "id": 26,
       "label": "Asteroid Field",
       "parent": 25
-    },
-    "27": {
-      "id": 27,
-      "label": "Asteroid Field Zone",
-      "parent": 26,
-      "zone": {}
-    },
-    "28": {
-      "id": 28,
-      "label": "Asteroid",
-      "parent": 27,
-      "room": {
-        "can_exit": true
-      }
     },
     "29": {
       "astro_body": {
@@ -196,6 +168,31 @@
             "to": 3
           }
         ]
+      }
+    },
+    "31": {
+      "astro_body": {
+        "kind": "planet",
+        "orbit_distance": 80.0
+      },
+      "id": 31,
+      "label": "Jumanji",
+      "parent": 19
+    },
+    "32": {
+      "id": 32,
+      "label": "Jungle Landing Zone",
+      "parent": 31,
+      "zone": {}
+    },
+    "33": {
+      "desc": "Jungle landing pad",
+      "id": 33,
+      "label": "Landing Pad",
+      "parent": 32,
+      "room": {
+        "can_exit": true,
+        "exits": []
       }
     }
   },

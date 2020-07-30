@@ -1,5 +1,4 @@
-use serde_json::{Map, Value};
-use std::collections::HashMap;
+use serde_json::Value;
 
 pub trait JsonValueExtra {
     fn to_f32(&self) -> f32;

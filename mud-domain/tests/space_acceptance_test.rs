@@ -125,12 +125,12 @@ fn check_output(outputs: &Vec<String>, contains: &Vec<&str>, exclude: &Vec<&str>
 }
 
 #[test]
-fn test_fly_to_asteroid_field_and_land() {
+fn test_fly_to_and_land() {
     let mut scenery = TestScenery::new_landed_with_ship();
     scenery.login();
 
     move_to_space(&mut scenery);
-    fly_and_land_at_asteroid(&mut scenery);
+    fly_and_land_at_jumanji(&mut scenery);
 }
 
 #[test]
@@ -142,19 +142,19 @@ fn test_jump_to_sector_2() {
     jump_to_sector_2(scenery);
 }
 
-fn fly_and_land_at_asteroid(scenery: &mut TestScenery) {
+fn fly_and_land_at_jumanji(scenery: &mut TestScenery) {
     scenery.send_input("move");
-    scenery.wait_for("Asteroid Field");
+    scenery.wait_for("Jumanji");
 
-    scenery.send_input("move asteroid");
+    scenery.send_input("move jumanji");
     scenery.wait_for("command accepted");
     assert_ship_in_orbit_sol(scenery);
     scenery.wait_for("command complete");
 
     scenery.send_input("land");
-    scenery.wait_for("Asteroid");
+    scenery.wait_for("Landing Pad");
 
-    scenery.send_input("land asteroid");
+    scenery.send_input("land landing pad");
     scenery.wait_for("landing complete");
 }
 

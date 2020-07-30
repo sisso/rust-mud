@@ -196,9 +196,7 @@ pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<()> {
 
         "land" => input_handle_space::land_list(container, mob_id),
 
-        _ if input.has_command("land") => {
-            input_handle_space::land_at(container, mob_id, input.split())
-        }
+        _ if input.has_command("land") => input_handle_space::land_at(container, mob_id, &input),
 
         "launch" => input_handle_space::launch(container, mob_id),
 

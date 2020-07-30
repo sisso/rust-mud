@@ -118,6 +118,7 @@ impl Labels {
         result
     }
 
+    // TODO: to Iterator? mostly of time we just need the first one
     pub fn search(&self, ids: &Vec<ObjId>, input: &str) -> Vec<ObjId> {
         let labels = self.resolve(ids);
         label_search(&labels, input)
@@ -154,6 +155,13 @@ pub fn label_search<'a>(labels: &Vec<&'a Label>, input: &str) -> Vec<ObjId> {
 
     // search by fuzzy label
     for i in labels.iter() {
+        // TODO: rmeove
+        debug!(
+            "checking {:?} with {:?} is {:?}",
+            i.label.as_str(),
+            input,
+            text::is_text_like(i.label.as_str(), input)
+        );
         if text::is_text_like(i.label.as_str(), input) {
             result.push(i.id);
         }

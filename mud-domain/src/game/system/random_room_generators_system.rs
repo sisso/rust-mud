@@ -123,7 +123,7 @@ fn create_spawns(
     let mut availables = rooms_id.clone();
 
     for spawn in spawns_cfg {
-        for i in 0..spawn.amount {
+        for _ in 0..spawn.amount {
             if availables.is_empty() {
                 break;
             }
