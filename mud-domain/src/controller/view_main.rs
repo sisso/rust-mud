@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use commons::{ObjId, PlayerId};
 
 use super::{input_handle_items, input_handle_space, input_handle_vendors};
-use crate::controller::{input_handle_hire, ViewHandleCtx};
+use crate::controller::{input_handle_hire, ConnectionView, ConnectionViewAction, ViewHandleCtx};
 use crate::errors::Error::NotFoundFailure;
 use crate::errors::{AsResult, Error, Result};
 use crate::game::actions;
@@ -35,22 +35,28 @@ fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc>
         .collect()
 }
 
-pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<()> {
+pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<ConnectionViewAction> {
     let input = StrInput(input);
 
     // handle inputs per category
-    let result = handle_general(&mut ctx, &input);
-    match result {
-        Ok(()) => return Ok(()),
+    match handle_meta(&mut ctx, &input) {
+        Ok(action) => return Ok(action),
         Err(NotFoundFailure) => {}
         Err(other) => {
             warn!("{:?} fail processing command {:?}", ctx.mob_id, other);
         }
     }
 
-    let result = handle_ship(&mut ctx, &input);
-    match result {
-        Ok(()) => return Ok(()),
+    match handle_general(&mut ctx, &input) {
+        Ok(action) => return Ok(action),
+        Err(NotFoundFailure) => {}
+        Err(other) => {
+            warn!("{:?} fail processing command {:?}", ctx.mob_id, other);
+        }
+    }
+
+    match handle_ship(&mut ctx, &input) {
+        Ok(action) => return Ok(action),
         Err(NotFoundFailure) => {}
         Err(other) => {
             warn!("{:?} fail processing command {:?}", ctx.mob_id, other);
@@ -61,7 +67,7 @@ pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<()> {
     let (container, mob_id) = (ctx.container, ctx.mob_id);
 
     // TODO: replace by first(), if a input want to be unique should check if there is no args
-    match input.as_str() {
+    let command_result = match input.as_str() {
         "l" | "look" => actions::look(container, mob_id),
 
         "n" => actions::mv(container, mob_id, Dir::N),
@@ -212,7 +218,9 @@ pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<()> {
                 .private(mob_id, comm::unknown_input(input.as_str()));
             Err(Error::InvalidArgumentFailure)
         }
-    }
+    };
+
+    command_result.map(|_| ConnectionViewAction::None)
 }
 
 fn action_examine(container: &mut Container, mob_id: MobId, target_label: &str) -> Result<()> {
@@ -269,29 +277,39 @@ fn action_examine(container: &mut Container, mob_id: MobId, target_label: &str) 
     Err(Error::InvalidArgumentFailure)
 }
 
-pub fn handle_ship(ctx: &mut ViewHandleCtx, input: &StrInput) -> Result<()> {
+pub fn handle_meta(ctx: &mut ViewHandleCtx, input: &StrInput) -> Result<ConnectionViewAction> {
+    match input.first() {
+        "admin" => Ok(ConnectionViewAction::SwitchView(ConnectionView::Admin)),
+
+        "logout" => Ok(ConnectionViewAction::Logout),
+
+        _ => Err(NotFoundFailure),
+    }
+}
+
+pub fn handle_ship(ctx: &mut ViewHandleCtx, input: &StrInput) -> Result<ConnectionViewAction> {
     match input.first() {
         "jump" => {
             input_handle_space::jump(ctx);
-            Ok(())
+            Ok(ConnectionViewAction::None)
         }
 
         _ => Err(NotFoundFailure),
     }
 }
 
-pub fn handle_general(ctx: &mut ViewHandleCtx, input: &StrInput) -> Result<()> {
+pub fn handle_general(ctx: &mut ViewHandleCtx, input: &StrInput) -> Result<ConnectionViewAction> {
     match input.first() {
         "h" | "help" => {
             ctx.container.outputs.private(ctx.mob_id, comm::help());
-            Ok(())
+            Ok(ConnectionViewAction::None)
         }
 
         "uptime" => {
             ctx.container
                 .outputs
                 .private(ctx.mob_id, comm::uptime(ctx.container.time.total));
-            Ok(())
+            Ok(ConnectionViewAction::None)
         }
 
         _ => Err(NotFoundFailure),

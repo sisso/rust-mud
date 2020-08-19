@@ -1,5 +1,7 @@
 # Bug
 
+- rooms memory is not persistent
+
 # Main Todo
 
 # Features

@@ -15,16 +15,32 @@ mod input_handle_vendors;
 mod view_login;
 mod view_main;
 
+#[derive(Debug, Clone, Copy)]
+pub enum ConnectionView {
+    Login,
+    Game,
+    Admin,
+}
+
 #[derive(Debug)]
 struct ConnectionState {
     pub connection_id: ConnectionId,
     pub player_id: Option<PlayerId>,
+    pub view: ConnectionView,
 }
 
 pub struct ViewHandleCtx<'a> {
     pub container: &'a mut Container,
     pub mob_id: MobId,
     pub player_id: PlayerId,
+}
+
+#[derive(Debug, Clone)]
+pub enum ConnectionViewAction {
+    None,
+    Login(PlayerId),
+    SwitchView(ConnectionView),
+    Logout,
 }
 
 /// Manage connectivity and messages to players through a socket.
@@ -52,6 +68,7 @@ impl Controller {
             ConnectionState {
                 connection_id,
                 player_id: None,
+                view: ConnectionView::Login,
             },
         );
 
@@ -61,7 +78,13 @@ impl Controller {
     }
 
     pub fn disconnect(&mut self, container: &mut Container, connection_id: ConnectionId) {
-        let state = self.get_state(connection_id);
+        let state = match self.connections.get(&connection_id) {
+            Some(state) => state,
+            None => {
+                warn!("disconnected connection {:?} not found", connection_id);
+                return;
+            }
+        };
 
         if let Some(player_id) = state.player_id {
             info!("{:?} disconnecting player {:?}", connection_id, player_id);
@@ -82,47 +105,120 @@ impl Controller {
     ) {
         self.connections_with_input.insert(connection_id);
 
-        let state = self.get_state(connection_id);
+        let state = self
+            .connections
+            .get(&connection_id)
+            .expect(format!("could not found connection {:?}", connection_id).as_str());
 
-        if let Some(player_id) = state.player_id {
-            debug!("{:?} input '{}'", connection_id, input);
+        let view_action: ConnectionViewAction = match state.view {
+            ConnectionView::Login => {
+                debug!("{:?} login input '{}'", connection_id, input);
 
-            let mob_id = container
-                .players
-                .get(player_id)
-                .expect("player not found")
-                .mob_id;
+                match view_login::handle(input) {
+                    LoginResult::Msg { msg } => {
+                        self.server_outputs.push((connection_id, msg));
+                        ConnectionViewAction::None
+                    }
 
-            let ctx = ViewHandleCtx {
-                container: container,
-                mob_id,
-                player_id,
-            };
+                    LoginResult::Login { login } => {
+                        self.server_outputs
+                            .push((connection_id, view_login::on_login_success(login.as_str())));
+                        // TODO: add login fail
+                        let player_id =
+                            avatars::on_player_login(container, login.as_str()).unwrap();
 
-            match view_main::handle(ctx, input) {
-                Err(ref err) if !err.is_failure() => warn!(
-                    "{:?} exception handling input {:?}: {:?}",
-                    connection_id, input, err
-                ),
-                _ => {}
-            }
-        } else {
-            debug!("{:?} login input '{}'", connection_id, input);
-            match view_login::handle(input) {
-                LoginResult::Msg { msg } => {
-                    self.server_outputs.push((connection_id, msg));
+                        ConnectionViewAction::Login(player_id)
+                    }
                 }
-                LoginResult::Login { login } => {
-                    self.server_outputs
-                        .push((connection_id, view_login::on_login_success(login.as_str())));
-                    // TODO: add login fail
-                    let player_id = avatars::on_player_login(container, login.as_str()).unwrap();
+            }
 
-                    debug!("{:?} login complete for {:?}", connection_id, player_id);
-                    self.set_state(ConnectionState {
-                        connection_id,
-                        player_id: Some(player_id),
-                    })
+            ConnectionView::Game if state.player_id.is_none() => {
+                warn!(
+                    "{:?} is in Game view without a player id, changing view back to login",
+                    connection_id
+                );
+
+                ConnectionViewAction::SwitchView(ConnectionView::Login)
+            }
+
+            ConnectionView::Game => {
+                debug!("{:?} input '{}'", connection_id, input);
+
+                let player_id = state.player_id.unwrap();
+
+                let mob_id = container
+                    .players
+                    .get(player_id)
+                    .expect("player not found")
+                    .mob_id;
+
+                let ctx = ViewHandleCtx {
+                    container: container,
+                    mob_id,
+                    player_id,
+                };
+
+                match view_main::handle(ctx, input) {
+                    Err(ref err) if !err.is_failure() => {
+                        warn!(
+                            "{:?} exception handling input {:?}: {:?}",
+                            connection_id, input, err
+                        );
+
+                        ConnectionViewAction::None
+                    }
+                    Err(_) => ConnectionViewAction::None,
+                    Ok(action) => action,
+                }
+            }
+
+            ConnectionView::Admin => ConnectionViewAction::None,
+        };
+
+        self.apply_action(container, connection_id, view_action);
+    }
+
+    fn apply_action(
+        &mut self,
+        _container: &mut Container,
+        connection_id: ConnectionId,
+        view_action: ConnectionViewAction,
+    ) {
+        match &view_action {
+            ConnectionViewAction::None => {}
+            _ => info!("{:?} executing {:?}", connection_id, view_action),
+        }
+
+        match view_action {
+            ConnectionViewAction::None => {}
+
+            ConnectionViewAction::SwitchView(view) => {
+                let state = self.connections.get_mut(&connection_id).unwrap();
+                state.view = view;
+            }
+
+            ConnectionViewAction::Login(player_id) => {
+                debug!("{:?} login in {:?}", connection_id, player_id);
+
+                let state = self.connections.get_mut(&connection_id).unwrap();
+                state.view = ConnectionView::Game;
+                state.player_id = Some(player_id);
+
+                self.connection_id_by_player_id
+                    .insert(player_id, connection_id);
+            }
+
+            ConnectionViewAction::Logout => {
+                let state = self.connections.get_mut(&connection_id).unwrap();
+
+                let old_player_id = state.player_id;
+                debug!("{:?} log out {:?}", connection_id, old_player_id);
+
+                state.view = ConnectionView::Login;
+                state.player_id = None;
+
+                if let Some(player_id) = old_player_id {
+                    self.connection_id_by_player_id.remove(&player_id);
                 }
             }
         }
@@ -244,20 +340,6 @@ impl Controller {
 
     pub fn connection_id_from_player_id(&self, player_id: PlayerId) -> Option<ConnectionId> {
         self.connection_id_by_player_id.get(&player_id).cloned()
-    }
-
-    fn get_state(&self, connection_id: ConnectionId) -> &ConnectionState {
-        self.connections
-            .get(&connection_id)
-            .expect(format!("could not found connection {:?}", connection_id).as_str())
-    }
-
-    fn set_state(&mut self, state: ConnectionState) {
-        if let Some(player_id) = state.player_id {
-            self.connection_id_by_player_id
-                .insert(player_id.clone(), state.connection_id.clone());
-        }
-        self.connections.insert(state.connection_id.clone(), state);
     }
 
     pub fn player_id_from_connection_id(&self, connection_id: ConnectionId) -> Option<PlayerId> {
