@@ -1,0 +1,34 @@
+{
+  "version": 0,
+
+  "cfg": {
+    "avatar_mob": 0,
+    "initial_room": 1
+  },
+
+  "objects": {
+    "1": {
+      "id": 1,
+      "label": "The void",
+      "desc": "This is the place where gods lives",
+      "room": {}
+    }
+  },
+
+  "prefabs": {
+    "0": {
+      "id": 0,
+      "desc": "A god energy in form of a strange ameba",
+      "label": "God",
+      "mob":{
+        "attack": 10,
+        "damage_max": 4,
+        "damage_min": 2,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 0
+      }
+    }
+  }
+}

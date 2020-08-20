@@ -1,4 +1,5 @@
 use crate::controller::view_login::LoginResult;
+use crate::errors::AsResult;
 use crate::game::avatars;
 use crate::game::container::Container;
 use crate::game::location::LocationId;
@@ -12,6 +13,7 @@ mod input_handle_hire;
 mod input_handle_items;
 mod input_handle_space;
 mod input_handle_vendors;
+mod view_admin;
 mod view_login;
 mod view_main;
 
@@ -61,7 +63,7 @@ impl Controller {
         }
     }
 
-    pub fn add_connection(&mut self, _container: &mut Container, connection_id: ConnectionId) {
+    pub fn add_connection(&mut self, container: &mut Container, connection_id: ConnectionId) {
         info!("{:?} receive connection", connection_id);
         self.connections.insert(
             connection_id.clone(),
@@ -72,9 +74,16 @@ impl Controller {
             },
         );
 
-        let msg = view_login::handle_welcome();
-
-        self.server_outputs.push((connection_id, msg));
+        if let Err(e) = self.apply_action(
+            container,
+            connection_id,
+            ConnectionViewAction::SwitchView(ConnectionView::Login),
+        ) {
+            warn!(
+                "{:?} error when change view to login: {:?}",
+                connection_id, e
+            );
+        }
     }
 
     pub fn disconnect(&mut self, container: &mut Container, connection_id: ConnectionId) {
@@ -96,7 +105,9 @@ impl Controller {
         self.connections.remove(&connection_id);
     }
 
-    // TODO: should not trigger changes in container, but just append inputs
+    // TODO: should not trigger changes in container, but just append events inputs?
+    //       q1: and about admin?
+    // TODO: normalize views interface? login/admin per connection and game per mob_id?
     pub fn handle_input(
         &mut self,
         container: &mut Container,
@@ -110,14 +121,14 @@ impl Controller {
             .get(&connection_id)
             .expect(format!("could not found connection {:?}", connection_id).as_str());
 
-        let view_action: ConnectionViewAction = match state.view {
+        let view_action: crate::errors::Result<ConnectionViewAction> = match state.view {
             ConnectionView::Login => {
                 debug!("{:?} login input '{}'", connection_id, input);
 
                 match view_login::handle(input) {
                     LoginResult::Msg { msg } => {
                         self.server_outputs.push((connection_id, msg));
-                        ConnectionViewAction::None
+                        Ok(ConnectionViewAction::None)
                     }
 
                     LoginResult::Login { login } => {
@@ -127,7 +138,7 @@ impl Controller {
                         let player_id =
                             avatars::on_player_login(container, login.as_str()).unwrap();
 
-                        ConnectionViewAction::Login(player_id)
+                        Ok(ConnectionViewAction::Login(player_id))
                     }
                 }
             }
@@ -138,13 +149,13 @@ impl Controller {
                     connection_id
                 );
 
-                ConnectionViewAction::SwitchView(ConnectionView::Login)
+                Ok(ConnectionViewAction::SwitchView(ConnectionView::Login))
             }
 
             ConnectionView::Game => {
                 debug!("{:?} input '{}'", connection_id, input);
 
-                let player_id = state.player_id.unwrap();
+                let player_id = state.player_id.expect("game view must have a player");
 
                 let mob_id = container
                     .players
@@ -158,69 +169,29 @@ impl Controller {
                     player_id,
                 };
 
-                match view_main::handle(ctx, input) {
-                    Err(ref err) if !err.is_failure() => {
-                        warn!(
-                            "{:?} exception handling input {:?}: {:?}",
-                            connection_id, input, err
-                        );
-
-                        ConnectionViewAction::None
-                    }
-                    Err(_) => ConnectionViewAction::None,
-                    Ok(action) => action,
-                }
+                view_main::handle(ctx, input)
             }
 
-            ConnectionView::Admin => ConnectionViewAction::None,
+            ConnectionView::Admin => {
+                let mut outputs = vec![];
+                let result = view_admin::handle(container, &mut outputs, input);
+                for msg in outputs {
+                    self.server_outputs.push((connection_id, msg));
+                    self.server_outputs.push((connection_id, "\n".to_string()));
+                }
+                result
+            }
         };
 
-        self.apply_action(container, connection_id, view_action);
-    }
-
-    fn apply_action(
-        &mut self,
-        _container: &mut Container,
-        connection_id: ConnectionId,
-        view_action: ConnectionViewAction,
-    ) {
-        match &view_action {
-            ConnectionViewAction::None => {}
-            _ => info!("{:?} executing {:?}", connection_id, view_action),
-        }
-
-        match view_action {
-            ConnectionViewAction::None => {}
-
-            ConnectionViewAction::SwitchView(view) => {
-                let state = self.connections.get_mut(&connection_id).unwrap();
-                state.view = view;
+        match view_action.and_then(|action| self.apply_action(container, connection_id, action)) {
+            Err(ref err) if !err.is_failure() => {
+                warn!(
+                    "{:?} exception handling input {:?}: {:?}",
+                    connection_id, input, err
+                );
             }
 
-            ConnectionViewAction::Login(player_id) => {
-                debug!("{:?} login in {:?}", connection_id, player_id);
-
-                let state = self.connections.get_mut(&connection_id).unwrap();
-                state.view = ConnectionView::Game;
-                state.player_id = Some(player_id);
-
-                self.connection_id_by_player_id
-                    .insert(player_id, connection_id);
-            }
-
-            ConnectionViewAction::Logout => {
-                let state = self.connections.get_mut(&connection_id).unwrap();
-
-                let old_player_id = state.player_id;
-                debug!("{:?} log out {:?}", connection_id, old_player_id);
-
-                state.view = ConnectionView::Login;
-                state.player_id = None;
-
-                if let Some(player_id) = old_player_id {
-                    self.connection_id_by_player_id.remove(&player_id);
-                }
-            }
+            _ => {}
         }
     }
 
@@ -235,9 +206,85 @@ impl Controller {
         std::mem::replace(&mut self.server_outputs, vec![])
     }
 
-    //    pub fn save(&self, save: &mut dyn Save) {
-    //        container.save(save);
-    //    }
+    fn apply_action(
+        &mut self,
+        container: &mut Container,
+        connection_id: ConnectionId,
+        view_action: ConnectionViewAction,
+    ) -> crate::errors::Result<()> {
+        match &view_action {
+            ConnectionViewAction::None => {}
+            _ => info!("{:?} executing {:?}", connection_id, view_action),
+        }
+
+        match view_action {
+            ConnectionViewAction::None => Ok(()),
+
+            ConnectionViewAction::SwitchView(view) => {
+                let state = self.connections.get_mut(&connection_id).unwrap();
+                state.view = view;
+
+                self.handle_view_welcome(container, connection_id)
+            }
+
+            ConnectionViewAction::Login(player_id) => {
+                debug!("{:?} login in {:?}", connection_id, player_id);
+
+                let state = self.connections.get_mut(&connection_id).unwrap();
+                state.view = ConnectionView::Game;
+                state.player_id = Some(player_id);
+
+                self.connection_id_by_player_id
+                    .insert(player_id, connection_id);
+
+                self.handle_view_welcome(container, connection_id)
+            }
+
+            ConnectionViewAction::Logout => {
+                let state = self.connections.get_mut(&connection_id).unwrap();
+
+                let old_player_id = state.player_id;
+                debug!("{:?} log out {:?}", connection_id, old_player_id);
+
+                state.view = ConnectionView::Login;
+                state.player_id = None;
+
+                if let Some(player_id) = old_player_id {
+                    self.connection_id_by_player_id.remove(&player_id);
+                }
+
+                self.handle_view_welcome(container, connection_id)
+            }
+        }
+    }
+
+    fn handle_view_welcome(
+        &mut self,
+        container: &mut Container,
+        connection_id: ConnectionId,
+    ) -> crate::errors::Result<()> {
+        let state = self.connections.get(&connection_id).as_result_exception()?;
+
+        match state.view {
+            ConnectionView::Game => {
+                let player_id = state.player_id.as_result_exception()?;
+                let mob_id = container.players.get_mob(player_id).as_result_exception()?;
+                crate::game::actions::look(container, mob_id)
+            }
+
+            ConnectionView::Login => {
+                let msg = view_login::handle_welcome();
+                self.server_outputs.push((connection_id, msg));
+                Ok(())
+            }
+
+            ConnectionView::Admin => {
+                let msg = view_admin::handle_welcome();
+                self.server_outputs.push((connection_id, msg));
+                Ok(())
+            }
+        }
+    }
 
     /// For each player that will receive output, append new line with cursor.
     ///

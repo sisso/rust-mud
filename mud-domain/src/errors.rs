@@ -3,6 +3,7 @@ use serde::export::Formatter;
 use std::any::Any;
 use std::path::Display;
 
+// TODO: rename for a less conflicting
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Suffixes:
@@ -87,11 +88,16 @@ impl<T> ResultError<T> for Result<T> {
 
 pub trait AsResult<T> {
     fn as_result(self) -> Result<T>;
+    fn as_result_exception(self) -> Result<T>;
 }
 
 impl<T> AsResult<T> for Option<T> {
     fn as_result(self) -> Result<T> {
         self.ok_or(Error::NotFoundFailure)
+    }
+
+    fn as_result_exception(self) -> Result<T> {
+        self.ok_or(Error::NotFoundException)
     }
 }
 

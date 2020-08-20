@@ -4,6 +4,9 @@
 
 # Main Todo
 
+- after login or swtich a view, should show a first message
+- add uuid to saved files, where the initial value will be the HOCON
+
 # Features
 
 - specs

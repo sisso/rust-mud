@@ -16,6 +16,16 @@ macro_rules! unwrap_or_continue {
     };
 }
 
+#[macro_export]
+macro_rules! unwrap_or_return {
+    ($res:expr) => {
+        match $res {
+            Some(value) => value,
+            None => return,
+        }
+    };
+}
+
 // TODO: probably don't belongs here anymore
 /// Represents a connected user, not necessary is playing or have a avatar
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
