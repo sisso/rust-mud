@@ -10,6 +10,10 @@ use logs::*;
 use serde_json::Value;
 use std::collections::HashMap;
 
+pub fn handle_welcome() -> String {
+    "[Admin]\n".to_string()
+}
+
 pub fn handle(
     container: &mut Container,
     outputs: &mut Vec<String>,
@@ -22,15 +26,16 @@ pub fn handle(
         "help" => {
             outputs.push("Available commands:".into());
             outputs.push("list get update exit".into());
+            outputs.push("".into());
             Ok(ConnectionViewAction::None)
         }
 
-        "list" => {
+        "list" | "ls" => {
             handle_list(container, outputs, input)?;
             Ok(ConnectionViewAction::None)
         }
 
-        "get" => {
+        "get" | "g" => {
             handle_get(container, outputs, input)?;
             Ok(ConnectionViewAction::None)
         }
@@ -94,6 +99,7 @@ fn handle_list(
     outputs: &mut Vec<String>,
     input: StrInput,
 ) -> crate::errors::Result<()> {
+    // build data structure
     let data = loader::Loader::create_snapshot(container)?;
 
     let mut data_by_id = HashMap::new();
@@ -123,23 +129,87 @@ fn handle_list(
         data_by_id.insert(e.id.as_u32(), e);
     }
 
-    outputs.push("".into());
-    outputs.push("Prefabs:".into());
+    // search valid objects
+    let mut args: Vec<_> = input
+        .parse_arguments()
+        .into_iter()
+        .map(|s| s.to_string())
+        .collect();
 
-    roots_prefabs.sort();
-    for key in roots_prefabs {
-        print_deep(outputs, 0, key, &data_by_id, &tree);
+    let mut show_prefabs = true;
+    let mut show_objects = true;
+
+    match args.get(0).map(|s| s.as_str()) {
+        Some("p") => {
+            show_objects = false;
+            args.remove(0);
+        }
+
+        Some("o") => {
+            show_prefabs = false;
+            args.remove(0);
+        }
+
+        _ => {}
     }
 
-    outputs.push("".into());
-    outputs.push("Objects:".into());
+    // display
+    if show_prefabs {
+        outputs.push("".into());
+        outputs.push("Prefabs:".into());
 
-    roots.sort();
-    for key in roots {
-        print_deep(outputs, 0, key, &data_by_id, &tree);
+        roots_prefabs.sort();
+        for key in roots_prefabs {
+            print_deep(&args, outputs, 0, key, &data_by_id, &tree);
+        }
+    }
+
+    if show_objects {
+        outputs.push("".into());
+        outputs.push("Objects:".into());
+
+        roots.sort();
+        for key in roots {
+            print_deep(&args, outputs, 0, key, &data_by_id, &tree);
+        }
     }
 
     Ok(())
+}
+
+trait Filter {
+    fn is_visible(&self, data: &ObjData) -> bool;
+}
+
+impl Filter for Vec<String> {
+    fn is_visible(&self, data: &ObjData) -> bool {
+        for s in self.iter() {
+            let is_label = data.label.contains(s);
+            let is_code = data
+                .code
+                .as_ref()
+                .map(|v| {
+                    for i in v.iter() {
+                        if i.contains(s) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                })
+                .unwrap_or(false);
+
+            let is_id = format!("{}", data.id.as_u32()).contains(s);
+
+            let is_valid = is_label || is_code || is_id;
+
+            if !is_valid {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
 
 fn print_one(deep: u32, data: &ObjData) -> String {
@@ -160,22 +230,22 @@ fn print_one(deep: u32, data: &ObjData) -> String {
 }
 
 fn print_deep(
+    filters: &Filter,
     outputs: &mut Vec<String>,
     deep: u32,
     key: u32,
     data_by_id: &HashMap<u32, &ObjData>,
     tree: &Tree<u32>,
 ) {
-    outputs.push(print_one(deep, data_by_id.get(&key).unwrap()));
+    let data = data_by_id.get(&key).unwrap();
+    if filters.is_visible(data) {
+        outputs.push(print_one(deep, data));
+    }
 
     let mut children = tree.children(key).collect::<Vec<_>>();
     children.sort();
 
     for child in children {
-        print_deep(outputs, deep + 1, child, data_by_id, tree);
+        print_deep(filters, outputs, deep + 1, child, data_by_id, tree);
     }
-}
-
-pub fn handle_welcome() -> String {
-    "[Admin]".to_string()
 }
