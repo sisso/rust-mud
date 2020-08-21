@@ -153,6 +153,9 @@ fn handle_list(
         _ => {}
     }
 
+    let filters = VecStringFilter::new(args);
+    info!("creating filter {:?}", filters);
+
     // display
     if show_prefabs {
         outputs.push("".into());
@@ -160,7 +163,7 @@ fn handle_list(
 
         roots_prefabs.sort();
         for key in roots_prefabs {
-            print_deep(&args, outputs, 0, key, &data_by_id, &tree);
+            print_deep(&filters, outputs, 0, key, &data_by_id, &tree);
         }
     }
 
@@ -170,7 +173,7 @@ fn handle_list(
 
         roots.sort();
         for key in roots {
-            print_deep(&args, outputs, 0, key, &data_by_id, &tree);
+            print_deep(&filters, outputs, 0, key, &data_by_id, &tree);
         }
     }
 
@@ -181,9 +184,41 @@ trait Filter {
     fn is_visible(&self, data: &ObjData) -> bool;
 }
 
-impl Filter for Vec<String> {
-    fn is_visible(&self, data: &ObjData) -> bool {
-        for s in self.iter() {
+#[derive(Debug)]
+struct VecStringFilter {
+    labels: Vec<String>,
+    is_mob: Option<bool>,
+    is_item: Option<bool>,
+    is_room: Option<bool>,
+}
+
+impl VecStringFilter {
+    pub fn new(mut args: Vec<String>) -> Self {
+        fn drain(v: &mut Vec<String>, s: &str) -> Option<bool> {
+            match v.iter().position(|i| i.as_str() == s) {
+                Some(pos) => {
+                    v.remove(pos);
+                    Some(true)
+                }
+
+                _ => None,
+            }
+        }
+
+        let is_mob = drain(&mut args, "mob");
+        let is_room = drain(&mut args, "room");
+        let is_item = drain(&mut args, "item");
+
+        VecStringFilter {
+            labels: args,
+            is_mob,
+            is_item,
+            is_room,
+        }
+    }
+
+    fn is_valid_label(&self, data: &ObjData) -> bool {
+        for s in self.labels.iter() {
             let is_label = data.label.contains(s);
             let is_code = data
                 .code
@@ -210,6 +245,28 @@ impl Filter for Vec<String> {
 
         return true;
     }
+
+    fn is_valid_tags(&self, data: &ObjData) -> bool {
+        if self.is_room.unwrap_or(false) && !data.room.is_some() {
+            return false;
+        }
+
+        if self.is_mob.unwrap_or(false) && !data.mob.is_some() {
+            return false;
+        }
+
+        if self.is_item.unwrap_or(false) && !data.item.is_some() {
+            return false;
+        }
+
+        return true;
+    }
+}
+
+impl Filter for VecStringFilter {
+    fn is_visible(&self, data: &ObjData) -> bool {
+        self.is_valid_label(data) && self.is_valid_tags(data)
+    }
 }
 
 fn print_one(deep: u32, data: &ObjData) -> String {
@@ -230,7 +287,7 @@ fn print_one(deep: u32, data: &ObjData) -> String {
 }
 
 fn print_deep(
-    filters: &Filter,
+    filters: &dyn Filter,
     outputs: &mut Vec<String>,
     deep: u32,
     key: u32,

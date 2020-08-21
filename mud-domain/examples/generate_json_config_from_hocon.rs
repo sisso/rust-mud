@@ -34,8 +34,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     };
 
     clean_up(to_folder)?;
-    generate(from_folder, to_folder);
-    Ok(())
+    generate(from_folder, to_folder)
 }
 
 fn clean_up(folder: &str) -> Result<(), Box<dyn Error>> {

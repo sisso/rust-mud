@@ -32,6 +32,11 @@ fn test_admin_menu() {
     game.tick(delta_time);
     let outputs = game.flush_outputs();
     assert_contains(outputs, "void");
+
+    game.handle_input(connection_id, "ls p mob");
+    game.tick(delta_time);
+    let outputs = game.flush_outputs();
+    assert_contains(outputs, "God");
 }
 
 fn assert_contains(outputs: Vec<(ConnectionId, String)>, s: &str) {
