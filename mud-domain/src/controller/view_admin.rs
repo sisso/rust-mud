@@ -1,4 +1,5 @@
 use crate::controller::{ConnectionView, ConnectionViewAction};
+use crate::errors::*;
 use crate::game::container::Container;
 use crate::game::loader;
 use crate::game::loader::dto::ObjData;
@@ -18,7 +19,7 @@ pub fn handle(
     container: &mut Container,
     outputs: &mut Vec<String>,
     input: &str,
-) -> crate::errors::Result<ConnectionViewAction> {
+) -> Result<ConnectionViewAction> {
     let input = StrInput(input);
 
     // do action and append outputs
@@ -40,6 +41,11 @@ pub fn handle(
             Ok(ConnectionViewAction::None)
         }
 
+        "add" => {
+            handle_add(container, outputs, input)?;
+            Ok(ConnectionViewAction::None)
+        }
+
         "update" => Ok(ConnectionViewAction::None),
 
         "verify" => {
@@ -58,11 +64,7 @@ pub fn handle(
     }
 }
 
-fn handle_get(
-    container: &mut Container,
-    outputs: &mut Vec<String>,
-    input: StrInput,
-) -> crate::errors::Result<()> {
+fn handle_get(container: &mut Container, outputs: &mut Vec<String>, input: StrInput) -> Result<()> {
     let id = match input.parse_arguments().get(0).map(|s| s.parse()) {
         Some(Ok(id)) => ObjId(id),
         _ => {
@@ -103,7 +105,7 @@ fn handle_list(
     container: &mut Container,
     outputs: &mut Vec<String>,
     input: StrInput,
-) -> crate::errors::Result<()> {
+) -> Result<()> {
     // build data structure
     let data = loader::Loader::create_snapshot(container)?;
 
@@ -189,16 +191,55 @@ fn handle_verify(
     container: &mut Container,
     outputs: &mut Vec<String>,
     input: StrInput,
-) -> crate::errors::Result<()> {
+) -> Result<()> {
     let json = input.plain_arguments();
 
     match serde_json::from_str::<ObjData>(json) {
         Ok(data) => {
-            let mut data = serde_json::to_value(data)?;
-            data.strip_nulls();
+            let s = to_string_pretty(&data)?;
+            outputs.push(s);
+            Ok(())
+        }
 
-            let fmt = serde_json::to_string_pretty(&data)?;
-            outputs.push(fmt);
+        Err(e) => {
+            outputs.push(format!("fail to parse: {:?}", e));
+            Ok(())
+        }
+    }
+}
+
+fn to_string_pretty(data: &ObjData) -> Result<String> {
+    let mut data = serde_json::to_value(data)?;
+    data.strip_nulls();
+
+    let string = serde_json::to_string_pretty(&data)?;
+    Ok(string)
+}
+
+fn handle_add(container: &mut Container, outputs: &mut Vec<String>, input: StrInput) -> Result<()> {
+    let plains = input.plain_arguments();
+    let is_prefab = plains.starts_with("p ");
+    let is_obj = plains.starts_with("o ");
+    if !is_prefab && !is_obj {
+        outputs.push("you need to specific p or o as first argument".to_string());
+        return Ok(());
+    }
+
+    let json = &plains[2..];
+
+    match serde_json::from_str::<ObjData>(json) {
+        Ok(mut data) => {
+            let obj_id = container.objects.create();
+
+            if is_obj {
+                loader::Loader::apply_objdata(container, obj_id, &data);
+            } else {
+                data.id = Some(obj_id.into());
+                container.loader.add_prefab(data);
+            }
+
+            outputs.push(format!("created id: {}", obj_id.as_u32()));
+
             Ok(())
         }
 

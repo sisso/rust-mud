@@ -144,10 +144,28 @@ impl Loader {
 
         // initialize all
         for (&static_id, &obj_id) in &references {
-            Loader::apply_prefab(container, obj_id, Either::Right(static_id), &references)?;
+            Loader::apply_prefab_or_objdata(
+                container,
+                obj_id,
+                Either::Right(static_id),
+                &references,
+            )?;
         }
 
         Ok(obj_id)
+    }
+
+    pub fn apply_objdata(
+        container: &mut Container,
+        obj_id: ObjId,
+        obj_data: &ObjData,
+    ) -> Result<()> {
+        Loader::apply_prefab_or_objdata(
+            container,
+            obj_id,
+            Either::Left(obj_data),
+            &Default::default(),
+        )
     }
 
     /// Resolve the static id to a ObjId by first searching in reference_map and then in container
@@ -172,7 +190,7 @@ impl Loader {
     }
 
     // TODO: make it atomic: success and change or no change
-    fn apply_prefab(
+    fn apply_prefab_or_objdata(
         container: &mut Container,
         obj_id: ObjId,
         data: Either<&ObjData, StaticId>,
@@ -194,7 +212,9 @@ impl Loader {
 
         debug!("{:?} apply prefab {:?}", obj_id, data.id);
 
-        container.objects.set_static_id(obj_id, data.get_id())?;
+        if let Some(id) = data.id {
+            container.objects.set_static_id(obj_id, id)?;
+        }
 
         if let Some(parent) = &data.parent {
             let parent_id = Loader::get_by_static_id(&container.objects, &references, *parent)?;
@@ -919,7 +939,7 @@ impl Loader {
                         container.time.set(Tick(tick), TotalTime(total_time));
                     }
                     (None, None) => {}
-                    other => panic!("Unexpect time configuration {:?}", data.cfg),
+                    _other => panic!("Unexpect time configuration {:?}", data.cfg),
                 }
             }
             _ => {}
@@ -978,7 +998,7 @@ impl Loader {
 
         for (id, data) in &objects {
             let mut empty_references = Default::default();
-            Loader::apply_prefab(
+            Loader::apply_prefab_or_objdata(
                 container,
                 ObjId(id.as_u32()),
                 Either::Left(data),

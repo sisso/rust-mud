@@ -85,6 +85,62 @@ fn load_admin(game: &mut Game, connection_id: ConnectionId) {
     assert_contains(outputs, "admin");
 }
 
+#[test]
+fn test_admin_add_obj() {
+    // initialize with minimum config
+    let mut game = setup();
+
+    // connect and login
+    let connection_id = ConnectionId(0);
+
+    login(&mut game, connection_id);
+    load_admin(&mut game, connection_id);
+
+    game.handle_input(
+        connection_id,
+        r#"add o {
+        "label": "New room",
+        "room": {}
+    }"#,
+    );
+    game.tick(delta_time);
+    let outputs = game.flush_outputs();
+    assert_contains(outputs, "created");
+
+    game.handle_input(connection_id, "ls o room");
+    let outputs = game.flush_outputs();
+    assert_contains(outputs, "New room");
+}
+
+#[test]
+fn test_admin_add_prefab() {
+    // initialize with minimum config
+    let mut game = setup();
+
+    // connect and login
+    let connection_id = ConnectionId(0);
+
+    login(&mut game, connection_id);
+    load_admin(&mut game, connection_id);
+
+    game.handle_input(
+        connection_id,
+        r#"add p {
+        "label": "New room",
+        "room": {}
+    }"#,
+    );
+
+    game.tick(delta_time);
+    let outputs = game.flush_outputs();
+    assert_contains(outputs, "created");
+
+    game.handle_input(connection_id, "ls p");
+    game.tick(delta_time);
+    let outputs = game.flush_outputs();
+    assert_contains(outputs, "New room");
+}
+
 fn login(game: &mut Game, connection_id: ConnectionId) {
     game.add_connection(connection_id);
     game.handle_input(connection_id, "player1");
@@ -109,4 +165,11 @@ fn assert_contains(outputs: Vec<(ConnectionId, String)>, s: &str) {
     }
 
     panic!("could not found [{}] in outputs: {:?}", s, outputs);
+}
+
+fn input_and_assert(game: &mut Game, connection_id: ConnectionId, input: &str, expected: &str) {
+    game.handle_input(connection_id, input);
+    game.tick(delta_time);
+    let outputs = game.flush_outputs();
+    assert_contains(outputs, expected);
 }
