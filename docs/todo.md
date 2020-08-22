@@ -9,6 +9,7 @@
 
 # Features
 
+- admin verify / insert should support multiple lines 
 - specs
 - memory for the map
 - portal distance 

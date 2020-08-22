@@ -42,6 +42,11 @@ pub fn handle(
 
         "update" => Ok(ConnectionViewAction::None),
 
+        "verify" => {
+            handle_verify(container, outputs, input)?;
+            Ok(ConnectionViewAction::None)
+        }
+
         "exit" => {
             // TODO: pop current view?
             Ok(ConnectionViewAction::SwitchView(ConnectionView::Game))
@@ -178,6 +183,30 @@ fn handle_list(
     }
 
     Ok(())
+}
+
+fn handle_verify(
+    container: &mut Container,
+    outputs: &mut Vec<String>,
+    input: StrInput,
+) -> crate::errors::Result<()> {
+    let json = input.plain_arguments();
+
+    match serde_json::from_str::<ObjData>(json) {
+        Ok(data) => {
+            let mut data = serde_json::to_value(data)?;
+            data.strip_nulls();
+
+            let fmt = serde_json::to_string_pretty(&data)?;
+            outputs.push(fmt);
+            Ok(())
+        }
+
+        Err(e) => {
+            outputs.push(format!("fail to parse: {:?}", e));
+            Ok(())
+        }
+    }
 }
 
 trait Filter {

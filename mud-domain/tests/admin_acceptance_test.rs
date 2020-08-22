@@ -33,7 +33,7 @@ fn test_admin_menu() {
 }
 
 #[test]
-fn test_admin_insert() {
+fn test_admin_verify_with_valid_input() {
     // initialize with minimum config
     let mut game = setup();
 
@@ -43,7 +43,39 @@ fn test_admin_insert() {
     login(&mut game, connection_id);
     load_admin(&mut game, connection_id);
 
-    // TODO: to be continued
+    game.handle_input(
+        connection_id,
+        r#"verify {
+        "label": "not very well defined object"
+    }"#,
+    );
+    game.tick(delta_time);
+
+    let outputs = game.flush_outputs();
+    assert_contains(outputs, "not very well defined object");
+}
+
+#[test]
+fn test_admin_verify_with_invalid_input() {
+    // initialize with minimum config
+    let mut game = setup();
+
+    // connect and login
+    let connection_id = ConnectionId(0);
+
+    login(&mut game, connection_id);
+    load_admin(&mut game, connection_id);
+
+    game.handle_input(
+        connection_id,
+        r#"verify {
+        "label": "not very well defined object
+    }"#,
+    );
+    game.tick(delta_time);
+
+    let outputs = game.flush_outputs();
+    assert_contains(outputs, "fail");
 }
 
 fn load_admin(game: &mut Game, connection_id: ConnectionId) {
