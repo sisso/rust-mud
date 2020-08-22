@@ -110,23 +110,23 @@ fn handle_list(
     for (_, e) in &data.objects {
         match e.parent {
             Some(parent_id) => {
-                tree.insert(e.id.as_u32(), parent_id.as_u32());
+                tree.insert(e.get_id().as_u32(), parent_id.as_u32());
             }
-            None => roots.push(e.id.as_u32()),
+            None => roots.push(e.get_id().as_u32()),
         }
 
-        data_by_id.insert(e.id.as_u32(), e);
+        data_by_id.insert(e.get_id().as_u32(), e);
     }
 
     for (_, e) in &data.prefabs {
         match e.parent {
             Some(parent_id) => {
-                tree.insert(e.id.as_u32(), parent_id.as_u32());
+                tree.insert(e.get_id().as_u32(), parent_id.as_u32());
             }
-            None => roots_prefabs.push(e.id.as_u32()),
+            None => roots_prefabs.push(e.get_id().as_u32()),
         }
 
-        data_by_id.insert(e.id.as_u32(), e);
+        data_by_id.insert(e.get_id().as_u32(), e);
     }
 
     // search valid objects
@@ -219,7 +219,7 @@ impl VecStringFilter {
 
     fn is_valid_label(&self, data: &ObjData) -> bool {
         for s in self.labels.iter() {
-            let is_label = data.label.contains(s);
+            let is_label = data.label.as_ref().map(|l| l.contains(s)).unwrap_or(false);
             let is_code = data
                 .code
                 .as_ref()
@@ -234,7 +234,7 @@ impl VecStringFilter {
                 })
                 .unwrap_or(false);
 
-            let is_id = format!("{}", data.id.as_u32()).contains(s);
+            let is_id = format!("{}", data.get_id().as_u32()).contains(s);
 
             let is_valid = is_label || is_code || is_id;
 
@@ -280,8 +280,8 @@ fn print_one(deep: u32, data: &ObjData) -> String {
     format!(
         "{}{}) {}{}",
         prefix,
-        data.id.as_u32(),
-        data.label,
+        data.get_id().as_u32(),
+        data.label.as_ref().unwrap_or(&"undefined".to_string()),
         children_str
     )
 }

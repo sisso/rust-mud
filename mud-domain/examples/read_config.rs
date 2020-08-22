@@ -49,30 +49,30 @@ fn main() {
     for (_, e) in &data.objects {
         match e.parent {
             Some(parent_id) => {
-                tree.insert(e.id.as_u32(), parent_id.as_u32());
+                tree.insert(e.get_id().as_u32(), parent_id.as_u32());
             }
-            None => roots.push(e.id.as_u32()),
+            None => roots.push(e.get_id().as_u32()),
         }
 
-        max_id = max_id.max(e.id.as_u32());
+        max_id = max_id.max(e.get_id().as_u32());
 
-        if data_by_id.insert(e.id.as_u32(), e).is_some() {
-            errors.push(format!("duplicate id {:?}", e.id));
+        if data_by_id.insert(e.get_id().as_u32(), e).is_some() {
+            errors.push(format!("duplicate id {:?}", e.get_id()));
         }
     }
 
     for (_, e) in &data.prefabs {
         match e.parent {
             Some(parent_id) => {
-                tree.insert(e.id.as_u32(), parent_id.as_u32());
+                tree.insert(e.get_id().as_u32(), parent_id.as_u32());
             }
-            None => roots_prefabs.push(e.id.as_u32()),
+            None => roots_prefabs.push(e.get_id().as_u32()),
         }
 
-        max_id = max_id.max(e.id.as_u32());
+        max_id = max_id.max(e.get_id().as_u32());
 
-        if data_by_id.insert(e.id.as_u32(), e).is_some() {
-            errors.push(format!("duplicate id {:?}", e.id));
+        if data_by_id.insert(e.get_id().as_u32(), e).is_some() {
+            errors.push(format!("duplicate id {:?}", e.get_id()));
         }
     }
 
@@ -125,8 +125,8 @@ fn print_one(deep: u32, data: &ObjData) {
     println!(
         "{}{:04}) {}{}",
         prefix,
-        data.id.as_u32(),
-        data.label,
+        data.get_id().as_u32(),
+        data.label.as_ref().unwrap_or(&"undefined".to_string()),
         children_str
     );
 }

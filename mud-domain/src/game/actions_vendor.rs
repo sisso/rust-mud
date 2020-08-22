@@ -16,7 +16,7 @@ pub fn list(container: &mut Container, mob_id: MobId, _vendor_id: MobId) -> Resu
         .loader
         .list_prefabs()
         .flat_map(|prefab| {
-            let label = prefab.label.as_str();
+            let label = prefab.label.as_ref()?;
             let price = prefab.price.as_ref()?;
 
             Some(VendorListItem {

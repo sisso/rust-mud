@@ -52,9 +52,14 @@ impl Loader {
     }
 
     pub fn add_prefab(&mut self, data: ObjData) {
-        assert!(!self.index.contains_key(&data.id));
+        // TODO: autogenerate id?
+        assert!(
+            data.id.is_some(),
+            "data can only be inserted with a valid id"
+        );
+        assert!(!self.index.contains_key(&data.get_id()));
         debug!("{:?} adding prefab {:?}", data.id, data);
-        self.index.insert(data.id, data);
+        self.index.insert(data.get_id(), data);
     }
 
     pub fn get_prefab(&self, id: StaticId) -> Option<&ObjData> {
@@ -189,27 +194,27 @@ impl Loader {
 
         debug!("{:?} apply prefab {:?}", obj_id, data.id);
 
-        container.objects.set_static_id(obj_id, data.id)?;
+        container.objects.set_static_id(obj_id, data.get_id())?;
 
         if let Some(parent) = &data.parent {
             let parent_id = Loader::get_by_static_id(&container.objects, &references, *parent)?;
             container.locations.set(obj_id, parent_id)
         }
 
-        {
-            let label = data.label.clone();
+        if let Some(label) = data.label.as_ref() {
             // TODO: simplify
             let code = data
                 .code
                 .clone()
                 .map(|i| i.first().cloned())
-                .and_then(|o| o)
+                .and_then(|identity| identity)
                 .unwrap_or(label.clone());
+
             let desc = data.desc.clone().unwrap_or("".to_string());
 
             container.labels.add(Label {
                 id: obj_id,
-                label,
+                label: label.clone(),
                 code,
                 desc,
             });
@@ -497,10 +502,11 @@ impl Loader {
     pub fn parse_flat_data(root_data: &mut LoaderData, list: Vec<FlatData>) -> Result<()> {
         for data in list {
             let static_id = StaticId(data.static_id);
-            let mut obj = ObjData::new(static_id);
+            let mut obj = ObjData::new();
+            obj.id = Some(static_id);
 
             if let Some(label) = data.label {
-                obj.label = label;
+                obj.label = Some(label);
                 obj.desc = data.desc;
             }
 
@@ -543,7 +549,7 @@ impl Loader {
             }
 
             trace!("reading into {:?}", obj);
-            root_data.prefabs.insert(obj.id, obj);
+            root_data.prefabs.insert(obj.get_id(), obj);
         }
 
         Ok(())
@@ -662,7 +668,7 @@ impl Loader {
         });
 
         for prefab in container.loader.list_prefabs() {
-            data.prefabs.insert(prefab.id, prefab.clone());
+            data.prefabs.insert(prefab.get_id(), prefab.clone());
         }
 
         for obj_id in container.objects.list() {
@@ -694,11 +700,12 @@ impl Loader {
             };
         }
 
-        let mut obj_data = ObjData::new(id.into());
+        let mut obj_data = ObjData::new();
+        obj_data.id = Some(id.into());
 
         if let Some(label) = container.labels.get(id) {
             // Hack some fields to make it compatible with original values
-            obj_data.label = label.label.clone();
+            obj_data.label = Some(label.label.clone());
             if !label.desc.is_empty() {
                 obj_data.desc = Some(label.desc.clone());
             }
@@ -1144,14 +1151,14 @@ prefabs.control_panel_command_2 {
         // Hardcoded situations
 
         // Random room will create a new entrance. Maybe should not be dynamic? Still space would have it
-        if expected.label == "Dungeon Entrance" {
+        if expected.label.as_ref().unwrap() == "Dungeon Entrance" {
             // should have 1 entrance in config
             expected.room.as_mut().unwrap().exits = None;
             // should have 2 entrance, the one from config + the new random rooms
             value.room.as_mut().unwrap().exits = None;
         }
 
-        if expected.label == "Dungeon area" {
+        if expected.label.as_ref().unwrap() == "Dungeon area" {
             expected
                 .zone
                 .as_mut()

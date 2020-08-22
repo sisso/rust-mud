@@ -106,7 +106,7 @@ impl HParser {
         for (_key, value) in map {
             let obj: ObjData = HParser::load_obj(value)?;
 
-            let static_id = obj.id;
+            let static_id = obj.get_id();
             if objects.contains_key(&static_id) {
                 warn!("duplicated id {:?}, ignoring", static_id);
             } else {

@@ -109,7 +109,12 @@ pub fn parse_vendor_item(
         .loader
         .list_prefabs()
         .filter(|data| data.price.is_some())
-        .filter(|data| text::is_text_eq(data.label.as_str(), input))
-        .map(|data| data.id)
+        .filter(|data| {
+            data.label
+                .as_ref()
+                .map(|label| text::is_text_eq(label.as_str(), input))
+                .unwrap_or(false)
+        })
+        .flat_map(|data| data.id)
         .next()
 }

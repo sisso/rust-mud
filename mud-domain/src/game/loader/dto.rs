@@ -181,8 +181,8 @@ pub struct ZoneData {
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ObjData {
-    pub id: StaticId,
-    pub label: String,
+    pub id: Option<StaticId>,
+    pub label: Option<String>,
     pub code: Option<Vec<String>>,
     pub desc: Option<String>,
     pub owned_by: Option<StaticId>,
@@ -205,10 +205,10 @@ pub struct ObjData {
 }
 
 impl ObjData {
-    pub fn new(id: StaticId) -> Self {
+    pub fn new() -> Self {
         ObjData {
-            id,
-            label: "".to_string(),
+            id: None,
+            label: None,
             code: None,
             desc: None,
             owned_by: None,
@@ -227,6 +227,10 @@ impl ObjData {
             zone: None,
             player: None,
         }
+    }
+
+    pub fn get_id(&self) -> StaticId {
+        self.id.expect("id field not defined")
     }
 }
 
