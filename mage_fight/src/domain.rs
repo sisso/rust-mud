@@ -12,7 +12,13 @@ pub enum Error {
     IllegalArgument(String),
 }
 
-pub type Result<T> = std::result::Result<T, Error>;
+impl From<&str> for Error {
+    fn from(v: &str) -> Self {
+        Error::Generic(v.to_string())
+    }
+}
+
+pub type GResult<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, Clone)]
 pub struct Spell {
@@ -39,6 +45,7 @@ pub struct Mob {
     pub id: Id,
     pub pos: Pos,
     pub team: Team,
+    pub is_player: bool,
     pub attributes: Attributes,
     pub round_actions: ActionPoints,
 }
@@ -53,6 +60,10 @@ impl Arena {
         Arena {
             size: [size_x, size_y],
         }
+    }
+
+    pub fn is_valid(&self, pos: Pos) -> bool {
+        pos[0] >= 0 && pos[1] >= 0 && pos[0] < self.size[0] && pos[1] < self.size[1]
     }
 }
 
@@ -83,7 +94,7 @@ impl Dir {
         }
     }
 
-    pub fn parse(value: &str) -> Result<Dir> {
+    pub fn parse(value: &str) -> GResult<Dir> {
         match value {
             "n" | "north" => Ok(Dir::N),
             "s" | "south" => Ok(Dir::S),
@@ -99,6 +110,7 @@ impl Dir {
 
 #[derive(Debug, Clone, Copy)]
 pub enum Command {
+    Exit,
     Wait,
     Move(Dir),
     CastSelf { spell_id: Id },
@@ -124,6 +136,7 @@ impl Game {
             id: 0,
             pos: [2, 0],
             team: Team::Player,
+            is_player: true,
             attributes: Attributes {
                 hp: 10,
                 mana: 10,
@@ -133,8 +146,9 @@ impl Game {
         };
         let enemy_mob = Mob {
             id: 0,
-            pos: [2, 0],
+            pos: [2, 4],
             team: Team::Enemy,
+            is_player: false,
             attributes: Attributes {
                 hp: 10,
                 mana: 10,
@@ -160,10 +174,16 @@ impl Game {
         self.player_mob.round_actions > 0
     }
 
-    pub fn handle_player_command(&mut self, command: Command) -> Result<()> {
+    pub fn get_arena(&self) -> &Arena {
+        &self.arena
+    }
+
+    pub fn handle_player_command(&mut self, command: Command) -> GResult<()> {
         if self.player_mob.round_actions > 0 {
             match command {
                 Command::Move(dir) => {
+                    do_mob_move(&mut self.player_mob, &self.arena, dir)?;
+
                     self.player_mob.round_actions -= 1;
                     Ok(())
                 }
@@ -181,6 +201,10 @@ impl Game {
         }
     }
 
+    pub fn get_mobs(&self) -> Vec<&Mob> {
+        vec![&self.player_mob, &self.enemy_mob]
+    }
+
     fn next_turn(&mut self) {
         // increase round
         self.round += 1;
@@ -195,3 +219,20 @@ impl Game {
 //
 // }
 //
+fn do_mob_move(mob: &mut Mob, arena: &Arena, dir: Dir) -> GResult<()> {
+    let mut pos = mob.pos.clone();
+
+    match dir {
+        Dir::N => pos[1] -= 1,
+        Dir::S => pos[1] += 1,
+        Dir::W => pos[0] -= 1,
+        Dir::E => pos[0] += 1,
+    }
+
+    if arena.is_valid(pos) {
+        mob.pos = pos;
+        Ok(())
+    } else {
+        Err("Invalid direction".into())
+    }
+}

@@ -5,4 +5,5 @@ members = [
   "mud-server",
   "commons",
   "socket-server",
+  "mage_fight"
 ]

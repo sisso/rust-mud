@@ -24,20 +24,50 @@ pub fn show_status(game: &mut Game) -> Vec<String> {
 .......
 ...E...
  */
-pub fn show_map(game: &mut Game) -> Vec<String> {
+pub fn show_map(game: &Game) -> Vec<String> {
     let mut buffer = vec![];
-    buffer.push("....Y....".to_string());
-    buffer.push(".........".to_string());
-    buffer.push(".........".to_string());
-    buffer.push(".........".to_string());
-    buffer.push(".........".to_string());
-    buffer.push("....E....".to_string());
+    // draw the arena
+    let arena = game.get_arena();
+    for _lin in 0..arena.size[1] {
+        let mut v = vec![];
+        for _col in 0..arena.size[0] {
+            v.push('.' as u8)
+        }
+
+        buffer.push(v);
+    }
+
+    // draw mobs
+    for mob in game.get_mobs() {
+        let lin = mob.pos[1] as usize;
+        let col = mob.pos[0] as usize;
+
+        let ch = if mob.is_player { '@' } else { 'O' };
+
+        buffer[lin][col] = ch as u8;
+    }
+
     buffer
+        .into_iter()
+        .map(|v| String::from_utf8(v).unwrap())
+        .collect()
 }
 
-pub fn handle_input(game: &mut Game, line: &str) -> Result<Command> {
-    let trimmed = line.trim();
-    Err(Error::Generic(format!("Invalid input {:?}", trimmed)))
+pub fn parse_input(game: &mut Game, line: &str) -> GResult<Command> {
+    let trimmed = line.trim().split_ascii_whitespace().collect::<Vec<_>>();
+
+    let command = trimmed
+        .get(0)
+        .ok_or(Error::Generic(format!("Invalid input {:?}", trimmed)))?;
+
+    match *command {
+        "exit" | "quit" => Ok(Command::Exit),
+        "n" => Ok(Command::Move(Dir::N)),
+        "e" => Ok(Command::Move(Dir::E)),
+        "w" => Ok(Command::Move(Dir::W)),
+        "s" => Ok(Command::Move(Dir::S)),
+        _ => Err(Error::Generic(format!("Invalid input {:?}", trimmed))),
+    }
 }
 
 pub fn show_events(game: &mut Game) -> Vec<String> {

@@ -20,4 +20,9 @@ fn acceptance_test() {
 
     // now we have a new round
     assert!(game.is_player_turn());
+
+    let lines = mage_fight::console::show_map(&game);
+    for line in lines {
+        println!("{}", line);
+    }
 }

@@ -26,9 +26,12 @@ fn main() {
                 .read_line(&mut line)
                 .expect("fail to read command line");
 
-            match handle_input(&mut game, line.as_str()) {
+            match parse_input(&mut game, line.as_str()) {
+                Ok(Command::Exit) => {
+                    break;
+                }
                 Ok(command) => match game.handle_player_command(command) {
-                    Ok(()) => break,
+                    Ok(()) => {}
                     Err(Error::Generic(msg)) => {
                         println!("{}", msg);
                     }
