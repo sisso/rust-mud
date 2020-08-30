@@ -66,6 +66,7 @@ pub fn parse_input(game: &mut Game, line: &str) -> GResult<Command> {
         "e" => Ok(Command::Move(Dir::E)),
         "w" => Ok(Command::Move(Dir::W)),
         "s" => Ok(Command::Move(Dir::S)),
+        "c" | "cast" => parse_cast(game, trimmed),
         _ => Err(Error::Generic(format!("Invalid input {:?}", trimmed))),
     }
 }
@@ -73,4 +74,14 @@ pub fn parse_input(game: &mut Game, line: &str) -> GResult<Command> {
 pub fn show_events(game: &mut Game) -> Vec<String> {
     let mut buffer = vec![];
     buffer
+}
+
+fn parse_cast(game: &Game, input: Vec<&str>) -> GResult<Command> {
+    match input.get(1) {
+        Some(&"fb") | Some(&"fireball") => Ok(Command::CastAtTarget {
+            spell_id: 0,
+            target_id: 0,
+        }),
+        _ => Err(Error::IllegalArgument(format!("Invalid input {:?}", input))),
+    }
 }

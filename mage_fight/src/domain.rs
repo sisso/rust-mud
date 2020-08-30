@@ -5,11 +5,18 @@ pub type Id = u32;
 pub type Mana = i32;
 pub type ActionPoints = i32;
 pub type RoundNum = i32;
+pub type Duration = i32;
+pub type Speed = i32;
+pub type Damage = i32;
+pub type Color = u32;
+pub type ActionCost = i32;
 
 #[derive(Debug)]
 pub enum Error {
     Generic(String),
+    InvalidState(String),
     IllegalArgument(String),
+    NotImplemented(String),
 }
 
 impl From<&str> for Error {
@@ -24,7 +31,42 @@ pub type GResult<T> = std::result::Result<T, Error>;
 pub struct Spell {
     pub id: Id,
     pub label: String,
+    pub codes: Vec<String>,
     pub cost_mana: Mana,
+    pub time_to_cast: ActionCost,
+    pub target: SpellTarget,
+    pub deliver: SpellDeliver,
+    pub effect: SpellEffect,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum SpellTarget {
+    Myself,
+    Friendly,
+    Enemy,
+    Pos,
+}
+
+#[derive(Debug, Clone)]
+pub enum SpellDeliver {
+    Projectile { speed: Speed, text_id: char },
+
+    Focal {},
+}
+
+#[derive(Debug, Clone)]
+pub struct SpellEffect {
+    damage: Option<Damage>,
+    heal: Option<Damage>,
+}
+
+#[derive(Debug, Clone)]
+pub struct View {
+    pub label: String,
+    pub desc: String,
+    pub codes: Vec<String>,
+    pub text_identifier: char,
+    // pub color: Color,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -48,6 +90,7 @@ pub struct Mob {
     pub is_player: bool,
     pub attributes: Attributes,
     pub round_actions: ActionPoints,
+    pub view: View,
 }
 
 #[derive(Debug, Clone)]
@@ -143,9 +186,15 @@ impl Game {
                 actions: 2,
             },
             round_actions: 0,
+            view: View {
+                label: "player".to_string(),
+                desc: "The Player".to_string(),
+                codes: into_vec_string(vec!["player", "me", "self"]),
+                text_identifier: '@',
+            },
         };
         let enemy_mob = Mob {
-            id: 0,
+            id: 1,
             pos: [2, 4],
             team: Team::Enemy,
             is_player: false,
@@ -155,13 +204,52 @@ impl Game {
                 actions: 2,
             },
             round_actions: 0,
+            view: View {
+                label: "enemy".to_string(),
+                desc: "An enemy".to_string(),
+                codes: into_vec_string(vec!["enemy", "other", "o"]),
+                text_identifier: 'O',
+            },
         };
+
+        let spell_firebolt = Spell {
+            id: 2,
+            label: "Firebolt".to_string(),
+            codes: into_vec_string(vec!["firebolt", "fbolt", "fb"]),
+            cost_mana: 1,
+            time_to_cast: 1,
+            target: SpellTarget::Enemy,
+            deliver: SpellDeliver::Projectile {
+                speed: 4,
+                text_id: '*',
+            },
+            effect: SpellEffect {
+                damage: Some(3),
+                heal: None,
+            },
+        };
+
+        let spell_heal = Spell {
+            id: 3,
+            label: "Heal".to_string(),
+            codes: into_vec_string(vec!["heal", "hl"]),
+            cost_mana: 1,
+            time_to_cast: 1,
+            target: SpellTarget::Myself,
+            deliver: SpellDeliver::Focal {},
+            effect: SpellEffect {
+                damage: None,
+                heal: Some(5),
+            },
+        };
+
+        let spells = vec![spell_firebolt, spell_heal];
 
         Game {
             arena: Arena::new(5, 5),
             player_mob,
             enemy_mob,
-            spells: vec![],
+            spells: spells,
             round: -1,
         }
     }
@@ -187,10 +275,13 @@ impl Game {
                     self.player_mob.round_actions -= 1;
                     Ok(())
                 }
-                other => Err(Error::Generic(format!("invalid command"))),
+                other => Err(Error::NotImplemented(format!(
+                    "Unexpected command [{:?}]",
+                    other
+                ))),
             }
         } else {
-            Err(Error::Generic(format!("Not player round")))
+            Err(Error::InvalidState(format!("Not player round")))
         }
     }
 
@@ -235,4 +326,8 @@ fn do_mob_move(mob: &mut Mob, arena: &Arena, dir: Dir) -> GResult<()> {
     } else {
         Err("Invalid direction".into())
     }
+}
+
+fn into_vec_string(v: Vec<&str>) -> Vec<String> {
+    v.into_iter().map(|i| i.to_string()).collect()
 }
