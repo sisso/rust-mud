@@ -1,3 +1,8 @@
+# Room.exit
+
+Use room.can_exit to get out of a ship or a ship get in/out of space looks mixing. But not totally wrong, a character
+can exit of space ship, a vehicle can exit of space ship, a ship can exit from landdock.
+
 # Timed actions
 
 Conclusion: We keep option A) as it show it is less error prone and the flexibility provided by B) is to shallow to 

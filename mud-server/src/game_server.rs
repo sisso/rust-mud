@@ -9,6 +9,8 @@ use mud_domain::game::loader::Loader;
 use mud_domain::game::Game;
 use mud_domain::game::{loader, GameCfg};
 use socket_server::*;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -20,16 +22,68 @@ pub struct ServerConfig {
 }
 
 pub struct ServerRunner {
-    pub server: Box<dyn Server>,
-    pub game: Game,
+    server: Box<dyn Server>,
+    server_cfg: ServerConfig,
+    game: Game,
+    stop_flag: Arc<AtomicBool>,
 }
 
 impl ServerRunner {
-    pub fn new(server: Box<dyn Server>, game: Game) -> Self {
-        ServerRunner { server, game }
+    pub fn new(
+        server: Box<dyn Server>,
+        server_cfg: ServerConfig,
+        game: Game,
+        stop_flag: Arc<AtomicBool>,
+    ) -> Self {
+        ServerRunner {
+            server,
+            server_cfg,
+            game,
+            stop_flag,
+        }
     }
 
-    pub fn run(&mut self, delta_time: DeltaTime) {
+    pub fn run(&mut self) -> Result<()> {
+        // main loop
+        loop {
+            std::thread::sleep(::std::time::Duration::from_millis(100));
+
+            let kill_signal = self.stop_flag.load(Ordering::Relaxed);
+
+            self.run_tick(DeltaTime(0.1));
+
+            let tick = self.game.container.time.tick.as_u32();
+
+            // maintenance tasks
+            if tick % 100 == 0 || kill_signal {
+                // create snapshot
+                if self.server_cfg.profile.is_some() {
+                    let data = Loader::create_snapshot(&self.game.container)?;
+
+                    let snapshot_file = snapshot_filename(&self.server_cfg, None)?;
+                    info!("saving snapshot: {:?}", snapshot_file);
+                    Loader::write_snapshot(&snapshot_file, &data)?;
+
+                    let snapshot_history = snapshot_filename(&self.server_cfg, Some(tick))?;
+                    info!("saving snapshot: {:?}", snapshot_history);
+                    Loader::write_snapshot(&snapshot_history, &data)?;
+                }
+            }
+
+            if kill_signal {
+                info!("receive kill signal, saving and exiting");
+                break;
+            }
+        }
+
+        Ok(())
+    }
+
+    pub fn stop(&self) -> Result<()> {
+        unimplemented!()
+    }
+
+    fn run_tick(&mut self, delta_time: DeltaTime) {
         let result = self.server.run();
 
         for connection_id in result.connects {
@@ -53,7 +107,7 @@ impl ServerRunner {
     }
 }
 
-pub fn start_server(server_cfg: ServerConfig) -> Result<()> {
+pub fn create_server(server_cfg: ServerConfig, stop_flag: Arc<AtomicBool>) -> Result<ServerRunner> {
     let container = if server_cfg.profile.is_some() {
         setup_profile_folder(&server_cfg)?;
         let profile_file = snapshot_filename(&server_cfg, None)?;
@@ -72,31 +126,8 @@ pub fn start_server(server_cfg: ServerConfig) -> Result<()> {
 
     // create server
     let server = server_socket::SocketServer::new(server_cfg.port);
-    let mut runner = ServerRunner::new(Box::new(server), game);
-
-    // main loop
-    loop {
-        std::thread::sleep(::std::time::Duration::from_millis(100));
-        runner.run(DeltaTime(0.1));
-
-        let tick = runner.game.container.time.tick.as_u32();
-
-        // maintenance tasks
-        if tick % 100 == 0 {
-            // create snapshot
-            if server_cfg.profile.is_some() {
-                let data = Loader::create_snapshot(&runner.game.container)?;
-
-                let snapshot_file = snapshot_filename(&server_cfg, None)?;
-                info!("saving snapshot: {:?}", snapshot_file);
-                Loader::write_snapshot(&snapshot_file, &data)?;
-
-                let snapshot_history = snapshot_filename(&server_cfg, Some(tick))?;
-                info!("saving snapshot: {:?}", snapshot_history);
-                Loader::write_snapshot(&snapshot_history, &data)?;
-            }
-        }
-    }
+    let runner = ServerRunner::new(Box::new(server), server_cfg, game, stop_flag);
+    Ok(runner)
 }
 
 fn setup_profile_folder(server_cfg: &ServerConfig) -> Result<()> {
