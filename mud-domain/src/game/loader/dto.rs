@@ -25,7 +25,7 @@ use rand::random;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::borrow::Borrow;
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -125,7 +125,7 @@ pub struct PosData {
     pub y: f32,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Hash, Eq, Copy)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Hash, Eq, Copy, Ord, PartialOrd)]
 pub struct StaticId(pub u32);
 
 impl StaticId {
@@ -275,16 +275,13 @@ pub struct PlayerData {
     pub avatar_id: StaticId,
 }
 
-// TODO: replace HashMap by vector, it should not be used and ID is currently serialized as
-//       string key
-// TODO: cfg doesn't need to be option anymore
 // TODO: rename to snapshot data?
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct LoaderData {
     pub version: u32,
     pub cfg: Option<CfgData>,
-    pub objects: HashMap<StaticId, ObjData>,
-    pub prefabs: HashMap<StaticId, ObjData>,
+    pub objects: BTreeMap<StaticId, ObjData>,
+    pub prefabs: BTreeMap<StaticId, ObjData>,
 }
 
 impl LoaderData {

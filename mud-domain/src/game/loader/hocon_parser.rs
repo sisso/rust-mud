@@ -5,7 +5,7 @@ use crate::game::loader::{CfgData, StaticId};
 use crate::game::obj::Obj;
 use hocon::{Error as HError, *};
 use logs::*;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::fs::ReadDir;
 use std::io::Error as IError;
 use std::path::{Path, PathBuf};
@@ -41,8 +41,8 @@ pub struct HParser;
 impl HParser {
     pub fn parse(data: &mut LoaderData, hocon: Hocon) -> Result<(), ParseError> {
         let mut cfg = None;
-        let mut objects = HashMap::new();
-        let mut prefabs = HashMap::new();
+        let mut objects = BTreeMap::new();
+        let mut prefabs = BTreeMap::new();
 
         let map = match hocon {
             Hocon::Hash(map) => map,
@@ -97,7 +97,7 @@ impl HParser {
             })
     }
 
-    fn load_all(hocon: Hocon, objects: &mut HashMap<StaticId, ObjData>) -> Result<(), ParseError> {
+    fn load_all(hocon: Hocon, objects: &mut BTreeMap<StaticId, ObjData>) -> Result<(), ParseError> {
         let map = match hocon {
             Hocon::Hash(map) => map,
             _ => return Err(ParseError::NotObject),

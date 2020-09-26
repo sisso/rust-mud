@@ -47,5 +47,5 @@ fn main() {
     )
     .expect("fail to open server");
 
-    server.run();
+    server.run().expect("fail to run the server");
 }

@@ -2,7 +2,6 @@ mod hocon_parser;
 
 use crate::errors::{Error, Result};
 use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
-use crate::game::comm::vendor_buy_item_not_found;
 use crate::game::config::Config;
 use crate::game::container::Container;
 use crate::game::domain::{Dir, Modifier};
@@ -28,7 +27,7 @@ use rand::random;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::borrow::Borrow;
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
 pub mod dto;
@@ -990,7 +989,7 @@ impl Loader {
 
     fn initialize_all(
         container: &mut Container,
-        objects: HashMap<StaticId, ObjData>,
+        objects: BTreeMap<StaticId, ObjData>,
     ) -> Result<()> {
         for (key, _) in &objects {
             container.objects.insert(ObjId(key.as_u32()))?;
