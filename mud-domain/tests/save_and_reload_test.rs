@@ -8,7 +8,7 @@ use std::path::Path;
 fn test_serialization_and_reload_in_game() {
     let snapshot_1 = {
         let mut container = Container::new();
-        loader::Loader::load_folders(&mut container, &Path::new("../data/fantasy")).unwrap();
+        loader::Loader::load_folders(&mut container, &Path::new("../data/space")).unwrap();
 
         let mut game = Game::new(GameCfg::new(), container);
         game.tick(DeltaTime(0.5));
@@ -34,11 +34,8 @@ fn test_serialization_and_reload_in_game() {
 }
 
 fn assert_snapshots(snapshot_1: &LoaderData, snapshot_2: &LoaderData) {
-    let mut list_1: Vec<_> = snapshot_1.objects.iter().collect();
-    list_1.sort_by_key(|(key, _)| key.0);
-
-    let mut list_2: Vec<_> = snapshot_2.objects.iter().collect();
-    list_2.sort_by_key(|(key, _)| key.0);
+    let list_1: Vec<_> = snapshot_1.objects.iter().collect();
+    let list_2: Vec<_> = snapshot_2.objects.iter().collect();
 
     assert_json_eq(&list_2, &list_1);
 }

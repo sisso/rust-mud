@@ -1,11 +1,13 @@
 # Bug
 
-- rooms memory is not persistent
+- persistency
+    - room memory
 
 # Main Todo
 
-- after login or swtich a view, should show a first message
-- add uuid to saved files, where the initial value will be the HOCON
+- after login or switch a view, should show a first message
+- remove prefabs from files and convert into a normal object
+    - remove child
 
 # Features
 

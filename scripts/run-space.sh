@@ -2,6 +2,4 @@
 
 set -euo pipefail
 
-rm -f /tmp/mud_*.snapshot
-
-cargo run data/space
+cargo run data/space space-01

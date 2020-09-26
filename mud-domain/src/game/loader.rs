@@ -904,6 +904,10 @@ impl Loader {
             });
         }
 
+        if let Some(ship) = container.ships.get(id) {
+            obj_data.craft = Some(CraftData {});
+        }
+
         Ok(obj_data)
     }
 
@@ -1022,6 +1026,52 @@ impl Loader {
 mod test {
     use super::*;
     use crate::game::comm::item_corpse_appears_in_room;
+
+    fn load_and_snapshot(obj: ObjData) -> ObjData {
+        let mut container = Container::new();
+        let mut load_data = LoaderData::new();
+        let obj_id = obj.id.unwrap();
+        load_data.objects.insert(obj_id, obj);
+        Loader::load_data(&mut container, load_data);
+        Loader::snapshot_obj(&container, ObjId(obj_id.as_u32())).expect("fail to create snapshot")
+    }
+
+    fn assert_data_eq(mut value: ObjData, mut expected: ObjData) {
+        // Manually check for fields that will not match in a simple jvalue check
+        expected.children = None;
+
+        if let Some(room) = &mut expected.room {
+            if room.exits.is_none() {
+                room.exits = Some(vec![]);
+            }
+        }
+
+        // Hardcoded situations
+
+        // Random room will create a new entrance. Maybe should not be dynamic? Still space would have it
+        if let Some(expected_label) = expected.label.as_ref() {
+            if expected_label == "Dungeon Entrance" {
+                // should have 1 entrance in config
+                expected.room.as_mut().unwrap().exits = None;
+                // should have 2 entrance, the one from config + the new random rooms
+                value.room.as_mut().unwrap().exits = None;
+            }
+
+            if expected_label == "Dungeon area" {
+                expected
+                    .zone
+                    .as_mut()
+                    .unwrap()
+                    .random_rooms
+                    .as_mut()
+                    .unwrap()
+                    .generated = true;
+            }
+        }
+
+        // check all other fields to be equals
+        crate::utils::test::assert_json_eq(&value, &expected);
+    }
 
     #[test]
     pub fn initialize_with_spawn() {
@@ -1157,38 +1207,13 @@ prefabs.control_panel_command_2 {
         Ok(())
     }
 
-    fn assert_data_eq(mut value: ObjData, mut expected: ObjData) {
-        // Manually check for fields that will not match in a simple jvalue check
-        expected.children = None;
+    #[test]
+    fn test_serialize_craft() {
+        let mut data = ObjData::new();
+        data.id = Some(StaticId(0));
+        data.craft = Some(CraftData {});
 
-        if let Some(room) = &mut expected.room {
-            if room.exits.is_none() {
-                room.exits = Some(vec![]);
-            }
-        }
-
-        // Hardcoded situations
-
-        // Random room will create a new entrance. Maybe should not be dynamic? Still space would have it
-        if expected.label.as_ref().unwrap() == "Dungeon Entrance" {
-            // should have 1 entrance in config
-            expected.room.as_mut().unwrap().exits = None;
-            // should have 2 entrance, the one from config + the new random rooms
-            value.room.as_mut().unwrap().exits = None;
-        }
-
-        if expected.label.as_ref().unwrap() == "Dungeon area" {
-            expected
-                .zone
-                .as_mut()
-                .unwrap()
-                .random_rooms
-                .as_mut()
-                .unwrap()
-                .generated = true;
-        }
-
-        // check all other fields to be equals
-        crate::utils::test::assert_json_eq(&value, &expected);
+        let result = load_and_snapshot(data.clone());
+        assert_data_eq(data, result);
     }
 }
