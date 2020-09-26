@@ -156,20 +156,6 @@
         ]
       }
     },
-    "4": {
-      "desc": "The deserts market and city center",
-      "id": 4,
-      "label": "City center",
-      "parent": 16,
-      "room": {
-        "exits": [
-          {
-            "dir": "n",
-            "to": 3
-          }
-        ]
-      }
-    },
     "31": {
       "astro_body": {
         "kind": "planet",
@@ -193,6 +179,20 @@
       "room": {
         "can_exit": true,
         "exits": []
+      }
+    },
+    "4": {
+      "desc": "The deserts market and city center",
+      "id": 4,
+      "label": "City center",
+      "parent": 16,
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 3
+          }
+        ]
       }
     }
   },
