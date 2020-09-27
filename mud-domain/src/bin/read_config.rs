@@ -2,11 +2,13 @@ use mud_domain::game::loader::{dto::ObjData, Loader};
 
 use commons::tree::Tree;
 use serde_json;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::env;
 
 use commons::jsons::JsonValueExtra;
+use mud_domain::game::loader::dto::StaticId;
 use std::path::Path;
+use termion::color;
 
 // TODO: refactory everything, it got ugly,
 // TODO: support commands
@@ -40,7 +42,7 @@ fn main() {
 
     let path = Path::new(path.as_str());
 
-    let data = if path.is_dir() {
+    let mut data = if path.is_dir() {
         Loader::read_folders(path).expect("fail to load directory")
     } else if path.exists() {
         Loader::read_files(vec![path]).expect("fail to load file")
@@ -56,8 +58,23 @@ fn main() {
     let mut max_id = 0;
     let mut max_prefab_id = 0;
     let mut errors = vec![];
+    let mut broken_set: HashSet<u32> = HashSet::new();
 
-    for (_, e) in &data.objects {
+    let validation_result =
+        Loader::validate_and_normalize(&mut data).expect("fail to validate data");
+
+    for (id_a, id_b) in &validation_result.mismatch_ids {
+        broken_set.insert(id_a.as_u32());
+        broken_set.insert(id_b.as_u32());
+        errors.push(format!("mismatch ids {:?} and {:?}", id_a, id_b));
+    }
+
+    for id in &validation_result.duplicate_ids {
+        broken_set.insert(id.as_u32());
+        errors.push(format!("duplicate id {:?}", id));
+    }
+
+    for (static_id, e) in &data.objects {
         match e.parent {
             Some(parent_id) => {
                 tree.insert(e.get_id().as_u32(), parent_id.as_u32());
@@ -66,9 +83,11 @@ fn main() {
         }
 
         max_id = max_id.max(e.get_id().as_u32());
-        if data_by_id.insert(e.get_id().as_u32(), e).is_some() {
-            errors.push(format!("duplicate id {:?}", e.get_id()));
+        if static_id.is_prefab() {
+            max_prefab_id = max_prefab_id.max(e.get_id().as_u32());
         }
+
+        data_by_id.insert(e.get_id().as_u32(), e);
     }
 
     for (_, e) in &data.prefabs {
@@ -81,9 +100,7 @@ fn main() {
 
         max_prefab_id = max_prefab_id.max(e.get_id().as_u32());
 
-        if data_by_id.insert(e.get_id().as_u32(), e).is_some() {
-            errors.push(format!("duplicate id {:?}", e.get_id()));
-        }
+        data_by_id.insert(e.get_id().as_u32(), e);
     }
 
     if dump_id.is_none() {
@@ -92,7 +109,7 @@ fn main() {
 
         roots_prefabs.sort();
         for key in roots_prefabs {
-            print_deep(0, key, &data_by_id, &tree);
+            print_deep(0, key, &data_by_id, &tree, &broken_set);
         }
 
         println!();
@@ -100,7 +117,7 @@ fn main() {
 
         roots.sort();
         for key in roots {
-            print_deep(0, key, &data_by_id, &tree);
+            print_deep(0, key, &data_by_id, &tree, &broken_set);
         }
     }
 
@@ -125,7 +142,7 @@ fn main() {
     }
 }
 
-fn print_one(deep: u32, data: &ObjData) {
+fn print_one(deep: u32, data: &ObjData, is_fail: bool) {
     let prefix = String::from_utf8(vec![b' '; (deep * 2) as usize]).unwrap();
     let mut children_str = "".to_string();
     for children in &data.children {
@@ -133,22 +150,41 @@ fn print_one(deep: u32, data: &ObjData) {
         ids.sort();
         children_str = format!(" - {:?}", ids);
     }
+
+    if is_fail {
+        print!("{}", color::Fg(color::Red));
+    }
+
     println!(
-        "{}{:04}) {}{}",
+        "{}{:04} - {}{}",
         prefix,
         data.get_id().as_u32(),
         data.label.as_ref().unwrap_or(&"undefined".to_string()),
         children_str
     );
+
+    if is_fail {
+        print!("{}", color::Fg(color::Reset));
+    }
 }
 
-fn print_deep(deep: u32, key: u32, data_by_id: &HashMap<u32, &ObjData>, tree: &Tree<u32>) {
-    print_one(deep, data_by_id.get(&key).unwrap());
+fn print_deep(
+    deep: u32,
+    key: u32,
+    data_by_id: &HashMap<u32, &ObjData>,
+    tree: &Tree<u32>,
+    broken_set: &HashSet<u32>,
+) {
+    print_one(
+        deep,
+        data_by_id.get(&key).unwrap(),
+        broken_set.contains(&key),
+    );
 
     let mut children = tree.children(key).collect::<Vec<_>>();
     children.sort();
 
     for child in children {
-        print_deep(deep + 1, child, data_by_id, tree);
+        print_deep(deep + 1, child, data_by_id, tree, broken_set);
     }
 }

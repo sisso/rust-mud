@@ -39,6 +39,32 @@ use std::io::Write;
 const CURRENT_VERSION: u32 = 0;
 
 #[derive(Debug, Clone)]
+pub struct ValidationResult {
+    pub duplicate_ids: Vec<StaticId>,
+    pub mismatch_ids: Vec<(StaticId, StaticId)>,
+}
+
+impl ValidationResult {
+    pub fn assert_valid(&self) -> Result<()> {
+        if !self.mismatch_ids.is_empty() {
+            return Err(Error::Error(format!(
+                "conflict object id {:?} and {:?}",
+                self.mismatch_ids[0].0, self.mismatch_ids[0].1
+            )));
+        }
+
+        if !self.duplicate_ids.is_empty() {
+            return Err(Error::Error(format!(
+                "duplicate prefab id {:?}",
+                self.duplicate_ids[0]
+            )));
+        }
+
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct Loader {
     index: HashMap<StaticId, ObjData>,
 }
@@ -934,7 +960,8 @@ impl Loader {
     }
 
     pub fn load_data(container: &mut Container, mut data: LoaderData) -> Result<()> {
-        Loader::validate(&data)?;
+        Loader::validate_and_normalize(&mut data)?.assert_valid()?;
+
         Loader::migrate(&mut data)?;
 
         // add prefabs
@@ -975,8 +1002,12 @@ impl Loader {
         Ok(())
     }
 
-    fn validate(data: &LoaderData) -> Result<()> {
+    pub fn validate_and_normalize(data: &mut LoaderData) -> Result<ValidationResult> {
         let mut ids = HashSet::new();
+        let mut result = ValidationResult {
+            duplicate_ids: vec![],
+            mismatch_ids: vec![],
+        };
 
         if data.version != CURRENT_VERSION {
             return Err(Error::Error(format!(
@@ -985,19 +1016,51 @@ impl Loader {
             )));
         }
 
-        for (_static_id, data) in data.objects.iter() {
+        // normalize data.id if missing
+        // check for mismatch id
+        // check for dupplicated id
+        for (static_id, data) in &mut data.objects {
+            if let Some(id) = data.id {
+                if id != *static_id {
+                    // return Err(Error::Error(format!(
+                    //     "mismatch id from index {:?} and id field {:?}",
+                    //     static_id,
+                    //     data.id.unwrap()
+                    // )));
+
+                    result.mismatch_ids.push((*static_id, id));
+                }
+            } else {
+                data.id = Some(*static_id);
+            }
+
             if !ids.insert(data.id) {
-                return Err(Error::Error(format!("duplicate object id {:?}", data.id)));
+                result.duplicate_ids.push(*static_id);
+                // return Err(Error::Error(format!("duplicate object id {:?}", data.id)));
             }
         }
 
-        for (_static_id, data) in data.prefabs.iter() {
+        for (static_id, data) in &mut data.prefabs {
+            if let Some(id) = data.id {
+                if id != *static_id {
+                    // return Err(Error::Error(format!(
+                    //     "conflict object id {:?} and {:?}",
+                    //     static_id,
+                    //     data.id.unwrap()
+                    // )));
+                    result.mismatch_ids.push((*static_id, id));
+                }
+            } else {
+                data.id = Some(*static_id);
+            }
+
             if !ids.insert(data.id) {
-                return Err(Error::Error(format!("duplicate prefab id {:?}", data.id)));
+                result.duplicate_ids.push(*static_id);
+                // return Err(Error::Error(format!("duplicate prefab id {:?}", data.id)));
             }
         }
 
-        Ok(())
+        Ok(result)
     }
 
     fn migrate(data: &mut LoaderData) -> Result<()> {

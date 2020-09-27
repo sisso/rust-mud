@@ -19,7 +19,7 @@ use crate::game::surfaces::Surface;
 use crate::game::vendors::Vendor;
 use crate::game::zone::Zone;
 use commons::csv::FieldKind;
-use commons::{DeltaTime, Either, ObjId, PlayerId, V2};
+use commons::{DeltaTime, Either, ObjId, PlayerId, OBJ_ID_STATIC_RANGE, V2};
 use logs::*;
 use rand::random;
 use serde::{Deserialize, Serialize};
@@ -131,6 +131,10 @@ pub struct StaticId(pub u32);
 impl StaticId {
     pub fn as_u32(&self) -> u32 {
         self.0
+    }
+
+    pub fn is_prefab(&self) -> bool {
+        self.as_u32() < OBJ_ID_STATIC_RANGE
     }
 }
 
