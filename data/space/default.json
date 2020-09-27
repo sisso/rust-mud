@@ -1,8 +1,9 @@
 {
   "cfg": {
     "avatar_mob": 6,
-    "initial_craft": 12,
-    "initial_room": 2
+    "initial_room": 2,
+    "tick": 7356,
+    "total_time": 735.6000109612942
   },
   "objects": {
     "0": {
@@ -21,6 +22,112 @@
       "id": 1,
       "label": "Dune",
       "parent": 19
+    },
+    "100000": {
+      "code": [
+        "transport"
+      ],
+      "craft": {},
+      "desc": "Small cargo craft designed to deliver small amount of cargo",
+      "id": 100000,
+      "label": "Light Transport",
+      "parent": 33
+    },
+    "100001": {
+      "desc": "Craft airlock",
+      "id": 100001,
+      "label": "Airlock",
+      "parent": 100000,
+      "room": {
+        "can_exit": true,
+        "exits": [
+          {
+            "dir": "n",
+            "to": 100002
+          }
+        ]
+      }
+    },
+    "100002": {
+      "desc": "Cargo storage.",
+      "id": 100002,
+      "label": "Cargo Storage",
+      "parent": 100000,
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 100003
+          },
+          {
+            "dir": "s",
+            "to": 100001
+          }
+        ]
+      }
+    },
+    "100003": {
+      "desc": "Craft bridge.",
+      "id": 100003,
+      "label": "Bridge",
+      "parent": 100000,
+      "room": {
+        "exits": [
+          {
+            "dir": "s",
+            "to": 100002
+          }
+        ]
+      }
+    },
+    "100004": {
+      "id": 100004,
+      "label": "Player sisso",
+      "player": {
+        "avatar_id": 100005,
+        "id": 100004,
+        "login": "sisso"
+      }
+    },
+    "100005": {
+      "desc": "sisso",
+      "id": 100005,
+      "label": "sisso",
+      "memory": {
+        "knows": [
+          100003,
+          2,
+          100002,
+          4,
+          3,
+          100001
+        ]
+      },
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 0
+      },
+      "parent": 33
+    },
+    "100006": {
+      "id": 100006,
+      "label": "Good Vendor",
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 10
+      },
+      "owned_by": 38,
+      "parent": 4
     },
     "16": {
       "id": 16,
@@ -135,9 +242,6 @@
       "parent": 25
     },
     "3": {
-      "children": [
-        12
-      ],
       "desc": "City landing pad.",
       "id": 3,
       "label": "Landing Pad",
@@ -179,6 +283,30 @@
       "room": {
         "can_exit": true,
         "exits": []
+      }
+    },
+    "38": {
+      "id": 38,
+      "label": "Goods vendor spawn",
+      "parent": 4,
+      "spawn": {
+        "max": 1,
+        "next_spawn": 988.9828599244356,
+        "prefab_id": 36,
+        "time_max": 360.0,
+        "time_min": 60.0
+      }
+    },
+    "39": {
+      "id": 39,
+      "label": "Ore vendor spawn",
+      "parent": 21,
+      "spawn": {
+        "max": 1,
+        "next_spawn": 932.116401784122,
+        "prefab_id": 37,
+        "time_max": 360.0,
+        "time_min": 60.0
       }
     },
     "4": {
@@ -270,6 +398,46 @@
           }
         ]
       }
+    },
+    "34": {
+      "desc": "Commercial Goods",
+      "id": 34,
+      "item": {},
+      "label": "Goods"
+    },
+    "35": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 35,
+      "item": {},
+      "label": "Ores"
+    },
+    "36": {
+      "id": 36,
+      "label": "Good Vendor",
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 10
+      },
+      "vendor": {}
+    },
+    "37": {
+      "id": 37,
+      "label": "Ore Vendor",
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 10
+      },
+      "vendor": {}
     },
     "6": {
       "desc": "A normal and boring human being",
