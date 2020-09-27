@@ -261,6 +261,7 @@ pub struct SpawnData {
     pub time_min: f32,
     pub time_max: f32,
     pub locations_id: Option<Vec<StaticId>>,
+    pub next_spawn: Option<f64>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]

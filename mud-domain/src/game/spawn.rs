@@ -10,7 +10,7 @@ use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-type SpawnId = ObjId;
+pub type SpawnId = ObjId;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct SpawnDelay {
@@ -37,6 +37,7 @@ pub struct SpawnBuilder {
     pub delay_min: DeltaTime,
     pub delay_max: DeltaTime,
     pub prefab_id: StaticId,
+    pub next: Option<TotalTime>,
 }
 
 impl SpawnBuilder {

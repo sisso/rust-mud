@@ -6,7 +6,7 @@ use crate::game::comm;
 use crate::game::container::Container;
 use crate::game::loader::Loader;
 use crate::game::mob::MobRepository;
-use crate::game::spawn::Spawn;
+use crate::game::spawn::{Spawn, SpawnId};
 use crate::game::timer::Timer;
 use crate::game::triggers::{Event, EventKind};
 use commons::{DeltaTime, TotalTime};
@@ -25,7 +25,7 @@ pub fn run(container: &mut Container) {
             }
         };
 
-        schedule_next_spawn(&mut container.timer, total_time, spawn);
+        schedule_first_spawn(&mut container.timer, total_time, spawn);
     }
 
     let mut mob_spawns = vec![];
@@ -96,6 +96,16 @@ pub fn run(container: &mut Container) {
     }
 }
 
+fn schedule_first_spawn(timer: &mut Timer, now: TotalTime, spawn: &mut Spawn) {
+    if spawn.next.is_after(now) {
+        // when adding a spawn, if there is already some spawn scheduled in the future, just add
+        // the spawn to the trigger
+        add_spawn_to_trigger(timer, spawn.next, spawn.id);
+    } else {
+        schedule_next_spawn(timer, now, spawn);
+    }
+}
+
 fn schedule_next_spawn(timer: &mut Timer, now: TotalTime, spawn: &mut Spawn) {
     let mut rng = rand::thread_rng();
     let range = rng.gen_range(
@@ -104,12 +114,16 @@ fn schedule_next_spawn(timer: &mut Timer, now: TotalTime, spawn: &mut Spawn) {
     );
     let next = now + DeltaTime(range);
     spawn.next = next;
+    add_spawn_to_trigger(timer, spawn.next, spawn.id);
+}
+
+fn add_spawn_to_trigger(timer: &mut Timer, next: TotalTime, spawn_id: SpawnId) {
     timer.schedule(
         next,
         Event::Obj {
             kind: EventKind::Spawn,
-            obj_id: spawn.id,
+            obj_id: spawn_id,
         },
     );
-    debug!("{:?} scheduling spawn at {:?}", spawn.id, spawn.next);
+    debug!("{:?} scheduling spawn at {:?}", spawn_id, next);
 }

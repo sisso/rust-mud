@@ -2,6 +2,4 @@
 
 set -euo pipefail
 
-rm -f /tmp/mud_*.snapshot
-
-cargo run data/fantasy $*
+cargo run --bin mud-server data/fantasy fantasy-01

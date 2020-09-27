@@ -2,4 +2,4 @@
 
 set -euo pipefail
 
-cargo run data/space space-01
+cargo run --bin mud-server data/space space-01

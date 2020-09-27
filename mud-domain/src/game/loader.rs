@@ -367,6 +367,9 @@ impl Loader {
 
             let mut spawn = builder.create_spawn(obj_id);
             spawn.locations_id = locations_id;
+            if let Some(next) = spawn_data.next_spawn {
+                spawn.next = TotalTime(next);
+            }
             container.spawns.add(spawn)?;
         }
 
@@ -817,6 +820,7 @@ impl Loader {
                             time_max: i.spawn_builder.delay_max.as_seconds_f32(),
                             // random maps have empty locations
                             locations_id: None,
+                            next_spawn: None,
                         },
                     })
                     .collect();
@@ -861,6 +865,7 @@ impl Loader {
                 time_min: spawn.delay.min.as_seconds_f32(),
                 time_max: spawn.delay.max.as_seconds_f32(),
                 locations_id: nonempty_or_none!(locations),
+                next_spawn: Some(spawn.next.as_seconds_f64()),
             };
 
             obj_data.spawn = Some(spawn_data);
@@ -1102,6 +1107,7 @@ impl Loader {
             delay_min: DeltaTime(data.time_min),
             delay_max: DeltaTime(data.time_max),
             prefab_id: data.prefab_id,
+            next: data.next_spawn.as_ref().map(|time| TotalTime(*time)),
         }
     }
 }
