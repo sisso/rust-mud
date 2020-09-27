@@ -157,7 +157,7 @@ fn load_module(server_cfg: &ServerConfig) -> Result<Container> {
     );
 
     let mut container: Container = Container::new();
-    loader::Loader::load_folders(&mut container, &server_cfg.module_path)?;
+    loader::Loader::load_folders(&mut container, server_cfg.module_path.as_path())?;
     Ok(container)
 }
 

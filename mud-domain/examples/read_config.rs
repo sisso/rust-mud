@@ -5,6 +5,7 @@ use serde_json;
 use std::collections::HashMap;
 use std::env;
 
+use commons::jsons::JsonValueExtra;
 use std::path::Path;
 
 // TODO: refactory everything, it got ugly,
@@ -37,13 +38,23 @@ fn main() {
         }
     });
 
-    let data = Loader::read_folders(Path::new(path.as_str())).unwrap();
+    let path = Path::new(path.as_str());
+
+    let data = if path.is_dir() {
+        Loader::read_folders(path).expect("fail to load directory")
+    } else if path.exists() {
+        Loader::read_files(vec![path]).expect("fail to load file")
+    } else {
+        eprintln!("file or directory [{:?}] not found", path);
+        std::process::exit(2);
+    };
 
     let mut data_by_id = HashMap::new();
     let mut roots = vec![];
     let mut roots_prefabs = vec![];
     let mut tree = Tree::<u32>::new();
     let mut max_id = 0;
+    let mut max_prefab_id = 0;
     let mut errors = vec![];
 
     for (_, e) in &data.objects {
@@ -55,7 +66,6 @@ fn main() {
         }
 
         max_id = max_id.max(e.get_id().as_u32());
-
         if data_by_id.insert(e.get_id().as_u32(), e).is_some() {
             errors.push(format!("duplicate id {:?}", e.get_id()));
         }
@@ -69,7 +79,7 @@ fn main() {
             None => roots_prefabs.push(e.get_id().as_u32()),
         }
 
-        max_id = max_id.max(e.get_id().as_u32());
+        max_prefab_id = max_prefab_id.max(e.get_id().as_u32());
 
         if data_by_id.insert(e.get_id().as_u32(), e).is_some() {
             errors.push(format!("duplicate id {:?}", e.get_id()));
@@ -96,14 +106,15 @@ fn main() {
 
     if let Some(id) = dump_id {
         let obj = data_by_id.get(&id).unwrap();
-        println!();
-        println!("[Dump {:?}]", id);
+        let mut value = serde_json::to_value(&obj).expect("fail to serialize object into value");
+        value.strip_nulls();
 
-        let json = serde_json::to_string(&obj).expect("Failed to serialize object");
+        let json = serde_json::to_string(&value).expect("Failed to serialize object");
         println!("{}", json);
     } else {
         println!();
-        println!("next: {}", max_id + 1);
+        println!("next id: {}", max_id + 1);
+        println!("next prefab id: {}", max_prefab_id + 1);
         println!();
         if !errors.is_empty() {
             println!("ERRORS:");

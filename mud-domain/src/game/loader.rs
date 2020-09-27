@@ -610,14 +610,7 @@ impl Loader {
         Ok(())
     }
 
-    pub fn read_folders(root_path: &Path) -> Result<LoaderData> {
-        if !root_path.exists() {
-            return Err(Error::Error(
-                "configuration folder do not exists".to_string(),
-            ));
-        }
-
-        let files = Loader::list_files(root_path)?;
+    pub fn read_files(files: Vec<&Path>) -> Result<LoaderData> {
         let mut data = LoaderData::new();
 
         let json_files = files
@@ -653,6 +646,18 @@ impl Loader {
         })?;
 
         Ok(data)
+    }
+
+    pub fn read_folders(root_path: &Path) -> Result<LoaderData> {
+        if !root_path.exists() {
+            return Err(Error::Error(
+                "configuration folder do not exists".to_string(),
+            ));
+        }
+
+        let files = Loader::list_files(root_path)?;
+        let files: Vec<&Path> = files.iter().map(|p| p.as_path()).collect();
+        Loader::read_files(files)
     }
 
     // TODO: to fs-utils?
@@ -1185,14 +1190,14 @@ prefabs.control_panel_command_2 {
         for folder in list_data_folders_for_test() {
             let mut container = Container::new();
             let error_msg = format!("fail to parse {:?}", folder);
-            Loader::load_folders(&mut container, &folder).expect(error_msg.as_str());
+            Loader::load_folders(&mut container, folder.as_path()).expect(error_msg.as_str());
         }
     }
 
     #[test]
     fn test_snapshot_all_objects() -> std::result::Result<(), Box<dyn std::error::Error>> {
         for folder in list_data_folders_for_test() {
-            let data = Loader::read_folders(&folder)?;
+            let data = Loader::read_folders(folder.as_path())?;
 
             let mut container = Container::new();
             Loader::load_data(&mut container, data.clone())?;

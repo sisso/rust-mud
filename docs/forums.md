@@ -111,6 +111,28 @@ Maybe this is a good use for tags. Or better, EditorTags?
 Much of cause by trying to have a mix between static and persistent data. As mostly of MUD, is easy to 
 just a persistent state.
 
+## Prefabs
+
+Any object can have a reference to a prefab. 
+When persist, both object data and prefab data will be generated and only difference will be persisted. 
+When load, first load the prefab object and then override with field data.
+
+- Removals are not supported !!!!
+- prefabs can be recursive
+
+## Use case
+
+- I need to change all vendors to add a new attribute
+    - A) using prefab, just update the base object
+    - B) run a code to find all vendors and synchronize
+    - C) respawn vendors: admin command to replace any spawnned object
+
+## Children configuration
+
+- children is used to reuse references during creation like a vendor or a ship
+    - this is one usage feature, as with persistence files once initialize there is no reference anymore until a 
+      parent/prefab mode is implemented.
+
 ## Plan
 
 - A script will convert a current configuration into a default save game. If a profile has no save game, the default save
@@ -124,7 +146,7 @@ just a persistent state.
 
 ## Load
 
-Current loader, just switching to read json instead.
+## Prfab 
 
 ## Save
 
