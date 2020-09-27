@@ -176,14 +176,12 @@ mod test {
         let sample = r##"cfg {
     initial_room: 0
     avatar_mob: 1
-    initial_craft: 2
 }"##;
 
         let data = HParser::load_hocon_str(sample).unwrap();
         let cfg = data.cfg.expect("cfg field is not defined");
         assert_eq!(cfg.initial_room.as_u32(), 0);
         assert_eq!(cfg.avatar_mob.as_u32(), 1);
-        assert_eq!(cfg.initial_craft.unwrap().as_u32(), 2);
     }
 
     #[test]

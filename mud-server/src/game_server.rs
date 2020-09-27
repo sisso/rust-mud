@@ -55,7 +55,7 @@ impl ServerRunner {
             let tick = self.game.container.time.tick.as_u32();
 
             // maintenance tasks
-            if tick % 100 == 0 || kill_signal {
+            if tick % 1000 == 0 || kill_signal {
                 // create snapshot
                 if self.server_cfg.profile.is_some() {
                     let data = Loader::create_snapshot(&self.game.container)?;

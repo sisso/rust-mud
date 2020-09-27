@@ -180,6 +180,11 @@ pub struct ZoneData {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct MemoryData {
+    pub knows: Vec<StaticId>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ObjData {
     pub id: Option<StaticId>,
     pub label: Option<String>,
@@ -202,6 +207,7 @@ pub struct ObjData {
     pub vendor: Option<VendorData>,
     pub zone: Option<ZoneData>,
     pub player: Option<PlayerData>,
+    pub memory: Option<MemoryData>,
 }
 
 impl ObjData {
@@ -226,6 +232,7 @@ impl ObjData {
             vendor: None,
             zone: None,
             player: None,
+            memory: None,
         }
     }
 
@@ -238,7 +245,6 @@ impl ObjData {
 pub struct CfgData {
     pub initial_room: StaticId,
     pub avatar_mob: StaticId,
-    pub initial_craft: Option<StaticId>,
     pub money_id: Option<StaticId>,
     pub tick: Option<u32>,
     pub total_time: Option<f64>,

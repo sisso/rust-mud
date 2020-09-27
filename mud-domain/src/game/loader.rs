@@ -275,7 +275,9 @@ impl Loader {
                 _ => {}
             }
 
-            container.astro_bodies.insert(body).unwrap();
+            if let Some(old_value) = container.astro_bodies.upsert(body) {
+                warn!("{:?} already have a astro_body: {:?}", obj_id, old_value);
+            }
         }
 
         if let Some(_craft) = &data.craft {
@@ -451,6 +453,17 @@ impl Loader {
             container
                 .players
                 .create(player_id, player_data.login.clone(), avatar_id);
+        }
+
+        if let Some(memory) = &data.memory {
+            container.memories.add_all(
+                obj_id,
+                memory
+                    .knows
+                    .iter()
+                    .map(|static_id| get_ref!(*static_id))
+                    .collect(),
+            );
         }
 
         if let Some(children) = data.children.clone() {
@@ -684,8 +697,6 @@ impl Loader {
             initial_room: container.config.initial_room.unwrap().into(),
             // TODO should be option
             avatar_mob: container.config.avatar_id.unwrap(),
-            // TODO: where it is configured?
-            initial_craft: None,
             money_id: container.config.money_id,
             tick: Some(container.time.tick.as_u32()),
             total_time: Some(container.time.total.as_seconds_f64()),
@@ -913,6 +924,12 @@ impl Loader {
             obj_data.craft = Some(CraftData {});
         }
 
+        if let Some(memory) = container.memories.get(id) {
+            obj_data.memory = Some(MemoryData {
+                knows: memory.know_ids.iter().map(|id| id.into()).collect(),
+            });
+        }
+
         Ok(obj_data)
     }
 
@@ -933,7 +950,6 @@ impl Loader {
             Some(CfgData {
                 initial_room,
                 avatar_mob,
-                initial_craft: _,
                 money_id,
                 tick,
                 total_time,

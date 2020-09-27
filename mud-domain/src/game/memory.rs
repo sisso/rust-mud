@@ -4,10 +4,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::collections::{HashMap, HashSet};
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
 pub struct Memory {
-    id: ObjId,
-    know_ids: HashSet<ObjId>,
+    pub id: ObjId,
+    pub know_ids: HashSet<ObjId>,
 }
 
 impl Memory {
@@ -31,11 +31,21 @@ impl Memories {
         }
     }
 
+    pub fn get(&self, id: ObjId) -> Option<&Memory> {
+        self.index.get(&id)
+    }
+
     pub fn is_know(&self, obj_id: ObjId, other_id: ObjId) -> bool {
         self.index
             .get(&obj_id)
             .map(|memory| memory.know_ids.contains(&other_id))
             .unwrap_or(false)
+    }
+
+    pub fn add_all(&mut self, obj_id: ObjId, others_id: Vec<ObjId>) -> Result<()> {
+        let memory = self.index.entry(obj_id).or_insert(Memory::new(obj_id));
+        memory.know_ids.extend(others_id);
+        Ok(())
     }
 
     pub fn add(&mut self, obj_id: ObjId, other_id: ObjId) -> Result<()> {

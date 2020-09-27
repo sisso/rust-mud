@@ -64,12 +64,7 @@ pub fn create_player(container: &mut Container, login: &str) -> Result<PlayerId>
         .players
         .create(player_id, login.to_string(), mob_id);
 
-    container.labels.update(Label {
-        id: player_id,
-        label: login.to_string(),
-        code: login.to_string(),
-        desc: format!("Player {}", login),
-    });
+    container.labels.add(Label::new(player_id, login));
 
     Ok(player.id)
 }

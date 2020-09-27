@@ -134,6 +134,16 @@ fn test_fly_to_and_land() {
 }
 
 #[test]
+fn test_launch_land_and_launch() {
+    let mut scenery = TestScenery::new_landed_with_ship();
+    scenery.login();
+
+    move_to_space(&mut scenery);
+    land_at(&mut scenery, "Landing Pad");
+    move_to_space(&mut scenery);
+}
+
+#[test]
 fn test_jump_to_sector_2() {
     let mut scenery = TestScenery::new_sectors_with_jump();
     let scenery = &mut scenery;
@@ -151,17 +161,21 @@ fn fly_and_land_at_jumanji(scenery: &mut TestScenery) {
     assert_ship_in_orbit_sol(scenery);
     scenery.wait_for("command complete");
 
-    scenery.send_input("land");
-    scenery.wait_for("Landing Pad");
-
-    scenery.send_input("land landing pad");
-    scenery.wait_for("landing complete");
+    land_at(scenery, "Landing Pad");
 }
 
 fn move_to_space(scenery: &mut TestScenery) {
     go_to_landing_pad(scenery);
     enter_ship_and_move_to_cockpit(scenery);
     launch_ship(scenery);
+}
+
+fn land_at(scenery: &mut TestScenery, place: &str) {
+    scenery.send_input("land");
+    scenery.wait_for(place);
+
+    scenery.send_input(&format!("land {}", place));
+    scenery.wait_for("landing complete");
 }
 
 fn launch_ship(scenery: &mut TestScenery) {

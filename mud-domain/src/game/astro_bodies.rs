@@ -80,24 +80,9 @@ impl AstroBodies {
         }
     }
 
-    pub fn insert(&mut self, value: AstroBody) -> Result<()> {
-        if self.index.contains_key(&value.id) {
-            return Err(Error::ConflictException);
-        }
-
-        info!("{:?} insert {:?}", value.id, value);
-        self.index.insert(value.id, value);
-        Ok(())
-    }
-
-    pub fn update(&mut self, value: AstroBody) -> Result<()> {
-        if !self.index.contains_key(&value.id) {
-            return Err(Error::ConflictException);
-        }
-
-        info!("{:?} update {:?}", value.id, value);
-        self.index.insert(value.id, value);
-        Ok(())
+    pub fn upsert(&mut self, value: AstroBody) -> Option<AstroBody> {
+        info!("{:?} upsert {:?}", value.id, value);
+        self.index.insert(value.id, value)
     }
 
     pub fn remove(&mut self, id: AstroBodyId) -> Option<AstroBody> {
@@ -273,25 +258,25 @@ mod test {
         locations.set(4.into(), 0.into());
         locations.set(5.into(), 4.into());
         astros
-            .insert(AstroBody::new(0.into(), 0.0, AstroBodyKind::Star))
+            .upsert(AstroBody::new(0.into(), 0.0, AstroBodyKind::Star))
             .unwrap();
         astros
-            .insert(AstroBody::new(1.into(), 10.0, AstroBodyKind::Planet))
+            .upsert(AstroBody::new(1.into(), 10.0, AstroBodyKind::Planet))
             .unwrap();
         astros
-            .insert(AstroBody::new(2.into(), 2.0, AstroBodyKind::Moon))
+            .upsert(AstroBody::new(2.into(), 2.0, AstroBodyKind::Moon))
             .unwrap();
         astros
-            .insert(AstroBody::new(3.into(), 1.0, AstroBodyKind::Ship))
+            .upsert(AstroBody::new(3.into(), 1.0, AstroBodyKind::Ship))
             .unwrap();
         astros
-            .insert(AstroBody::new(4.into(), 20.0, AstroBodyKind::Planet))
+            .upsert(AstroBody::new(4.into(), 20.0, AstroBodyKind::Planet))
             .unwrap();
         astros
-            .insert(AstroBody::new(5.into(), 2.0, AstroBodyKind::Station))
+            .upsert(AstroBody::new(5.into(), 2.0, AstroBodyKind::Station))
             .unwrap();
         astros
-            .insert(AstroBody::new(6.into(), 4.0, AstroBodyKind::Moon))
+            .upsert(AstroBody::new(6.into(), 4.0, AstroBodyKind::Moon))
             .unwrap();
     }
 
@@ -304,16 +289,16 @@ mod test {
         locations.set(2.into(), 1.into());
         locations.set(3.into(), 0.into());
         astros
-            .insert(AstroBody::new(0.into(), 0.0, AstroBodyKind::Star))
+            .upsert(AstroBody::new(0.into(), 0.0, AstroBodyKind::Star))
             .unwrap();
         astros
-            .insert(AstroBody::new(1.into(), 10.0, AstroBodyKind::Planet))
+            .upsert(AstroBody::new(1.into(), 10.0, AstroBodyKind::Planet))
             .unwrap();
         astros
-            .insert(AstroBody::new(2.into(), 1.0, AstroBodyKind::Ship))
+            .upsert(AstroBody::new(2.into(), 1.0, AstroBodyKind::Ship))
             .unwrap();
         astros
-            .insert(AstroBody::new(3.into(), 20.0, AstroBodyKind::Planet))
+            .upsert(AstroBody::new(3.into(), 20.0, AstroBodyKind::Planet))
             .unwrap();
     }
 
@@ -367,7 +352,7 @@ mod test {
         // put ship in orbit of main body
         locations.set(2.into(), 0.into());
         astros
-            .update(AstroBody::new(2.into(), 14.0, AstroBodyKind::Ship))
+            .upsert(AstroBody::new(2.into(), 14.0, AstroBodyKind::Ship))
             .unwrap();
 
         // compute travel to planet 1

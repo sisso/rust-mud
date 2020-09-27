@@ -7,6 +7,7 @@ use crate::utils::geometry;
 use commons::{DeltaTime, TotalTime};
 use logs::*;
 
+const DEFAULT_TIME: f32 = 1.0;
 const TRANSFER_TIME: f32 = 2.0;
 const SHIP_SPEED: f32 = 5.0;
 
@@ -23,6 +24,7 @@ pub fn tick(container: &mut Container) {
         let ship_id = ship.id;
 
         if ship.command.is_running(total_time) {
+            // when command is running
             match &ship.command {
                 ShipCommand::MoveTo {
                     state:
@@ -50,6 +52,7 @@ pub fn tick(container: &mut Container) {
             };
             continue;
         } else {
+            // when command is not runnnig
             match &mut ship.command {
                 ShipCommand::Idle => {}
 
@@ -168,7 +171,7 @@ pub fn tick(container: &mut Container) {
                         ship.command = ShipCommand::Launch {
                             target_id: *target_id,
                             state: LaunchState::Ignition {
-                                complete_time: total_time + DeltaTime(0.5),
+                                complete_time: total_time + DeltaTime(DEFAULT_TIME),
                             },
                         };
 
@@ -187,16 +190,15 @@ pub fn tick(container: &mut Container) {
                         let orbit_distance = parent_body.get_low_orbit();
                         let body = AstroBody::new(ship_id, orbit_distance, AstroBodyKind::Ship);
 
-                        if let Err(error) = astros.insert(body) {
-                            warn!("{:?} launch fail to set ship orbit: {:?}", ship_id, error);
-                            continue;
+                        if let Some(old_value) = astros.upsert(body) {
+                            warn!("{:?} obj with already existent astro_body when entering in orbit{:?}", ship_id, old_value);
                         };
 
                         // update command
                         ship.command = ShipCommand::Launch {
                             target_id: *target_id,
                             state: LaunchState::Ascending {
-                                complete_time: total_time + DeltaTime(0.5),
+                                complete_time: total_time + DeltaTime(DEFAULT_TIME),
                             },
                         };
 
@@ -216,7 +218,7 @@ pub fn tick(container: &mut Container) {
                         ship.command = ShipCommand::Launch {
                             target_id: *target_id,
                             state: LaunchState::Circularization {
-                                complete_time: total_time + DeltaTime(0.5),
+                                complete_time: total_time + DeltaTime(DEFAULT_TIME),
                             },
                         };
 
@@ -239,14 +241,20 @@ pub fn tick(container: &mut Container) {
                                 target_id: *target_id,
                                 state: LandState::Running {
                                     stage: 0,
-                                    complete_time: total_time + DeltaTime(0.5),
+                                    complete_time: total_time + DeltaTime(DEFAULT_TIME),
                                 },
                             };
                         }
 
-                        LandState::Running { stage: stage, .. } if *stage >= 4 => {
+                        // landing complete
+                        LandState::Running { stage, .. } if *stage >= 4 => {
                             // update location
                             locations.set(ship_id, *target_id);
+
+                            // remove astro
+                            if astros.remove(ship_id).is_none() {
+                                warn!("{:?} ship landed but was not in astro_bodies", ship_id);
+                            }
 
                             // collect labels
                             let ship_label = labels.get_label(ship_id).unwrap();
@@ -268,13 +276,9 @@ pub fn tick(container: &mut Container) {
                         }
 
                         LandState::Running {
-                            stage: stage,
+                            stage,
                             complete_time,
                         } => {
-                            // update command
-                            *stage += 1;
-                            *complete_time = total_time + DeltaTime(0.5);
-
                             // send messages
                             let msg = match *stage {
                                 0 => comm::space_land_retroburn(),
@@ -286,6 +290,10 @@ pub fn tick(container: &mut Container) {
                                     continue;
                                 }
                             };
+
+                            // update command
+                            *stage += 1;
+                            *complete_time = total_time + DeltaTime(DEFAULT_TIME);
 
                             container.outputs.broadcast_all(None, ship_id, msg);
                         }
@@ -322,7 +330,7 @@ pub fn tick(container: &mut Container) {
                         ship.command = ShipCommand::Idle;
                     } else {
                         *stage += 1;
-                        *complete_time = total_time + DeltaTime(0.5);
+                        *complete_time = total_time + DeltaTime(DEFAULT_TIME);
                     }
                 }
             }
