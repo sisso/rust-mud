@@ -463,7 +463,7 @@ impl Loader {
                     .iter()
                     .map(|static_id| get_ref!(*static_id))
                     .collect(),
-            );
+            )?;
         }
 
         if let Some(children) = data.children.clone() {

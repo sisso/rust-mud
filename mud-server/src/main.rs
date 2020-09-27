@@ -9,7 +9,6 @@ use logs::*;
 use std::process::exit;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-use std::{thread, time::Duration};
 
 pub mod game_server;
 

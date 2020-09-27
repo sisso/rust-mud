@@ -323,25 +323,52 @@ pub fn enter_do(container: &mut Container, mob_id: MobId, target_id: ObjId) -> R
     }
 }
 
-pub fn out(container: &mut Container, mob_id: MobId) -> Result<()> {
-    let location_id = container.locations.get(mob_id).as_result()?;
+pub struct OutTarget {
+    /// room where object is
+    pub location_id: ObjId,
+    /// parent of the room where object is, what object is getting out
+    pub from_id: ObjId,
+    /// to what room object will go when exit
+    pub target_id: ObjId,
+}
 
-    let can_exit = container.rooms.get(location_id).as_result()?.can_exit;
+/// Return Some ( object_that_mob_exit, new_location_where_mob_will_be)
+pub fn get_out_target(container: &Container, mob_id: MobId) -> Option<OutTarget> {
+    let location_id = container.locations.get(mob_id)?;
+
+    let can_exit = container.rooms.get(location_id)?.can_exit;
 
     if !can_exit {
-        container.outputs.private(mob_id, comm::out_fail());
-        return Err(Error::InvalidArgumentFailure);
+        return None;
     }
 
     let parents = container.locations.list_parents(location_id);
-    let from_id = parents.get(0).cloned().as_result()?;
+    let from_id = parents.get(0).cloned()?;
+
     let target_id = parents
         .iter()
         .filter(|&&id| container.rooms.exists(id))
         .next()
         .cloned();
 
-    if let Some(target_id) = target_id {
+    target_id.map(|target_id| OutTarget {
+        location_id,
+        from_id,
+        target_id,
+    })
+}
+
+pub fn can_out(container: &Container, mob_id: MobId) -> bool {
+    get_out_target(container, mob_id).is_some()
+}
+
+pub fn out(container: &mut Container, mob_id: MobId) -> Result<()> {
+    if let Some(OutTarget {
+        location_id,
+        from_id,
+        target_id,
+    }) = get_out_target(container, mob_id)
+    {
         let from_label = container.labels.get_label_f(from_id);
         let mob_label = container.labels.get_label_f(mob_id);
 

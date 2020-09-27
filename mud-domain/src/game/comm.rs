@@ -63,12 +63,17 @@ pub fn look_description(container: &Container, mob_id: MobId) -> Result<String> 
 
     let mut buffer = vec![];
 
-    let exits = room
+    let mut exit_list = room
         .exits
         .iter()
         .map(|(dir, _)| dir.as_str())
-        .collect::<Vec<&str>>()
-        .join(", ");
+        .collect::<Vec<&str>>();
+
+    if super::actions::can_out(container, mob_id) {
+        exit_list.push("exit");
+    }
+
+    let exits = exit_list.join(", ");
 
     let room_label = container.labels.get(room.id).unwrap();
     buffer.push(format!("[{}] - {}", room_label.label, exits));
