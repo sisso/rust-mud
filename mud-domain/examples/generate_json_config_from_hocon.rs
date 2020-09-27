@@ -5,7 +5,6 @@ use serde_json;
 use std::env;
 use std::error::Error;
 
-use std::io::Write;
 use std::path::Path;
 
 fn usage() {

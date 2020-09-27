@@ -3,7 +3,7 @@ use mud_domain::game::container::Container;
 use mud_domain::game::{loader, Game, GameCfg};
 use std::path::Path;
 
-const delta_time: DeltaTime = DeltaTime(0.5);
+const DELTA_TIME: DeltaTime = DeltaTime(0.5);
 
 #[test]
 fn test_admin_menu() {
@@ -17,17 +17,17 @@ fn test_admin_menu() {
     load_admin(&mut game, connection_id);
 
     game.handle_input(connection_id, "list");
-    game.tick(delta_time);
+    game.tick(DELTA_TIME);
     let outputs = game.flush_outputs();
     assert_contains(outputs, "player1");
 
     game.handle_input(connection_id, "get 1");
-    game.tick(delta_time);
+    game.tick(DELTA_TIME);
     let outputs = game.flush_outputs();
     assert_contains(outputs, "void");
 
     game.handle_input(connection_id, "ls p mob");
-    game.tick(delta_time);
+    game.tick(DELTA_TIME);
     let outputs = game.flush_outputs();
     assert_contains(outputs, "God");
 }
@@ -49,7 +49,7 @@ fn test_admin_verify_with_valid_input() {
         "label": "not very well defined object"
     }"#,
     );
-    game.tick(delta_time);
+    game.tick(DELTA_TIME);
 
     let outputs = game.flush_outputs();
     assert_contains(outputs, "not very well defined object");
@@ -72,7 +72,7 @@ fn test_admin_verify_with_invalid_input() {
         "label": "not very well defined object
     }"#,
     );
-    game.tick(delta_time);
+    game.tick(DELTA_TIME);
 
     let outputs = game.flush_outputs();
     assert_contains(outputs, "fail");
@@ -80,7 +80,7 @@ fn test_admin_verify_with_invalid_input() {
 
 fn load_admin(game: &mut Game, connection_id: ConnectionId) {
     game.handle_input(connection_id, "admin");
-    game.tick(delta_time);
+    game.tick(DELTA_TIME);
     let outputs = game.flush_outputs();
     assert_contains(outputs, "admin");
 }
@@ -103,7 +103,7 @@ fn test_admin_add_obj() {
         "room": {}
     }"#,
     );
-    game.tick(delta_time);
+    game.tick(DELTA_TIME);
     let outputs = game.flush_outputs();
     assert_contains(outputs, "created");
 
@@ -131,12 +131,12 @@ fn test_admin_add_prefab() {
     }"#,
     );
 
-    game.tick(delta_time);
+    game.tick(DELTA_TIME);
     let outputs = game.flush_outputs();
     assert_contains(outputs, "created");
 
     game.handle_input(connection_id, "ls p");
-    game.tick(delta_time);
+    game.tick(DELTA_TIME);
     let outputs = game.flush_outputs();
     assert_contains(outputs, "New room");
 }
@@ -144,15 +144,14 @@ fn test_admin_add_prefab() {
 fn login(game: &mut Game, connection_id: ConnectionId) {
     game.add_connection(connection_id);
     game.handle_input(connection_id, "player1");
-    game.tick(delta_time);
+    game.tick(DELTA_TIME);
     let _ = game.flush_outputs();
 }
 
 fn setup() -> Game {
     let mut container = Container::new();
     loader::Loader::load_folders(&mut container, &Path::new("../data/min")).unwrap();
-    let mut game = Game::new(GameCfg::new(), container);
-    game
+    Game::new(GameCfg::new(), container)
 }
 
 fn assert_contains(outputs: Vec<(ConnectionId, String)>, s: &str) {
@@ -169,7 +168,7 @@ fn assert_contains(outputs: Vec<(ConnectionId, String)>, s: &str) {
 
 fn input_and_assert(game: &mut Game, connection_id: ConnectionId, input: &str, expected: &str) {
     game.handle_input(connection_id, input);
-    game.tick(delta_time);
+    game.tick(DELTA_TIME);
     let outputs = game.flush_outputs();
     assert_contains(outputs, expected);
 }
