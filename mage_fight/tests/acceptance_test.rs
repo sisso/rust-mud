@@ -1,7 +1,4 @@
-use mage_fight::{
-    console,
-    domain::{Command, Dir, Game},
-};
+use mage_fight::{console, domain::Game};
 
 #[test]
 fn acceptance_test() {

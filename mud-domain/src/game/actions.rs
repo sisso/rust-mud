@@ -94,10 +94,31 @@ use std::process::id;
 //     },
 // }
 
+fn look_description(container: &Container, mob_id: MobId) -> Result<String> {
+    let room_id = container.locations.get(mob_id).as_result()?;
+    let room = container.rooms.get(room_id).as_result()?;
+    let room_label = container.labels.get(room_id).as_result()?;
+    let can_exit = super::actions::can_out(container, mob_id);
+
+    let visible_objects = comm::get_visible_objects(container, mob_id, room.id);
+    let visible_labels = visible_objects
+        .iter()
+        .flat_map(|obj_id| container.labels.get_label(*obj_id))
+        .collect();
+
+    comm::look_description(
+        &room_label.label,
+        &room_label.desc,
+        room.exits.iter().cloned().map(|(dir, _)| dir).collect(),
+        can_exit,
+        visible_labels,
+    )
+}
+
 pub fn look(container: &mut Container, mob_id: MobId) -> Result<()> {
     container
         .outputs
-        .private(mob_id, comm::look_description(container, mob_id)?);
+        .private(mob_id, look_description(container, mob_id)?);
     Ok(())
 }
 
@@ -142,7 +163,7 @@ pub fn mv(container: &mut Container, mob_id: MobId, dir: Dir) -> Result<()> {
                 let mob_label = container.labels.get_label_f(mob_id);
 
                 // TODO: maybe exclude output for people in the same group?
-                let look = comm::look_description(&container, mob_id).unwrap();
+                let look = look_description(&container, mob_id).unwrap();
                 let privte_msg = format!("{}\n\n{}", comm::move_you_move(&dir), look);
                 let enter_room_msg = comm::move_come(mob_label, &dir.inv());
                 let exit_room_msg = comm::move_goes(mob_label, &dir);
@@ -301,7 +322,7 @@ pub fn enter_do(container: &mut Container, mob_id: MobId, target_id: ObjId) -> R
                 .private(mob_id, comm::enter_player(target_label));
             container
                 .outputs
-                .private(mob_id, comm::look_description(&container, mob_id).unwrap());
+                .private(mob_id, look_description(&container, mob_id).unwrap());
             container.outputs.broadcast(
                 Some(mob_id),
                 current_location,
@@ -379,7 +400,7 @@ pub fn out(container: &mut Container, mob_id: MobId) -> Result<()> {
         container.outputs.private(mob_id, comm::out_player());
         container
             .outputs
-            .private(mob_id, comm::look_description(&container, mob_id).unwrap());
+            .private(mob_id, look_description(&container, mob_id).unwrap());
         container
             .outputs
             .broadcast(Some(mob_id), location_id, comm::out_others(mob_label));

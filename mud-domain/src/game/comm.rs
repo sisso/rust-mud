@@ -6,7 +6,7 @@ use crate::errors::{AsResult, Result};
 use crate::game::astro_bodies::{AstroBodyKind, DistanceMkm};
 use crate::game::obj::Obj;
 use crate::game::prices::Money;
-use crate::game::room::Room;
+use crate::game::room::{Room, RoomId};
 use crate::utils::text::{plot_points, PlotCfg, PlotPoint};
 use commons::{ObjId, TotalTime, V2};
 use logs::*;
@@ -24,6 +24,15 @@ pub fn is_visible(container: &Container, obj_id: ObjId) -> bool {
     container.mobs.exists(obj_id)
         || container.items.exists(obj_id)
         || container.ships.exists(obj_id)
+}
+
+pub fn get_visible_objects(container: &Container, mob_id: MobId, room_id: RoomId) -> Vec<ObjId> {
+    container
+        .locations
+        .list_at(room_id)
+        .filter(|id| *id != mob_id)
+        .filter(|id| is_visible(container, *id))
+        .collect()
 }
 
 pub fn help() -> String {
@@ -56,43 +65,27 @@ pub fn help() -> String {
     str.to_string()
 }
 
-// TODO no comm file should receive container
-pub fn look_description(container: &Container, mob_id: MobId) -> Result<String> {
-    let room_id = container.locations.get(mob_id).as_result()?;
-    let room = container.rooms.get(room_id).as_result()?;
-
+pub fn look_description(
+    room_label: &str,
+    room_desc: &str,
+    exits: Vec<Dir>,
+    can_exit: bool,
+    visible_objects: Vec<&str>,
+) -> Result<String> {
     let mut buffer = vec![];
 
-    let mut exit_list = room
-        .exits
-        .iter()
-        .map(|(dir, _)| dir.as_str())
-        .collect::<Vec<&str>>();
+    let mut exit_list = exits.iter().map(|dir| dir.as_str()).collect::<Vec<&str>>();
 
-    if super::actions::can_out(container, mob_id) {
+    if can_exit {
         exit_list.push("exit");
     }
 
     let exits = exit_list.join(", ");
 
-    let room_label = container.labels.get(room.id).unwrap();
-    buffer.push(format!("[{}] - {}", room_label.label, exits));
-    buffer.push(format!("{}", room_label.desc));
+    buffer.push(format!("[{}] - {}", room_label, exits));
+    buffer.push(format!("{}", room_desc));
 
-    for obj_id in container.locations.list_at(room_id) {
-        if obj_id == mob_id {
-            continue;
-        }
-
-        if !is_visible(container, obj_id) {
-            continue;
-        }
-
-        let label = match container.labels.get(obj_id) {
-            Some(lab) => &lab.label,
-            _ => continue,
-        };
-
+    for label in visible_objects {
         buffer.push(format!("- {}", label));
     }
 
