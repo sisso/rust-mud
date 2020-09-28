@@ -2,8 +2,8 @@
   "cfg": {
     "avatar_mob": 6,
     "initial_room": 2,
-    "tick": 8707,
-    "total_time": 870.700012974441
+    "tick": 10086,
+    "total_time": 1008.6000150293112
   },
   "objects": {
     "0": {
@@ -95,12 +95,12 @@
       "label": "sisso",
       "memory": {
         "knows": [
-          3,
-          100001,
-          2,
-          100003,
           4,
-          100002
+          3,
+          100002,
+          2,
+          100001,
+          100003
         ]
       },
       "mob": {
@@ -112,21 +112,6 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 100003
-    },
-    "100006": {
-      "id": 100006,
-      "label": "Good Vendor",
-      "mob": {
-        "attack": 10,
-        "damage_max": 2,
-        "damage_min": 1,
-        "defense": 10,
-        "pv": 10,
-        "pv_max": 10,
-        "xp": 10
-      },
-      "owned_by": 38,
       "parent": 4
     },
     "100007": {
@@ -145,10 +130,11 @@
       "label": "other",
       "memory": {
         "knows": [
+          100001,
+          100003,
           3,
           2,
           100002,
-          100003,
           4
         ]
       },
@@ -161,7 +147,39 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 100003
+      "parent": 4
+    },
+    "100009": {
+      "id": 100009,
+      "label": "Ore Vendor",
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 10
+      },
+      "owned_by": 39,
+      "parent": 21,
+      "vendor": {}
+    },
+    "100010": {
+      "id": 100010,
+      "label": "Good Vendor",
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 10
+      },
+      "owned_by": 38,
+      "parent": 4,
+      "vendor": {}
     },
     "16": {
       "id": 16,
@@ -325,7 +343,7 @@
       "parent": 4,
       "spawn": {
         "max": 1,
-        "next_spawn": 988.9828599244356,
+        "next_spawn": 1334.0018152743578,
         "prefab_id": 36,
         "time_max": 360.0,
         "time_min": 60.0
@@ -337,7 +355,7 @@
       "parent": 21,
       "spawn": {
         "max": 1,
-        "next_spawn": 932.116401784122,
+        "next_spawn": 1128.2336442619562,
         "prefab_id": 37,
         "time_max": 360.0,
         "time_min": 60.0

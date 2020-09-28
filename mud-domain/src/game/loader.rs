@@ -961,6 +961,10 @@ impl Loader {
             });
         }
 
+        if let Some(vendor) = container.vendors.get(id) {
+            obj_data.vendor = Some(VendorData {});
+        }
+
         Ok(obj_data)
     }
 
@@ -1302,6 +1306,16 @@ prefabs.control_panel_command_2 {
         let mut data = ObjData::new();
         data.id = Some(StaticId(0));
         data.craft = Some(CraftData {});
+
+        let result = load_and_snapshot(data.clone());
+        assert_data_eq(data, result);
+    }
+
+    #[test]
+    fn test_serialize_vendor() {
+        let mut data = ObjData::new();
+        data.id = Some(StaticId(0));
+        data.vendor = Some(VendorData {});
 
         let result = load_and_snapshot(data.clone());
         assert_data_eq(data, result);

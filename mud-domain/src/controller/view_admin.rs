@@ -26,7 +26,7 @@ pub fn handle(
     match input.get_command() {
         "help" => {
             outputs.push("Available commands:".into());
-            outputs.push("list get update exit".into());
+            outputs.push("list get update remove exit".into());
             outputs.push("".into());
             Ok(ConnectionViewAction::None)
         }
@@ -43,6 +43,11 @@ pub fn handle(
 
         "add" => {
             handle_add(container, outputs, input)?;
+            Ok(ConnectionViewAction::None)
+        }
+
+        "remove" => {
+            handle_remove(container, outputs, input)?;
             Ok(ConnectionViewAction::None)
         }
 
@@ -375,4 +380,22 @@ fn print_deep(
     for child in children {
         print_deep(filters, outputs, deep + 1, child, data_by_id, tree);
     }
+}
+
+fn handle_remove(
+    container: &mut Container,
+    outputs: &mut Vec<String>,
+    input: StrInput,
+) -> Result<()> {
+    let id = match input.parse_arguments().get(0).map(|s| s.parse()) {
+        Some(Ok(id)) => ObjId(id),
+        _ => {
+            outputs.push(format!("invalid number argument"));
+            return Ok(());
+        }
+    };
+
+    container.remove(id);
+    outputs.push(format!("object {} removed", id.as_u32()));
+    Ok(())
 }
