@@ -1,0 +1,492 @@
+{
+  "cfg": {
+    "avatar_mob": 6,
+    "initial_room": 2,
+    "tick": 8707,
+    "total_time": 870.700012974441
+  },
+  "objects": {
+    "0": {
+      "code": [
+        "sector1"
+      ],
+      "id": 0,
+      "label": "Sector 1",
+      "sector": {}
+    },
+    "1": {
+      "astro_body": {
+        "kind": "planet",
+        "orbit_distance": 150.0
+      },
+      "id": 1,
+      "label": "Dune",
+      "parent": 19
+    },
+    "100000": {
+      "code": [
+        "transport"
+      ],
+      "craft": {},
+      "desc": "Small cargo craft designed to deliver small amount of cargo",
+      "id": 100000,
+      "label": "Light Transport",
+      "parent": 3
+    },
+    "100001": {
+      "desc": "Craft airlock",
+      "id": 100001,
+      "label": "Airlock",
+      "parent": 100000,
+      "room": {
+        "can_exit": true,
+        "exits": [
+          {
+            "dir": "n",
+            "to": 100002
+          }
+        ]
+      }
+    },
+    "100002": {
+      "desc": "Cargo storage.",
+      "id": 100002,
+      "label": "Cargo Storage",
+      "parent": 100000,
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 100003
+          },
+          {
+            "dir": "s",
+            "to": 100001
+          }
+        ]
+      }
+    },
+    "100003": {
+      "desc": "Craft bridge.",
+      "id": 100003,
+      "label": "Bridge",
+      "parent": 100000,
+      "room": {
+        "exits": [
+          {
+            "dir": "s",
+            "to": 100002
+          }
+        ]
+      }
+    },
+    "100004": {
+      "id": 100004,
+      "label": "Player sisso",
+      "player": {
+        "avatar_id": 100005,
+        "id": 100004,
+        "login": "sisso"
+      }
+    },
+    "100005": {
+      "desc": "sisso",
+      "id": 100005,
+      "label": "sisso",
+      "memory": {
+        "knows": [
+          3,
+          100001,
+          2,
+          100003,
+          4,
+          100002
+        ]
+      },
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 0
+      },
+      "parent": 100003
+    },
+    "100006": {
+      "id": 100006,
+      "label": "Good Vendor",
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 10
+      },
+      "owned_by": 38,
+      "parent": 4
+    },
+    "100007": {
+      "desc": "other",
+      "id": 100007,
+      "label": "other",
+      "player": {
+        "avatar_id": 100008,
+        "id": 100007,
+        "login": "other"
+      }
+    },
+    "100008": {
+      "desc": "other",
+      "id": 100008,
+      "label": "other",
+      "memory": {
+        "knows": [
+          3,
+          2,
+          100002,
+          100003,
+          4
+        ]
+      },
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 0
+      },
+      "parent": 100003
+    },
+    "16": {
+      "id": 16,
+      "label": "Palace zone",
+      "parent": 1,
+      "zone": {}
+    },
+    "17": {
+      "astro_body": {
+        "kind": "asteroid_field",
+        "orbit_distance": 180.0
+      },
+      "id": 17,
+      "label": "Asteroid Field",
+      "parent": 19
+    },
+    "18": {
+      "astro_body": {
+        "jump_target_id": 29,
+        "kind": "jump_gate",
+        "orbit_distance": 200.0
+      },
+      "code": [
+        "jump"
+      ],
+      "id": 18,
+      "label": "Jump point",
+      "parent": 19
+    },
+    "19": {
+      "astro_body": {
+        "kind": "star",
+        "orbit_distance": 0.0
+      },
+      "id": 19,
+      "label": "Red Star",
+      "parent": 0
+    },
+    "2": {
+      "desc": "The great Palace of Dune",
+      "id": 2,
+      "label": "Palace",
+      "parent": 16,
+      "room": {
+        "exits": [
+          {
+            "dir": "s",
+            "to": 3
+          }
+        ]
+      }
+    },
+    "20": {
+      "astro_body": {
+        "kind": "station",
+        "orbit_distance": 2.0
+      },
+      "id": 20,
+      "label": "Station",
+      "parent": 1,
+      "pos": {
+        "x": 1.0,
+        "y": 0.0
+      }
+    },
+    "21": {
+      "id": 21,
+      "label": "Station hangar",
+      "parent": 20,
+      "room": {
+        "can_exit": true,
+        "exits": []
+      }
+    },
+    "24": {
+      "code": [
+        "sector2"
+      ],
+      "id": 24,
+      "label": "Sector 2",
+      "sector": {}
+    },
+    "25": {
+      "astro_body": {
+        "kind": "star",
+        "orbit_distance": 0.0
+      },
+      "id": 25,
+      "label": "Yellow Star",
+      "parent": 24
+    },
+    "26": {
+      "astro_body": {
+        "kind": "asteroid_field",
+        "orbit_distance": 40.0
+      },
+      "id": 26,
+      "label": "Asteroid Field",
+      "parent": 25
+    },
+    "29": {
+      "astro_body": {
+        "jump_target_id": 18,
+        "kind": "jump_gate",
+        "orbit_distance": 200.0
+      },
+      "code": [
+        "jump"
+      ],
+      "id": 29,
+      "label": "Jump Point",
+      "parent": 25
+    },
+    "3": {
+      "desc": "City landing pad.",
+      "id": 3,
+      "label": "Landing Pad",
+      "parent": 16,
+      "room": {
+        "can_exit": true,
+        "exits": [
+          {
+            "dir": "n",
+            "to": 2
+          },
+          {
+            "dir": "s",
+            "to": 4
+          }
+        ]
+      }
+    },
+    "31": {
+      "astro_body": {
+        "kind": "planet",
+        "orbit_distance": 80.0
+      },
+      "id": 31,
+      "label": "Jumanji",
+      "parent": 19
+    },
+    "32": {
+      "id": 32,
+      "label": "Jungle Landing Zone",
+      "parent": 31,
+      "zone": {}
+    },
+    "33": {
+      "desc": "Jungle landing pad",
+      "id": 33,
+      "label": "Landing Pad",
+      "parent": 32,
+      "room": {
+        "can_exit": true,
+        "exits": []
+      }
+    },
+    "38": {
+      "id": 38,
+      "label": "Goods vendor spawn",
+      "parent": 4,
+      "spawn": {
+        "max": 1,
+        "next_spawn": 988.9828599244356,
+        "prefab_id": 36,
+        "time_max": 360.0,
+        "time_min": 60.0
+      }
+    },
+    "39": {
+      "id": 39,
+      "label": "Ore vendor spawn",
+      "parent": 21,
+      "spawn": {
+        "max": 1,
+        "next_spawn": 932.116401784122,
+        "prefab_id": 37,
+        "time_max": 360.0,
+        "time_min": 60.0
+      }
+    },
+    "4": {
+      "desc": "The deserts market and city center",
+      "id": 4,
+      "label": "City center",
+      "parent": 16,
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 3
+          }
+        ]
+      }
+    }
+  },
+  "prefabs": {
+    "10": {
+      "code": [
+        "shuttle"
+      ],
+      "craft": {},
+      "desc": "Small shuttle",
+      "id": 10,
+      "label": "Shuttle"
+    },
+    "11": {
+      "desc": "Small cockpit used to control the craft",
+      "id": 11,
+      "label": "Cockpit",
+      "parent": 10,
+      "room": {
+        "can_exit": true
+      }
+    },
+    "12": {
+      "code": [
+        "transport"
+      ],
+      "craft": {},
+      "desc": "Small cargo craft designed to deliver small amount of cargo",
+      "id": 12,
+      "label": "Light Transport"
+    },
+    "13": {
+      "desc": "Craft bridge.",
+      "id": 13,
+      "label": "Bridge",
+      "parent": 12,
+      "room": {
+        "exits": [
+          {
+            "dir": "s",
+            "to": 14
+          }
+        ]
+      }
+    },
+    "14": {
+      "desc": "Cargo storage.",
+      "id": 14,
+      "label": "Cargo Storage",
+      "parent": 12,
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 13
+          },
+          {
+            "dir": "s",
+            "to": 15
+          }
+        ]
+      }
+    },
+    "15": {
+      "desc": "Craft airlock",
+      "id": 15,
+      "label": "Airlock",
+      "parent": 12,
+      "room": {
+        "can_exit": true,
+        "exits": [
+          {
+            "dir": "n",
+            "to": 14
+          }
+        ]
+      }
+    },
+    "34": {
+      "desc": "Commercial Goods",
+      "id": 34,
+      "item": {},
+      "label": "Goods"
+    },
+    "35": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 35,
+      "item": {},
+      "label": "Ores"
+    },
+    "36": {
+      "id": 36,
+      "label": "Good Vendor",
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 10
+      },
+      "vendor": {}
+    },
+    "37": {
+      "id": 37,
+      "label": "Ore Vendor",
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 10
+      },
+      "vendor": {}
+    },
+    "6": {
+      "desc": "A normal and boring human being",
+      "id": 6,
+      "label": "Human",
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 0
+      }
+    }
+  },
+  "version": 0
+}

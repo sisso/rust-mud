@@ -166,7 +166,7 @@ fn snapshot_filename(cfg: &ServerConfig, tick: Option<u32>) -> Result<PathBuf> {
 
     let path = match tick {
         Some(tick) => profile_path.join(&format!("snapshot_{}.json", tick)),
-        None => profile_path.join("snapshot.json"),
+        None => profile_path.join("save.json"),
     };
 
     Ok(path)

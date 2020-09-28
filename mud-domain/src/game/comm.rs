@@ -587,8 +587,8 @@ pub fn space_land_complete() -> String {
     "landing complete".to_string()
 }
 
-pub fn space_land_complete_others(_craft_label: &str) -> String {
-    "The {} come from orbit and land".to_string()
+pub fn space_land_complete_others(craft_label: &str) -> String {
+    format!("The {} come from orbit and land", craft_label)
 }
 
 pub fn space_launch_prepare() -> String {
