@@ -495,6 +495,13 @@ impl Loader {
             )?;
         }
 
+        if let Some(tags) = &data.tags {
+            for tag_str in &tags.values {
+                let id = container.tags.get_id(tag_str.as_str());
+                container.tags.add(obj_id, id);
+            }
+        }
+
         if let Some(children) = data.children.clone() {
             for static_id in children.into_iter() {
                 trace!("{:?} spawn children {:?}", obj_id, static_id);
@@ -963,6 +970,19 @@ impl Loader {
 
         if let Some(vendor) = container.vendors.get(id) {
             obj_data.vendor = Some(VendorData {});
+        }
+
+        if let Some(tags) = container.tags.get_tags(id) {
+            let mut values = vec![];
+            for tag_id in tags.iter() {
+                match container.tags.get_str(*tag_id) {
+                    Some(tag_str) => values.push(tag_str.to_string()),
+                    None => {
+                        warn!("could not found tag_id {:?}", tag_id);
+                    }
+                }
+            }
+            obj_data.tags = Some(TagsData { values });
         }
 
         Ok(obj_data)

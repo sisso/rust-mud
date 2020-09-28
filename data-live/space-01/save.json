@@ -455,13 +455,19 @@
       "desc": "Commercial Goods",
       "id": 34,
       "item": {},
-      "label": "Goods"
+      "label": "Goods",
+      "tags": {
+        "values": ["good"]
+      }
     },
     "35": {
       "desc": "Mineral ores extracted directly from earth",
       "id": 35,
       "item": {},
-      "label": "Ores"
+      "label": "Ores",
+      "tags": {
+        "values": ["ore"]
+      }
     },
     "36": {
       "id": 36,

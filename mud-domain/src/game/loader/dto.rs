@@ -189,6 +189,11 @@ pub struct MemoryData {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct TagsData {
+    pub values: Vec<String>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ObjData {
     pub id: Option<StaticId>,
     pub label: Option<String>,
@@ -212,6 +217,7 @@ pub struct ObjData {
     pub zone: Option<ZoneData>,
     pub player: Option<PlayerData>,
     pub memory: Option<MemoryData>,
+    pub tags: Option<TagsData>,
 }
 
 impl ObjData {
@@ -237,6 +243,7 @@ impl ObjData {
             zone: None,
             player: None,
             memory: None,
+            tags: None,
         }
     }
 

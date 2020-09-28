@@ -164,8 +164,4 @@ impl SocketServer {
             inputs: pending_inputs,
         }
     }
-
-    fn clean_output_to_log(s: &str) -> String {
-        s.replace("\n", "\\n")
-    }
 }

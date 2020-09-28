@@ -1,3 +1,15 @@
+# REST Server
+
+A rest server need to be created to allow easy management of game state without directly json manipulation.
+
+/api/v1/objects
+GET  - list objects
+POST - add new object and return new id
+/api/v1/objects/<id>
+GET - get a object
+PUT - override obectj
+PATCH - update a object
+
 # Room.exit
 
 Use room.can_exit to get out of a ship or a ship get in/out of space looks mixing. But not totally wrong, a character
@@ -575,7 +587,7 @@ What if Label only contains label for look and desc for examine?
   object is internal, can not be used with look or examine
 - still don't look good :/
 
-# Item type
+# Item type 
 
 How very specifc items like GOLD?
 
@@ -1046,37 +1058,20 @@ Action - execute the actions and publish events
 
 # Tag
 
-Probably the best way to handle cases like Vendor sell and buy. Even better that using a category.
+Tags can be used to identify objects to create relations. For instance, all items that are ore can have tag "ORE", and
+a vendor can be created to sell "ORE" items tags.
 
-Tags are numeric, the "string" are managed by just configuration files in custom conf file.
+While this can be done by tag, it make mostly pointless as it will have no logic impact.
 
-This will not be a issue when dealing with Modules? Is not exactly the same situation of StaticId in small scale?
+Same could be used for crafting and production.
 
+Tags will not be accessed directly by code like tags.contains("something"), if code need any information, it should
+be defined by a flag.
 
------
+## Implementation
 
-4. HashSet? vector? Or struct?
+String vs ID
 
-3. Tags should be static or dynamic? We want to add logic, too dynamic means that we need to pass global containers
-   to indicate what tags have what beahviours. No sense to keep this dynamic, if a module dont want  ,just don use it.
-   
-So it should be a enum, a custom value can be used for externam moduiles
-
-
-1. Tags can be impelmented a specific service where we create tags
-
-Tag CanBePickUp
-Tag CanHoldItems
-
-And we can set items tags
-
-.set(chets, Tag.CanBePickUp);
-
-2. Or tags can be just generic ObjId and we use location to define objects tags
-
-let can_dock = objects.create();
-
-locations.set(chest_id, can_dock);
-
-- This solution will not work because same object can not belong to multiples locations
+As internally logic do not use strings, it can just operate over ids. When serialize it needs to be converted back to 
+text, will be a pain, but intersting to see.
 
