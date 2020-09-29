@@ -27,53 +27,81 @@ Player can command crew and robots to automate tasks. Or command himself to auto
 - Initially player must manually drag its cargo, one by one
 - A crew member or a drone can be commanded to load/unload the cargo
 
-# Vendor tarde and economy
+# Vendor trade and economy
 
 Each vendor will have a list of trade goods. 
 
-Price are defined as multiplers that multiyply the base price of a item
+Price is a mult from the base item price
 
-- for ore and ingots
-    - it buy at max price of 2.0 when stock is zero
-    - it buy at min price of 0.9 when stock is 1000
-    - the current stock is 300
-    - every 60 seconds, 100 units of stock are removed
+The min and max price depends of amount of stock if full (min price) or empty (max price)
 
+We should be able to define:
 
-    vendor: {
-        trades: 
-            {
-                "items_tag": ["ore", "ignots"],
-                "buy": {
-                    min_mult: 0.9,
-                    max_mult: 2.0
-                },
-                "max_demand": 1000.0,
-                "current_stock": 300.0,
-                "stock_change": {
-                    "seconds": 60.0,
-                    "amount": -100.0
-                }
-            }
-            {
-                "items_tag": ["goods"],
-                "sell": {
-                    min_mult: 0.5,
-                    max_mult: 1.1,
-                },
-                "max_demand": 1000.0,
-                "current_stock": 900.0,
-                "stock_change": {
-                    "seconds": 60.0,
-                    "amount": 100.0
-                }
-            }
-        ]
+- for each item tag
+    - buy min mult and max mult
+    - max stock
+    - current stock
+    - stock change over time
+
+As each trade list can be very complex and have many entries, will be an indirection with empty objects containing
+vendor store configuration, and a vendor can reference it. 
+
+    
+    {
+        id: 1
+        mob: {}
+        vendor: {
+            vendor_config: 2,
+            stock: [
+                {
+                    "tag": "ore_iron",
+                    "current": 300.0
+                }        
+            ]
+        }
     }
-
-## Issues
-
-- should the price be by item_id and not items_tag? Sell all ore in the world should not change the price of gold
+    
+    {
+        id: 2
+        vendor_config: {
+            item_trade: [
+                {
+                    "item_tag": ["cloth"],
+                    "sell": 1.0
+                }
+            ]
+        
+            bulk_trades: [
+                {
+                    "items_tag": ["ore_gold"],
+                    "buy": {
+                        min_mult: 0.9,
+                        max_mult: 2.0
+                    },
+                    "max_demand": 100.0,
+                    "change_per_cycle": -10
+                }
+                {
+                    "items_tag": ["ore_iron", "ore_rust_iron"],
+                    "buy": {
+                        min_mult: 0.9,
+                        max_mult: 2.0
+                    },
+                    "max_demand": 1000.0,
+                    "change_per_cycle": -100
+                }
+                {
+                    "items_tag": ["goods"],
+                    "sell": {
+                        min_mult: 0.5,
+                        max_mult: 1.1,
+                    },
+                    "max_demand": 1000.0,
+                    "change_per_cycle": 10
+                }
+            ]
+        }
+    }
 
 # REST Server
 
