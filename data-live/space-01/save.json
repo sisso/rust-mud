@@ -163,7 +163,9 @@
       },
       "owned_by": 39,
       "parent": 21,
-      "vendor": {}
+      "vendor": {
+        "market_id": 41
+      }
     },
     "100010": {
       "id": 100010,
@@ -179,7 +181,9 @@
       },
       "owned_by": 38,
       "parent": 4,
-      "vendor": {}
+      "vendor": {
+        "market_id": 40
+      }
     },
     "16": {
       "id": 16,
@@ -457,7 +461,7 @@
       "item": {},
       "label": "Goods",
       "tags": {
-        "values": ["good"]
+        "values": ["goods"]
       }
     },
     "35": {
@@ -481,7 +485,9 @@
         "pv_max": 10,
         "xp": 10
       },
-      "vendor": {}
+      "vendor": {
+        "market_id": 40
+      }
     },
     "37": {
       "id": 37,
@@ -495,7 +501,9 @@
         "pv_max": 10,
         "xp": 10
       },
-      "vendor": {}
+      "vendor": {
+        "market_id": 41
+      }
     },
     "6": {
       "desc": "A normal and boring human being",
@@ -509,6 +517,46 @@
         "pv": 10,
         "pv_max": 10,
         "xp": 0
+      }
+    },
+    "40": {
+      "label": "Planet market",
+      "desc": "Buy raw material and sell goods",
+      "market": {
+        "items": [
+          {
+            "items_tag": [
+              "ore"
+            ],
+            "buy_price_mult": 1.2
+          },
+          {
+            "items_tag": [
+              "goods"
+            ],
+            "sell_price_mult": 0.8
+          }
+        ]
+      }
+    },
+    "41": {
+      "label": "Asteroid market",
+      "desc": "Sell raw material and buy goods",
+      "market": {
+        "items": [
+          {
+            "items_tag": [
+              "goods"
+            ],
+            "sell_price_mult": 1.2
+          },
+          {
+            "items_tag": [
+              "ore"
+            ],
+            "sell_price_mult": 0.8
+          }
+        ]
       }
     }
   },

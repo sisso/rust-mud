@@ -969,7 +969,10 @@ impl Loader {
         }
 
         if let Some(vendor) = container.vendors.get(id) {
-            obj_data.vendor = Some(VendorData {});
+            obj_data.vendor = Some(VendorData {
+                market_id: None,
+                stock: None,
+            });
         }
 
         if let Some(tags) = container.tags.get_tags(id) {
@@ -1335,7 +1338,10 @@ prefabs.control_panel_command_2 {
     fn test_serialize_vendor() {
         let mut data = ObjData::new();
         data.id = Some(StaticId(0));
-        data.vendor = Some(VendorData {});
+        data.vendor = Some(VendorData {
+            market_id: None,
+            stock: None,
+        });
 
         let result = load_and_snapshot(data.clone());
         assert_data_eq(data, result);

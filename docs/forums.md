@@ -29,6 +29,12 @@ Player can command crew and robots to automate tasks. Or command himself to auto
 
 # Vendor trade and economy
 
+## Simplification
+
+Just buy and sell by tag, with infinite
+
+## Idea
+
 Each vendor will have a list of trade goods. 
 
 Price is a mult from the base item price

@@ -157,7 +157,44 @@ pub struct PriceData {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct VendorData {}
+pub struct VendorMarketItemData {
+    pub items_tag: Vec<String>,
+    pub buy_price_mult: Option<f32>,
+    pub sell_price_mult: Option<f32>,
+}
+
+// #[derive(Deserialize, Serialize, Debug, Clone)]
+// pub struct VendorMarketBulkMinMaxPriceData {
+//     pub min: f32,
+//     pub max: f32,
+// }
+//
+// #[derive(Deserialize, Serialize, Debug, Clone)]
+// pub struct VendorMarketBulkData {
+//     pub item_tag: Vec<String>,
+//     pub buy: Option<VendorMarketBulkMinMaxPriceData>,
+//     pub sell: Option<VendorMarketBulkMinMaxPriceData>,
+//     pub max_stock: f32,
+//     pub stock_change_per_cycle: f32,
+// }
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct MarketData {
+    items: Vec<VendorMarketItemData>,
+    // bulk: Vec<VendorMarketBulkData>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct VendorStockData {
+    pub item_tag: String,
+    pub amount: f32,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct VendorData {
+    pub market_id: Option<StaticId>,
+    pub stock: Option<Vec<VendorStockData>>,
+}
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct RandomRoomsSpawnData {
@@ -218,6 +255,7 @@ pub struct ObjData {
     pub player: Option<PlayerData>,
     pub memory: Option<MemoryData>,
     pub tags: Option<TagsData>,
+    pub market: Option<MarketData>,
 }
 
 impl ObjData {
@@ -244,6 +282,7 @@ impl ObjData {
             player: None,
             memory: None,
             tags: None,
+            market: None,
         }
     }
 
