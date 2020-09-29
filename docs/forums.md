@@ -1,3 +1,80 @@
+# Mining
+
+Player can buy equipment and deliver to planets/asteroids for mining. Once deliver in some place they will keep
+mining. 
+
+Maybe will require some maitenance like add fuel/power cells
+
+Ore need to be collected from time to time
+
+Surface miners for basic minerals
+
+Deep miners for more rare ones
+
+# Command
+
+Player can command crew and robots to automate tasks. Or command himself to automate some task.
+
+- Move to place 
+- Load cargo
+- Unload cargo
+
+# Load and unloading cargo
+
+- Each item will have weight
+- Large cargo can be dragged by player to move to the Ship
+- Each item should have a drag flag or number
+- Initially player must manually drag its cargo, one by one
+- A crew member or a drone can be commanded to load/unload the cargo
+
+# Vendor tarde and economy
+
+Each vendor will have a list of trade goods. 
+
+Price are defined as multiplers that multiyply the base price of a item
+
+- for ore and ingots
+    - it buy at max price of 2.0 when stock is zero
+    - it buy at min price of 0.9 when stock is 1000
+    - the current stock is 300
+    - every 60 seconds, 100 units of stock are removed
+
+
+    vendor: {
+        trades: 
+            {
+                "items_tag": ["ore", "ignots"],
+                "buy": {
+                    min_mult: 0.9,
+                    max_mult: 2.0
+                },
+                "max_demand": 1000.0,
+                "current_stock": 300.0,
+                "stock_change": {
+                    "seconds": 60.0,
+                    "amount": -100.0
+                }
+            }
+            {
+                "items_tag": ["goods"],
+                "sell": {
+                    min_mult: 0.5,
+                    max_mult: 1.1,
+                },
+                "max_demand": 1000.0,
+                "current_stock": 900.0,
+                "stock_change": {
+                    "seconds": 60.0,
+                    "amount": 100.0
+                }
+            }
+        ]
+    }
+
+## Issues
+
+- should the price be by item_id and not items_tag? Sell all ore in the world should not change the price of gold
+
 # REST Server
 
 A rest server need to be created to allow easy management of game state without directly json manipulation.
