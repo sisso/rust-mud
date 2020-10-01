@@ -157,8 +157,8 @@ pub struct PriceData {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct VendorMarketItemData {
-    pub items_tag: Vec<String>,
+pub struct MarketTradeData {
+    pub tags: Vec<String>,
     pub buy_price_mult: Option<f32>,
     pub sell_price_mult: Option<f32>,
 }
@@ -180,7 +180,7 @@ pub struct VendorMarketItemData {
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct MarketData {
-    items: Vec<VendorMarketItemData>,
+    pub trades: Vec<MarketTradeData>,
     // bulk: Vec<VendorMarketBulkData>,
 }
 

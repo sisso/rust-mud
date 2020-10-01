@@ -112,7 +112,7 @@ pub fn init(container: &mut Container) {
 }
 
 fn create_spawns(
-    rr_id: ObjId,
+    _rr_id: ObjId,
     rng: &mut StdRng,
     objects: &mut Objects,
     locations: &mut Locations,

@@ -32,6 +32,7 @@ use std::path::{Path, PathBuf};
 
 pub mod dto;
 
+use crate::game::market::{Market, MarketTrade};
 use commons::jsons::JsonValueExtra;
 use dto::*;
 use std::io::Write;
@@ -500,6 +501,31 @@ impl Loader {
                 let id = container.tags.get_id(tag_str.as_str());
                 container.tags.add(obj_id, id);
             }
+        }
+
+        if let Some(market_data) = &data.market {
+            let tags = &mut container.tags;
+
+            let market = Market {
+                id: obj_id,
+                trades: market_data
+                    .trades
+                    .iter()
+                    .map(|trade_data| MarketTrade {
+                        tags: trade_data
+                            .tags
+                            .iter()
+                            .map(|tag| tags.get_id(tag.as_str()))
+                            .collect(),
+                        buy_price_mult: trade_data.buy_price_mult,
+                        sell_price_mult: trade_data.sell_price_mult,
+                    })
+                    .collect(),
+            };
+            container
+                .markets
+                .add(market)
+                .expect("fail to insert market");
         }
 
         if let Some(children) = data.children.clone() {
@@ -986,6 +1012,23 @@ impl Loader {
                 }
             }
             obj_data.tags = Some(TagsData { values });
+        }
+
+        if let Some(market) = container.markets.get(id) {
+            obj_data.market = Some(MarketData {
+                trades: market
+                    .trades
+                    .iter()
+                    .map(|trade| MarketTradeData {
+                        tags: container
+                            .tags
+                            .resolve_strings(&trade.tags)
+                            .expect("fail to resolve tags"),
+                        buy_price_mult: trade.buy_price_mult,
+                        sell_price_mult: trade.sell_price_mult,
+                    })
+                    .collect(),
+            });
         }
 
         Ok(obj_data)

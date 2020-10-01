@@ -8,6 +8,7 @@ use crate::game::item::ItemRepository;
 use crate::game::labels::Labels;
 use crate::game::loader::Loader;
 use crate::game::location::Locations;
+use crate::game::market::Markets;
 use crate::game::memory::Memories;
 use crate::game::mob::{MobId, MobRepository};
 use crate::game::obj::Objects;
@@ -62,6 +63,7 @@ pub struct Container {
     pub random_rooms: RandomRoomsRepository,
     pub memories: Memories,
     pub outputs: Outputs,
+    pub markets: Markets,
 }
 
 impl Container {
@@ -95,6 +97,7 @@ impl Container {
             random_rooms: RandomRoomsRepository::new(),
             memories: Memories::new(),
             outputs: Outputs::new(),
+            markets: Markets::new(),
         }
     }
 
@@ -112,6 +115,8 @@ impl Container {
         self.prices.remove(obj_id);
         self.ownership.remove_owner(obj_id);
         self.astro_bodies.remove(obj_id);
+        self.markets.remove(obj_id);
+        self.memories.remove(obj_id);
     }
 
     pub fn get_mob_ctx(&self, mob_id: MobId) -> Option<MobCtx> {

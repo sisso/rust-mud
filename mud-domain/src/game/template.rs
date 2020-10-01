@@ -2,8 +2,6 @@ use crate::errors::{Error, Result};
 use commons::ObjId;
 use std::collections::HashMap;
 
-/// should use live template
-///
 #[derive(Clone, Debug)]
 pub struct Template {
     pub id: ObjId,

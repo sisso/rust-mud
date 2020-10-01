@@ -54,4 +54,17 @@ impl Tags {
             .map(|tags| tags.contains(&tag_id))
             .unwrap_or(false)
     }
+
+    pub fn resolve_str(&self, tags: &Vec<TagId>) -> Option<Vec<&str>> {
+        tags.iter().map(|tag| self.get_str(*tag)).collect()
+    }
+
+    pub fn resolve_strings(&self, tags: &Vec<TagId>) -> Option<Vec<String>> {
+        self.resolve_str(tags)
+            .map(|i| i.iter().map(|s| s.to_string()).collect())
+    }
+
+    pub fn resolve_tags(&mut self, tags: &Vec<&str>) -> Vec<TagId> {
+        tags.iter().map(|tag_str| self.get_id(tag_str)).collect()
+    }
 }

@@ -53,4 +53,8 @@ impl Memories {
         memory.know_ids.insert(other_id);
         Ok(())
     }
+
+    pub fn remove(&mut self, id: ObjId) -> Option<Memory> {
+        self.index.remove(&id)
+    }
 }

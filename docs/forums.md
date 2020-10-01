@@ -57,7 +57,7 @@ vendor store configuration, and a vendor can reference it.
         id: 1
         mob: {}
         vendor: {
-            vendor_config: 2,
+            market_id: 2,
             stock: [
                 {
                     "tag": "ore_iron",
@@ -69,35 +69,32 @@ vendor store configuration, and a vendor can reference it.
     
     {
         id: 2
-        vendor_config: {
-            item_trade: [
+        market: {
+            trades: [
                 {
-                    "item_tag": ["cloth"],
+                    "tags": ["cloth"],
                     "sell": 1.0
-                }
-            ]
-        
-            bulk_trades: [
+                },
                 {
-                    "items_tag": ["ore_gold"],
+                    "tags": ["ore_gold"],
                     "buy": {
                         min_mult: 0.9,
                         max_mult: 2.0
                     },
                     "max_demand": 100.0,
                     "change_per_cycle": -10
-                }
+                },
                 {
-                    "items_tag": ["ore_iron", "ore_rust_iron"],
+                    "tags": ["ore_iron", "ore_rust_iron"],
                     "buy": {
                         min_mult: 0.9,
                         max_mult: 2.0
                     },
                     "max_demand": 1000.0,
                     "change_per_cycle": -100
-                }
+                },
                 {
-                    "items_tag": ["goods"],
+                    "tags": ["goods"],
                     "sell": {
                         min_mult: 0.5,
                         max_mult: 1.1,

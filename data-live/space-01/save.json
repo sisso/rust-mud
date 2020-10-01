@@ -523,17 +523,13 @@
       "label": "Planet market",
       "desc": "Buy raw material and sell goods",
       "market": {
-        "items": [
+        "trades": [
           {
-            "items_tag": [
-              "ore"
-            ],
+            "tags": [ "ore" ],
             "buy_price_mult": 1.2
           },
           {
-            "items_tag": [
-              "goods"
-            ],
+            "tags": [ "goods" ],
             "sell_price_mult": 0.8
           }
         ]
@@ -543,17 +539,13 @@
       "label": "Asteroid market",
       "desc": "Sell raw material and buy goods",
       "market": {
-        "items": [
+        "trades": [
           {
-            "items_tag": [
-              "goods"
-            ],
+            "tags": [ "goods" ],
             "sell_price_mult": 1.2
           },
           {
-            "items_tag": [
-              "ore"
-            ],
+            "tags": [ "ore" ],
             "sell_price_mult": 0.8
           }
         ]
