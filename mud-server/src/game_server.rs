@@ -61,6 +61,8 @@ impl ServerRunner {
                     let data = Loader::create_snapshot(&self.game.container)?;
 
                     let snapshot_file = snapshot_filename(&self.server_cfg, None)?;
+                    info!("backup snapshot: {:?}", snapshot_file);
+                    backup_filename(snapshot_file.as_path());
                     info!("saving snapshot: {:?}", snapshot_file);
                     Loader::write_snapshot(&snapshot_file, &data)?;
 
@@ -159,6 +161,12 @@ fn load_module(server_cfg: &ServerConfig) -> Result<Container> {
     let mut container: Container = Container::new();
     loader::Loader::load_folders(&mut container, server_cfg.module_path.as_path())?;
     Ok(container)
+}
+
+fn backup_filename(path: &Path) -> Result<()> {
+    let new_path = path.with_file_name("snapshot_backup.json");
+    std::fs::rename(path, new_path)?;
+    Ok(())
 }
 
 fn snapshot_filename(cfg: &ServerConfig, tick: Option<u32>) -> Result<PathBuf> {

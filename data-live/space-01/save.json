@@ -2,8 +2,9 @@
   "cfg": {
     "avatar_mob": 6,
     "initial_room": 2,
-    "tick": 10086,
-    "total_time": 1008.6000150293112
+    "money_id": 42,
+    "tick": 10785,
+    "total_time": 1078.5000160709023
   },
   "objects": {
     "0": {
@@ -95,12 +96,12 @@
       "label": "sisso",
       "memory": {
         "knows": [
-          4,
           3,
-          100002,
-          2,
           100001,
-          100003
+          100003,
+          100002,
+          4,
+          2
         ]
       },
       "mob": {
@@ -112,7 +113,7 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 4
+      "parent": 100003
     },
     "100007": {
       "desc": "other",
@@ -130,11 +131,11 @@
       "label": "other",
       "memory": {
         "knows": [
-          100001,
+          100002,
           100003,
           3,
+          100001,
           2,
-          100002,
           4
         ]
       },
@@ -147,7 +148,7 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 4
+      "parent": 3
     },
     "100009": {
       "id": 100009,
@@ -163,9 +164,7 @@
       },
       "owned_by": 39,
       "parent": 21,
-      "vendor": {
-        "market_id": 41
-      }
+      "vendor": {}
     },
     "100010": {
       "id": 100010,
@@ -181,9 +180,7 @@
       },
       "owned_by": 38,
       "parent": 4,
-      "vendor": {
-        "market_id": 40
-      }
+      "vendor": {}
     },
     "16": {
       "id": 16,
@@ -460,8 +457,14 @@
       "id": 34,
       "item": {},
       "label": "Goods",
+      "price": {
+        "buy": 500,
+        "sell": 400
+      },
       "tags": {
-        "values": ["goods"]
+        "values": [
+          "goods"
+        ]
       }
     },
     "35": {
@@ -469,8 +472,14 @@
       "id": 35,
       "item": {},
       "label": "Ores",
+      "price": {
+        "buy": 50,
+        "sell": 25
+      },
       "tags": {
-        "values": ["ore"]
+        "values": [
+          "ore"
+        ]
       }
     },
     "36": {
@@ -505,6 +514,58 @@
         "market_id": 41
       }
     },
+    "40": {
+      "desc": "Buy raw material and sell goods",
+      "id": 40,
+      "label": "Planet market",
+      "market": {
+        "trades": [
+          {
+            "buy_price_mult": 1.2000000476837158,
+            "tags": [
+              "ore"
+            ]
+          },
+          {
+            "sell_price_mult": 0.800000011920929,
+            "tags": [
+              "goods"
+            ]
+          }
+        ]
+      }
+    },
+    "41": {
+      "desc": "Sell raw material and buy goods",
+      "id": 41,
+      "label": "Asteroid market",
+      "market": {
+        "trades": [
+          {
+            "sell_price_mult": 1.2000000476837158,
+            "tags": [
+              "goods"
+            ]
+          },
+          {
+            "sell_price_mult": 0.800000011920929,
+            "tags": [
+              "ore"
+            ]
+          }
+        ]
+      }
+    },
+    "42": {
+      "id": 42,
+      "item": {
+        "amount": 1,
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "credits"
+    },
     "6": {
       "desc": "A normal and boring human being",
       "id": 6,
@@ -517,38 +578,6 @@
         "pv": 10,
         "pv_max": 10,
         "xp": 0
-      }
-    },
-    "40": {
-      "label": "Planet market",
-      "desc": "Buy raw material and sell goods",
-      "market": {
-        "trades": [
-          {
-            "tags": [ "ore" ],
-            "buy_price_mult": 1.2
-          },
-          {
-            "tags": [ "goods" ],
-            "sell_price_mult": 0.8
-          }
-        ]
-      }
-    },
-    "41": {
-      "label": "Asteroid market",
-      "desc": "Sell raw material and buy goods",
-      "market": {
-        "trades": [
-          {
-            "tags": [ "goods" ],
-            "sell_price_mult": 1.2
-          },
-          {
-            "tags": [ "ore" ],
-            "sell_price_mult": 0.8
-          }
-        ]
       }
     }
   },
