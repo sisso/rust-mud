@@ -33,6 +33,19 @@ use crate::game::{item, mob, spawn, system};
 use commons::{DeltaTime, ObjId, PlayerId};
 use logs::*;
 
+#[macro_export]
+macro_rules! get_or_return_msg {
+    ($res:expr) => {
+        match $res {
+            Some(value) => value,
+            None => {
+                container.outputs.private(mob_id, msg);
+                return Err(e);
+            }
+        }
+    };
+}
+
 #[derive(Debug, Clone)]
 pub struct Container {
     pub config: Config,
@@ -110,6 +123,7 @@ impl Container {
         // self.rooms.remove(obj_id);
         // self.spanws.remove(obj_id);
         self.equips.remove(obj_id);
+        self.tags.remove(obj_id);
         self.labels.remove(obj_id);
         self.vendors.remove(obj_id);
         self.prices.remove(obj_id);

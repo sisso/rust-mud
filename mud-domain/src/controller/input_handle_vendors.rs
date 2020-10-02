@@ -40,6 +40,8 @@ pub fn buy(container: &mut Container, mob_id: MobId, input: StrInput) -> Result<
 }
 
 pub fn sell(container: &mut Container, mob_id: MobId, input: StrInput) -> Result<()> {
+    let vendor_id = find_vendor_at_mob_location(container, mob_id)?;
+
     let maybe_item = input_handle_items::parser_owned_item(container, mob_id, input);
     match maybe_item {
         Err(ParseItemError::ItemNotProvided) => list(container, mob_id),
@@ -51,7 +53,7 @@ pub fn sell(container: &mut Container, mob_id: MobId, input: StrInput) -> Result
             Err(Error::InvalidArgumentFailure)
         }
 
-        Ok(item_id) => actions_vendor::sell(container, mob_id, item_id),
+        Ok(item_id) => actions_vendor::sell(container, mob_id, item_id, vendor_id),
     }
 }
 
@@ -117,4 +119,28 @@ pub fn parse_vendor_item(
         })
         .flat_map(|data| data.id)
         .next()
+}
+
+#[cfg(test)]
+mod test {
+    use crate::game::container::Container;
+
+    fn setup_scenery(container: &mut Container) {
+        // add 2 room
+        // add 2 items
+        // add 2 markets
+        // add 2 vendors
+        // add 1 mob
+        // add money
+        // buy from one
+        // move to other oom
+        // sell to other
+    }
+
+    #[test]
+    fn test_buy_and_selling() {
+        let mut container = Container::new();
+
+        setup_scenery(&mut container);
+    }
 }

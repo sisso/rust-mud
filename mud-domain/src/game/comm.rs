@@ -724,10 +724,13 @@ pub fn space_fly_complete() -> String {
     "command complete".to_string()
 }
 
-pub struct VendorListItem<'a> {
+#[derive(Debug)]
+pub struct VendorTradeItemDisplay<'a> {
     pub label: &'a str,
-    pub buy: Money,
-    pub sell: Money,
+    pub base_buy: Money,
+    pub base_sell: Money,
+    pub buy: Option<Money>,
+    pub sell: Option<Money>,
 }
 
 pub fn vendor_operation_fail() -> String {
@@ -751,20 +754,28 @@ pub fn vendor_can_not_sell(label: &str) -> String {
 }
 
 // TODO: use column based display
-pub fn vendor_list(list: Vec<VendorListItem>) -> String {
+pub fn vendor_list(list: Vec<VendorTradeItemDisplay>) -> String {
     let mut buffer = String::new();
     buffer.push_str("List\n");
     buffer.push_str("name buy sell\n");
 
-    list.into_iter().for_each(|item| {
+    for item in list {
         buffer.push_str("- ");
         buffer.push_str(item.label);
         buffer.push_str(" ");
-        buffer.push_str(&item.buy.as_u32().to_string());
+        if let Some(buy_price) = item.buy {
+            buffer.push_str(&buy_price.as_u32().to_string());
+        } else {
+            buffer.push_str("XXX");
+        }
         buffer.push_str(" ");
-        buffer.push_str(&item.sell.as_u32().to_string());
+        if let Some(sell_price) = item.sell {
+            buffer.push_str(&sell_price.as_u32().to_string());
+        } else {
+            buffer.push_str("XXX");
+        }
         buffer.push_str("\n");
-    });
+    }
 
     buffer
 }

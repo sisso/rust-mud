@@ -191,6 +191,13 @@ impl Controller {
                 );
             }
 
+            Err(ref err) if err.is_failure() => {
+                debug!(
+                    "{:?} failure handling input {:?}: {:?}",
+                    connection_id, input, err
+                );
+            }
+
             _ => {}
         }
     }

@@ -1,4 +1,5 @@
 use commons::ObjId;
+use logs::*;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
@@ -27,6 +28,7 @@ impl Tags {
             None => {
                 let tag_id = TagId(self.tags.len());
                 self.tags.push((tag_id, value.to_string()));
+                info!("creating tag_id {:?} for {:?}", tag_id, value);
                 tag_id
             }
         }
@@ -41,6 +43,7 @@ impl Tags {
 
     pub fn add(&mut self, obj_id: ObjId, tag_id: TagId) {
         let tags = self.index.entry(obj_id).or_default();
+        info!("{:?} assign tag {:?}", obj_id, tag_id);
         tags.insert(tag_id);
     }
 
@@ -48,10 +51,27 @@ impl Tags {
         self.index.get(&obj_id)
     }
 
+    pub fn remove(&mut self, obj_id: ObjId) -> Option<HashSet<TagId>> {
+        info!("{:?} removed", obj_id);
+        self.index.remove(&obj_id)
+    }
+
     pub fn has(&self, obj_id: ObjId, tag_id: TagId) -> bool {
         self.index
             .get(&obj_id)
             .map(|tags| tags.contains(&tag_id))
+            .unwrap_or(false)
+    }
+
+    pub fn has_any(&self, obj_id: ObjId, tags_id: &Vec<TagId>) -> bool {
+        self.index
+            .get(&obj_id)
+            .map(|tags| {
+                tags_id
+                    .iter()
+                    .find(|tag_id| tags.contains(tag_id))
+                    .is_some()
+            })
             .unwrap_or(false)
     }
 
@@ -66,5 +86,14 @@ impl Tags {
 
     pub fn resolve_tags(&mut self, tags: &Vec<&str>) -> Vec<TagId> {
         tags.iter().map(|tag_str| self.get_id(tag_str)).collect()
+    }
+
+    pub fn find_or<'a>(&'a self, tags: &'a Vec<TagId>) -> impl Iterator<Item = ObjId> + 'a {
+        debug!("{:?}", self);
+
+        self.index
+            .iter()
+            .filter(move |(_, obj_tags)| tags.iter().find(|tag| obj_tags.contains(tag)).is_some())
+            .map(|(obj_id, _)| *obj_id)
     }
 }

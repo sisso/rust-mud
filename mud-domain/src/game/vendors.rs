@@ -3,13 +3,22 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct VendorStock {}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Vendor {
     pub id: ObjId,
+    pub market_id: Option<ObjId>,
+    pub stock: VendorStock,
 }
 
 impl Vendor {
     pub fn new(id: ObjId) -> Self {
-        Vendor { id }
+        Vendor {
+            id,
+            market_id: None,
+            stock: VendorStock {},
+        }
     }
 }
 

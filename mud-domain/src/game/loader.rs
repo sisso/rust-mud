@@ -131,6 +131,26 @@ impl Loader {
     pub fn list_prefabs<'a>(&'a self) -> impl Iterator<Item = &ObjData> + 'a {
         self.index.values()
     }
+
+    pub fn find_prefabs_by_tags_or<'a>(
+        &'a self,
+        tags: &'a Vec<&'a str>,
+    ) -> impl Iterator<Item = &ObjData> + 'a {
+        self.index.values().filter(move |data| {
+            data.tags
+                .as_ref()
+                .filter(|data_tags| {
+                    let found = data_tags
+                        .values
+                        .iter()
+                        .find(|t| tags.contains(&t.as_str()))
+                        .is_some();
+
+                    found
+                })
+                .is_some()
+        })
+    }
 }
 
 // TODO: organize fields, is a mess
@@ -409,8 +429,13 @@ impl Loader {
             container.prices.add(price);
         }
 
-        if let Some(_data) = &data.vendor {
-            let vendor = Vendor::new(obj_id);
+        if let Some(vendor_data) = &data.vendor {
+            let mut vendor = Vendor::new(obj_id);
+            if let Some(market_id) = vendor_data.market_id {
+                let id = Loader::get_by_static_id(&container.objects, &references, market_id)
+                    .expect("could not find market id");
+                vendor.market_id = Some(id);
+            }
             container.vendors.add(vendor);
         }
 
@@ -996,7 +1021,7 @@ impl Loader {
 
         if let Some(vendor) = container.vendors.get(id) {
             obj_data.vendor = Some(VendorData {
-                market_id: None,
+                market_id: vendor.market_id.map(|id| id.into()),
                 stock: None,
             });
         }
@@ -1388,5 +1413,29 @@ prefabs.control_panel_command_2 {
 
         let result = load_and_snapshot(data.clone());
         assert_data_eq(data, result);
+    }
+
+    #[test]
+    fn test_find_prefab_by_tags_or() {
+        let mut loader = Loader::new();
+
+        let mut data1 = ObjData::new();
+        data1.id = Some(StaticId(0));
+        data1.tags = Some(TagsData {
+            values: vec!["tag_a".to_string()],
+        });
+        loader.add_prefab(data1);
+
+        let mut data2 = ObjData::new();
+        data2.id = Some(StaticId(1));
+        data2.tags = Some(TagsData {
+            values: vec!["tag_b".to_string()],
+        });
+        loader.add_prefab(data2);
+
+        let search_tags = vec!["tag_a"];
+        let mut result = loader.find_prefabs_by_tags_or(&search_tags);
+        assert!(result.next().is_some());
+        assert!(result.next().is_none());
     }
 }

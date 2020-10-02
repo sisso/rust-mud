@@ -9,6 +9,10 @@ impl Money {
     pub fn as_u32(&self) -> u32 {
         self.0
     }
+
+    pub fn mult(&self, value: f32) -> Money {
+        Money((self.0 as f32 * value).ceil() as u32)
+    }
 }
 
 impl From<u32> for Money {

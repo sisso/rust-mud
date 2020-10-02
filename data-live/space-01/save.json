@@ -3,8 +3,8 @@
     "avatar_mob": 6,
     "initial_room": 2,
     "money_id": 42,
-    "tick": 11336,
-    "total_time": 1133.6000168919563
+    "tick": 14464,
+    "total_time": 1446.4000215530396
   },
   "objects": {
     "0": {
@@ -25,10 +25,6 @@
       "parent": 19
     },
     "100000": {
-      "astro_body": {
-        "kind": "ship",
-        "orbit_distance": 0.10000000149011612
-      },
       "code": [
         "transport"
       ],
@@ -36,7 +32,7 @@
       "desc": "Small cargo craft designed to deliver small amount of cargo",
       "id": 100000,
       "label": "Light Transport",
-      "parent": 1
+      "parent": 3
     },
     "100001": {
       "desc": "Craft airlock",
@@ -152,7 +148,7 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 100001
+      "parent": 4
     },
     "100009": {
       "id": 100009,
@@ -168,7 +164,9 @@
       },
       "owned_by": 39,
       "parent": 21,
-      "vendor": {}
+      "vendor": {
+        "market_id": 41
+      }
     },
     "100010": {
       "id": 100010,
@@ -184,32 +182,20 @@
       },
       "owned_by": 38,
       "parent": 4,
-      "vendor": {}
+      "vendor": {
+        "market_id": 40
+      }
     },
     "100011": {
       "id": 100011,
       "item": {
-        "amount": 500,
+        "amount": 2000,
         "flags": {
           "money": true
         }
       },
       "label": "credits",
       "parent": 100008
-    },
-    "100012": {
-      "desc": "Commercial Goods",
-      "id": 100012,
-      "item": {
-        "flags": {}
-      },
-      "label": "Goods",
-      "parent": 100008,
-      "tags": {
-        "values": [
-          "goods"
-        ]
-      }
     },
     "16": {
       "id": 16,
@@ -373,7 +359,7 @@
       "parent": 4,
       "spawn": {
         "max": 1,
-        "next_spawn": 1334.0018152743578,
+        "next_spawn": 1654.198719829321,
         "prefab_id": 36,
         "time_max": 360.0,
         "time_min": 60.0
@@ -385,7 +371,7 @@
       "parent": 21,
       "spawn": {
         "max": 1,
-        "next_spawn": 1379.4577621743083,
+        "next_spawn": 1638.7887778803704,
         "prefab_id": 37,
         "time_max": 360.0,
         "time_min": 60.0
@@ -401,6 +387,48 @@
           {
             "dir": "n",
             "to": 3
+          }
+        ]
+      }
+    },
+    "40": {
+      "desc": "Buy raw material and sell goods",
+      "id": 40,
+      "label": "Planet market",
+      "market": {
+        "trades": [
+          {
+            "buy_price_mult": 1.2000000476837158,
+            "tags": [
+              "ore"
+            ]
+          },
+          {
+            "sell_price_mult": 0.800000011920929,
+            "tags": [
+              "goods"
+            ]
+          }
+        ]
+      }
+    },
+    "41": {
+      "desc": "Sell raw material and buy goods",
+      "id": 41,
+      "label": "Asteroid market",
+      "market": {
+        "trades": [
+          {
+            "sell_price_mult": 1.2000000476837158,
+            "tags": [
+              "goods"
+            ]
+          },
+          {
+            "sell_price_mult": 0.800000011920929,
+            "tags": [
+              "ore"
+            ]
           }
         ]
       }
@@ -541,48 +569,6 @@
       },
       "vendor": {
         "market_id": 41
-      }
-    },
-    "40": {
-      "desc": "Buy raw material and sell goods",
-      "id": 40,
-      "label": "Planet market",
-      "market": {
-        "trades": [
-          {
-            "buy_price_mult": 1.2000000476837158,
-            "tags": [
-              "ore"
-            ]
-          },
-          {
-            "sell_price_mult": 0.800000011920929,
-            "tags": [
-              "goods"
-            ]
-          }
-        ]
-      }
-    },
-    "41": {
-      "desc": "Sell raw material and buy goods",
-      "id": 41,
-      "label": "Asteroid market",
-      "market": {
-        "trades": [
-          {
-            "sell_price_mult": 1.2000000476837158,
-            "tags": [
-              "goods"
-            ]
-          },
-          {
-            "sell_price_mult": 0.800000011920929,
-            "tags": [
-              "ore"
-            ]
-          }
-        ]
       }
     },
     "42": {

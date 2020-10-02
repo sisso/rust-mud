@@ -186,7 +186,7 @@ pub struct MarketData {
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct VendorStockData {
-    pub item_tag: String,
+    pub tag: String,
     pub amount: f32,
 }
 
