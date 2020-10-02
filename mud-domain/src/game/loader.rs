@@ -986,9 +986,12 @@ impl Loader {
         }
 
         if let Some(memory) = container.memories.get(id) {
-            obj_data.memory = Some(MemoryData {
-                knows: memory.know_ids.iter().map(|id| id.into()).collect(),
-            });
+            let mut memory_ids: Vec<StaticId> =
+                memory.know_ids.iter().map(|id| id.into()).collect();
+
+            memory_ids.sort_by_key(|i| i.as_u32());
+
+            obj_data.memory = Some(MemoryData { knows: memory_ids });
         }
 
         if let Some(vendor) = container.vendors.get(id) {
