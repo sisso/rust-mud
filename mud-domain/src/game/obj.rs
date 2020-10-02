@@ -11,15 +11,11 @@ use std::collections::HashMap;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Obj {
     id: ObjId,
-    static_id: Option<StaticId>,
 }
 
 impl Obj {
     pub fn new(id: ObjId) -> Self {
-        Obj {
-            id,
-            static_id: None,
-        }
+        Obj { id }
     }
 }
 
@@ -53,20 +49,6 @@ impl Objects {
         self.next_id.set_max(id.as_u32());
         self.objects.insert(id, Obj::new(id));
         Ok(())
-    }
-
-    pub fn set_static_id(&mut self, id: ObjId, static_id: StaticId) -> errors::Result<()> {
-        if let Some(obj) = self.objects.get_mut(&id) {
-            obj.static_id = Some(static_id);
-            debug!("{:?} obj update static_id to {:?}", id, static_id);
-            Ok(())
-        } else {
-            Err(Error::NotFoundFailure)
-        }
-    }
-
-    pub fn get_static_id(&self, id: ObjId) -> Option<StaticId> {
-        self.objects.get(&id).and_then(|obj| obj.static_id)
     }
 
     /// Make sure you remove from everything else first

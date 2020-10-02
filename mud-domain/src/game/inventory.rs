@@ -12,12 +12,12 @@ use logs::*;
 // TODO: Merge common code related with money
 // TODO: Money change should just be a +/- function
 
-/// Money items can cause to be merge if target inventory already contain it, this means that
-/// previous item can get deleted
 pub fn add(container: &mut Container, item_id: ItemId, location_id: LocationId) -> Result<()> {
-    let is_money = container.objects.get_static_id(item_id) == container.config.money_id;
+    let item = container.items.get(item_id).as_result()?;
 
-    if is_money {
+    // Money items can cause to be merge if target inventory already contain it, this means that
+    // previous item can get deleted
+    if item.flags.is_money {
         let amount = container
             .items
             .get(item_id)
@@ -37,43 +37,25 @@ pub fn add_money(container: &mut Container, obj_id: ObjId, amount: Money) -> Res
 }
 
 pub fn get_money(container: &Container, obj_id: ObjId) -> Result<Money> {
-    let item_id = match get_money_id(container, obj_id) {
-        Some(item_id) => item_id,
-        None => {
-            trace!("{:?} get_money has no money item", obj_id);
-            return Ok(Money(0));
-        }
-    };
-
-    trace!("{:?} get_money has money_id {:?}", obj_id, item_id);
-
-    let item = container
-        .items
-        .get(item_id)
-        .expect("mob money is not a item");
-    Ok(item.amount.into())
+    Ok(get_money_id(container, obj_id)
+        .and_then(|id| container.items.get(id))
+        .map(|item| Money(item.amount))
+        .unwrap_or(Money(0)))
 }
 
 pub fn get_money_id(container: &Container, obj_id: ObjId) -> Option<ItemId> {
-    let money_static_id = container
-        .config
-        .money_id
-        .expect("money_id is not define in configuration");
-
     container
         .locations
         .list_at(obj_id)
-        // .filter(|&id| container.items.get(id).map(|item| item.flags.is_money).unwrap_or(false))
-        .filter(|&id| container.objects.get_static_id(id) == Some(money_static_id))
+        .flat_map(|id| container.items.get(id))
+        .filter(|item| item.flags.is_money)
+        .map(|item| item.id)
         .next()
 }
 
 /// return the new money amount
 pub fn remove_money(container: &mut Container, obj_id: ObjId, amount: Money) -> Result<Money> {
-    let item_id = match get_money_id(container, obj_id) {
-        Some(item_id) => item_id,
-        None => return Err(Error::InvalidArgumentFailure),
-    };
+    let item_id = get_money_id(container, obj_id).as_result()?;
 
     let item = container
         .items

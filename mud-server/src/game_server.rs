@@ -61,7 +61,10 @@ impl ServerRunner {
                     let data = Loader::create_snapshot(&self.game.container)?;
 
                     let snapshot_file = snapshot_filename(&self.server_cfg, None)?;
-                    info!("backup snapshot: {:?}", snapshot_file);
+                    info!(
+                        "backup snapshot: {:?}",
+                        snapshot_file.with_file_name("snapshot_backup.json")
+                    );
                     backup_filename(snapshot_file.as_path());
                     info!("saving snapshot: {:?}", snapshot_file);
                     Loader::write_snapshot(&snapshot_file, &data)?;

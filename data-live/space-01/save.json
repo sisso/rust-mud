@@ -3,8 +3,8 @@
     "avatar_mob": 6,
     "initial_room": 2,
     "money_id": 42,
-    "tick": 10785,
-    "total_time": 1078.5000160709023
+    "tick": 11323,
+    "total_time": 1132.3000168725848
   },
   "objects": {
     "0": {
@@ -25,6 +25,10 @@
       "parent": 19
     },
     "100000": {
+      "astro_body": {
+        "kind": "ship",
+        "orbit_distance": 0.10000000149011612
+      },
       "code": [
         "transport"
       ],
@@ -32,7 +36,7 @@
       "desc": "Small cargo craft designed to deliver small amount of cargo",
       "id": 100000,
       "label": "Light Transport",
-      "parent": 3
+      "parent": 1
     },
     "100001": {
       "desc": "Craft airlock",
@@ -96,12 +100,12 @@
       "label": "sisso",
       "memory": {
         "knows": [
-          3,
-          100001,
           100003,
+          2,
           100002,
           4,
-          2
+          3,
+          100001
         ]
       },
       "mob": {
@@ -131,12 +135,12 @@
       "label": "other",
       "memory": {
         "knows": [
-          100002,
-          100003,
           3,
           100001,
           2,
-          4
+          100003,
+          4,
+          100002
         ]
       },
       "mob": {
@@ -148,7 +152,7 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 3
+      "parent": 100001
     },
     "100009": {
       "id": 100009,
@@ -181,6 +185,31 @@
       "owned_by": 38,
       "parent": 4,
       "vendor": {}
+    },
+    "100011": {
+      "id": 100011,
+      "item": {
+        "amount": 500,
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "credits",
+      "parent": 100008
+    },
+    "100012": {
+      "desc": "Commercial Goods",
+      "id": 100012,
+      "item": {
+        "flags": {}
+      },
+      "label": "Goods",
+      "parent": 100008,
+      "tags": {
+        "values": [
+          "goods"
+        ]
+      }
     },
     "16": {
       "id": 16,
@@ -356,7 +385,7 @@
       "parent": 21,
       "spawn": {
         "max": 1,
-        "next_spawn": 1128.2336442619562,
+        "next_spawn": 1379.4577621743083,
         "prefab_id": 37,
         "time_max": 360.0,
         "time_min": 60.0

@@ -156,6 +156,7 @@ impl Loader {
         trace!("{:?} creating prefab of {:?}", obj_id, static_id);
         references.insert(static_id, obj_id);
 
+        // instantiate children
         let children_prefabs = container.loader.find_deep_prefabs_by_parents(static_id);
         for child_static_id in children_prefabs {
             let child_id = container.objects.create();
@@ -237,10 +238,6 @@ impl Loader {
         };
 
         debug!("{:?} apply prefab {:?}", obj_id, data.id);
-
-        if let Some(id) = data.id {
-            container.objects.set_static_id(obj_id, id)?;
-        }
 
         if let Some(parent) = &data.parent {
             let parent_id = Loader::get_by_static_id(&container.objects, &references, *parent)?;
