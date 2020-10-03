@@ -15,9 +15,8 @@ use logs::*;
 
 #[derive(Debug)]
 pub struct VendorTradeObj {
-    pub obj_id: StaticId,
-    pub base_buy_price: Money,
-    pub base_sell_price: Money,
+    pub static_id: StaticId,
+    pub base_price: Money,
     pub buy_price: Option<Money>,
     pub sell_price: Option<Money>,
 }
@@ -60,14 +59,13 @@ pub fn find_vendor_list(container: &Container, vendor_id: MobId) -> Result<Vec<V
                 Some(price) => price,
             };
 
+            let price = price.price.as_result_exception()?;
+
             let trade_obj = VendorTradeObj {
-                obj_id: data_id,
-                base_buy_price: Money(price.buy),
-                base_sell_price: Money(price.sell),
-                buy_price: trade.buy_price_mult.map(|mult| Money(price.buy).mult(mult)),
-                sell_price: trade
-                    .sell_price_mult
-                    .map(|mult| Money(price.sell).mult(mult)),
+                static_id: data_id,
+                base_price: Money(price),
+                buy_price: trade.buy_price_mult.map(|mult| Money(price).mult(mult)),
+                sell_price: trade.sell_price_mult.map(|mult| Money(price).mult(mult)),
             };
             result.push(trade_obj);
         }
@@ -82,10 +80,10 @@ pub fn vendor_items_to_vendor_list_items<'a>(
 ) -> Vec<VendorTradeItemDisplay<'a>> {
     vendor_list
         .iter()
-        .map(|i| {
+        .map(|vendor_trade| {
             let label = container
                 .loader
-                .get_prefab(i.obj_id)
+                .get_prefab(vendor_trade.static_id)
                 .unwrap()
                 .label
                 .as_ref()
@@ -94,10 +92,8 @@ pub fn vendor_items_to_vendor_list_items<'a>(
 
             let display = VendorTradeItemDisplay {
                 label: label,
-                base_buy: i.base_buy_price,
-                base_sell: i.base_sell_price,
-                buy: i.buy_price,
-                sell: i.sell_price,
+                to_buy: vendor_trade.sell_price,
+                to_sell: vendor_trade.buy_price,
             };
 
             display
@@ -145,8 +141,8 @@ pub fn buy(
 
     let buy_price: Money = match vendor_items
         .iter()
-        .filter(|i| i.obj_id == item_static_id)
-        .flat_map(|i| i.buy_price)
+        .filter(|i| i.static_id == item_static_id)
+        .flat_map(|i| i.sell_price)
         .next()
     {
         Some(price) => price,
@@ -217,9 +213,9 @@ pub fn sell(
         (Some(trades), Some(price)) => {
             let sell_price = trades
                 .iter()
-                .filter(|i| container.tags.has_any(item_id, &i.tags))
-                .flat_map(|i| i.sell_price_mult)
-                .map(|sell_price_mult| price.sell.mult(sell_price_mult))
+                .filter(|trade| container.tags.has_any(item_id, &trade.tags))
+                .flat_map(|trade| trade.buy_price_mult)
+                .map(|buy_price_mult| price.price.mult(buy_price_mult))
                 .next();
 
             sell_price

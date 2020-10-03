@@ -533,7 +533,26 @@ Game
 - services
 - repository
 
-# Modules
+# Modules / Project Structure
+
+Current:
+game
+game.loader
+game.system
+
+Desired:
+game.controller - handle inputs and outputs, is used by view and interact with logic
+game.view - is a "screen" that use can use, interact with controllers to get things done
+game.models
+game.logic
+game.system
+
+---------------|-------|
+View           | model |
+Controller     |       |
+Logic | System |       |
+---------------|-------|
+
 
 controller
 - input and output

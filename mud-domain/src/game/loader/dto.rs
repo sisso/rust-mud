@@ -152,8 +152,11 @@ impl From<&ObjId> for StaticId {
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct PriceData {
-    pub buy: u32,
-    pub sell: u32,
+    pub price: Option<u32>,
+    #[deprecated]
+    pub buy: Option<u32>,
+    #[deprecated]
+    pub sell: Option<u32>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -344,7 +347,7 @@ pub struct LoaderData {
 impl LoaderData {
     pub fn new() -> Self {
         LoaderData {
-            version: 0,
+            version: super::CURRENT_VERSION,
             cfg: None,
             objects: Default::default(),
             prefabs: Default::default(),

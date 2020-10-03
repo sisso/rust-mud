@@ -2,6 +2,7 @@ use crate::controller::input_handle_items;
 use crate::controller::input_handle_items::ParseItemError;
 use crate::errors::*;
 use crate::game::actions::out;
+use crate::game::actions_vendor::VendorTradeObj;
 use crate::game::container::Container;
 use crate::game::inventory;
 use crate::game::item::ItemId;
@@ -23,20 +24,20 @@ pub fn buy(container: &mut Container, mob_id: MobId, input: StrInput) -> Result<
 
     let plain_arguments = input.plain_arguments();
     if plain_arguments.is_empty() {
-        return list(container, mob_id);
+        list(container, mob_id)
+    } else {
+        let trade = match parse_vendor_item(container, vendor_id, plain_arguments)? {
+            Some(static_id) => static_id,
+            None => {
+                container
+                    .outputs
+                    .private(mob_id, comm::vendor_buy_item_not_found(plain_arguments));
+                return Err(Error::InvalidArgumentFailure);
+            }
+        };
+
+        actions_vendor::buy(container, mob_id, vendor_id, trade.static_id).map(|_| ())
     }
-
-    let static_id = match parse_vendor_item(container, vendor_id, plain_arguments) {
-        Some(static_id) => static_id,
-        None => {
-            container
-                .outputs
-                .private(mob_id, comm::vendor_buy_item_not_found(plain_arguments));
-            return Err(Error::InvalidArgumentFailure);
-        }
-    };
-
-    actions_vendor::buy(container, mob_id, vendor_id, static_id).map(|_| ())
 }
 
 pub fn sell(container: &mut Container, mob_id: MobId, input: StrInput) -> Result<()> {
@@ -83,42 +84,30 @@ fn find_vendor_at_mob_location(container: &mut Container, mob_id: MobId) -> Resu
     })
 }
 
-// TODO: move to a logic place
-// TODO: is used in a single place, why is not defined there?
-fn find_vendor_sell_item(
-    mob_id: MobId,
-    outputs: &mut Outputs,
-    result: std::result::Result<ItemId, ParseItemError>,
-) -> Result<ItemId> {
-    result.map_err(|err| match err {
-        ParseItemError::ItemNotFound { label } => {
-            outputs.private(mob_id, comm::vendor_sell_item_not_found(label.as_str()));
-            Error::InvalidArgumentFailure
-        }
-        ParseItemError::ItemNotProvided => {
-            outputs.private(mob_id, comm::vendor_sell_item_not_found(""));
-            Error::InvalidArgumentFailure
-        }
-    })
-}
-
 pub fn parse_vendor_item(
     container: &Container,
-    _vendor_id: ObjId,
+    vendor_id: ObjId,
     input: &str,
-) -> Option<StaticId> {
-    container
-        .loader
-        .list_prefabs()
-        .filter(|data| data.price.is_some())
-        .filter(|data| {
-            data.label
-                .as_ref()
-                .map(|label| text::is_text_eq(label.as_str(), input))
+) -> Result<Option<VendorTradeObj>> {
+    let list = actions_vendor::find_vendor_list(container, vendor_id)?;
+
+    let found = list
+        .into_iter()
+        .filter(|trade| {
+            container
+                .loader
+                .get_prefab(trade.static_id)
+                .map(|data| {
+                    data.label
+                        .as_ref()
+                        .map(|label| text::is_text_eq(label.as_str(), input))
+                        .unwrap_or(false)
+                })
                 .unwrap_or(false)
         })
-        .flat_map(|data| data.id)
-        .next()
+        .next();
+
+    Ok(found)
 }
 
 #[cfg(test)]
@@ -140,6 +129,7 @@ mod test {
     #[test]
     fn test_buy_and_selling() {
         let mut container = Container::new();
+        // @see item_system.test.test_decay
 
         setup_scenery(&mut container);
     }

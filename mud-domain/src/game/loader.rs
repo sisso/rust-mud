@@ -31,13 +31,14 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
 pub mod dto;
+mod migrations;
 
 use crate::game::market::{Market, MarketTrade};
 use commons::jsons::JsonValueExtra;
 use dto::*;
 use std::io::Write;
 
-const CURRENT_VERSION: u32 = 0;
+const CURRENT_VERSION: u32 = 1;
 
 #[derive(Debug, Clone)]
 pub struct ValidationResult {
@@ -425,7 +426,8 @@ impl Loader {
         }
 
         if let Some(data) = &data.price {
-            let price = Price::new(obj_id, Money(data.buy), Money(data.sell));
+            let data_price = data.price.expect("price should have price");
+            let price = Price::new(obj_id, Money(data_price));
             container.prices.add(price);
         }
 
@@ -657,10 +659,10 @@ impl Loader {
             }
 
             if let Some(price_buy) = data.price_buy {
-                let price_sell = price_buy / 2;
                 obj.price = Some(PriceData {
-                    buy: price_buy,
-                    sell: price_sell,
+                    price: Some(price_buy),
+                    buy: None,
+                    sell: None,
                 });
             }
 
@@ -1109,25 +1111,12 @@ impl Loader {
             mismatch_ids: vec![],
         };
 
-        if data.version != CURRENT_VERSION {
-            return Err(Error::Error(format!(
-                "invalid data version {}",
-                data.version
-            )));
-        }
-
         // normalize data.id if missing
         // check for mismatch id
         // check for dupplicated id
         for (static_id, data) in &mut data.objects {
             if let Some(id) = data.id {
                 if id != *static_id {
-                    // return Err(Error::Error(format!(
-                    //     "mismatch id from index {:?} and id field {:?}",
-                    //     static_id,
-                    //     data.id.unwrap()
-                    // )));
-
                     result.mismatch_ids.push((*static_id, id));
                 }
             } else {
@@ -1136,18 +1125,12 @@ impl Loader {
 
             if !ids.insert(data.id) {
                 result.duplicate_ids.push(*static_id);
-                // return Err(Error::Error(format!("duplicate object id {:?}", data.id)));
             }
         }
 
         for (static_id, data) in &mut data.prefabs {
             if let Some(id) = data.id {
                 if id != *static_id {
-                    // return Err(Error::Error(format!(
-                    //     "conflict object id {:?} and {:?}",
-                    //     static_id,
-                    //     data.id.unwrap()
-                    // )));
                     result.mismatch_ids.push((*static_id, id));
                 }
             } else {
@@ -1156,7 +1139,6 @@ impl Loader {
 
             if !ids.insert(data.id) {
                 result.duplicate_ids.push(*static_id);
-                // return Err(Error::Error(format!("duplicate prefab id {:?}", data.id)));
             }
         }
 
@@ -1164,15 +1146,18 @@ impl Loader {
     }
 
     fn migrate(data: &mut LoaderData) -> Result<()> {
-        match data.version {
-            0 => Ok(()),
-            other => {
-                return Err(Error::Error(format!(
-                    "invalid data version {}",
-                    data.version
-                )));
-            }
+        info!(
+            "checking for data migration {:?} < {:?}?",
+            data.version, CURRENT_VERSION
+        );
+
+        if data.version < 1 {
+            info!("migrating data to v1 started");
+            migrations::migrate_to_v1(data)?;
+            info!("migrating data to v1 complete");
         }
+
+        Ok(())
     }
 
     fn initialize_all(

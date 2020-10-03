@@ -3,8 +3,8 @@
     "avatar_mob": 6,
     "initial_room": 2,
     "money_id": 42,
-    "tick": 14464,
-    "total_time": 1446.4000215530396
+    "tick": 17399,
+    "total_time": 1739.9000259265301
   },
   "objects": {
     "0": {
@@ -32,7 +32,7 @@
       "desc": "Small cargo craft designed to deliver small amount of cargo",
       "id": 100000,
       "label": "Light Transport",
-      "parent": 3
+      "parent": 21
     },
     "100001": {
       "desc": "Craft airlock",
@@ -148,7 +148,7 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 4
+      "parent": 21
     },
     "100009": {
       "id": 100009,
@@ -186,16 +186,30 @@
         "market_id": 40
       }
     },
-    "100011": {
-      "id": 100011,
+    "100017": {
+      "id": 100017,
       "item": {
-        "amount": 2000,
+        "amount": 2960,
         "flags": {
           "money": true
         }
       },
       "label": "credits",
       "parent": 100008
+    },
+    "100018": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100018,
+      "item": {
+        "flags": {}
+      },
+      "label": "Ores",
+      "parent": 100008,
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
     },
     "16": {
       "id": 16,
@@ -359,7 +373,7 @@
       "parent": 4,
       "spawn": {
         "max": 1,
-        "next_spawn": 1654.198719829321,
+        "next_spawn": 1780.5090609043834,
         "prefab_id": 36,
         "time_max": 360.0,
         "time_min": 60.0
@@ -371,7 +385,7 @@
       "parent": 21,
       "spawn": {
         "max": 1,
-        "next_spawn": 1638.7887778803704,
+        "next_spawn": 1811.1510986387727,
         "prefab_id": 37,
         "time_max": 360.0,
         "time_min": 60.0
@@ -419,7 +433,7 @@
       "market": {
         "trades": [
           {
-            "sell_price_mult": 1.2000000476837158,
+            "buy_price_mult": 1.2000000476837158,
             "tags": [
               "goods"
             ]
@@ -516,6 +530,7 @@
       "label": "Goods",
       "price": {
         "buy": 500,
+        "price": 500,
         "sell": 400
       },
       "tags": {
@@ -531,6 +546,7 @@
       "label": "Ores",
       "price": {
         "buy": 50,
+        "price": 50,
         "sell": 25
       },
       "tags": {
@@ -596,5 +612,5 @@
       }
     }
   },
-  "version": 0
+  "version": 1
 }

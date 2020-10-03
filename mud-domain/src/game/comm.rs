@@ -727,10 +727,8 @@ pub fn space_fly_complete() -> String {
 #[derive(Debug)]
 pub struct VendorTradeItemDisplay<'a> {
     pub label: &'a str,
-    pub base_buy: Money,
-    pub base_sell: Money,
-    pub buy: Option<Money>,
-    pub sell: Option<Money>,
+    pub to_buy: Option<Money>,
+    pub to_sell: Option<Money>,
 }
 
 pub fn vendor_operation_fail() -> String {
@@ -763,13 +761,13 @@ pub fn vendor_list(list: Vec<VendorTradeItemDisplay>) -> String {
         buffer.push_str("- ");
         buffer.push_str(item.label);
         buffer.push_str(" ");
-        if let Some(buy_price) = item.buy {
+        if let Some(buy_price) = item.to_buy {
             buffer.push_str(&buy_price.as_u32().to_string());
         } else {
             buffer.push_str("XXX");
         }
         buffer.push_str(" ");
-        if let Some(sell_price) = item.sell {
+        if let Some(sell_price) = item.to_sell {
             buffer.push_str(&sell_price.as_u32().to_string());
         } else {
             buffer.push_str("XXX");

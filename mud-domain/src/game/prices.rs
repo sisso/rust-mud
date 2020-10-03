@@ -24,13 +24,12 @@ impl From<u32> for Money {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Price {
     pub id: ObjId,
-    pub buy: Money,
-    pub sell: Money,
+    pub price: Money,
 }
 
 impl Price {
-    pub fn new(id: ObjId, buy: Money, sell: Money) -> Self {
-        Price { id, buy, sell }
+    pub fn new(id: ObjId, price: Money) -> Self {
+        Price { id, price }
     }
 }
 

@@ -6,7 +6,9 @@ use std::collections::HashMap;
 #[derive(Clone, Debug)]
 pub struct MarketTrade {
     pub tags: Vec<TagId>,
+    /// price mult that a vendor buy this product, this happens when a mob sell a object
     pub buy_price_mult: Option<f32>,
+    /// price mult that a vendor will sell this product, this happens when a mob buy a object
     pub sell_price_mult: Option<f32>,
     // pub max_demand: Option<f32>,
     // pub change_per_cycle: Option<f32>,

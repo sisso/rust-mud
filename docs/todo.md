@@ -46,6 +46,7 @@
 
 # refactoring
 
+- normalize Option and Result usage and a clean way to return failure to player and errors messasges for log
 - add static_id reference of a object
 - merge space and fantasy scenery test functionality
 - replace dyn buffer to vector one. Better, move it to container as Events, and later events to messages!
