@@ -250,15 +250,26 @@ impl Loader {
             };
         }
 
-        let data: &ObjData = match data {
-            Either::Left(data) => data,
-            Either::Right(static_id) => container
-                .loader
-                .get_prefab(static_id)
-                .ok_or(Error::NotFoundStaticId(static_id))?,
+        let (data, prefab_id) = match data {
+            Either::Left(data) => (data, data.prefab_id),
+            Either::Right(static_id) => {
+                let data = container
+                    .loader
+                    .get_prefab(static_id)
+                    .ok_or(Error::NotFoundStaticId(static_id))?;
+
+                (data, Some(static_id))
+            }
         };
 
         debug!("{:?} apply prefab {:?}", obj_id, data.id);
+
+        if let Some(prefab_id) = prefab_id {
+            container
+                .objects
+                .set_prefab_id(obj_id, prefab_id)
+                .expect("fail to apply prefab_id");
+        }
 
         if let Some(parent) = &data.parent {
             let parent_id = Loader::get_by_static_id(&container.objects, &references, *parent)?;
@@ -823,6 +834,7 @@ impl Loader {
 
         let mut obj_data = ObjData::new();
         obj_data.id = Some(id.into());
+        obj_data.prefab_id = container.objects.get_prefab_id(id);
 
         if let Some(label) = container.labels.get(id) {
             // Hack some fields to make it compatible with original values

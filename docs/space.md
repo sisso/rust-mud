@@ -1,15 +1,12 @@
 # TODO
 
+- item weight
+- drag items to ship cargo hold
 - ship seller
 - multiple ships, to have something to do
-- trade, to make money
 - look/examine transport do not work
 - sector generator
-- wait time between ship operations
 - cockpit, need to sit to control the ship
-- compute time travel time, now all flying move is 5 seconds
-- replace coord system by orbit by and orbit distance
-- replace ship moviment by burn, travel, retroburn, cyclo burn etc
 - secttormap
     - show numbers
     - show coords
@@ -73,11 +70,6 @@
 - De-burn DV change
 - Sync orbits mass/trust seconds
  
-### Times
-
-Maneuvering - Is moving the ship in current orbit, like align, change orbit or synchronize. 
-
-Burn - To make ejections and de-burn.
  
 ### Speed modifier
 
@@ -85,18 +77,6 @@ A float value 0 can be defined the % of the burn.
 
 Align burn can only be increment in second to save fuel
 Ejection burn multiply the time, but divide the travel time
-
-## Landing and Launch
-
-Launch:
-Atmosphere bypass
-Taking speed
-Circulization
-
-Land:
-Align
-Atmosphere braking
-Landing
 
 ## Orbit movement through hierarchic bodies
 

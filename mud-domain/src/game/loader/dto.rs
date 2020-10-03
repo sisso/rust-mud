@@ -236,6 +236,7 @@ pub struct TagsData {
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ObjData {
     pub id: Option<StaticId>,
+    pub prefab_id: Option<StaticId>,
     pub label: Option<String>,
     pub code: Option<Vec<String>>,
     pub desc: Option<String>,
@@ -265,6 +266,7 @@ impl ObjData {
     pub fn new() -> Self {
         ObjData {
             id: None,
+            prefab_id: None,
             label: None,
             code: None,
             desc: None,
@@ -357,9 +359,12 @@ impl LoaderData {
     /// This basic implementation only extends objects that don't exists in self, any conflict
     /// will cause a error
     pub fn extends(&mut self, data: LoaderData) -> Result<()> {
-        if self.version != data.version {
-            return Err("Data version mismatch".into());
-        }
+        // TODO Currently an empty Data is created in latest version and all files are loaded
+        //      extends with this method, causing it to fail. Migration should happens before
+        //      it, but we are getting rid of extends.
+        // if self.version != data.version {
+        //     return Err("Data version mismatch".into());
+        // }
 
         if data.cfg.is_some() {
             if self.cfg.is_some() {

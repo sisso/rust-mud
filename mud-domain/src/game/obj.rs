@@ -1,4 +1,4 @@
-use crate::errors::{self, Error};
+use crate::errors::{self, AsResult, Error, Result};
 use crate::game::domain::NextId;
 use crate::game::loader::dto::StaticId;
 use commons::{ObjId, OBJ_ID_STATIC_RANGE};
@@ -8,14 +8,20 @@ use serde_json::json;
 use serde_json::value::Value::Object;
 use std::collections::HashMap;
 
+pub type PrefabId = StaticId;
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Obj {
     id: ObjId,
+    prefab_id: Option<PrefabId>,
 }
 
 impl Obj {
     pub fn new(id: ObjId) -> Self {
-        Obj { id }
+        Obj {
+            id,
+            prefab_id: None,
+        }
     }
 }
 
@@ -40,7 +46,7 @@ impl Objects {
         id
     }
 
-    pub fn insert(&mut self, id: ObjId) -> errors::Result<()> {
+    pub fn insert(&mut self, id: ObjId) -> Result<()> {
         if self.objects.contains_key(&id) {
             return Err(Error::ConflictException);
         }
@@ -49,6 +55,17 @@ impl Objects {
         self.next_id.set_max(id.as_u32());
         self.objects.insert(id, Obj::new(id));
         Ok(())
+    }
+
+    pub fn set_prefab_id(&mut self, obj_id: ObjId, prefab_id: PrefabId) -> Result<()> {
+        debug!("{:?} prefab_id set to {:?}", obj_id, prefab_id);
+        let obj = self.objects.get_mut(&obj_id).as_result()?;
+        obj.prefab_id = Some(prefab_id);
+        Ok(())
+    }
+
+    pub fn get_prefab_id(&self, obj_id: ObjId) -> Option<PrefabId> {
+        self.objects.get(&obj_id).and_then(|obj| obj.prefab_id)
     }
 
     /// Make sure you remove from everything else first

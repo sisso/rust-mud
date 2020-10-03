@@ -1,8 +1,5 @@
 # Bug
 
-- persistency
-    - room memory
-
 # Main Todo
 
 - after login or switch a view, should show a first message
