@@ -1,3 +1,14 @@
+# Error handling
+
+Each method could return
+
+- Ok
+- Fail but handled the issue internally (log and user message)
+- Fail and issue is not handled (expect the super guy to handle)
+- Warning something is wrong, and it is handled
+- Warning something is wrong and is not handled
+- Error we should explode
+
 # Mining
 
 Player can buy equipment and deliver to planets/asteroids for mining. Once deliver in some place they will keep

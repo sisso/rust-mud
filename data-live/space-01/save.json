@@ -3,8 +3,8 @@
     "avatar_mob": 6,
     "initial_room": 2,
     "money_id": 42,
-    "tick": 17399,
-    "total_time": 1739.9000259265301
+    "tick": 23511,
+    "total_time": 2351.100035034119
   },
   "objects": {
     "0": {
@@ -32,7 +32,7 @@
       "desc": "Small cargo craft designed to deliver small amount of cargo",
       "id": 100000,
       "label": "Light Transport",
-      "parent": 21
+      "parent": 3
     },
     "100001": {
       "desc": "Craft airlock",
@@ -113,7 +113,7 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 100003
+      "parent": 3
     },
     "100007": {
       "desc": "other",
@@ -148,25 +148,7 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 21
-    },
-    "100009": {
-      "id": 100009,
-      "label": "Ore Vendor",
-      "mob": {
-        "attack": 10,
-        "damage_max": 2,
-        "damage_min": 1,
-        "defense": 10,
-        "pv": 10,
-        "pv_max": 10,
-        "xp": 10
-      },
-      "owned_by": 39,
-      "parent": 21,
-      "vendor": {
-        "market_id": 41
-      }
+      "parent": 3
     },
     "100010": {
       "id": 100010,
@@ -209,6 +191,47 @@
         "values": [
           "ore"
         ]
+      }
+    },
+    "100019": {
+      "id": 100019,
+      "label": "Ore Vendor",
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 10
+      },
+      "owned_by": 39,
+      "parent": 21,
+      "prefab_id": 37,
+      "vendor": {
+        "market_id": 41
+      }
+    },
+    "100020": {
+      "code": [
+        "shuttle"
+      ],
+      "craft": {},
+      "desc": "Small shuttle",
+      "id": 100020,
+      "label": "Shuttle",
+      "parent": 3,
+      "prefab_id": 10
+    },
+    "100021": {
+      "desc": "Small cockpit used to control the craft",
+      "id": 100021,
+      "label": "Cockpit",
+      "parent": 100020,
+      "prefab_id": 11,
+      "room": {
+        "can_exit": true,
+        "exits": []
       }
     },
     "16": {
@@ -373,7 +396,7 @@
       "parent": 4,
       "spawn": {
         "max": 1,
-        "next_spawn": 1780.5090609043834,
+        "next_spawn": 2498.885249257087,
         "prefab_id": 36,
         "time_max": 360.0,
         "time_min": 60.0
@@ -385,7 +408,7 @@
       "parent": 21,
       "spawn": {
         "max": 1,
-        "next_spawn": 1811.1510986387727,
+        "next_spawn": 2570.8063818067303,
         "prefab_id": 37,
         "time_max": 360.0,
         "time_min": 60.0

@@ -2,7 +2,8 @@ use crate::controller::{ConnectionView, ConnectionViewAction};
 use crate::errors::*;
 use crate::game::container::Container;
 use crate::game::loader;
-use crate::game::loader::dto::ObjData;
+use crate::game::loader::dto::{ObjData, StaticId};
+use crate::game::loader::Loader;
 use crate::utils::strinput::StrInput;
 use commons::jsons::JsonValueExtra;
 use commons::tree::Tree;
@@ -26,7 +27,7 @@ pub fn handle(
     match input.get_command() {
         "help" => {
             outputs.push("Available commands:".into());
-            outputs.push("list get update remove exit".into());
+            outputs.push("list get update remove spawn exit".into());
             outputs.push("".into());
             Ok(ConnectionViewAction::None)
         }
@@ -55,6 +56,11 @@ pub fn handle(
 
         "verify" => {
             handle_verify(container, outputs, input)?;
+            Ok(ConnectionViewAction::None)
+        }
+
+        "spawn" => {
+            handle_spawn(container, outputs, input)?;
             Ok(ConnectionViewAction::None)
         }
 
@@ -209,6 +215,57 @@ fn handle_verify(
         Err(e) => {
             outputs.push(format!("fail to parse: {:?}", e));
             Ok(())
+        }
+    }
+}
+
+fn handle_spawn(
+    container: &mut Container,
+    outputs: &mut Vec<String>,
+    input: StrInput,
+) -> Result<()> {
+    let arguments = input.parse_arguments();
+
+    let (static_id, parent_id) = (
+        arguments.get(0).map(|s| s.parse()),
+        arguments.get(1).map(|s| s.parse()),
+    );
+
+    let (static_id, parent_id) = match (static_id, parent_id) {
+        (Some(Ok(static_id)), Some(Ok(parent_id))) => (StaticId(static_id), ObjId(parent_id)),
+
+        _ => {
+            outputs.push(format!("invalid arguments {:?}", arguments));
+            outputs.push("spawn <static_id> <parent_obj_id>".to_string());
+            return Ok(());
+        }
+    };
+
+    if container.loader.get_prefab(static_id).is_none() {
+        outputs.push(format!(
+            "invalid argument, there is no prefab with id {:?}",
+            static_id
+        ));
+        return Ok(());
+    }
+
+    if !container.objects.exists(parent_id) {
+        outputs.push(format!(
+            "invalid argument, there is no object with id {:?}",
+            parent_id
+        ));
+        return Ok(());
+    }
+
+    match Loader::spawn_at(container, static_id, parent_id) {
+        Ok(obj_id) => {
+            outputs.push(format!("object created with id {:?}", obj_id));
+            Ok(())
+        }
+
+        Err(e) => {
+            outputs.push(format!("fail to spawn: {:?}", e));
+            Err(e)
         }
     }
 }
@@ -394,6 +451,11 @@ fn handle_remove(
             return Ok(());
         }
     };
+
+    if container.locations.list_at(id).next().is_some() {
+        outputs.push(format!("could not remove object with children"));
+        return Ok(());
+    }
 
     container.remove(id);
     outputs.push(format!("object {} removed", id.as_u32()));
