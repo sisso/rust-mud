@@ -106,6 +106,7 @@ pub struct ItemData {
     pub amount: Option<u32>,
     pub weapon: Option<ItemWeaponData>,
     pub armor: Option<ItemArmorData>,
+    pub weight: Option<f32>,
 }
 
 impl ItemData {
@@ -115,6 +116,7 @@ impl ItemData {
             amount: None,
             weapon: None,
             armor: None,
+            weight: None,
         }
     }
 }

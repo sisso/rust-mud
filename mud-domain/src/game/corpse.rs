@@ -2,7 +2,7 @@ use super::comm;
 use super::container::*;
 use super::item::*;
 use super::mob::*;
-use crate::game::inventory;
+use crate::game::inventory_service;
 use crate::game::labels::Label;
 use crate::game::triggers::*;
 use commons::DeltaTime;
@@ -31,7 +31,7 @@ pub fn create_corpse(container: &mut Container, mob_id: MobId) {
         code: "corpse".to_string(),
         desc: corpse_desc.to_string(),
     });
-    inventory::move_all(&mut container.locations, mob_id, corpse_id);
+    inventory_service::move_all(&mut container.locations, mob_id, corpse_id);
 
     container.timer.schedule(
         container.time.total + DECAY_TIME,

@@ -4,6 +4,7 @@ use crate::game::config::Config;
 use crate::game::domain::{GameTime, MobCtx, PlayerCtx};
 use crate::game::equip::Equips;
 use crate::game::hire::Hires;
+use crate::game::inventory::{Inventories, Inventory};
 use crate::game::item::ItemRepository;
 use crate::game::labels::Labels;
 use crate::game::loader::Loader;
@@ -77,6 +78,7 @@ pub struct Container {
     pub memories: Memories,
     pub outputs: Outputs,
     pub markets: Markets,
+    pub inventories: Inventories,
 }
 
 impl Container {
@@ -111,6 +113,7 @@ impl Container {
             memories: Memories::new(),
             outputs: Outputs::new(),
             markets: Markets::new(),
+            inventories: Inventories::new(),
         }
     }
 

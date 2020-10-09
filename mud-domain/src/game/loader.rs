@@ -1005,6 +1005,7 @@ impl Loader {
                 amount: amount,
                 weapon: weapon,
                 armor: armor,
+                weight: item.weight,
             });
         }
 

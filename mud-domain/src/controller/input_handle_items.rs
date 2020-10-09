@@ -5,7 +5,7 @@ use crate::game::item::{ItemId, ItemRepository};
 use crate::game::labels::Labels;
 use crate::game::location::Locations;
 use crate::game::mob::MobId;
-use crate::game::{comm, inventory};
+use crate::game::{comm, inventory_service};
 use crate::utils::strinput::StrInput;
 use commons::{ObjId, PlayerId};
 
@@ -26,7 +26,7 @@ pub fn parser_owned_item(
 
     let item_label = args.plain_arguments();
 
-    let founds = inventory::search(
+    let founds = inventory_service::search(
         &container.labels,
         &container.locations,
         &container.items,
@@ -53,28 +53,43 @@ pub fn parse_not_owned_item(
     let args = args.parse_arguments();
     match (args.get(0), args.get(1), args.get(2)) {
         (Some(item_label), None, None) => {
-            let found =
-                inventory::search_one(&labels, &locations, &items, item_location, item_label)
-                    .ok_or(ParseItemError::ItemNotFound {
-                        label: item_label.to_string(),
-                    })?;
+            let found = inventory_service::search_one(
+                &labels,
+                &locations,
+                &items,
+                item_location,
+                item_label,
+            )
+            .ok_or(ParseItemError::ItemNotFound {
+                label: item_label.to_string(),
+            })?;
 
             Ok((found, None))
         }
         (Some(item_label), Some(preposition), Some(container_label))
             if is_preposition(preposition) =>
         {
-            let found_container =
-                inventory::search_one(&labels, &locations, &items, item_location, container_label)
-                    .ok_or(ParseItemError::ItemNotFound {
-                        label: container_label.to_string(),
-                    })?;
+            let found_container = inventory_service::search_one(
+                &labels,
+                &locations,
+                &items,
+                item_location,
+                container_label,
+            )
+            .ok_or(ParseItemError::ItemNotFound {
+                label: container_label.to_string(),
+            })?;
 
-            let found_item =
-                inventory::search_one(&labels, &locations, &items, found_container, item_label)
-                    .ok_or(ParseItemError::ItemNotFound {
-                        label: item_label.to_string(),
-                    })?;
+            let found_item = inventory_service::search_one(
+                &labels,
+                &locations,
+                &items,
+                found_container,
+                item_label,
+            )
+            .ok_or(ParseItemError::ItemNotFound {
+                label: item_label.to_string(),
+            })?;
 
             Ok((found_item, Some(found_container)))
         }

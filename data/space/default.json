@@ -400,15 +400,19 @@
       }
     },
     "34": {
-      "desc": "Commercial Goods",
+      "desc": "1 Ton of Commercial Goods",
       "id": 34,
-      "item": {},
+      "item": {
+        "weight": 1000.0
+      },
       "label": "Goods"
     },
     "35": {
-      "desc": "Mineral ores extracted directly from earth",
+      "desc": "1 Ton of Mineral ores extracted directly from earth",
       "id": 35,
-      "item": {},
+      "item": {
+        "weight": 1000.0
+      },
       "label": "Ores"
     },
     "36": {

@@ -41,6 +41,10 @@ impl Templates {
         self.index.get(&id)
     }
 
+    pub fn get_mut(&mut self, id: ObjId) -> Option<&mut Template> {
+        self.index.get_mut(&id)
+    }
+
     pub fn exist(&self, id: ObjId) -> bool {
         self.index.contains_key(&id)
     }

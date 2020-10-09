@@ -9,6 +9,7 @@ use std::collections::HashMap;
 
 pub type ItemId = ObjId;
 pub type ItemPrefabId = ObjId;
+pub type Weight = f32;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ItemFlags {
@@ -41,6 +42,7 @@ pub struct Item {
     pub weapon: Option<Weapon>,
     pub armor: Option<Armor>,
     pub flags: ItemFlags,
+    pub weight: Option<Weight>,
 }
 
 impl Item {
@@ -52,6 +54,7 @@ impl Item {
             weapon: None,
             armor: None,
             flags: ItemFlags::new(),
+            weight: None,
         }
     }
 
@@ -90,12 +93,6 @@ impl Armor {
             rd: 0,
         }
     }
-}
-
-#[derive(Debug, Clone)]
-pub struct Inventory {
-    pub location: ObjId,
-    pub list: Vec<ItemId>,
 }
 
 #[derive(Debug, Clone)]

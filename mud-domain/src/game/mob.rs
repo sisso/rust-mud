@@ -8,7 +8,7 @@ use super::container::Container;
 use crate::errors::Error::InvalidStateFailure;
 use crate::errors::{Error, Result, ResultError};
 use crate::game::domain::{Attribute, Rd};
-use crate::game::inventory;
+use crate::game::inventory_service;
 use crate::game::item::ItemPrefabId;
 use crate::game::labels::Labels;
 use crate::game::location;

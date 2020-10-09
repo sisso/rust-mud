@@ -8,7 +8,7 @@ use crate::game::market::MarketTrade;
 use crate::game::mob::MobId;
 use crate::game::prices::Money;
 use crate::game::tags::Tags;
-use crate::game::{comm, inventory};
+use crate::game::{comm, inventory_service};
 use crate::utils::strinput::StrInput;
 use commons::{Either, ObjId};
 use logs::*;
@@ -160,7 +160,7 @@ pub fn buy(
         }
     };
 
-    let mob_money = inventory::get_money(container, mob_id)?;
+    let mob_money = inventory_service::get_money(container, mob_id)?;
 
     if mob_money.as_u32() < buy_price.as_u32() {
         container.outputs.private(
@@ -170,11 +170,12 @@ pub fn buy(
         return Err(Error::InvalidArgumentFailure);
     }
 
-    let new_mob_money = inventory::remove_money(container, mob_id, buy_price).map_err(|err| {
-        warn!("{:?} fail remove mob money", mob_id);
-        container.outputs.private(mob_id, comm::vendor_buy_fail());
-        err
-    })?;
+    let new_mob_money =
+        inventory_service::remove_money(container, mob_id, buy_price).map_err(|err| {
+            warn!("{:?} fail remove mob money", mob_id);
+            container.outputs.private(mob_id, comm::vendor_buy_fail());
+            err
+        })?;
 
     let item_id = Loader::spawn_at(container, item_static_id, mob_id).map_err(|err| {
         warn!(
@@ -239,7 +240,7 @@ pub fn sell(
     };
 
     // add money
-    inventory::add_money(container, mob_id, sell_price).map_err(|err| {
+    inventory_service::add_money(container, mob_id, sell_price).map_err(|err| {
         container
             .outputs
             .private(mob_id, comm::vendor_operation_fail());

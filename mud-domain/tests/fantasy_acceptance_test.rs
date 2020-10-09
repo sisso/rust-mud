@@ -4,7 +4,7 @@ use commons::{ConnectionId, DeltaTime};
 use logs::*;
 use mud_domain::game::container::Container;
 use mud_domain::game::prices::Money;
-use mud_domain::game::{inventory, loader, Game, GameCfg};
+use mud_domain::game::{inventory_service, loader, Game, GameCfg};
 use std::path::Path;
 
 pub struct TestScenery {
@@ -117,7 +117,7 @@ impl TestScenery {
 
         debug!("{:?} receive cheat {:?} of money", mob_id, amount);
 
-        inventory::add_money(&mut self.game.container, mob_id, Money(amount)).unwrap();
+        inventory_service::add_money(&mut self.game.container, mob_id, Money(amount)).unwrap();
     }
 }
 

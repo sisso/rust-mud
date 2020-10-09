@@ -4,7 +4,7 @@ use crate::errors::*;
 use crate::game::actions::out;
 use crate::game::actions_vendor::VendorTradeObj;
 use crate::game::container::Container;
-use crate::game::inventory;
+use crate::game::inventory_service;
 use crate::game::item::ItemId;
 use crate::game::loader::{dto::StaticId, Loader};
 use crate::game::mob::MobId;

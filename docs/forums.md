@@ -37,6 +37,8 @@ Player can command crew and robots to automate tasks. Or command himself to auto
 - Each item should have a drag flag or number
 - Initially player must manually drag its cargo, one by one
 - A crew member or a drone can be commanded to load/unload the cargo
+- Mob can have a "wield" amount, where you can hold a object and move without use your inventory. Wear an exo skeleton
+  increase you wield max
 
 # Vendor trade and economy
 

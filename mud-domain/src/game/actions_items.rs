@@ -3,7 +3,7 @@ use super::item::*;
 use super::mob::*;
 use crate::errors::{AsResult, Error, Result};
 use crate::game::outputs::Outputs;
-use crate::game::{comm, inventory};
+use crate::game::{comm, inventory_service};
 use commons::PlayerId;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -68,7 +68,7 @@ pub fn do_pickup(
         }
     }
 
-    inventory::add(container, item_id, mob_id).map_err(|_error| {
+    inventory_service::add(container, item_id, mob_id).map_err(|_error| {
         let item_label = container.labels.get_label_f(item_id);
 
         container

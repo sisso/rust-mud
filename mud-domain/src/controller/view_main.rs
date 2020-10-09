@@ -13,14 +13,14 @@ use crate::game::container::Container;
 use crate::game::domain::Dir;
 use crate::game::mob::MobId;
 use crate::game::outputs::Outputs;
-use crate::game::{actions_admin, inventory, mob};
+use crate::game::{actions_admin, inventory_service, mob};
 use crate::utils::strinput::StrInput;
 use logs::*;
 
 fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc> {
     let equip = container.equips.get(obj_id);
 
-    inventory::get_inventory_list(&container.locations, &container.items, obj_id)
+    inventory_service::get_inventory_list(&container.locations, &container.items, obj_id)
         .into_iter()
         .map(|item| {
             let item_label = container.labels.get_label_f(item.id);
@@ -251,7 +251,7 @@ fn action_examine(container: &mut Container, mob_id: MobId, target_label: &str) 
         _ => {}
     }
 
-    let items = inventory::search(
+    let items = inventory_service::search(
         &container.labels,
         &container.locations,
         &container.items,

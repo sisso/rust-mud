@@ -1,6 +1,8 @@
 use crate::game::container::Container;
+use crate::game::inventory::Inventory;
 use crate::game::item::{Item, ItemFlags, ItemId};
 use crate::game::labels::Label;
+use crate::game::location::LocationId;
 use crate::game::mob::{Mob, MobId};
 use crate::game::room::{Room, RoomId};
 use commons::ObjId;
@@ -43,4 +45,25 @@ pub fn add_mob(container: &mut Container, label: &str, location_id: RoomId) -> M
     container.labels.add(Label::new(id, label));
     container.locations.set(id, location_id);
     id
+}
+
+pub fn set_item_weight(container: &mut Container, item_id: ItemId, weight: f32) {
+    container.items.get_mut(item_id).unwrap().weight = Some(weight);
+}
+
+pub fn set_mob_max_carry_weight(container: &mut Container, obj_id: ObjId, max_weight: f32) {
+    container
+        .inventories
+        .add(Inventory {
+            id: obj_id,
+            max_weight,
+            current_weight: 0.0,
+        })
+        .unwrap();
+
+    // container.inventories.get_mut(mob_id).unwrap().max_weight = max_weight;
+    // container
+    //     .inventory
+    //     .get_or_create_inventory(mob_id)
+    //     .max_weight = Some(Weight(max_weight));
 }
