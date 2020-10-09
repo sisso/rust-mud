@@ -97,14 +97,12 @@ pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<ConnectionViewActio
 
         "stats" | "inv" | "score" => {
             let ctx = container.get_mob_ctx(mob_id).as_result()?;
-            container.outputs.private(
-                mob_id,
-                comm::stats(
-                    ctx.mob.xp,
-                    &ctx.mob.attributes,
-                    &inventory_to_desc(container, ctx.mob.id),
-                ),
+            let msg = comm::stats(
+                ctx.mob.xp,
+                &ctx.mob.attributes,
+                &inventory_to_desc(container, ctx.mob.id),
             );
+            container.outputs.private(mob_id, msg);
             Ok(())
         }
 

@@ -15,16 +15,19 @@ pub type Result<T> = std::result::Result<T, Error>;
 ///  * Error - Something bad happens like out of memory or disk error. Must cause system termination
 #[derive(Debug)]
 pub enum Error {
+    // normal failures
     NotFoundFailure,
     NotFoundStaticId(StaticId),
     InvalidStateFailure,
     InvalidArgumentFailure,
     Failure(String),
+    // warning exceptions
     NotFoundException,
     ConflictException,
     InvalidStateException,
     NotImplementedException,
     Exception(String),
+    // errors are problems
     Error(String),
     IOError(std::io::Error),
     ParserError(serde_json::Error),
@@ -71,8 +74,7 @@ impl std::error::Error for Error {}
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let value = format!("{:?}", self);
-        write!(f, "{}", value);
-        Ok(())
+        write!(f, "{}", value)
     }
 }
 

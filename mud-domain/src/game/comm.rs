@@ -310,6 +310,10 @@ pub fn pick_fail_storage_is_not_inventory(target_item: &str) -> String {
     format!("you can not get it, {} is not a storage", target_item)
 }
 
+pub fn pick_fail_inventory_full(target_item: &str) -> String {
+    format!("you can not pick {}, you already full", target_item)
+}
+
 pub fn equip_what() -> String {
     "what? what do you want to equip?".to_string()
 }

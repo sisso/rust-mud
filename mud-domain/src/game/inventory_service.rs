@@ -11,6 +11,7 @@ use logs::*;
 
 // TODO: Merge common code related with money
 // TODO: Money change should just be a +/- function
+// TODO: merge items by count should not be exclusive to money
 
 pub fn can_add_weight(
     container: &Container,
@@ -48,13 +49,6 @@ pub fn update_inventory_weight(container: &mut Container, location_id: LocationI
 pub fn add(container: &mut Container, item_id: ItemId, location_id: LocationId) -> Result<()> {
     let item = container.items.get(item_id).as_result()?;
 
-    if let Some(weight) = item.weight {
-        if !can_add_weight(container, location_id, weight)? {
-            // TODO: user need to be notified
-            return Err(Error::InvalidStateFailure);
-        }
-    }
-
     // Money items can cause to be merge if target inventory already contain it, this means that
     // previous item can get deleted
     if item.flags.is_money {
@@ -64,12 +58,12 @@ pub fn add(container: &mut Container, item_id: ItemId, location_id: LocationId) 
             .ok_or(Error::NotFoundFailure)?
             .amount
             .into();
-        add_money_with_item(container, location_id, amount, Some(item_id))?;
+
+        add_money_with_item(container, location_id, amount, Some(item_id))
     } else {
         container.locations.set(item_id, location_id);
+        Ok(())
     }
-
-    update_inventory_weight(container, location_id)
 }
 
 pub fn add_money(container: &mut Container, obj_id: ObjId, amount: Money) -> Result<()> {
@@ -223,62 +217,4 @@ pub fn search_one(
     search(labels, locations, items, location_id, label)
         .into_iter()
         .next()
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    use crate::game::builder;
-    use crate::game::loader::dto::{ItemData, ItemFlagsData, ObjData, StaticId};
-    use crate::game::obj::Obj;
-
-    #[test]
-    fn test_add_item_until_limit() -> Result<()> {
-        let mut container = Container::new();
-        let container = &mut container;
-
-        let room_id = builder::add_room(container, "room");
-        let mob_id = builder::add_mob(container, "mob", room_id);
-        builder::set_mob_max_carry_weight(container, mob_id, 10.0);
-
-        for _ in 0..20 {
-            let item_id = builder::add_item(container, "item", room_id);
-            builder::set_item_weight(container, item_id, 1.0);
-
-            if add(container, item_id, mob_id).is_err() {
-                break;
-            }
-        }
-
-        let inventory_list = get_inventory_list(&container.locations, &container.items, mob_id);
-        assert_eq!(inventory_list.count(), 10);
-
-        let inventory = container.inventories.get(mob_id).unwrap();
-        assert_eq!(inventory.max_weight, 10.0);
-        assert_eq!(inventory.current_weight, 10.0);
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_remove_item_should_update_weight() -> Result<()> {
-        let mut container = Container::new();
-        let container = &mut container;
-
-        let room_id = builder::add_room(container, "room");
-        let mob_id = builder::add_mob(container, "mob", room_id);
-        builder::set_mob_max_carry_weight(container, mob_id, 10.0);
-
-        for _ in 0..10 {
-            let item_id = builder::add_item(container, "item", room_id);
-            builder::set_item_weight(container, item_id, 1.0);
-        }
-
-        panic!("where is the remove method???");
-
-        let inventory = container.inventories.get(mob_id).unwrap();
-        assert_eq!(inventory.current_weight, 5.0);
-
-        Ok(())
-    }
 }
