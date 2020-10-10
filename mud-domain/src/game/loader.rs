@@ -6,7 +6,7 @@ use crate::game::config::Config;
 use crate::game::container::Container;
 use crate::game::domain::{Dir, Modifier};
 use crate::game::hire::Hire;
-use crate::game::item::{Armor, Item, Weapon};
+use crate::game::item::{Armor, Item, Weapon, Weight};
 use crate::game::labels::Label;
 use crate::game::loader::hocon_parser::{HParser, ParseError};
 use crate::game::mob::{Damage, Mob};
@@ -92,6 +92,15 @@ impl Loader {
 
     pub fn get_prefab(&self, id: StaticId) -> Option<&ObjData> {
         self.index.get(&id)
+    }
+
+    pub fn get_prefab_label(&self, id: StaticId) -> Option<&str> {
+        let value = self.get_prefab(id)?.label.as_ref()?.as_str();
+        Some(value)
+    }
+
+    pub fn get_prefab_weight(&self, id: StaticId) -> Option<Weight> {
+        self.get_prefab(id)?.item.as_ref()?.weight
     }
 
     pub fn find_prefabs_by_parent(&self, id: StaticId) -> Vec<StaticId> {

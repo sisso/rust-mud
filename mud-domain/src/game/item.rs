@@ -61,6 +61,10 @@ impl Item {
     pub fn can_equip(&self) -> bool {
         self.weapon.is_some() || self.armor.is_some()
     }
+
+    pub fn total_weight(&self) -> Weight {
+        self.weight.unwrap_or(0.0) * self.amount as f32
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]

@@ -13,10 +13,17 @@ use logs::*;
 use std::collections::{HashMap, HashSet};
 
 pub struct InventoryDesc<'a> {
+    pub max_weight: Option<Weight>,
+    pub total_weight: Weight,
+    pub items: Vec<InventoryItemDesc<'a>>,
+}
+
+pub struct InventoryItemDesc<'a> {
     pub id: ItemId,
     pub label: &'a str,
     pub amount: u32,
     pub equipped: bool,
+    pub weight: Option<f32>,
 }
 
 // TODO: move to a rule like system that control this semantic through
@@ -201,7 +208,7 @@ pub fn item_body_disappears(item: &str) -> String {
     format!("a {} disappear.", item)
 }
 
-pub fn stats(xp: Xp, attributes: &Attributes, inventory: &Vec<InventoryDesc>) -> String {
+pub fn stats(xp: Xp, attributes: &Attributes, inventory: &InventoryDesc) -> String {
     let inventory_str = show_inventory(inventory);
 
     format!(
@@ -231,7 +238,7 @@ pub fn examine_target(
     mob_label: &str,
     xp: Xp,
     attributes: &Attributes,
-    inventory: &Vec<InventoryDesc>,
+    inventory: &InventoryDesc,
 ) -> String {
     format!(
         "you examine {}!\n{}",
@@ -240,18 +247,25 @@ pub fn examine_target(
     )
 }
 
-pub fn examine_target_item(item: &str, inventory: &Vec<InventoryDesc>) -> String {
+pub fn examine_target_item(item: &str, inventory: &InventoryDesc) -> String {
     format!("you examine {}!\n{}", item, show_inventory(inventory))
 }
 
-pub fn show_inventory(inventory: &Vec<InventoryDesc>) -> String {
+pub fn show_inventory(inventory: &InventoryDesc) -> String {
     let mut buffer: Vec<String> = vec!["Inventory:".to_string()];
-    for item in inventory {
+    for item in &inventory.items {
         buffer.push(format!(
             "- {}",
             print_item(item.label, item.amount, item.equipped)
         ));
     }
+
+    if let Some(max_weight) = inventory.max_weight {
+        buffer.push(format!("weight {}/{}", inventory.total_weight, max_weight));
+    } else {
+        buffer.push(format!("weight {}", inventory.total_weight));
+    }
+
     buffer.join("\n")
 }
 
@@ -807,8 +821,24 @@ pub fn vendor_buy_success(item: &str, price: Money, new_money: Money) -> String 
     )
 }
 
+pub fn vendor_buy_success_floor(item: &str, price: Money, new_money: Money) -> String {
+    format!(
+        "you bought a {} for {}, it is to heavy and was drop in the floor, you have now {} of money",
+        item,
+        price.as_u32(),
+        new_money.as_u32()
+    )
+}
+
 pub fn vendor_buy_success_others(mob_label: &str, item_label: &str) -> String {
     format!("{} bought a {}", mob_label, item_label)
+}
+
+pub fn vendor_buy_success_floor_others(mob_label: &str, item_label: &str) -> String {
+    format!(
+        "{} bought a {} and drop in the floor",
+        mob_label, item_label
+    )
 }
 
 #[cfg(test)]

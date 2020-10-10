@@ -8,7 +8,7 @@ use crate::errors::Error::NotFoundFailure;
 use crate::errors::{AsResult, Error, Result};
 use crate::game::actions;
 use crate::game::comm;
-use crate::game::comm::InventoryDesc;
+use crate::game::comm::{InventoryDesc, InventoryItemDesc};
 use crate::game::container::Container;
 use crate::game::domain::Dir;
 use crate::game::mob::MobId;
@@ -17,22 +17,36 @@ use crate::game::{actions_admin, inventory_service, mob};
 use crate::utils::strinput::StrInput;
 use logs::*;
 
-fn inventory_to_desc(container: &Container, obj_id: ObjId) -> Vec<InventoryDesc> {
+fn get_inventory_desc(container: &Container, obj_id: ObjId) -> InventoryDesc {
     let equip = container.equips.get(obj_id);
+    let max_weight = container.inventories.get(obj_id).and_then(|i| i.max_weight);
 
-    inventory_service::get_inventory_list(&container.locations, &container.items, obj_id)
+    let items: Vec<_> =
+        inventory_service::get_inventory_list(&container.locations, &container.items, obj_id)
+            .collect();
+
+    let total_weight = inventory_service::compute_total_weight(&items);
+
+    let items = items
         .into_iter()
         .map(|item| {
             let item_label = container.labels.get_label_f(item.id);
 
-            InventoryDesc {
+            InventoryItemDesc {
                 id: item.id,
                 label: item_label,
                 amount: item.amount,
                 equipped: equip.contains(&item.id),
+                weight: item.weight,
             }
         })
-        .collect()
+        .collect();
+
+    InventoryDesc {
+        max_weight,
+        total_weight: total_weight,
+        items: items,
+    }
 }
 
 pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<ConnectionViewAction> {
@@ -100,7 +114,7 @@ pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<ConnectionViewActio
             let msg = comm::stats(
                 ctx.mob.xp,
                 &ctx.mob.attributes,
-                &inventory_to_desc(container, ctx.mob.id),
+                &get_inventory_desc(container, ctx.mob.id),
             );
             container.outputs.private(mob_id, msg);
             Ok(())
@@ -235,13 +249,15 @@ fn action_examine(container: &mut Container, mob_id: MobId, target_label: &str) 
         Some(target_id) => {
             let mob_label = container.labels.get_label_f(target_id);
             let target_mob = container.mobs.get(target_id).unwrap();
+            let max_weight = container.inventories.get_max_weight(target_id);
+
             container.outputs.private(
                 mob_id,
                 comm::examine_target(
                     mob_label,
                     target_mob.xp,
                     &target_mob.attributes,
-                    &inventory_to_desc(container, target_id),
+                    &get_inventory_desc(container, target_id),
                 ),
             );
             return Ok(());
@@ -259,10 +275,10 @@ fn action_examine(container: &mut Container, mob_id: MobId, target_label: &str) 
     match items.first().cloned() {
         Some(item_id) => {
             let item_label = container.labels.get_label_f(item_id);
-            container.outputs.private(
-                mob_id,
-                comm::examine_target_item(item_label, &inventory_to_desc(container, item_id)),
-            );
+            let inventory = &get_inventory_desc(container, item_id);
+            container
+                .outputs
+                .private(mob_id, comm::examine_target_item(item_label, inventory));
             return Ok(());
         }
         _ => {}

@@ -134,14 +134,20 @@ impl Container {
         self.astro_bodies.remove(obj_id);
         self.markets.remove(obj_id);
         self.memories.remove(obj_id);
+        self.inventories.remove(obj_id);
     }
 
     pub fn get_mob_ctx(&self, mob_id: MobId) -> Option<MobCtx> {
         let mob = self.mobs.get(mob_id)?;
         let room_id = self.locations.get(mob.id)?;
         let room = self.rooms.get(room_id)?;
+        let inventory = self.inventories.get(mob_id);
 
-        Some(MobCtx { mob, room })
+        Some(MobCtx {
+            mob,
+            room,
+            inventory,
+        })
     }
 
     pub fn get_player_ctx(&self, player_id: PlayerId) -> Option<PlayerCtx> {

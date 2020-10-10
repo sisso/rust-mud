@@ -1,5 +1,8 @@
 # Bug
 
+- mob 'other' can no sell ore to city vendor
+- mob can pick more that capacity
+
 # Main Todo
 
 - after login or switch a view, should show a first message

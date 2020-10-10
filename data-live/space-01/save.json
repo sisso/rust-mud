@@ -3,8 +3,8 @@
     "avatar_mob": 6,
     "initial_room": 2,
     "money_id": 42,
-    "tick": 23528,
-    "total_time": 2352.800035059451
+    "tick": 24723,
+    "total_time": 2472.30003684014
   },
   "objects": {
     "0": {
@@ -154,7 +154,7 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 3
+      "parent": 4
     },
     "100010": {
       "id": 100010,
@@ -180,7 +180,7 @@
     "100017": {
       "id": 100017,
       "item": {
-        "amount": 2960,
+        "amount": 1760,
         "flags": {
           "money": true
         }
@@ -245,6 +245,54 @@
       "room": {
         "can_exit": true,
         "exits": []
+      }
+    },
+    "100022": {
+      "desc": "Commercial Goods",
+      "id": 100022,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Goods",
+      "parent": 100008,
+      "prefab_id": 34,
+      "tags": {
+        "values": [
+          "goods"
+        ]
+      }
+    },
+    "100023": {
+      "desc": "Commercial Goods",
+      "id": 100023,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Goods",
+      "parent": 100008,
+      "prefab_id": 34,
+      "tags": {
+        "values": [
+          "goods"
+        ]
+      }
+    },
+    "100024": {
+      "desc": "Commercial Goods",
+      "id": 100024,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Goods",
+      "parent": 100008,
+      "prefab_id": 34,
+      "tags": {
+        "values": [
+          "goods"
+        ]
       }
     },
     "16": {

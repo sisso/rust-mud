@@ -3,6 +3,7 @@ use super::player::*;
 use super::room::*;
 use crate::errors;
 use crate::errors::Error;
+use crate::game::inventory::Inventory;
 use crate::game::GameCfg;
 use commons::{DeltaTime, Tick, TotalTime};
 use serde::{Deserialize, Serialize};
@@ -101,6 +102,7 @@ impl Dir {
 pub struct MobCtx<'a> {
     pub mob: &'a Mob,
     pub room: &'a Room,
+    pub inventory: Option<&'a Inventory>,
 }
 
 pub struct PlayerCtx<'a> {

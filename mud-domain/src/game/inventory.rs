@@ -70,4 +70,8 @@ impl Inventories {
     pub fn list<'a>(&'a self) -> impl Iterator<Item = &Inventory> + 'a {
         self.index.values()
     }
+
+    pub fn get_max_weight(&self, id: ObjId) -> Option<Weight> {
+        self.index.get(&id).and_then(|i| i.max_weight)
+    }
 }

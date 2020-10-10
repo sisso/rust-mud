@@ -2,6 +2,7 @@ use crate::errors::*;
 use crate::game::container::Container;
 use crate::game::item::{Item, ItemId, ItemRepository, Weight};
 use crate::game::labels::Labels;
+use crate::game::loader::dto::StaticId;
 use crate::game::loader::Loader;
 use crate::game::location;
 use crate::game::location::{LocationId, Locations};
@@ -12,6 +13,22 @@ use logs::*;
 // TODO: Merge common code related with money
 // TODO: Money change should just be a +/- function
 // TODO: merge items by count should not be exclusive to money
+
+pub fn compute_total_weight(items: &Vec<&Item>) -> Weight {
+    items.iter().map(|item| item.total_weight()).sum()
+}
+
+pub fn can_add_weight_prefab(container: &Container, obj_id: ObjId, static_id: StaticId) -> bool {
+    let weight = match container.loader.get_prefab_weight(static_id) {
+        Some(w) => w,
+        None => return true,
+    };
+
+    let location_inventory = container.inventories.get(obj_id);
+    location_inventory
+        .map(|inv| inv.can_add(weight))
+        .unwrap_or(false)
+}
 
 pub fn can_add_weight(
     container: &Container,

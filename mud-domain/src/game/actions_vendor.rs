@@ -83,12 +83,8 @@ pub fn vendor_items_to_vendor_list_items<'a>(
         .map(|vendor_trade| {
             let label = container
                 .loader
-                .get_prefab(vendor_trade.static_id)
-                .unwrap()
-                .label
-                .as_ref()
-                .unwrap()
-                .as_str();
+                .get_prefab_label(vendor_trade.static_id)
+                .unwrap_or("undefined");
 
             let display = VendorTradeItemDisplay {
                 label: label,
@@ -177,27 +173,47 @@ pub fn buy(
             err
         })?;
 
-    let item_id = Loader::spawn_at(container, item_static_id, mob_id).map_err(|err| {
-        warn!(
-            "{:?} fail to spawn bought item for {:?}",
-            item_static_id, mob_id
-        );
-        container.outputs.private(mob_id, comm::vendor_buy_fail());
-        err
-    })?;
+    // check if mob can hold the item
+    let drop_in_floor = inventory_service::can_add_weight_prefab(container, mob_id, item_static_id);
 
+    let item_spawn_location_id = if drop_in_floor { location_id } else { mob_id };
+
+    // spawn item
+    let item_id =
+        Loader::spawn_at(container, item_static_id, item_spawn_location_id).map_err(|err| {
+            warn!(
+                "{:?} fail to spawn bought item for {:?}",
+                item_static_id, mob_id
+            );
+            container.outputs.private(mob_id, comm::vendor_buy_fail());
+            err
+        })?;
+
+    // send messages
     let mob_label = container.labels.get_label_f(mob_id);
     let item_label = container.labels.get_label_f(item_id);
 
-    container.outputs.private(
-        mob_id,
-        comm::vendor_buy_success(item_label, buy_price, new_mob_money),
-    );
-    container.outputs.broadcast(
-        Some(mob_id),
-        location_id,
-        comm::vendor_buy_success_others(mob_label, item_label),
-    );
+    if drop_in_floor {
+        container.outputs.private(
+            mob_id,
+            comm::vendor_buy_success_floor(item_label, buy_price, new_mob_money),
+        );
+        container.outputs.broadcast(
+            Some(mob_id),
+            location_id,
+            comm::vendor_buy_success_floor_others(mob_label, item_label),
+        );
+    } else {
+        container.outputs.private(
+            mob_id,
+            comm::vendor_buy_success(item_label, buy_price, new_mob_money),
+        );
+        container.outputs.broadcast(
+            Some(mob_id),
+            location_id,
+            comm::vendor_buy_success_others(mob_label, item_label),
+        );
+    }
 
     Ok(item_id)
 }
