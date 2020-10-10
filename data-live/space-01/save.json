@@ -3,8 +3,8 @@
     "avatar_mob": 6,
     "initial_room": 2,
     "money_id": 42,
-    "tick": 23511,
-    "total_time": 2351.100035034119
+    "tick": 23528,
+    "total_time": 2352.800035059451
   },
   "objects": {
     "0": {
@@ -93,6 +93,9 @@
     "100005": {
       "desc": "sisso",
       "id": 100005,
+      "inventory": {
+        "max_weight": 20.0
+      },
       "label": "sisso",
       "memory": {
         "knows": [
@@ -128,6 +131,9 @@
     "100008": {
       "desc": "other",
       "id": 100008,
+      "inventory": {
+        "max_weight": 20.0
+      },
       "label": "other",
       "memory": {
         "knows": [
@@ -152,6 +158,9 @@
     },
     "100010": {
       "id": 100010,
+      "inventory": {
+        "max_weight": 20.0
+      },
       "label": "Good Vendor",
       "mob": {
         "attack": 10,
@@ -183,7 +192,8 @@
       "desc": "Mineral ores extracted directly from earth",
       "id": 100018,
       "item": {
-        "flags": {}
+        "flags": {},
+        "weight": 10.0
       },
       "label": "Ores",
       "parent": 100008,
@@ -195,6 +205,9 @@
     },
     "100019": {
       "id": 100019,
+      "inventory": {
+        "max_weight": 20.0
+      },
       "label": "Ore Vendor",
       "mob": {
         "attack": 10,
@@ -549,7 +562,9 @@
     "34": {
       "desc": "Commercial Goods",
       "id": 34,
-      "item": {},
+      "item": {
+        "weight": 10.0
+      },
       "label": "Goods",
       "price": {
         "buy": 500,
@@ -565,7 +580,9 @@
     "35": {
       "desc": "Mineral ores extracted directly from earth",
       "id": 35,
-      "item": {},
+      "item": {
+        "weight": 10.0
+      },
       "label": "Ores",
       "price": {
         "buy": 50,
@@ -580,6 +597,9 @@
     },
     "36": {
       "id": 36,
+      "inventory": {
+        "max_weight": 20.0
+      },
       "label": "Good Vendor",
       "mob": {
         "attack": 10,
@@ -596,6 +616,9 @@
     },
     "37": {
       "id": 37,
+      "inventory": {
+        "max_weight": 20.0
+      },
       "label": "Ore Vendor",
       "mob": {
         "attack": 10,
@@ -623,6 +646,9 @@
     "6": {
       "desc": "A normal and boring human being",
       "id": 6,
+      "inventory": {
+        "max_weight": 20.0
+      },
       "label": "Human",
       "mob": {
         "attack": 10,
@@ -635,5 +661,5 @@
       }
     }
   },
-  "version": 1
+  "version": 2
 }

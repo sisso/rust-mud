@@ -39,7 +39,7 @@ use commons::jsons::JsonValueExtra;
 use dto::*;
 use std::io::Write;
 
-const CURRENT_VERSION: u32 = 1;
+const CURRENT_VERSION: u32 = 2;
 
 #[derive(Debug, Clone)]
 pub struct ValidationResult {
@@ -408,6 +408,7 @@ impl Loader {
             let mut item = Item::new(obj_id);
 
             item.amount = data_item.amount.unwrap_or(1);
+            item.weight = data_item.weight;
 
             if let Some(flags) = &data_item.flags {
                 item.flags.is_corpse = flags.body.unwrap_or(false);
@@ -1181,6 +1182,12 @@ impl Loader {
             info!("migrating data to v1 started");
             migrations::migrate_to_v1(data)?;
             info!("migrating data to v1 complete");
+        }
+
+        if data.version < 2 {
+            info!("migrating data to v2 started");
+            migrations::migrate_to_v2(data)?;
+            info!("migrating data to v2 complete");
         }
 
         Ok(())
