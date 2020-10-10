@@ -52,18 +52,7 @@ pub fn set_item_weight(container: &mut Container, item_id: ItemId, weight: f32) 
 }
 
 pub fn set_mob_max_carry_weight(container: &mut Container, obj_id: ObjId, max_weight: f32) {
-    container
-        .inventories
-        .add(Inventory {
-            id: obj_id,
-            max_weight,
-            current_weight: 0.0,
-        })
-        .unwrap();
-
-    // container.inventories.get_mut(mob_id).unwrap().max_weight = max_weight;
-    // container
-    //     .inventory
-    //     .get_or_create_inventory(mob_id)
-    //     .max_weight = Some(Weight(max_weight));
+    let mut inventory = Inventory::new(obj_id);
+    inventory.max_weight = Some(max_weight);
+    container.inventories.add(inventory).unwrap();
 }

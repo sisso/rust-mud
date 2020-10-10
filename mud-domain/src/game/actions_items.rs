@@ -313,8 +313,8 @@ pub mod test {
         assert_eq!(inventory_list.count(), 10);
 
         let inventory = container.inventories.get(scenery.mob_id).unwrap();
-        assert_eq!(inventory.max_weight, 10.0);
-        assert_eq!(inventory.current_weight, 10.0);
+        assert_eq!(inventory.max_weight, Some(10.0));
+        assert_eq!(inventory.current_weight, Some(10.0));
 
         Ok(())
     }
@@ -343,8 +343,8 @@ pub mod test {
         assert_eq!(inventory_list.count(), 1);
 
         let inventory = scenery.container.inventories.get(scenery.mob_id).unwrap();
-        assert_eq!(inventory.max_weight, 10.0);
-        assert_eq!(inventory.current_weight, 5.0);
+        assert_eq!(inventory.max_weight, Some(10.0));
+        assert_eq!(inventory.current_weight, Some(5.0));
 
         Ok(())
     }

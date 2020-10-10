@@ -1,6 +1,6 @@
 mod hocon_parser;
 
-use crate::errors::{Error, Result};
+use crate::errors::{AsResult, Error, Result};
 use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
 use crate::game::config::Config;
 use crate::game::container::Container;
@@ -33,6 +33,7 @@ use std::path::{Path, PathBuf};
 pub mod dto;
 mod migrations;
 
+use crate::game::inventory::Inventory;
 use crate::game::market::{Market, MarketTrade};
 use commons::jsons::JsonValueExtra;
 use dto::*;
@@ -563,6 +564,12 @@ impl Loader {
                 .expect("fail to insert market");
         }
 
+        if let Some(inventory_data) = &data.inventory {
+            let mut inv = Inventory::new(obj_id);
+            inv.max_weight = inventory_data.max_weight;
+            container.inventories.add(inv).unwrap();
+        }
+
         if let Some(children) = data.children.clone() {
             for static_id in children.into_iter() {
                 trace!("{:?} spawn children {:?}", obj_id, static_id);
@@ -1068,6 +1075,12 @@ impl Loader {
                         sell_price_mult: trade.sell_price_mult,
                     })
                     .collect(),
+            });
+        }
+
+        if let Some(inventory) = container.inventories.get(id) {
+            obj_data.inventory = Some(InventoryData {
+                max_weight: inventory.max_weight,
             });
         }
 

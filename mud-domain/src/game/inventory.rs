@@ -6,21 +6,24 @@ use std::collections::HashMap;
 #[derive(Debug, Clone)]
 pub struct Inventory {
     pub id: ObjId,
-    pub max_weight: Weight,
-    pub current_weight: Weight,
+    pub max_weight: Option<Weight>,
+    pub current_weight: Option<Weight>,
 }
 
 impl Inventory {
-    pub fn new(id: ObjId, current: Weight, max: Weight) -> Self {
+    pub fn new(id: ObjId) -> Self {
         Inventory {
             id: id,
-            current_weight: current,
-            max_weight: max,
+            current_weight: None,
+            max_weight: None,
         }
     }
 
     pub fn can_add(&self, weight: Weight) -> bool {
-        self.current_weight + weight <= self.max_weight
+        self.max_weight
+            .as_ref()
+            .map(|&max_weight| self.current_weight.unwrap_or(0.0) + weight <= max_weight)
+            .unwrap_or(true)
     }
 }
 

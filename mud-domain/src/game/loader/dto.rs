@@ -101,6 +101,11 @@ pub struct ItemArmorData {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct InventoryData {
+    pub max_weight: Option<f32>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ItemData {
     pub flags: Option<ItemFlagsData>,
     pub amount: Option<u32>,
@@ -262,6 +267,7 @@ pub struct ObjData {
     pub memory: Option<MemoryData>,
     pub tags: Option<TagsData>,
     pub market: Option<MarketData>,
+    pub inventory: Option<InventoryData>,
 }
 
 impl ObjData {
@@ -290,6 +296,7 @@ impl ObjData {
             memory: None,
             tags: None,
             market: None,
+            inventory: None,
         }
     }
 

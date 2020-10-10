@@ -41,7 +41,7 @@ pub fn update_inventory_weight(container: &mut Container, location_id: LocationI
         .flat_map(|id| items.get(id).and_then(|item| item.weight))
         .sum();
 
-    inventory.current_weight = total_weight;
+    inventory.current_weight = Some(total_weight);
 
     Ok(())
 }
