@@ -3,8 +3,8 @@
     "avatar_mob": 6,
     "initial_room": 2,
     "money_id": 42,
-    "tick": 24723,
-    "total_time": 2472.30003684014
+    "tick": 26489,
+    "total_time": 2648.900039471685
   },
   "objects": {
     "0": {
@@ -180,28 +180,13 @@
     "100017": {
       "id": 100017,
       "item": {
-        "amount": 1760,
+        "amount": 1421,
         "flags": {
           "money": true
         }
       },
       "label": "credits",
       "parent": 100008
-    },
-    "100018": {
-      "desc": "Mineral ores extracted directly from earth",
-      "id": 100018,
-      "item": {
-        "flags": {},
-        "weight": 10.0
-      },
-      "label": "Ores",
-      "parent": 100008,
-      "tags": {
-        "values": [
-          "ore"
-        ]
-      }
     },
     "100019": {
       "id": 100019,
@@ -255,7 +240,7 @@
         "weight": 10.0
       },
       "label": "Goods",
-      "parent": 100008,
+      "parent": 4,
       "prefab_id": 34,
       "tags": {
         "values": [
@@ -271,7 +256,7 @@
         "weight": 10.0
       },
       "label": "Goods",
-      "parent": 100008,
+      "parent": 4,
       "prefab_id": 34,
       "tags": {
         "values": [
@@ -282,6 +267,22 @@
     "100024": {
       "desc": "Commercial Goods",
       "id": 100024,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Goods",
+      "parent": 100008,
+      "prefab_id": 34,
+      "tags": {
+        "values": [
+          "goods"
+        ]
+      }
+    },
+    "100025": {
+      "desc": "Commercial Goods",
+      "id": 100025,
       "item": {
         "flags": {},
         "weight": 10.0
@@ -457,7 +458,7 @@
       "parent": 4,
       "spawn": {
         "max": 1,
-        "next_spawn": 2498.885249257087,
+        "next_spawn": 2675.0525335744014,
         "prefab_id": 36,
         "time_max": 360.0,
         "time_min": 60.0
@@ -469,7 +470,7 @@
       "parent": 21,
       "spawn": {
         "max": 1,
-        "next_spawn": 2570.8063818067303,
+        "next_spawn": 2801.6806840598574,
         "prefab_id": 37,
         "time_max": 360.0,
         "time_min": 60.0

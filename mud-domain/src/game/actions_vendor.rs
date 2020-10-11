@@ -241,7 +241,7 @@ pub fn sell(
         _ => None,
     };
 
-    // item label must be collected before contianer.remove
+    // item label must be collected before container.remove
     let item_label = container.labels.get_label_f(item_id).to_string();
 
     let sell_price = match sell_price {
@@ -249,7 +249,7 @@ pub fn sell(
         None => {
             container.outputs.private(
                 mob_id,
-                comm::vendor_sell_item_not_found(item_label.as_str()),
+                comm::vendor_sell_item_fail_has_no_price(item_label.as_str()),
             );
             return Err(Error::InvalidStateFailure);
         }

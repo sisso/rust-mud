@@ -18,6 +18,7 @@ pub struct Templates {
     index: HashMap<ObjId, Template>,
 }
 
+// TODO: move mostly of this methods to a trait
 impl Templates {
     pub fn new() -> Self {
         Templates {

@@ -5,6 +5,7 @@ use crate::errors::{AsResult, Error, Result};
 use crate::game::outputs::Outputs;
 use crate::game::{comm, inventory_service};
 use commons::PlayerId;
+use logs::*;
 
 #[derive(Debug)]
 pub enum PickUpError {
@@ -43,16 +44,24 @@ pub fn do_pickup(
         return Err(PickUpError::Stuck);
     }
 
+    debug!("{:?} pick up {:?}, starting", mob_id, item_id);
     if let Some(weight) = item.weight {
-        let can_add_weight = !inventory_service::can_add_weight(container, mob_id, weight)
+        let can_add_weight = inventory_service::can_add_weight(container, mob_id, weight)
             .map_err(|e| PickUpError::Other(e))?;
 
-        if can_add_weight {
+        debug!(
+            "{:?} pick up {:?}, can_add_weight {}",
+            mob_id, item_id, can_add_weight
+        );
+
+        if !can_add_weight {
             container
                 .outputs
-                .private(mob_id, comm::pick_fail_storage_is_not_inventory(item_label));
+                .private(mob_id, comm::pick_fail_inventory_full(item_label));
             return Err(PickUpError::Full);
         }
+    } else {
+        debug!("{:?} pick up {:?}, item has no weight", mob_id, item_id);
     }
 
     match inventory_id {

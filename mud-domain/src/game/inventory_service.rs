@@ -14,6 +14,15 @@ use logs::*;
 // TODO: Money change should just be a +/- function
 // TODO: merge items by count should not be exclusive to money
 
+pub fn update_all_current_inventory(container: &mut Container) {
+    let ids: Vec<ObjId> = container.inventories.list_ids().cloned().collect();
+    for id in ids {
+        if let Err(e) = update_inventory_weight(container, id) {
+            warn!("{:?} error when computing weight {:?}", id, e);
+        }
+    }
+}
+
 pub fn compute_total_weight(items: &Vec<&Item>) -> Weight {
     items.iter().map(|item| item.total_weight()).sum()
 }

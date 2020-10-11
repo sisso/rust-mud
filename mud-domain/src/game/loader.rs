@@ -1107,8 +1107,8 @@ impl Loader {
             container.loader.add_prefab(v);
         }
 
-        // instantiate static data
-        Loader::initialize_all(container, data.objects)?;
+        // add objects
+        Loader::load_all(container, data.objects)?;
 
         // update configurations with references
         match data.cfg {
@@ -1136,6 +1136,7 @@ impl Loader {
 
         // initialize objects
         crate::game::system::random_room_generators_system::init(container);
+        crate::game::inventory_service::update_all_current_inventory(container);
 
         Ok(())
     }
@@ -1202,10 +1203,7 @@ impl Loader {
         Ok(())
     }
 
-    fn initialize_all(
-        container: &mut Container,
-        objects: BTreeMap<StaticId, ObjData>,
-    ) -> Result<()> {
+    fn load_all(container: &mut Container, objects: BTreeMap<StaticId, ObjData>) -> Result<()> {
         for (key, _) in &objects {
             container.objects.insert(ObjId(key.as_u32()))?;
         }

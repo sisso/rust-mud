@@ -757,6 +757,10 @@ pub fn vendor_sell_item_not_found(label: &str) -> String {
     format!("you don't have a '{}' to sell", label)
 }
 
+pub fn vendor_sell_item_fail_has_no_price(label: &str) -> String {
+    format!("you can not sell {}", label)
+}
+
 pub fn vendor_sell_item(label: &str, value: Money) -> String {
     format!("you sell {} and receive {}", label, value.as_u32())
 }

@@ -1,8 +1,5 @@
 # Bug
 
-- mob 'other' can no sell ore to city vendor
-- mob can pick more that capacity
-
 # Main Todo
 
 - after login or switch a view, should show a first message
@@ -47,6 +44,8 @@
 # refactoring
 
 - normalize Option and Result usage and a clean way to return failure to player and errors messasges for log
+    - the idea of use Result<bool> and return Ok(false) if messages were already send to player but fail to complete
+      make a bit mess with ? and others result shurtcuts
 - add static_id reference of a object
 - merge space and fantasy scenery test functionality
 - replace dyn buffer to vector one. Better, move it to container as Events, and later events to messages!
