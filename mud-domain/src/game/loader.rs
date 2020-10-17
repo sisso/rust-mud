@@ -26,7 +26,7 @@ use logs::*;
 use rand::random;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::borrow::Borrow;
+use std::borrow::{Borrow, BorrowMut};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
@@ -34,6 +34,7 @@ pub mod dto;
 mod migrations;
 
 use crate::game::inventory::Inventory;
+use crate::game::loader::migrations::*;
 use crate::game::market::{Market, MarketTrade};
 use commons::jsons::JsonValueExtra;
 use dto::*;
@@ -61,6 +62,23 @@ impl ValidationResult {
                 "duplicate prefab id {:?}",
                 self.duplicate_ids[0]
             )));
+        }
+
+        Ok(())
+    }
+}
+
+trait Migration {
+    fn version(&self) -> u32;
+    fn migrate_obj_or_prefab(&mut self, data: &mut ObjData) -> Result<()> {
+        Ok(())
+    }
+    fn migrate(&mut self, data: &mut LoaderData) -> Result<()> {
+        for (_, data) in &mut data.prefabs {
+            self.migrate_obj_or_prefab(data)?;
+        }
+        for (_, data) in &mut data.objects {
+            self.migrate_obj_or_prefab(data)?;
         }
 
         Ok(())
@@ -1064,6 +1082,13 @@ impl Loader {
             });
         }
 
+        if let Some(price) = container.prices.get(id) {
+            obj_data.price = Some(PriceData {
+                price: Some(price.price.as_u32()),
+                buy: None,
+                sell: None,
+            });
+        }
         Ok(obj_data)
     }
 
@@ -1153,21 +1178,20 @@ impl Loader {
     }
 
     fn migrate(data: &mut LoaderData) -> Result<()> {
-        info!(
-            "checking for data migration {:?} < {:?}?",
-            data.version, CURRENT_VERSION
-        );
+        info!("checking for data migration for {:?}", data.version);
 
-        if data.version < 1 {
-            info!("migrating data to v1 started");
-            migrations::migrate_to_v1(data)?;
-            info!("migrating data to v1 complete");
-        }
+        let migrations: Vec<Box<dyn Migration>> = vec![
+            Box::new(MigrationV1::default()),
+            Box::new(MigrationV2::default()),
+            Box::new(MigrationV3::default()),
+        ];
 
-        if data.version < 2 {
-            info!("migrating data to v2 started");
-            migrations::migrate_to_v2(data)?;
-            info!("migrating data to v2 complete");
+        for mut migration in migrations {
+            if data.version < migration.version() {
+                info!("migrating data to v{} started", migration.version());
+                migration.migrate(data)?;
+                info!("migrating data to v{} complete", migration.version());
+            }
         }
 
         Ok(())

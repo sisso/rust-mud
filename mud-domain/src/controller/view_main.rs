@@ -289,7 +289,7 @@ fn action_examine(container: &mut Container, mob_id: MobId, target_label: &str) 
     Err(Error::InvalidArgumentFailure)
 }
 
-pub fn handle_meta(ctx: &mut ViewHandleCtx, input: &StrInput) -> Result<ConnectionViewAction> {
+pub fn handle_meta(_ctx: &mut ViewHandleCtx, input: &StrInput) -> Result<ConnectionViewAction> {
     match input.first() {
         "admin" => Ok(ConnectionViewAction::SwitchView(ConnectionView::Admin)),
 

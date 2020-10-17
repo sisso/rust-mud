@@ -3,8 +3,8 @@
     "avatar_mob": 6,
     "initial_room": 2,
     "money_id": 42,
-    "tick": 27126,
-    "total_time": 2712.600040420889
+    "tick": 30536,
+    "total_time": 3053.6000455021854
   },
   "objects": {
     "0": {
@@ -32,7 +32,14 @@
       "desc": "Small cargo craft designed to deliver small amount of cargo",
       "id": 100000,
       "label": "Light Transport",
-      "parent": 3
+      "parent": 21,
+      "tags": {
+        "values": [
+          "ship",
+          "ship_civil",
+          "ship_transport"
+        ]
+      }
     },
     "100001": {
       "desc": "Craft airlock",
@@ -116,7 +123,7 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 3
+      "parent": 100003
     },
     "100007": {
       "desc": "other",
@@ -154,7 +161,7 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 100002
+      "parent": 21
     },
     "100010": {
       "id": 100010,
@@ -238,6 +245,9 @@
       },
       "label": "Goods",
       "parent": 100008,
+      "price": {
+        "price": 500
+      },
       "tags": {
         "values": [
           "goods"
@@ -253,6 +263,9 @@
       },
       "label": "Goods",
       "parent": 100008,
+      "price": {
+        "price": 500
+      },
       "tags": {
         "values": [
           "goods"
@@ -268,6 +281,9 @@
       },
       "label": "Goods",
       "parent": 100002,
+      "price": {
+        "price": 500
+      },
       "tags": {
         "values": [
           "goods"
@@ -283,6 +299,9 @@
       },
       "label": "Goods",
       "parent": 100002,
+      "price": {
+        "price": 500
+      },
       "tags": {
         "values": [
           "goods"
@@ -451,7 +470,7 @@
       "parent": 4,
       "spawn": {
         "max": 1,
-        "next_spawn": 2959.1400789245954,
+        "next_spawn": 3113.6066145300856,
         "prefab_id": 36,
         "time_max": 360.0,
         "time_min": 60.0
@@ -463,7 +482,7 @@
       "parent": 21,
       "spawn": {
         "max": 1,
-        "next_spawn": 2801.6806840598574,
+        "next_spawn": 3240.1452103182664,
         "prefab_id": 37,
         "time_max": 360.0,
         "time_min": 60.0
@@ -500,6 +519,20 @@
             "tags": [
               "goods"
             ]
+          },
+          {
+            "buy_price_mult": 0.800000011920929,
+            "sell_price_mult": 1.2000000476837158,
+            "tags": [
+              "ship_civil"
+            ]
+          },
+          {
+            "buy_price_mult": 0.800000011920929,
+            "sell_price_mult": 1.2000000476837158,
+            "tags": [
+              "robot_civil"
+            ]
           }
         ]
       }
@@ -534,7 +567,17 @@
       "craft": {},
       "desc": "Small shuttle",
       "id": 10,
-      "label": "Shuttle"
+      "label": "Shuttle",
+      "price": {
+        "price": 10000
+      },
+      "tags": {
+        "values": [
+          "ship",
+          "ship_transport",
+          "ship_civil"
+        ]
+      }
     },
     "11": {
       "desc": "Small cockpit used to control the craft",
@@ -552,7 +595,17 @@
       "craft": {},
       "desc": "Small cargo craft designed to deliver small amount of cargo",
       "id": 12,
-      "label": "Light Transport"
+      "label": "Light Transport",
+      "price": {
+        "price": 50000
+      },
+      "tags": {
+        "values": [
+          "ship",
+          "ship_transport",
+          "ship_civil"
+        ]
+      }
     },
     "13": {
       "desc": "Craft bridge.",
@@ -684,6 +737,33 @@
         }
       },
       "label": "credits"
+    },
+    "43": {
+      "desc": "A robot capable of lift and hauler heavy cargo",
+      "id": 43,
+      "inventory": {
+        "max_weight": 100.0
+      },
+      "label": "Lift Robot",
+      "mob": {
+        "attack": 3,
+        "damage_max": 1,
+        "damage_min": 1,
+        "defense": 3,
+        "pv": 3,
+        "pv_max": 3,
+        "xp": 1
+      },
+      "price": {
+        "price": 2000
+      },
+      "tags": {
+        "values": [
+          "robot",
+          "robot_lift",
+          "robot_civil"
+        ]
+      }
     },
     "6": {
       "desc": "A normal and boring human being",

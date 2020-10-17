@@ -151,14 +151,14 @@ fn test_fantasy_kill_wolf_and_sell_meat() {
     sell_meat(&mut scenery);
 }
 
-// TODO: wolfs are not aggressive anymore
-// #[test]
-fn test_fantasy_wolf_are_aggressive() {
-    let mut scenery = TestScenery::new();
-    scenery.login();
-    from_village_to_forest(&mut scenery);
-    scenery.wait_for("wolf execute a attack");
-}
+// // TODO: wolfs are not aggressive anymore
+// // #[test]
+// fn test_fantasy_wolf_are_aggressive() {
+//     let mut scenery = TestScenery::new();
+//     scenery.login();
+//     from_village_to_forest(&mut scenery);
+//     scenery.wait_for("wolf execute a attack");
+// }
 
 #[test]
 fn test_fantasy_collect_money_should_be_merged() {
@@ -332,10 +332,10 @@ fn pick_money_from_chest(scenery: &mut TestScenery) {
     scenery.wait_for("pick");
 }
 
-fn from_temple_to_market(scenery: &mut TestScenery) {
-    scenery.input_and_wait("e", "Village");
-    scenery.input_and_wait("s", "Market");
-}
+// fn from_temple_to_market(scenery: &mut TestScenery) {
+//     scenery.input_and_wait("e", "Village");
+//     scenery.input_and_wait("s", "Market");
+// }
 
 fn buy_sword(scenery: &mut TestScenery) {
     scenery.input_and_wait("buy", "Short Sword");

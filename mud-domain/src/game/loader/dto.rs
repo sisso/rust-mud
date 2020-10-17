@@ -166,6 +166,16 @@ pub struct PriceData {
     pub sell: Option<u32>,
 }
 
+impl PriceData {
+    pub fn new(price: u32) -> Self {
+        PriceData {
+            price: Some(price),
+            buy: None,
+            sell: None,
+        }
+    }
+}
+
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct MarketTradeData {
     pub tags: Vec<String>,

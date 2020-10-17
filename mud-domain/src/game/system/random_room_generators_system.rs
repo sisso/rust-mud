@@ -79,9 +79,6 @@ pub fn init(container: &mut Container) {
                 let down_id = previous_rooms_ids.unwrap()[down_index];
 
                 rooms.add_portal(down_id, up_id, Dir::D);
-
-                // update next down portal
-                previous_down = rooms_grid.down_portal;
             }
 
             let valid_spawns = rr

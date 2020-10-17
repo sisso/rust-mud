@@ -301,7 +301,7 @@ pub fn tick(container: &mut Container) {
                 }
 
                 ShipCommand::Jump {
-                    target_id,
+                    target_id: _target_id,
                     stage,
                     complete_time,
                 } => {
