@@ -66,7 +66,7 @@ impl ServerRunner {
                         snapshot_file.with_file_name("snapshot_backup.json")
                     );
                     let _ = backup_filename(snapshot_file.as_path()).map_err(|err| {
-                        warn!("fail to generate backup!");
+                        warn!("fail to generate backup: {:?}", err);
                     });
                     info!("saving snapshot: {:?}", snapshot_file);
                     Loader::write_snapshot(&snapshot_file, &data)?;

@@ -6,7 +6,6 @@ use std::collections::{HashMap, HashSet};
 use std::env;
 
 use commons::jsons::JsonValueExtra;
-use mud_domain::game::loader::dto::StaticId;
 use std::path::Path;
 use termion::color;
 

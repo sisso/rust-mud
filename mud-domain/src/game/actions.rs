@@ -587,7 +587,8 @@ fn load_rooms_into_coords_map(
             // found a short path
             Some((is_know, x1, y1)) if x1 + y1 > x + y => {
                 // trace!("{:?} replace {},{} by {},{}", id, x1, y1, x, y);
-                coords_map.visited.insert(id, (*is_know, x, y));
+                let is_know = *is_know;
+                coords_map.visited.insert(id, (is_know, x, y));
                 continue;
             }
             // skip already vistied

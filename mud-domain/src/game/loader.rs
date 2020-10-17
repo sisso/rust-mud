@@ -202,28 +202,16 @@ impl Loader {
 
         // initialize all
         for (&static_id, &obj_id) in &references {
-            Loader::apply_prefab_or_objdata(
-                container,
-                obj_id,
-                Either::Right(static_id),
-                &references,
-            )?;
+            let data = container
+                .loader
+                .get_prefab(static_id)
+                .expect("static id not found")
+                .clone();
+
+            Loader::apply_data(container, obj_id, &data, &references)?;
         }
 
         Ok(obj_id)
-    }
-
-    pub fn apply_objdata(
-        container: &mut Container,
-        obj_id: ObjId,
-        obj_data: &ObjData,
-    ) -> Result<()> {
-        Loader::apply_prefab_or_objdata(
-            container,
-            obj_id,
-            Either::Left(obj_data),
-            &Default::default(),
-        )
     }
 
     /// Resolve the static id to a ObjId by first searching in reference_map and then in container
@@ -247,11 +235,12 @@ impl Loader {
             .ok_or_else(|| Error::Failure(format!("Static id {:?} can not be resolved", static_id)))
     }
 
-    // TODO: make it atomic: success and change or no change
-    fn apply_prefab_or_objdata(
+    /// Failed results should be usually thread as a Exception, as it is not atomic and could leak
+    /// components
+    pub fn apply_data(
         container: &mut Container,
         obj_id: ObjId,
-        data: Either<&ObjData, StaticId>,
+        data: &ObjData,
         references: &HashMap<StaticId, ObjId>,
     ) -> Result<()> {
         macro_rules! get_ref {
@@ -260,26 +249,7 @@ impl Loader {
             };
         }
 
-        let (data, prefab_id) = match data {
-            Either::Left(data) => (data, data.prefab_id),
-            Either::Right(static_id) => {
-                let data = container
-                    .loader
-                    .get_prefab(static_id)
-                    .ok_or(Error::NotFoundStaticId(static_id))?;
-
-                (data, Some(static_id))
-            }
-        };
-
         debug!("{:?} apply prefab {:?}", obj_id, data.id);
-
-        if let Some(prefab_id) = prefab_id {
-            container
-                .objects
-                .set_prefab_id(obj_id, prefab_id)
-                .expect("fail to apply prefab_id");
-        }
 
         if let Some(parent) = &data.parent {
             let parent_id = Loader::get_by_static_id(&container.objects, &references, *parent)?;
@@ -1210,12 +1180,7 @@ impl Loader {
 
         for (id, data) in &objects {
             let mut empty_references = Default::default();
-            Loader::apply_prefab_or_objdata(
-                container,
-                ObjId(id.as_u32()),
-                Either::Left(data),
-                &mut empty_references,
-            )?;
+            Loader::apply_data(container, ObjId(id.as_u32()), data, &mut empty_references)?;
         }
 
         Ok(())
@@ -1242,7 +1207,7 @@ mod test {
         let mut load_data = LoaderData::new();
         let obj_id = obj.id.unwrap();
         load_data.objects.insert(obj_id, obj);
-        Loader::load_data(&mut container, load_data);
+        Loader::load_data(&mut container, load_data).expect("fail to load data");
         Loader::snapshot_obj(&container, ObjId(obj_id.as_u32())).expect("fail to create snapshot")
     }
 

@@ -23,7 +23,7 @@ impl Tags {
     }
 
     pub fn get_id(&mut self, value: &str) -> TagId {
-        match self.tags.iter().find(|(id, s)| s.as_str() == value) {
+        match self.tags.iter().find(|(_id, s)| s.as_str() == value) {
             Some((id, _)) => *id,
             None => {
                 let tag_id = TagId(self.tags.len());
@@ -37,7 +37,7 @@ impl Tags {
     pub fn get_str(&self, tag_id: TagId) -> Option<&str> {
         self.tags
             .iter()
-            .find(|(id, s)| *id == tag_id)
+            .find(|(id, _s)| *id == tag_id)
             .map(|(_, s)| s.as_str())
     }
 

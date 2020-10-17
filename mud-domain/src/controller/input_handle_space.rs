@@ -19,10 +19,8 @@ pub fn show_startree(container: &mut Container, mob_id: MobId) -> Result<()> {
     let bodies = find_showsector_bodies(container, sector_id, Some(ship_id));
     let sector_label = container.labels.get_label_f(sector_id);
     // trace!("{:?} at {:?} on sector {:?} can view {:?}", mob_id, ship_id, sector_id, bodies);
-    container.outputs.private(
-        mob_id,
-        comm::show_sectortree(sector_id, sector_label, &bodies),
-    );
+    let msg = comm::show_sectortree(sector_id, sector_label, &bodies);
+    container.outputs.private(mob_id, msg);
     Ok(())
 }
 
@@ -30,9 +28,8 @@ pub fn show_startree(container: &mut Container, mob_id: MobId) -> Result<()> {
 pub fn show_surface_map(container: &mut Container, mob_id: MobId) -> Result<()> {
     let (craft_id, sector_id) = get_ship_and_sector(container, mob_id)?;
     let objects = get_objects_in_surface(container, craft_id, sector_id);
-    container
-        .outputs
-        .private(mob_id, comm::show_surface_map(&objects));
+    let msg = comm::show_surface_map(&objects);
+    container.outputs.private(mob_id, msg);
     Ok(())
 }
 
@@ -43,9 +40,8 @@ pub fn move_list_targets(container: &mut Container, mob_id: MobId) -> Result<()>
         .map(|body| to_showsectortreebody(container, Some(ship_id), body))
         .collect();
 
-    container
-        .outputs
-        .private(mob_id, comm::space_show_move_targets(&targets));
+    let msg = comm::space_show_move_targets(&targets);
+    container.outputs.private(mob_id, msg);
 
     Ok(())
 }
@@ -87,9 +83,9 @@ pub fn land_list(container: &mut Container, mob_id: MobId) -> Result<()> {
                 .flat_map(|id| container.labels.get_label(id))
                 .collect();
 
-            container
-                .outputs
-                .private(mob_id, comm::space_land_list(&labels));
+            let msg = comm::space_land_list(&labels);
+
+            container.outputs.private(mob_id, msg);
         })
         .ok_or_else(|| {
             container

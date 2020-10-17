@@ -294,7 +294,12 @@ fn handle_add(container: &mut Container, outputs: &mut Vec<String>, input: StrIn
             let obj_id = container.objects.create();
 
             if is_obj {
-                loader::Loader::apply_objdata(container, obj_id, &data);
+                loader::Loader::apply_data(container, obj_id, &data, &Default::default()).map_err(
+                    |e| {
+                        outputs.push(format!("fail to apply: {:?}", e));
+                        e
+                    },
+                )?;
             } else {
                 data.id = Some(obj_id.into());
                 container.loader.add_prefab(data);

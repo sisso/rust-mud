@@ -276,18 +276,16 @@ fn action_examine(container: &mut Container, mob_id: MobId, target_label: &str) 
         Some(item_id) => {
             let item_label = container.labels.get_label_f(item_id);
             let inventory = &get_inventory_desc(container, item_id);
-            container
-                .outputs
-                .private(mob_id, comm::examine_target_item(item_label, inventory));
+            let msg = comm::examine_target_item(item_label, inventory);
+            container.outputs.private(mob_id, msg);
             return Ok(());
         }
         _ => {}
     }
 
     // else
-    container
-        .outputs
-        .private(mob_id, comm::examine_target_not_found(target_label));
+    let msg = comm::examine_target_not_found(target_label);
+    container.outputs.private(mob_id, msg);
     Err(Error::InvalidArgumentFailure)
 }
 
@@ -304,7 +302,7 @@ pub fn handle_meta(ctx: &mut ViewHandleCtx, input: &StrInput) -> Result<Connecti
 pub fn handle_ship(ctx: &mut ViewHandleCtx, input: &StrInput) -> Result<ConnectionViewAction> {
     match input.first() {
         "jump" => {
-            input_handle_space::jump(ctx);
+            input_handle_space::jump(ctx)?;
             Ok(ConnectionViewAction::None)
         }
 

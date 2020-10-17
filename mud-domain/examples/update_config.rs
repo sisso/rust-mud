@@ -47,7 +47,7 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn update_each_object(root: &mut Value, mut updater: &mut dyn FieldUpdater) {
+fn update_each_object(root: &mut Value, updater: &mut dyn FieldUpdater) {
     if let Some(object_list) = root["objects"].as_object_mut() {
         for (_, v) in object_list {
             // println!("{:?}", v);

@@ -3,8 +3,8 @@
     "avatar_mob": 6,
     "initial_room": 2,
     "money_id": 42,
-    "tick": 26489,
-    "total_time": 2648.900039471685
+    "tick": 27126,
+    "total_time": 2712.600040420889
   },
   "objects": {
     "0": {
@@ -154,7 +154,7 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 4
+      "parent": 100002
     },
     "100010": {
       "id": 100010,
@@ -205,7 +205,6 @@
       },
       "owned_by": 39,
       "parent": 21,
-      "prefab_id": 37,
       "vendor": {
         "market_id": 41
       }
@@ -218,15 +217,13 @@
       "desc": "Small shuttle",
       "id": 100020,
       "label": "Shuttle",
-      "parent": 3,
-      "prefab_id": 10
+      "parent": 3
     },
     "100021": {
       "desc": "Small cockpit used to control the craft",
       "id": 100021,
       "label": "Cockpit",
       "parent": 100020,
-      "prefab_id": 11,
       "room": {
         "can_exit": true,
         "exits": []
@@ -240,8 +237,7 @@
         "weight": 10.0
       },
       "label": "Goods",
-      "parent": 4,
-      "prefab_id": 34,
+      "parent": 100008,
       "tags": {
         "values": [
           "goods"
@@ -256,8 +252,7 @@
         "weight": 10.0
       },
       "label": "Goods",
-      "parent": 4,
-      "prefab_id": 34,
+      "parent": 100008,
       "tags": {
         "values": [
           "goods"
@@ -272,8 +267,7 @@
         "weight": 10.0
       },
       "label": "Goods",
-      "parent": 100008,
-      "prefab_id": 34,
+      "parent": 100002,
       "tags": {
         "values": [
           "goods"
@@ -288,8 +282,7 @@
         "weight": 10.0
       },
       "label": "Goods",
-      "parent": 100008,
-      "prefab_id": 34,
+      "parent": 100002,
       "tags": {
         "values": [
           "goods"
@@ -458,7 +451,7 @@
       "parent": 4,
       "spawn": {
         "max": 1,
-        "next_spawn": 2675.0525335744014,
+        "next_spawn": 2959.1400789245954,
         "prefab_id": 36,
         "time_max": 360.0,
         "time_min": 60.0
