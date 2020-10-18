@@ -22,13 +22,117 @@ Surface miners for basic minerals
 
 Deep miners for more rare ones
 
-# Command
+# Command / AI
+
+Kind of AI
+- None
+- Protective
+- Hauler
+- Search
 
 Player can command crew and robots to automate tasks. Or command himself to automate some task.
 
 - Move to place 
 - Load cargo
 - Unload cargo
+
+## Examples
+
+$ command
+command what? candidates: robot1, robot2
+$ command robot1
+what command? move, rebase, attack, follow, hauler
+$ command robot1 hauler
+from where? (how hell someone will know? should we display ids?)
+$ command robot1 hauler U32d
+what? goods
+$ command robot1 hauler U32d goods
+to where?
+$ command robot1 hauler U32d goods SH23
+finally, good, let me move
+robot1 picked goods from floor
+robot1 enters in the little transport
+
+$ command robot2 protect me
+robot2 take your side and take alert position
+
+$ commmand robot1 info
+robots 1 command list:
+0: haul goods from U32d to SH23 ( delivering 2 x goods)
+1: stay  at SH23
+
+## Model
+
+```
+pub enum AiCommandHaulerFailure {
+    FailedFromRoomNotFound,
+    FailedToRoomNotFound,
+    ObjectNotFound,
+}
+
+pub enum AiCommandHaulerState {
+    Idle,
+    PickUp,
+    Deliver,
+    Complete
+    FailedFromRoomNotFound,
+    FailedToRoomNotFound,
+    ObjectNotFound,
+}
+
+pub enum ObjSelector {
+    // a single object
+    One(obj_id),
+    // list of objects
+    Multiple(Vec<ObjId>),
+    /// all in the room or in a container
+    AllIn(obj_id),
+    Tags(Vec<TagId>),
+    And { a: Box<ObjSelector>, b: Box<ObjSelector> }
+    Or { a: Box<ObjSelector>, b: Box<ObjSelector> }
+}
+
+pub enum AiCommand {
+    None,
+    /// hauler objects between locations
+    Hauler {
+        from: ObjSelector,
+        to: ObjSelector,
+        state: AiCommandHaulerState,
+        wait_until_full: bool,
+        repeate: bool,
+    },
+    /// will follow and protect the mob_id, used for hired units
+    Protector {
+        mob_id: MobId,
+    },
+    CanBeCommanded {
+        command: Box<AiCommand>,
+    },
+    /// Will attack anything that didn't like
+    Aggressive,
+    Stay { room_id: RoomId },
+    Sequence { commands: Vec<AiCommand> },
+    Stack { default: AiCommand, current: AiCommand },
+}
+
+#[derive(Clone, Debug)]
+pub struct Ai {
+    pub id: ObjId,
+    pub command: Command
+}
+
+ai.command = AiCommand::Stack {
+    default: AiCommand::Stay { room_id: home_id },
+    current: AiCommand::Sequence {
+        commands: vec![
+            AiCommand::Hauler { from: ObjSelector::AllIn(room_id), to: ObjSelector::AllIn(room_2), state: Default::default(), wait_full: false, repeat: false },
+            AiCommand::MoveTo { room_id: home_id } 
+        ]
+    }
+}
+
+```
 
 # Load and unloading cargo
 

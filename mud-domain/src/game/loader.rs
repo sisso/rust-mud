@@ -961,7 +961,6 @@ impl Loader {
                 pv_max: mob.attributes.pv.max,
                 xp: mob.xp,
                 hire_cost: hire_cost,
-                // TODO: rmeove hack
                 aggressive: if mob.aggressive {
                     Some(mob.aggressive)
                 } else {

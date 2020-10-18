@@ -18,6 +18,7 @@ pub mod actions_hire;
 pub mod actions_items;
 pub mod actions_ships;
 pub mod actions_vendor;
+pub mod ai;
 pub mod astro_bodies;
 pub mod avatars;
 pub mod builder;

@@ -69,6 +69,11 @@ impl RoomRepository {
         self.index.insert(room.id, room);
     }
 
+    pub fn remove(&mut self, id: ObjId) -> Option<Room> {
+        debug!("{:?} removed", id);
+        self.index.remove(&id)
+    }
+
     pub fn get(&self, id: RoomId) -> Option<&Room> {
         self.index.get(&id)
     }

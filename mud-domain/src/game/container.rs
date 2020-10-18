@@ -1,4 +1,5 @@
 use crate::errors::*;
+use crate::game::ai::AiRepo;
 use crate::game::astro_bodies::AstroBodies;
 use crate::game::config::Config;
 use crate::game::domain::{GameTime, MobCtx, PlayerCtx};
@@ -79,6 +80,7 @@ pub struct Container {
     pub outputs: Outputs,
     pub markets: Markets,
     pub inventories: Inventories,
+    pub ai: AiRepo,
 }
 
 impl Container {
@@ -114,6 +116,7 @@ impl Container {
             outputs: Outputs::new(),
             markets: Markets::new(),
             inventories: Inventories::new(),
+            ai: AiRepo::new(),
         }
     }
 
@@ -123,8 +126,8 @@ impl Container {
         self.mobs.remove(obj_id);
         self.items.remove(obj_id);
         self.locations.remove(obj_id);
-        // self.rooms.remove(obj_id);
-        // self.spanws.remove(obj_id);
+        self.rooms.remove(obj_id);
+        self.spawns.remove(obj_id);
         self.equips.remove(obj_id);
         self.tags.remove(obj_id);
         self.labels.remove(obj_id);
@@ -135,6 +138,7 @@ impl Container {
         self.markets.remove(obj_id);
         self.memories.remove(obj_id);
         self.inventories.remove(obj_id);
+        self.ai.remove(obj_id);
     }
 
     pub fn get_mob_ctx(&self, mob_id: MobId) -> Option<MobCtx> {
