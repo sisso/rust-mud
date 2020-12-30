@@ -4,13 +4,37 @@ use crate::game::location::LocationId;
 use crate::game::mob::{Damage, MobId};
 use crate::game::room::RoomId;
 use commons::ObjId;
+use serde::export::Formatter;
 
-//
-// impl From<String> for Output {
-//     fn from(s: String) -> Self {
-//         Output::Plain(s)
-//     }
-// }
+pub const O_PLAIN: &str = "^pl";
+pub const O_RESET: &str = "^rs";
+pub const O_LITERAL: &str = "^li";
+
+pub enum OMarker {
+    Plain,
+    Reset,
+    Literal,
+}
+
+impl OMarker {
+    pub fn list() -> Vec<OMarker> {
+        vec![OMarker::Plain, OMarker::Literal, OMarker::Reset]
+    }
+
+    pub fn id(&self) -> &'static str {
+        match self {
+            OMarker::Plain => "\\p",
+            OMarker::Reset => "\\r",
+            OMarker::Literal => "\\l",
+        }
+    }
+}
+
+impl std::fmt::Display for OMarker {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.id())
+    }
+}
 
 #[derive(Debug, Clone)]
 pub enum Output {

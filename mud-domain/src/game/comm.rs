@@ -5,6 +5,7 @@ use super::mob::*;
 use crate::errors::{AsResult, Result};
 use crate::game::astro_bodies::{AstroBodyKind, DistanceMkm};
 use crate::game::obj::Obj;
+use crate::game::outputs::OMarker;
 use crate::game::prices::Money;
 use crate::game::room::{Room, RoomId};
 use crate::utils::text::{plot_points, PlotCfg, PlotPoint};
@@ -104,7 +105,7 @@ pub fn unknown_input(input: &str) -> String {
 }
 
 pub fn say_you_say(msg: &str) -> String {
-    format!("you say '{}'", msg)
+    format!("you say '{}{}{}'", OMarker::Literal, msg, OMarker::Reset)
 }
 
 pub fn say_someone_said(actor: &str, msg: &str) -> String {

@@ -4,7 +4,7 @@ use crate::game::avatars;
 use crate::game::container::Container;
 use crate::game::location::LocationId;
 use crate::game::mob::MobId;
-use crate::game::outputs::{Output, Outputs};
+use crate::game::outputs::{OMarker, Output, Outputs};
 use commons::*;
 use logs::*;
 use std::collections::{HashMap, HashSet};
@@ -329,7 +329,8 @@ impl Controller {
         // }
     }
 
-    /// Convert game output into connection output.
+    /// Convert game output into connection output. Including convert the text into rich/plain
+    ///  text depending of connection configuration.
     ///
     /// Redirect private msg to specific player connections and room messages to players
     /// in room connections.
@@ -347,7 +348,12 @@ impl Controller {
                         .and_then(|player_id| self.zip_connection_id_from_player_id(player_id));
 
                     if let Some((_player_id, connection_id)) = connection_id {
-                        debug!("{:?} output {:?}", connection_id, msg);
+                        debug!(
+                            "{:?} output {:?}",
+                            connection_id,
+                            strip_rich_text(msg.clone())
+                        );
+                        let msg = process_rich_text(msg);
                         self.server_outputs
                             .push((connection_id, format!("{}\n", msg)));
                     }
@@ -375,7 +381,12 @@ impl Controller {
                         .collect();
 
                     for (_player_id, connection_id) in connections {
-                        debug!("{:?} output {:?}", connection_id, msg);
+                        debug!(
+                            "{:?} output {:?}",
+                            connection_id,
+                            strip_rich_text(msg.clone())
+                        );
+                        let msg = process_rich_text(msg.clone());
                         self.server_outputs
                             .push((connection_id, format!("{}\n", msg)))
                     }
@@ -401,4 +412,38 @@ impl Controller {
             .get(&connection_id)
             .and_then(|i| i.player_id)
     }
+}
+
+const COLOR_RESET: &str = "\x1B[0m";
+
+fn fg(fg: &str) -> String {
+    format!("\x1B[38;5;{}m", fg)
+}
+
+fn bg(bg: &str) -> String {
+    format!("\x1B[48;5;{}m", bg)
+}
+
+fn process_rich_text(mut msg: String) -> String {
+    for mark in OMarker::list() {
+        match mark {
+            OMarker::Plain => {}
+            OMarker::Literal => msg = msg.replace(mark.id(), &fg("45")),
+            OMarker::Reset => msg = msg.replace(mark.id(), COLOR_RESET),
+        }
+    }
+
+    msg
+}
+
+fn strip_rich_text(mut msg: String) -> String {
+    for mark in OMarker::list() {
+        match mark {
+            OMarker::Plain => {}
+            OMarker::Literal => msg = msg.replace(mark.id(), ""),
+            OMarker::Reset => msg = msg.replace(mark.id(), ""),
+        }
+    }
+
+    msg
 }

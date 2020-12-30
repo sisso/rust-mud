@@ -1,21 +1,25 @@
-use termion;
+const COLOR_RESET: &str = "\x1B[0m";
+
+fn fg(fg: &str) -> String {
+    format!("\x1B[38;5;{}m", fg)
+}
+
+fn bg(bg: &str) -> String {
+    format!("\x1B[48;5;{}m", bg)
+}
 
 fn main() {
-    let color_red = termion::color::Fg(termion::color::Red);
-    println!(
-        "{}Red{} b",
-        color_red,
-        termion::color::Fg(termion::color::Reset)
-    );
-    println!(
-        "{}Red{} a",
-        termion::color::Fg(termion::color::Green),
-        termion::color::Fg(termion::color::Reset)
-    );
-    println!(
-        "{}Red{} c",
-        termion::color::Fg(termion::color::Blue),
-        termion::color::Fg(termion::color::Reset)
-    );
-    println!("No color");
+    for i in 0..256 {
+        print!("{}{}{}\t", fg(&format!("{}", i)), i, COLOR_RESET);
+        if i % 10 == 0 {
+            println!()
+        }
+    }
+
+    for i in 0..256 {
+        print!("{}{}{}\t", bg(&format!("{}", i)), i, COLOR_RESET);
+        if i % 10 == 0 {
+            println!()
+        }
+    }
 }
