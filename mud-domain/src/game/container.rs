@@ -35,6 +35,8 @@ use crate::game::{item, mob, spawn, system};
 use commons::{DeltaTime, ObjId, PlayerId};
 use logs::*;
 
+use super::repo::*;
+
 #[macro_export]
 macro_rules! get_or_return_msg {
     ($res:expr) => {

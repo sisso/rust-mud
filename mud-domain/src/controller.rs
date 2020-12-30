@@ -5,6 +5,7 @@ use crate::game::container::Container;
 use crate::game::location::LocationId;
 use crate::game::mob::MobId;
 use crate::game::outputs::{OMarker, Output, Outputs};
+use commons::asciicolors;
 use commons::*;
 use logs::*;
 use std::collections::{HashMap, HashSet};
@@ -414,22 +415,12 @@ impl Controller {
     }
 }
 
-const COLOR_RESET: &str = "\x1B[0m";
-
-fn fg(fg: &str) -> String {
-    format!("\x1B[38;5;{}m", fg)
-}
-
-fn bg(bg: &str) -> String {
-    format!("\x1B[48;5;{}m", bg)
-}
-
 fn process_rich_text(mut msg: String) -> String {
     for mark in OMarker::list() {
         match mark {
             OMarker::Plain => {}
-            OMarker::Literal => msg = msg.replace(mark.id(), &fg("45")),
-            OMarker::Reset => msg = msg.replace(mark.id(), COLOR_RESET),
+            OMarker::Literal => msg = msg.replace(mark.id(), &asciicolors::fg(45)),
+            OMarker::Reset => msg = msg.replace(mark.id(), asciicolors::RESET),
         }
     }
 

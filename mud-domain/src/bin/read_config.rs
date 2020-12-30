@@ -5,9 +5,8 @@ use serde_json;
 use std::collections::{HashMap, HashSet};
 use std::env;
 
-use commons::jsons::JsonValueExtra;
+use commons::{asciicolors, jsons::JsonValueExtra};
 use std::path::Path;
-use termion::color;
 
 // TODO: refactory everything, it got ugly,
 // TODO: support commands
@@ -151,7 +150,7 @@ fn print_one(deep: u32, data: &ObjData, is_fail: bool) {
     }
 
     if is_fail {
-        print!("{}", color::Fg(color::Red));
+        print!("{}", asciicolors::fg(asciicolors::COLOR_RED));
     }
 
     println!(
@@ -163,7 +162,7 @@ fn print_one(deep: u32, data: &ObjData, is_fail: bool) {
     );
 
     if is_fail {
-        print!("{}", color::Fg(color::Reset));
+        print!("{}", asciicolors::RESET);
     }
 }
 

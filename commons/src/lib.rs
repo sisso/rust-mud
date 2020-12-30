@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+pub mod asciicolors;
 pub mod csv;
 pub mod jsons;
 pub mod timer;

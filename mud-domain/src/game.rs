@@ -48,6 +48,7 @@ pub mod pos;
 pub mod prices;
 pub mod random_rooms;
 pub mod random_rooms_generator;
+pub mod repo;
 pub mod room;
 pub mod rooms_zones;
 pub mod ships;

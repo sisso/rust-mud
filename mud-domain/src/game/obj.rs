@@ -1,6 +1,7 @@
 use crate::errors::{self, AsResult, Error, Result};
 use crate::game::domain::NextId;
 use crate::game::loader::dto::StaticId;
+use crate::game::repo::{RepoList, RepoRemove};
 use commons::{ObjId, OBJ_ID_STATIC_RANGE};
 use logs::*;
 use serde::{Deserialize, Serialize};
@@ -68,21 +69,19 @@ impl Objects {
         self.objects.get(&obj_id).and_then(|obj| obj.prefab_id)
     }
 
-    /// Make sure you remove from everything else first
-    pub fn remove(&mut self, obj_id: ObjId) -> bool {
-        if self.objects.remove(&obj_id).is_some() {
-            debug!("{:?} obj removed ", obj_id);
-            true
-        } else {
-            false
-        }
-    }
-
     pub fn exists(&self, obj_id: ObjId) -> bool {
         return self.objects.contains_key(&obj_id);
     }
 
     pub fn list<'a>(&'a self) -> impl Iterator<Item = &ObjId> + 'a {
         self.objects.keys()
+    }
+}
+
+impl RepoRemove<Obj> for Objects {
+    /// Make sure you remove from everything else first
+    fn remove(&mut self, id: ObjId) -> Option<Obj> {
+        debug!("{:?} obj removed", id);
+        self.objects.remove(&id)
     }
 }
