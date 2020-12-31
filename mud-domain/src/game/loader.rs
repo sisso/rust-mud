@@ -33,6 +33,7 @@ use std::path::{Path, PathBuf};
 pub mod dto;
 mod migrations;
 
+use crate::game::ai::{Ai, AiCommand};
 use crate::game::inventory::Inventory;
 use crate::game::loader::migrations::*;
 use crate::game::market::{Market, MarketTrade};
@@ -568,6 +569,30 @@ impl Loader {
             container.inventories.add(inv).unwrap();
         }
 
+        if let Some(ai_data) = &data.ai {
+            let command = if ai_data.command_aggressive.unwrap_or(false) {
+                AiCommand::Aggressive
+            } else if let Some(target_id) = ai_data.command_follow_and_protect {
+                AiCommand::FollowAndProtect { target_id }
+            } else if let Some(haul) = &ai_data.command_haul {
+                AiCommand::Hauler {
+                    from: haul.from_id.clone(),
+                    to: haul.to_id.clone(),
+                    wares: haul.targets.clone(),
+                }
+            } else {
+                AiCommand::Idle
+            };
+
+            let ai = Ai {
+                id: obj_id,
+                command: command,
+                commandable: ai_data.commandable.unwrap_or(false),
+            };
+
+            container.ai.add(ai).unwrap();
+        }
+
         if let Some(children) = data.children.clone() {
             for static_id in children.into_iter() {
                 trace!("{:?} spawn children {:?}", obj_id, static_id);
@@ -1088,6 +1113,30 @@ impl Loader {
                 sell: None,
             });
         }
+
+        if let Some(ai) = container.ai.get(id) {
+            obj_data.ai = Some(AiData {
+                command_aggressive: if ai.command == AiCommand::Aggressive {
+                    Some(true)
+                } else {
+                    None
+                },
+                command_follow_and_protect: match ai.command {
+                    AiCommand::FollowAndProtect { target_id } => Some(target_id),
+                    _ => None,
+                },
+                command_haul: match &ai.command {
+                    AiCommand::Hauler { from, to, wares } => Some(CommandHaulData {
+                        from_id: *from,
+                        to_id: *to,
+                        targets: wares.clone(),
+                    }),
+                    _ => None,
+                },
+                commandable: if ai.commandable { Some(true) } else { None },
+            });
+        }
+
         Ok(obj_data)
     }
 

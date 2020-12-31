@@ -1,4 +1,5 @@
 use crate::errors::{Error, Result};
+use crate::game::ai::AiCommand;
 use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
 use crate::game::comm::vendor_buy_item_not_found;
 use crate::game::config::Config;
@@ -278,6 +279,7 @@ pub struct ObjData {
     pub tags: Option<TagsData>,
     pub market: Option<MarketData>,
     pub inventory: Option<InventoryData>,
+    pub ai: Option<AiData>,
 }
 
 impl ObjData {
@@ -307,6 +309,7 @@ impl ObjData {
             tags: None,
             market: None,
             inventory: None,
+            ai: None,
         }
     }
 
@@ -363,6 +366,30 @@ pub struct LoaderData {
     pub cfg: Option<CfgData>,
     pub objects: BTreeMap<StaticId, ObjData>,
     pub prefabs: BTreeMap<StaticId, ObjData>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub enum AiCommandKind {
+    Idle,
+    Aggressive,
+    Passive,
+    FollowAndProtect,
+    Hauler,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct CommandHaulData {
+    pub from_id: ObjId,
+    pub to_id: ObjId,
+    pub targets: Vec<ObjId>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct AiData {
+    pub command_aggressive: Option<bool>,
+    pub command_follow_and_protect: Option<ObjId>,
+    pub command_haul: Option<CommandHaulData>,
+    pub commandable: Option<bool>,
 }
 
 impl LoaderData {

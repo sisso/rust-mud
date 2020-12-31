@@ -4,15 +4,25 @@ use crate::game::room::RoomId;
 use commons::ObjId;
 use std::collections::HashMap;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum AiCommand {
     Idle,
+    Aggressive,
+    Passive,
+    FollowAndProtect {
+        target_id: ObjId,
+    },
+    Hauler {
+        from: ObjId,
+        to: ObjId,
+        wares: Vec<ObjId>,
+    },
 }
 
 #[derive(Clone, Debug)]
 pub struct Ai {
     pub id: ObjId,
-    pub commands: AiCommand,
+    pub command: AiCommand,
     /// can have its commands change by owner?
     pub commandable: bool,
 }
@@ -21,7 +31,7 @@ impl Ai {
     pub fn new(id: ObjId) -> Self {
         Ai {
             id,
-            commands: AiCommand::Idle,
+            command: AiCommand::Idle,
             commandable: false,
         }
     }

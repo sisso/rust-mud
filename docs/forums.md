@@ -36,6 +36,27 @@ Player can command crew and robots to automate tasks. Or command himself to auto
 - Load cargo
 - Unload cargo
 
+## Where other AI like mobs fit here?
+
+### Hostlie mobs
+
+ai { command_aggressive: true }
+
+### Mercenary
+
+ai { command_protect: "1" }
+
+### Haulers
+
+ai { 
+  command_haul: {
+    from:
+    to: 
+    wares
+  }
+}
+
+
 ## Examples
 
 $ command
