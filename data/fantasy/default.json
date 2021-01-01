@@ -298,6 +298,9 @@
         "pv": 4,
         "pv_max": 4,
         "xp": 5
+      },
+      "ai": {
+        "command_aggressive": true
       }
     },
     "17": {
@@ -356,10 +359,13 @@
         "damage_max": 4,
         "damage_min": 2,
         "defense": 10,
-        "hire_cost": 10,
         "pv": 10,
         "pv_max": 10,
-        "xp": 10
+        "xp": 10,
+        "hire_cost": 10
+      },
+      "ai": {
+        "commandable": true
       }
     },
     "29": {
@@ -374,6 +380,9 @@
         "pv": 6,
         "pv_max": 6,
         "xp": 5
+      },
+      "ai": {
+        "command_aggressive": true
       }
     },
     "31": {
@@ -706,6 +715,9 @@
         "pv": 2,
         "pv_max": 2,
         "xp": 1
+      },
+      "ai": {
+        "command_aggressive": true
       }
     },
     "7": {

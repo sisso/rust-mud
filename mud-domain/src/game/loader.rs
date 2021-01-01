@@ -41,7 +41,7 @@ use commons::jsons::JsonValueExtra;
 use dto::*;
 use std::io::Write;
 
-const CURRENT_VERSION: u32 = 2;
+const ZERO_VERSION: u32 = 0;
 
 #[derive(Debug, Clone)]
 pub struct ValidationResult {
@@ -356,7 +356,6 @@ impl Loader {
             mob.attributes.damage.max = mob_data.damage_max;
             mob.attributes.damage.min = mob_data.damage_min;
             mob.xp = mob_data.xp;
-            mob.aggressive = mob_data.aggressive.unwrap_or(false);
             container.mobs.add(mob);
 
             if let Some(hire_cost) = mob_data.hire_cost {
@@ -986,11 +985,6 @@ impl Loader {
                 pv_max: mob.attributes.pv.max,
                 xp: mob.xp,
                 hire_cost: hire_cost,
-                aggressive: if mob.aggressive {
-                    Some(mob.aggressive)
-                } else {
-                    None
-                },
             })
         }
 
@@ -1126,7 +1120,7 @@ impl Loader {
                     _ => None,
                 },
                 command_haul: match &ai.command {
-                    AiCommand::Hauler { from, to, wares } => Some(CommandHaulData {
+                    AiCommand::Hauler { from, to, wares } => Some(AiCommandHaulData {
                         from_id: *from,
                         to_id: *to,
                         targets: wares.clone(),
@@ -1193,7 +1187,7 @@ impl Loader {
 
         // normalize data.id if missing
         // check for mismatch id
-        // check for dupplicated id
+        // check for duplicated id
         for (static_id, data) in &mut data.objects {
             if let Some(id) = data.id {
                 if id != *static_id {

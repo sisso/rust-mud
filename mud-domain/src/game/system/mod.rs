@@ -3,6 +3,7 @@ use crate::game::container::Container;
 use crate::game::outputs::Outputs;
 use crate::game::system::item_system::DecaySystem;
 
+pub mod ai_system;
 pub mod combat_system;
 pub mod item_system;
 pub mod random_room_generators_system;
@@ -33,6 +34,7 @@ impl Systems {
         // execute jobs
         self.decay_system.tick(container).unwrap();
         spawn_system::run(container);
+        ai_system::run(container);
         combat_system::run(container);
         rest_system::run(container);
         ship_system::tick(container);

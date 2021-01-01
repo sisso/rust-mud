@@ -61,7 +61,6 @@ pub struct MobData {
     pub pv_max: u32,
     pub xp: u32,
     pub hire_cost: Option<u32>,
-    pub aggressive: Option<bool>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -378,7 +377,7 @@ pub enum AiCommandKind {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct CommandHaulData {
+pub struct AiCommandHaulData {
     pub from_id: ObjId,
     pub to_id: ObjId,
     pub targets: Vec<ObjId>,
@@ -388,14 +387,14 @@ pub struct CommandHaulData {
 pub struct AiData {
     pub command_aggressive: Option<bool>,
     pub command_follow_and_protect: Option<ObjId>,
-    pub command_haul: Option<CommandHaulData>,
+    pub command_haul: Option<AiCommandHaulData>,
     pub commandable: Option<bool>,
 }
 
 impl LoaderData {
     pub fn new() -> Self {
         LoaderData {
-            version: super::CURRENT_VERSION,
+            version: super::ZERO_VERSION,
             cfg: None,
             objects: Default::default(),
             prefabs: Default::default(),

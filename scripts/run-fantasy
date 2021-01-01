@@ -2,4 +2,4 @@
 
 set -euo pipefail
 
-cargo run --bin mud-server data/fantasy fantasy-01
+RUST_BACKTRACE=1 cargo run --bin mud-server data/fantasy fantasy-01

@@ -22,7 +22,7 @@ pub type MobId = ObjId;
 pub type Xp = u32;
 
 /// What mob should be doing
-#[derive(Clone, Debug, Copy, Deserialize, Serialize)]
+#[derive(Clone, Debug, Copy, Deserialize, Serialize, PartialEq)]
 pub enum MobCommand {
     None,
     Kill { target_id: MobId },
@@ -148,7 +148,6 @@ pub struct Mob {
     pub xp: Xp,
     pub state: MobState,
     pub followers: Vec<ObjId>,
-    pub aggressive: bool,
 }
 
 impl Mob {
@@ -161,7 +160,6 @@ impl Mob {
             xp: 0,
             state: MobState::new(),
             followers: Default::default(),
-            aggressive: false,
         }
     }
 

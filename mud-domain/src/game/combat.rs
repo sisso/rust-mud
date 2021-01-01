@@ -7,19 +7,25 @@ use crate::errors::Error::InvalidStateFailure;
 use crate::errors::{AsResult, Error, Result};
 use crate::game::mob;
 use crate::game::outputs::Outputs;
+use crate::game::ownership::Ownerships;
 use commons::ObjId;
 use logs::*;
 
-pub fn is_valid_attack_target(container: &Container, mob_id: MobId, target_id: ObjId) -> bool {
+pub fn is_valid_attack_target(
+    mobs: &MobRepository,
+    owners: &Ownerships,
+    mob_id: MobId,
+    target_id: ObjId,
+) -> bool {
     if target_id == mob_id {
         return false;
     }
 
-    if container.ownership.same_owner(mob_id, target_id) {
+    if owners.same_owner(mob_id, target_id) {
         return false;
     }
 
-    if !container.mobs.exists(target_id) {
+    if !mobs.exists(target_id) {
         return false;
     }
 
