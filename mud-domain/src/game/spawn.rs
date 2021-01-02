@@ -2,6 +2,8 @@ use super::comm;
 use super::mob::*;
 use super::room::RoomId;
 use crate::errors::{Error, Result};
+use crate::game::ai::AiCommand;
+use crate::game::loader::dto::AiData;
 use crate::game::loader::{dto::StaticId, Loader};
 use crate::game::location::LocationId;
 use commons::*;
@@ -38,6 +40,7 @@ pub struct SpawnBuilder {
     pub delay_max: DeltaTime,
     pub prefab_id: StaticId,
     pub next: Option<TotalTime>,
+    pub ai_override: Option<AiData>,
 }
 
 impl SpawnBuilder {
@@ -55,6 +58,7 @@ pub struct Spawn {
     pub next: TotalTime,
     /// zones and rooms are valid, when empty, parent objects is used
     pub locations_id: Vec<LocationId>,
+    pub ai_override: Option<AiData>,
 }
 
 impl Spawn {
@@ -75,6 +79,7 @@ impl Spawn {
             prefab_id: prefab_id,
             next: TotalTime(0.0),
             locations_id: vec![],
+            ai_override: None,
         }
     }
 }

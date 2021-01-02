@@ -51,7 +51,12 @@ pub fn run(container: &mut Container) {
                         container.rooms.exists(location_id) || container.items.exists(location_id);
 
                     if is_valid {
-                        mob_spawns.push((spawn.id, location_id, spawn.prefab_id));
+                        mob_spawns.push((
+                            spawn.id,
+                            location_id,
+                            spawn.prefab_id,
+                            spawn.ai_override.clone(),
+                        ));
                     } else {
                         warn!(
                             "{:?} Spawn parent {:?} is not a valid room or item.",
@@ -69,7 +74,7 @@ pub fn run(container: &mut Container) {
     }
 
     // spawn all mobs
-    for (spawn_id, room_id, mob_prefab_id) in mob_spawns {
+    for (spawn_id, room_id, mob_prefab_id, ai_override) in mob_spawns {
         let mob_id = match Loader::spawn_at(container, mob_prefab_id, room_id) {
             Ok(mob_id) => mob_id,
             Err(e) => {
@@ -80,6 +85,11 @@ pub fn run(container: &mut Container) {
                 continue;
             }
         };
+
+        if let Some(ai_override) = ai_override {
+            Loader::apply_ai_data(&mut container.ai, mob_id, &ai_override)
+                .expect("fail to apply ai");
+        }
 
         let mob_label = container.labels.get_label_f(mob_id);
 

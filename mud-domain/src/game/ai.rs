@@ -7,8 +7,15 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, PartialEq)]
 pub enum AiCommand {
     Idle,
+    /// attack any enemy that enter in the room
     Aggressive,
+    /// ignore others, but return combat if attacked
     Passive,
+    /// like aggressive, but keep moving into 'distance' from its spawn point
+    AggressivePatrolHome {
+        /// distance from spawn, zero means stay in the same room
+        distance: u32,
+    },
     FollowAndProtect {
         target_id: ObjId,
     },
@@ -49,11 +56,11 @@ impl AiRepo {
         }
     }
 
-    pub fn add(&mut self, template: Ai) -> Result<()> {
-        if self.index.contains_key(&template.id) {
+    pub fn add_or_update(&mut self, ai: Ai) -> Result<()> {
+        if self.index.contains_key(&ai.id) {
             return Err(Error::ConflictException);
         }
-        self.index.insert(template.id, template);
+        self.index.insert(ai.id, ai);
         Ok(())
     }
 

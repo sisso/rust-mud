@@ -9,7 +9,7 @@ use crate::game::hire::Hire;
 use crate::game::item::{Armor, Item, Weapon, Weight};
 use crate::game::labels::Label;
 use crate::game::loader::hocon_parser::{HParser, ParseError};
-use crate::game::mob::{Damage, Mob};
+use crate::game::mob::{Damage, Mob, MobId};
 use crate::game::obj::Objects;
 use crate::game::pos::Pos;
 use crate::game::prices::{Money, Price};
@@ -33,7 +33,7 @@ use std::path::{Path, PathBuf};
 pub mod dto;
 mod migrations;
 
-use crate::game::ai::{Ai, AiCommand};
+use crate::game::ai::{Ai, AiCommand, AiRepo};
 use crate::game::inventory::Inventory;
 use crate::game::loader::migrations::*;
 use crate::game::market::{Market, MarketTrade};
@@ -183,7 +183,7 @@ impl Loader {
     }
 }
 
-// TODO: organize fields, is a mess
+// TODO: organize fields, it is a mess
 /// static fields
 impl Loader {
     pub fn spawn_at(
@@ -569,27 +569,8 @@ impl Loader {
         }
 
         if let Some(ai_data) = &data.ai {
-            let command = if ai_data.command_aggressive.unwrap_or(false) {
-                AiCommand::Aggressive
-            } else if let Some(target_id) = ai_data.command_follow_and_protect {
-                AiCommand::FollowAndProtect { target_id }
-            } else if let Some(haul) = &ai_data.command_haul {
-                AiCommand::Hauler {
-                    from: haul.from_id.clone(),
-                    to: haul.to_id.clone(),
-                    wares: haul.targets.clone(),
-                }
-            } else {
-                AiCommand::Idle
-            };
-
-            let ai = Ai {
-                id: obj_id,
-                command: command,
-                commandable: ai_data.commandable.unwrap_or(false),
-            };
-
-            container.ai.add(ai).unwrap();
+            let ai = Loader::parse_ai(obj_id, ai_data);
+            container.ai.add_or_update(ai).unwrap();
         }
 
         if let Some(children) = data.children.clone() {
@@ -919,6 +900,7 @@ impl Loader {
                             // random maps have empty locations
                             locations_id: None,
                             next_spawn: None,
+                            ai_override: i.spawn_builder.ai_override.clone(),
                         },
                     })
                     .collect();
@@ -964,6 +946,7 @@ impl Loader {
                 time_max: spawn.delay.max.as_seconds_f32(),
                 locations_id: nonempty_or_none!(locations),
                 next_spawn: Some(spawn.next.as_seconds_f64()),
+                ai_override: spawn.ai_override.clone(),
             };
 
             obj_data.spawn = Some(spawn_data);
@@ -1109,26 +1092,7 @@ impl Loader {
         }
 
         if let Some(ai) = container.ai.get(id) {
-            obj_data.ai = Some(AiData {
-                command_aggressive: if ai.command == AiCommand::Aggressive {
-                    Some(true)
-                } else {
-                    None
-                },
-                command_follow_and_protect: match ai.command {
-                    AiCommand::FollowAndProtect { target_id } => Some(target_id),
-                    _ => None,
-                },
-                command_haul: match &ai.command {
-                    AiCommand::Hauler { from, to, wares } => Some(AiCommandHaulData {
-                        from_id: *from,
-                        to_id: *to,
-                        targets: wares.clone(),
-                    }),
-                    _ => None,
-                },
-                commandable: if ai.commandable { Some(true) } else { None },
-            });
+            obj_data.ai = Some(Loader::serialize_ai(ai));
         }
 
         Ok(obj_data)
@@ -1259,6 +1223,70 @@ impl Loader {
             delay_max: DeltaTime(data.time_max),
             prefab_id: data.prefab_id,
             next: data.next_spawn.as_ref().map(|time| TotalTime(*time)),
+            ai_override: data.ai_override.clone(),
+        }
+    }
+
+    pub fn apply_ai_data(ai_repo: &mut AiRepo, mob_id: MobId, ai_data: &AiData) -> Result<()> {
+        let ai = Loader::parse_ai(mob_id, ai_data);
+        ai_repo.add_or_update(ai);
+        Ok(())
+    }
+
+    fn parse_ai(obj_id: ObjId, ai_data: &AiData) -> Ai {
+        let command = if ai_data.command_aggressive.unwrap_or(false) {
+            AiCommand::Aggressive
+        } else if let Some(target_id) = ai_data.command_follow_and_protect {
+            AiCommand::FollowAndProtect { target_id }
+        } else if let Some(haul) = &ai_data.command_haul {
+            AiCommand::Hauler {
+                from: haul.from_id.clone(),
+                to: haul.to_id.clone(),
+                wares: haul.targets.clone(),
+            }
+        } else if let Some(patrol_data) = &ai_data.command_aggressive_patrol_home {
+            AiCommand::AggressivePatrolHome {
+                distance: patrol_data.distance,
+            }
+        } else {
+            AiCommand::Idle
+        };
+
+        Ai {
+            id: obj_id,
+            command: command,
+            commandable: ai_data.commandable.unwrap_or(false),
+        }
+    }
+
+    fn serialize_ai(ai: &Ai) -> AiData {
+        AiData {
+            command_aggressive: if ai.command == AiCommand::Aggressive {
+                Some(true)
+            } else {
+                None
+            },
+            command_follow_and_protect: match ai.command {
+                AiCommand::FollowAndProtect { target_id } => Some(target_id),
+                _ => None,
+            },
+            command_haul: match &ai.command {
+                AiCommand::Hauler { from, to, wares } => Some(AiCommandHaulData {
+                    from_id: *from,
+                    to_id: *to,
+                    targets: wares.clone(),
+                }),
+                _ => None,
+            },
+            command_aggressive_patrol_home: match &ai.command {
+                AiCommand::AggressivePatrolHome { distance } => {
+                    Some(AiCommandAggressivePatrolHomeData {
+                        distance: *distance,
+                    })
+                }
+                _ => None,
+            },
+            commandable: if ai.commandable { Some(true) } else { None },
         }
     }
 }

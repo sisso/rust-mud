@@ -13,7 +13,7 @@ use crate::game::obj::Objects;
 use crate::game::pos::Pos;
 use crate::game::prices::{Money, Price};
 use crate::game::random_rooms::{RandomRoomsCfg, RandomRoomsRepository, RandomRoomsSpawnCfg};
-use crate::game::room::Room;
+use crate::game::room::{Room, RoomId};
 use crate::game::ships::Ship;
 use crate::game::spawn::{Spawn, SpawnBuilder};
 use crate::game::surfaces::Surface;
@@ -334,6 +334,7 @@ pub struct SpawnData {
     pub time_max: f32,
     pub locations_id: Option<Vec<StaticId>>,
     pub next_spawn: Option<f64>,
+    pub ai_override: Option<AiData>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -368,19 +369,15 @@ pub struct LoaderData {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
-pub enum AiCommandKind {
-    Idle,
-    Aggressive,
-    Passive,
-    FollowAndProtect,
-    Hauler,
-}
-
-#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct AiCommandHaulData {
     pub from_id: ObjId,
     pub to_id: ObjId,
     pub targets: Vec<ObjId>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct AiCommandAggressivePatrolHomeData {
+    pub distance: u32,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -389,6 +386,7 @@ pub struct AiData {
     pub command_follow_and_protect: Option<ObjId>,
     pub command_haul: Option<AiCommandHaulData>,
     pub commandable: Option<bool>,
+    pub command_aggressive_patrol_home: Option<AiCommandAggressivePatrolHomeData>,
 }
 
 impl LoaderData {
