@@ -900,7 +900,7 @@ impl Loader {
                             // random maps have empty locations
                             locations_id: None,
                             next_spawn: None,
-                            ai_override: i.spawn_builder.ai_override.clone(),
+                            ai_overwrite: i.spawn_builder.ai_overwrite.clone(),
                         },
                     })
                     .collect();
@@ -946,7 +946,7 @@ impl Loader {
                 time_max: spawn.delay.max.as_seconds_f32(),
                 locations_id: nonempty_or_none!(locations),
                 next_spawn: Some(spawn.next.as_seconds_f64()),
-                ai_override: spawn.ai_override.clone(),
+                ai_overwrite: spawn.ai_overwrite.clone(),
             };
 
             obj_data.spawn = Some(spawn_data);
@@ -1223,7 +1223,7 @@ impl Loader {
             delay_max: DeltaTime(data.time_max),
             prefab_id: data.prefab_id,
             next: data.next_spawn.as_ref().map(|time| TotalTime(*time)),
-            ai_override: data.ai_override.clone(),
+            ai_overwrite: data.ai_overwrite.clone(),
         }
     }
 

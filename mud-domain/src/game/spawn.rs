@@ -40,7 +40,7 @@ pub struct SpawnBuilder {
     pub delay_max: DeltaTime,
     pub prefab_id: StaticId,
     pub next: Option<TotalTime>,
-    pub ai_override: Option<AiData>,
+    pub ai_overwrite: Option<AiData>,
 }
 
 impl SpawnBuilder {
@@ -58,7 +58,7 @@ pub struct Spawn {
     pub next: TotalTime,
     /// zones and rooms are valid, when empty, parent objects is used
     pub locations_id: Vec<LocationId>,
-    pub ai_override: Option<AiData>,
+    pub ai_overwrite: Option<AiData>,
 }
 
 impl Spawn {
@@ -79,7 +79,7 @@ impl Spawn {
             prefab_id: prefab_id,
             next: TotalTime(0.0),
             locations_id: vec![],
-            ai_override: None,
+            ai_overwrite: None,
         }
     }
 }

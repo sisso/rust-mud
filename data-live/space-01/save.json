@@ -3,8 +3,8 @@
     "avatar_mob": 6,
     "initial_room": 2,
     "money_id": 42,
-    "tick": 30536,
-    "total_time": 3053.6000455021854
+    "tick": 35104,
+    "total_time": 3510.4000523090363
   },
   "objects": {
     "0": {
@@ -36,8 +36,8 @@
       "tags": {
         "values": [
           "ship",
-          "ship_civil",
-          "ship_transport"
+          "ship_transport",
+          "ship_civil"
         ]
       }
     },
@@ -123,7 +123,7 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 100003
+      "parent": 100002
     },
     "100007": {
       "desc": "other",
@@ -470,7 +470,7 @@
       "parent": 4,
       "spawn": {
         "max": 1,
-        "next_spawn": 3113.6066145300856,
+        "next_spawn": 3637.2810613811016,
         "prefab_id": 36,
         "time_max": 360.0,
         "time_min": 60.0
@@ -482,7 +482,7 @@
       "parent": 21,
       "spawn": {
         "max": 1,
-        "next_spawn": 3240.1452103182664,
+        "next_spawn": 3625.959942020476,
         "prefab_id": 37,
         "time_max": 360.0,
         "time_min": 60.0
@@ -763,6 +763,9 @@
           "robot_lift",
           "robot_civil"
         ]
+      },
+      "ai": {
+          "commandable": true
       }
     },
     "6": {

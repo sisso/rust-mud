@@ -253,7 +253,7 @@ GET  - list objects
 POST - add new object and return new id
 /api/v1/objects/<id>
 GET - get a object
-PUT - override obectj
+PUT - overwrite obectj
 PATCH - update a object
 
 # Room.exit
@@ -373,7 +373,7 @@ just a persistent state.
 
 Any object can have a reference to a prefab. 
 When persist, both object data and prefab data will be generated and only difference will be persisted. 
-When load, first load the prefab object and then override with field data.
+When load, first load the prefab object and then overwrite with field data.
 
 - Removals are not supported !!!!
 - prefabs can be recursive

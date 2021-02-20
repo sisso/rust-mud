@@ -115,7 +115,7 @@
                 "prefab_id": 53,
                 "time_max": 60.0,
                 "time_min": 10.0,
-                "ai_override": {
+                "ai_overwrite": {
                   "command_aggressive_patrol_home": {
                     "distance": 1
                   }
@@ -131,7 +131,7 @@
                 "prefab_id": 53,
                 "time_max": 60.0,
                 "time_min": 10.0,
-                "ai_override": {
+                "ai_overwrite": {
                   "command_aggressive_patrol_home": {
                     "distance": 1
                   }
@@ -146,7 +146,7 @@
                 "prefab_id": 29,
                 "time_max": 60.0,
                 "time_min": 10.0,
-                "ai_override": {
+                "ai_overwrite": {
                   "command_aggressive_patrol_home": {
                     "distance": 1
                   }

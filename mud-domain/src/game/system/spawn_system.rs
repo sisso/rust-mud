@@ -55,7 +55,7 @@ pub fn run(container: &mut Container) {
                             spawn.id,
                             location_id,
                             spawn.prefab_id,
-                            spawn.ai_override.clone(),
+                            spawn.ai_overwrite.clone(),
                         ));
                     } else {
                         warn!(
@@ -74,7 +74,7 @@ pub fn run(container: &mut Container) {
     }
 
     // spawn all mobs
-    for (spawn_id, room_id, mob_prefab_id, ai_override) in mob_spawns {
+    for (spawn_id, room_id, mob_prefab_id, ai_overwrite) in mob_spawns {
         let mob_id = match Loader::spawn_at(container, mob_prefab_id, room_id) {
             Ok(mob_id) => mob_id,
             Err(e) => {
@@ -86,8 +86,8 @@ pub fn run(container: &mut Container) {
             }
         };
 
-        if let Some(ai_override) = ai_override {
-            Loader::apply_ai_data(&mut container.ai, mob_id, &ai_override)
+        if let Some(ai_overwrite) = ai_overwrite {
+            Loader::apply_ai_data(&mut container.ai, mob_id, &ai_overwrite)
                 .expect("fail to apply ai");
         }
 
