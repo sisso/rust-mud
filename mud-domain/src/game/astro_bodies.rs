@@ -257,27 +257,19 @@ mod test {
         locations.set(6.into(), 1.into());
         locations.set(4.into(), 0.into());
         locations.set(5.into(), 4.into());
-        astros
-            .upsert(AstroBody::new(0.into(), 0.0, AstroBodyKind::Star))
-            .unwrap();
-        astros
-            .upsert(AstroBody::new(1.into(), 10.0, AstroBodyKind::Planet))
-            .unwrap();
-        astros
-            .upsert(AstroBody::new(2.into(), 2.0, AstroBodyKind::Moon))
-            .unwrap();
-        astros
-            .upsert(AstroBody::new(3.into(), 1.0, AstroBodyKind::Ship))
-            .unwrap();
-        astros
-            .upsert(AstroBody::new(4.into(), 20.0, AstroBodyKind::Planet))
-            .unwrap();
-        astros
-            .upsert(AstroBody::new(5.into(), 2.0, AstroBodyKind::Station))
-            .unwrap();
-        astros
-            .upsert(AstroBody::new(6.into(), 4.0, AstroBodyKind::Moon))
-            .unwrap();
+        astros.upsert(AstroBody::new(0.into(), 0.0, AstroBodyKind::Star));
+
+        astros.upsert(AstroBody::new(1.into(), 10.0, AstroBodyKind::Planet));
+
+        astros.upsert(AstroBody::new(2.into(), 2.0, AstroBodyKind::Moon));
+
+        astros.upsert(AstroBody::new(3.into(), 1.0, AstroBodyKind::Ship));
+
+        astros.upsert(AstroBody::new(4.into(), 20.0, AstroBodyKind::Planet));
+
+        astros.upsert(AstroBody::new(5.into(), 2.0, AstroBodyKind::Station));
+
+        astros.upsert(AstroBody::new(6.into(), 4.0, AstroBodyKind::Moon));
     }
 
     /// 0 - star (0)
@@ -288,18 +280,13 @@ mod test {
         locations.set(1.into(), 0.into());
         locations.set(2.into(), 1.into());
         locations.set(3.into(), 0.into());
-        astros
-            .upsert(AstroBody::new(0.into(), 0.0, AstroBodyKind::Star))
-            .unwrap();
-        astros
-            .upsert(AstroBody::new(1.into(), 10.0, AstroBodyKind::Planet))
-            .unwrap();
-        astros
-            .upsert(AstroBody::new(2.into(), 1.0, AstroBodyKind::Ship))
-            .unwrap();
-        astros
-            .upsert(AstroBody::new(3.into(), 20.0, AstroBodyKind::Planet))
-            .unwrap();
+        astros.upsert(AstroBody::new(0.into(), 0.0, AstroBodyKind::Star));
+
+        astros.upsert(AstroBody::new(1.into(), 10.0, AstroBodyKind::Planet));
+
+        astros.upsert(AstroBody::new(2.into(), 1.0, AstroBodyKind::Ship));
+
+        astros.upsert(AstroBody::new(3.into(), 20.0, AstroBodyKind::Planet));
     }
 
     #[test]
