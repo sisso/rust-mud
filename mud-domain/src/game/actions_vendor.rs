@@ -174,7 +174,16 @@ pub fn buy(
         })?;
 
     // check if mob can hold the item
-    let drop_in_floor = inventory_service::can_add_weight_prefab(container, mob_id, item_static_id);
+    let prefab_weight = container
+        .loader
+        .get_prefab_weight(item_static_id)
+        .unwrap_or(0.0);
+    let available_weight = container
+        .inventories
+        .get(mob_id)
+        .map(|i| i.available())
+        .unwrap_or(0.0);
+    let drop_in_floor = prefab_weight > available_weight;
 
     let item_spawn_location_id = if drop_in_floor { location_id } else { mob_id };
 
@@ -196,7 +205,13 @@ pub fn buy(
     if drop_in_floor {
         container.outputs.private(
             mob_id,
-            comm::vendor_buy_success_floor(item_label, buy_price, new_mob_money),
+            comm::vendor_buy_success_floor(
+                item_label,
+                buy_price,
+                new_mob_money,
+                prefab_weight,
+                available_weight,
+            ),
         );
         container.outputs.broadcast(
             Some(mob_id),
@@ -214,6 +229,9 @@ pub fn buy(
             comm::vendor_buy_success_others(mob_label, item_label),
         );
     }
+
+    // update inventory of the new obj location
+    inventory_service::update_inventory_weight(container, item_spawn_location_id)?;
 
     Ok(item_id)
 }

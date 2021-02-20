@@ -199,7 +199,7 @@ fn handle_list(
 }
 
 fn handle_verify(
-    container: &mut Container,
+    _container: &mut Container,
     outputs: &mut Vec<String>,
     input: StrInput,
 ) -> Result<()> {

@@ -27,7 +27,7 @@ pub fn compute_total_weight(items: &Vec<&Item>) -> Weight {
     items.iter().map(|item| item.total_weight()).sum()
 }
 
-pub fn can_add_weight_prefab(container: &Container, obj_id: ObjId, static_id: StaticId) -> bool {
+pub fn can_add_weight_by_prefab(container: &Container, obj_id: ObjId, static_id: StaticId) -> bool {
     let weight = match container.loader.get_prefab_weight(static_id) {
         Some(w) => w,
         None => return true,

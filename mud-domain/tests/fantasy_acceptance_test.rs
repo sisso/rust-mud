@@ -296,6 +296,8 @@ fn from_village_to_market(scenery: &mut TestScenery) {
     scenery.wait_for("Village");
     scenery.input("s");
     scenery.wait_for("Market");
+    scenery.input("look");
+    scenery.wait_for("vendor");
 }
 
 fn from_village_to_forest(scenery: &mut TestScenery) {

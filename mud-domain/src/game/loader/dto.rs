@@ -392,7 +392,7 @@ pub struct AiData {
 impl LoaderData {
     pub fn new() -> Self {
         LoaderData {
-            version: super::ZERO_VERSION,
+            version: super::MIGRATION_LATEST_VERSION,
             cfg: None,
             objects: Default::default(),
             prefabs: Default::default(),
@@ -402,12 +402,9 @@ impl LoaderData {
     /// This basic implementation only extends objects that don't exists in self, any conflict
     /// will cause a error
     pub fn extends(&mut self, data: LoaderData) -> Result<()> {
-        // TODO Currently an empty Data is created in latest version and all files are loaded
-        //      extends with this method, causing it to fail. Migration should happens before
-        //      it, but we are getting rid of extends.
-        // if self.version != data.version {
-        //     return Err("Data version mismatch".into());
-        // }
+        if self.version != data.version {
+            return Err("Data version mismatch".into());
+        }
 
         if data.cfg.is_some() {
             if self.cfg.is_some() {

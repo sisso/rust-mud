@@ -826,12 +826,20 @@ pub fn vendor_buy_success(item: &str, price: Money, new_money: Money) -> String 
     )
 }
 
-pub fn vendor_buy_success_floor(item: &str, price: Money, new_money: Money) -> String {
+pub fn vendor_buy_success_floor(
+    item: &str,
+    price: Money,
+    new_money: Money,
+    item_weight: Weight,
+    available_weight: Weight,
+) -> String {
     format!(
-        "you bought a {} for {}, it is to heavy and was drop in the floor, you have now {} of money",
+        "you bought a {} for {}, you have now {} of money, it's weight {} but you can only take {}, it was drop in the floor, ",
         item,
         price.as_u32(),
-        new_money.as_u32()
+        new_money.as_u32(),
+        item_weight,
+        available_weight
     )
 }
 

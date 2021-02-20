@@ -133,7 +133,7 @@ impl Tick {
 
 pub const OBJ_ID_STATIC_RANGE: u32 = 100000;
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Serialize, Deserialize, PartialOrd, Ord)]
 pub struct ObjId(pub u32);
 
 impl ObjId {

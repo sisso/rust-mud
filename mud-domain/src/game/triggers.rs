@@ -22,14 +22,12 @@ impl Event {
     pub fn get_kind(&self) -> EventKind {
         match self {
             Event::Obj { kind, .. } => *kind,
-            other => panic!("unexpected kind {:?}", other),
         }
     }
 
     pub fn get_obj_id(&self) -> ObjId {
         match self {
             Event::Obj { obj_id, .. } => *obj_id,
-            other => panic!("unexpected kind {:?}", other),
         }
     }
 }

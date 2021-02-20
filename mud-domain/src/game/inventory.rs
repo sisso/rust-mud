@@ -25,6 +25,10 @@ impl Inventory {
             .map(|&max_weight| self.current_weight.unwrap_or(0.0) + weight <= max_weight)
             .unwrap_or(true)
     }
+
+    pub fn available(&self) -> Weight {
+        self.max_weight.unwrap_or(0.0) - self.current_weight.unwrap_or(0.0)
+    }
 }
 
 #[derive(Clone, Debug)]

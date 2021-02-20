@@ -5,6 +5,22 @@
     "money_id": 17
   },
   "objects": {
+    "54": {
+      "desc": "Market vendor",
+      "id": 54,
+      "label": "Market vendor",
+      "market": {
+        "trades": [
+          {
+            "buy_price_mult": 1.2000000476837158,
+            "sell_price_mult": 0.800000011920929,
+            "tags": [
+              "item"
+            ]
+          }
+        ]
+      }
+    },
     "1": {
       "id": 1,
       "label": "Village area",
@@ -21,7 +37,8 @@
         "max": 4,
         "prefab_id": 15,
         "time_max": 60.0,
-        "time_min": 10.0
+        "time_min": 10.0,
+        "next_spawn": 0.0
       }
     },
     "2": {
@@ -50,7 +67,7 @@
       "code": [
         "chest"
       ],
-      "desc": "Chest used to receive donations from the beliver",
+      "desc": "Chest used to receive donations from the believer",
       "id": 23,
       "item": {
         "flags": {
@@ -59,7 +76,13 @@
         "weight": 1.0
       },
       "label": "donation chest",
-      "parent": 6
+      "parent": 6,
+      "tags": {
+        "values": [
+          "item",
+          "furniture"
+        ]
+      }
     },
     "24": {
       "id": 24,
@@ -69,7 +92,8 @@
         "max": 10,
         "prefab_id": 17,
         "time_max": 60.0,
-        "time_min": 10.0
+        "time_min": 10.0,
+        "next_spawn": 0.0
       }
     },
     "26": {
@@ -80,7 +104,8 @@
         "max": 2,
         "prefab_id": 25,
         "time_max": 180.0,
-        "time_min": 60.0
+        "time_min": 60.0,
+        "next_spawn": 0.0
       }
     },
     "27": {
@@ -282,7 +307,13 @@
       "item": {
         "weight": 1.0
       },
-      "label": "Coal"
+      "label": "Coal",
+      "tags": {
+        "values": [
+          "item",
+          "resource"
+        ]
+      }
     },
     "11": {
       "id": 11,
@@ -342,7 +373,13 @@
           "money": true
         }
       },
-      "label": "gold"
+      "label": "gold",
+      "tags": {
+        "values": [
+          "item",
+          "gold"
+        ]
+      }
     },
     "18": {
       "id": 18,
@@ -352,6 +389,12 @@
       "label": "meat",
       "price": {
         "price": 2
+      },
+      "tags": {
+        "values": [
+          "item",
+          "food"
+        ]
       }
     },
     "19": {
@@ -369,7 +412,9 @@
         "pv_max": 10,
         "xp": 10
       },
-      "vendor": {}
+      "vendor": {
+        "market_id":54
+      }
     },
     "20": {
       "desc": "A normal and boring human being",
@@ -444,6 +489,12 @@
       "label": "Dagger",
       "price": {
         "price": 10
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "32": {
@@ -462,6 +513,12 @@
       "label": "Short Sword",
       "price": {
         "price": 300
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "33": {
@@ -480,6 +537,12 @@
       "label": "Axe",
       "price": {
         "price": 50
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "34": {
@@ -498,6 +561,12 @@
       "label": "Mace",
       "price": {
         "price": 100
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "35": {
@@ -516,6 +585,12 @@
       "label": "Sword",
       "price": {
         "price": 400
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "36": {
@@ -534,6 +609,12 @@
       "label": "Lance",
       "price": {
         "price": 150
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "37": {
@@ -552,6 +633,12 @@
       "label": "Quarterstaff",
       "price": {
         "price": 50
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "38": {
@@ -570,6 +657,12 @@
       "label": "Halberd",
       "price": {
         "price": 400
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "39": {
@@ -588,6 +681,12 @@
       "label": "Two hand Sword",
       "price": {
         "price": 800
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "40": {
@@ -606,6 +705,12 @@
       "label": "Two hand Axe",
       "price": {
         "price": 300
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "41": {
@@ -624,6 +729,12 @@
       "label": "Flail",
       "price": {
         "price": 200
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "43": {
@@ -639,6 +750,12 @@
       "label": "Buckler",
       "price": {
         "price": 50
+      },
+      "tags": {
+        "values": [
+          "item",
+          "shield"
+        ]
       }
     },
     "44": {
@@ -654,6 +771,12 @@
       "label": "Shield",
       "price": {
         "price": 100
+      },
+      "tags": {
+        "values": [
+          "item",
+          "shield"
+        ]
       }
     },
     "45": {
@@ -669,6 +792,12 @@
       "label": "Wall Shield",
       "price": {
         "price": 200
+      },
+      "tags": {
+        "values": [
+          "item",
+          "shield"
+        ]
       }
     },
     "47": {
@@ -684,6 +813,13 @@
       "label": "Cap",
       "price": {
         "price": 50
+      },
+      "tags": {
+        "values": [
+          "item",
+          "armor",
+          "head_armor"
+        ]
       }
     },
     "48": {
@@ -699,6 +835,13 @@
       "label": "Helm",
       "price": {
         "price": 200
+      },
+      "tags": {
+        "values": [
+          "item",
+          "armor",
+          "head_armor"
+        ]
       }
     },
     "49": {
@@ -714,6 +857,13 @@
       "label": "Leather Armor",
       "price": {
         "price": 200
+      },
+      "tags": {
+        "values": [
+          "item",
+          "armor",
+          "chest_armor"
+        ]
       }
     },
     "50": {
@@ -729,6 +879,13 @@
       "label": "Chain Mail",
       "price": {
         "price": 400
+      },
+      "tags": {
+        "values": [
+          "item",
+          "armor",
+          "chest_armor"
+        ]
       }
     },
     "51": {
@@ -744,6 +901,13 @@
       "label": "Plate Mail",
       "price": {
         "price": 800
+      },
+      "tags": {
+        "values": [
+          "item",
+          "armor",
+          "chest_armor"
+        ]
       }
     },
     "53": {
@@ -770,21 +934,39 @@
       "item": {
         "weight": 1.0
       },
-      "label": "Wood"
+      "label": "Wood",
+      "tags": {
+        "values": [
+          "item",
+          "resource"
+        ]
+      }
     },
     "8": {
       "id": 8,
       "item": {
         "weight": 1.0
       },
-      "label": "Iron Ore"
+      "label": "Iron Ore",
+      "tags": {
+        "values": [
+          "item",
+          "resource"
+        ]
+      }
     },
     "9": {
       "id": 9,
       "item": {
         "weight": 1.0
       },
-      "label": "Iron"
+      "label": "Iron",
+      "tags": {
+        "values": [
+          "item",
+          "resource"
+        ]
+      }
     }
   },
   "version": 3

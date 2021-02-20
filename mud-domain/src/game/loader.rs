@@ -41,7 +41,7 @@ use commons::jsons::JsonValueExtra;
 use dto::*;
 use std::io::Write;
 
-const ZERO_VERSION: u32 = 0;
+const MIGRATION_LATEST_VERSION: u32 = 3;
 
 #[derive(Debug, Clone)]
 pub struct ValidationResult {
@@ -520,14 +520,15 @@ impl Loader {
         }
 
         if let Some(memory) = &data.memory {
-            container.memories.add_all(
-                obj_id,
-                memory
-                    .knows
-                    .iter()
-                    .map(|static_id| get_ref!(*static_id))
-                    .collect(),
-            )?;
+            let mut memory_ids: Vec<ObjId> = memory
+                .knows
+                .iter()
+                .map(|static_id| get_ref!(*static_id))
+                .collect();
+
+            memory_ids.sort_unstable();
+
+            container.memories.add_all(obj_id, memory_ids)?;
         }
 
         if let Some(tags) = &data.tags {
@@ -708,7 +709,8 @@ impl Loader {
     pub fn read_json(data: &mut LoaderData, json_file: &Path) -> Result<()> {
         info!("reading file {:?}", json_file);
         let file = std::fs::File::open(json_file)?;
-        let new_data = serde_json::from_reader(std::io::BufReader::new(file))?;
+        let mut new_data = serde_json::from_reader(std::io::BufReader::new(file))?;
+        Loader::migrate(&mut new_data);
         data.extends(new_data)
     }
 
@@ -1057,6 +1059,7 @@ impl Loader {
                     }
                 }
             }
+            values.sort_unstable();
             obj_data.tags = Some(TagsData { values });
         }
 
@@ -1203,6 +1206,12 @@ impl Loader {
                 data.version = migration.version();
                 info!("migrating data to v{} complete", data.version);
             }
+        }
+
+        if data.version != MIGRATION_LATEST_VERSION {
+            return Err(Error::Exception(format!(
+                "Invalid data version after migration"
+            )));
         }
 
         Ok(())
@@ -1466,6 +1475,7 @@ prefabs.control_panel_command_2 {
     #[test]
     fn test_snapshot_all_objects() -> std::result::Result<(), Box<dyn std::error::Error>> {
         for folder in list_data_folders_for_test() {
+            println!("loading {}", folder.to_string_lossy());
             let data = Loader::read_folders(folder.as_path())?;
 
             let mut container = Container::new();
