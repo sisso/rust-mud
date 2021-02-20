@@ -1183,7 +1183,7 @@ impl Loader {
         Ok(result)
     }
 
-    fn migrate(data: &mut LoaderData) -> Result<()> {
+    pub fn migrate(data: &mut LoaderData) -> Result<()> {
         info!("checking for data migration for {:?}", data.version);
 
         let migrations: Vec<Box<dyn Migration>> = vec![
@@ -1194,9 +1194,14 @@ impl Loader {
 
         for mut migration in migrations {
             if data.version < migration.version() {
-                info!("migrating data to v{} started", migration.version());
+                info!(
+                    "migrating data v{} to v{} started",
+                    data.version,
+                    migration.version()
+                );
                 migration.migrate(data)?;
-                info!("migrating data to v{} complete", migration.version());
+                data.version = migration.version();
+                info!("migrating data to v{} complete", data.version);
             }
         }
 

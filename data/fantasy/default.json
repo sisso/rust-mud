@@ -55,7 +55,8 @@
       "item": {
         "flags": {
           "inventory": true
-        }
+        },
+        "weight": 1.0
       },
       "label": "donation chest",
       "parent": 6
@@ -111,15 +112,15 @@
               "amount": 2,
               "level_max": 0,
               "spawn": {
-                "max": 4,
-                "prefab_id": 53,
-                "time_max": 60.0,
-                "time_min": 10.0,
                 "ai_overwrite": {
                   "command_aggressive_patrol_home": {
                     "distance": 1
                   }
-                }
+                },
+                "max": 4,
+                "prefab_id": 53,
+                "time_max": 60.0,
+                "time_min": 10.0
               }
             },
             {
@@ -127,30 +128,30 @@
               "level_max": 3,
               "level_min": 1,
               "spawn": {
-                "max": 4,
-                "prefab_id": 53,
-                "time_max": 60.0,
-                "time_min": 10.0,
                 "ai_overwrite": {
                   "command_aggressive_patrol_home": {
                     "distance": 1
                   }
-                }
+                },
+                "max": 4,
+                "prefab_id": 53,
+                "time_max": 60.0,
+                "time_min": 10.0
               }
             },
             {
               "amount": 10,
               "level_min": 2,
               "spawn": {
-                "max": 4,
-                "prefab_id": 29,
-                "time_max": 60.0,
-                "time_min": 10.0,
                 "ai_overwrite": {
                   "command_aggressive_patrol_home": {
                     "distance": 1
                   }
-                }
+                },
+                "max": 4,
+                "prefab_id": 29,
+                "time_max": 60.0,
+                "time_min": 10.0
               }
             }
           ],
@@ -262,6 +263,9 @@
     "0": {
       "desc": "A super geil human being",
       "id": 0,
+      "inventory": {
+        "max_weight": 20.0
+      },
       "label": "avatar",
       "mob": {
         "attack": 10,
@@ -275,37 +279,52 @@
     },
     "10": {
       "id": 10,
-      "item": {},
+      "item": {
+        "weight": 1.0
+      },
       "label": "Coal"
     },
     "11": {
       "id": 11,
-      "item": {},
+      "item": {
+        "weight": 1.0
+      },
       "label": "Tree"
     },
     "12": {
       "id": 12,
-      "item": {},
+      "item": {
+        "weight": 1.0
+      },
       "label": "Ore mine"
     },
     "13": {
       "id": 13,
-      "item": {},
+      "item": {
+        "weight": 1.0
+      },
       "label": "Burner"
     },
     "14": {
       "id": 14,
-      "item": {},
+      "item": {
+        "weight": 1.0
+      },
       "label": "Forge"
     },
     "15": {
+      "ai": {
+        "command_aggressive": true
+      },
       "children": [
         18
       ],
       "id": 15,
+      "inventory": {
+        "max_weight": 8.0
+      },
       "label": "wolf",
       "mob": {
-        "aggressive": false,
         "attack": 9,
         "damage_max": 2,
         "damage_min": 1,
@@ -313,9 +332,6 @@
         "pv": 4,
         "pv_max": 4,
         "xp": 5
-      },
-      "ai": {
-        "command_aggressive": true
       }
     },
     "17": {
@@ -330,15 +346,19 @@
     },
     "18": {
       "id": 18,
-      "item": {},
+      "item": {
+        "weight": 1.0
+      },
       "label": "meat",
       "price": {
-        "buy": 2,
-        "sell": 1
+        "price": 2
       }
     },
     "19": {
       "id": 19,
+      "inventory": {
+        "max_weight": 20.0
+      },
       "label": "vendor",
       "mob": {
         "attack": 10,
@@ -354,6 +374,9 @@
     "20": {
       "desc": "A normal and boring human being",
       "id": 20,
+      "inventory": {
+        "max_weight": 20.0
+      },
       "label": "human",
       "mob": {
         "attack": 10,
@@ -366,28 +389,36 @@
       }
     },
     "25": {
+      "ai": {
+        "commandable": true
+      },
       "desc": "Sword for sell",
       "id": 25,
+      "inventory": {
+        "max_weight": 20.0
+      },
       "label": "mercenary",
       "mob": {
         "attack": 10,
         "damage_max": 4,
         "damage_min": 2,
         "defense": 10,
+        "hire_cost": 10,
         "pv": 10,
         "pv_max": 10,
-        "xp": 10,
-        "hire_cost": 10
-      },
-      "ai": {
-        "commandable": true
+        "xp": 10
       }
     },
     "29": {
+      "ai": {
+        "command_aggressive": true
+      },
       "id": 29,
+      "inventory": {
+        "max_weight": 12.0
+      },
       "label": "skeleton",
       "mob": {
-        "aggressive": true,
         "attack": 9,
         "damage_max": 2,
         "damage_min": 1,
@@ -395,9 +426,6 @@
         "pv": 6,
         "pv_max": 6,
         "xp": 5
-      },
-      "ai": {
-        "command_aggressive": true
       }
     },
     "31": {
@@ -410,12 +438,12 @@
           "defense": 2,
           "max": 3,
           "min": 1
-        }
+        },
+        "weight": 1.0
       },
       "label": "Dagger",
       "price": {
-        "buy": 10,
-        "sell": 5
+        "price": 10
       }
     },
     "32": {
@@ -428,12 +456,12 @@
           "defense": 0,
           "max": 4,
           "min": 2
-        }
+        },
+        "weight": 1.0
       },
       "label": "Short Sword",
       "price": {
-        "buy": 300,
-        "sell": 150
+        "price": 300
       }
     },
     "33": {
@@ -446,12 +474,12 @@
           "defense": 0,
           "max": 6,
           "min": 2
-        }
+        },
+        "weight": 1.0
       },
       "label": "Axe",
       "price": {
-        "buy": 50,
-        "sell": 25
+        "price": 50
       }
     },
     "34": {
@@ -464,12 +492,12 @@
           "defense": 0,
           "max": 6,
           "min": 2
-        }
+        },
+        "weight": 1.0
       },
       "label": "Mace",
       "price": {
-        "buy": 100,
-        "sell": 50
+        "price": 100
       }
     },
     "35": {
@@ -482,12 +510,12 @@
           "defense": 0,
           "max": 4,
           "min": 2
-        }
+        },
+        "weight": 1.0
       },
       "label": "Sword",
       "price": {
-        "buy": 400,
-        "sell": 200
+        "price": 400
       }
     },
     "36": {
@@ -500,12 +528,12 @@
           "defense": 0,
           "max": 8,
           "min": 1
-        }
+        },
+        "weight": 1.0
       },
       "label": "Lance",
       "price": {
-        "buy": 150,
-        "sell": 75
+        "price": 150
       }
     },
     "37": {
@@ -518,12 +546,12 @@
           "defense": 3,
           "max": 2,
           "min": 1
-        }
+        },
+        "weight": 1.0
       },
       "label": "Quarterstaff",
       "price": {
-        "buy": 50,
-        "sell": 25
+        "price": 50
       }
     },
     "38": {
@@ -536,12 +564,12 @@
           "defense": 0,
           "max": 12,
           "min": 4
-        }
+        },
+        "weight": 1.0
       },
       "label": "Halberd",
       "price": {
-        "buy": 400,
-        "sell": 200
+        "price": 400
       }
     },
     "39": {
@@ -554,12 +582,12 @@
           "defense": 0,
           "max": 8,
           "min": 2
-        }
+        },
+        "weight": 1.0
       },
       "label": "Two hand Sword",
       "price": {
-        "buy": 800,
-        "sell": 400
+        "price": 800
       }
     },
     "40": {
@@ -572,12 +600,12 @@
           "defense": 0,
           "max": 8,
           "min": 3
-        }
+        },
+        "weight": 1.0
       },
       "label": "Two hand Axe",
       "price": {
-        "buy": 300,
-        "sell": 150
+        "price": 300
       }
     },
     "41": {
@@ -590,12 +618,12 @@
           "defense": -1,
           "max": 4,
           "min": 2
-        }
+        },
+        "weight": 1.0
       },
       "label": "Flail",
       "price": {
-        "buy": 200,
-        "sell": 100
+        "price": 200
       }
     },
     "43": {
@@ -605,12 +633,12 @@
         "armor": {
           "defense": 0,
           "rd": 1
-        }
+        },
+        "weight": 1.0
       },
       "label": "Buckler",
       "price": {
-        "buy": 50,
-        "sell": 25
+        "price": 50
       }
     },
     "44": {
@@ -620,12 +648,12 @@
         "armor": {
           "defense": 1,
           "rd": 2
-        }
+        },
+        "weight": 1.0
       },
       "label": "Shield",
       "price": {
-        "buy": 100,
-        "sell": 50
+        "price": 100
       }
     },
     "45": {
@@ -635,12 +663,12 @@
         "armor": {
           "defense": 2,
           "rd": 2
-        }
+        },
+        "weight": 1.0
       },
       "label": "Wall Shield",
       "price": {
-        "buy": 200,
-        "sell": 100
+        "price": 200
       }
     },
     "47": {
@@ -650,12 +678,12 @@
         "armor": {
           "defense": 1,
           "rd": 0
-        }
+        },
+        "weight": 1.0
       },
       "label": "Cap",
       "price": {
-        "buy": 50,
-        "sell": 25
+        "price": 50
       }
     },
     "48": {
@@ -665,12 +693,12 @@
         "armor": {
           "defense": 2,
           "rd": 1
-        }
+        },
+        "weight": 1.0
       },
       "label": "Helm",
       "price": {
-        "buy": 200,
-        "sell": 100
+        "price": 200
       }
     },
     "49": {
@@ -680,12 +708,12 @@
         "armor": {
           "defense": 2,
           "rd": 2
-        }
+        },
+        "weight": 1.0
       },
       "label": "Leather Armor",
       "price": {
-        "buy": 200,
-        "sell": 100
+        "price": 200
       }
     },
     "50": {
@@ -695,12 +723,12 @@
         "armor": {
           "defense": 3,
           "rd": 3
-        }
+        },
+        "weight": 1.0
       },
       "label": "Chain Mail",
       "price": {
-        "buy": 400,
-        "sell": 200
+        "price": 400
       }
     },
     "51": {
@@ -710,19 +738,24 @@
         "armor": {
           "defense": 4,
           "rd": 4
-        }
+        },
+        "weight": 1.0
       },
       "label": "Plate Mail",
       "price": {
-        "buy": 800,
-        "sell": 400
+        "price": 800
       }
     },
     "53": {
+      "ai": {
+        "command_aggressive": true
+      },
       "id": 53,
+      "inventory": {
+        "max_weight": 4.0
+      },
       "label": "rat",
       "mob": {
-        "aggressive": true,
         "attack": 6,
         "damage_max": 2,
         "damage_min": 1,
@@ -730,26 +763,29 @@
         "pv": 2,
         "pv_max": 2,
         "xp": 1
-      },
-      "ai": {
-        "command_aggressive": true
       }
     },
     "7": {
       "id": 7,
-      "item": {},
+      "item": {
+        "weight": 1.0
+      },
       "label": "Wood"
     },
     "8": {
       "id": 8,
-      "item": {},
+      "item": {
+        "weight": 1.0
+      },
       "label": "Iron Ore"
     },
     "9": {
       "id": 9,
-      "item": {},
+      "item": {
+        "weight": 1.0
+      },
       "label": "Iron"
     }
   },
-  "version": 0
+  "version": 3
 }

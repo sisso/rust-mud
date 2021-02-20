@@ -26,6 +26,8 @@ impl Migration for MigrationV1 {
             if price.price.is_none() && price.buy.is_some() {
                 info!("migration v1: {:?} setting price {:?}", data.id, price.buy);
                 price.price = price.buy;
+                price.buy = None;
+                price.sell = None;
             }
         }
 

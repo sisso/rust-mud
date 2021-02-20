@@ -92,6 +92,9 @@
     "100005": {
       "desc": "sisso",
       "id": 100005,
+      "inventory": {
+        "max_weight": 20.0
+      },
       "label": "sisso",
       "memory": {
         "knows": [
@@ -116,6 +119,9 @@
     },
     "100006": {
       "id": 100006,
+      "inventory": {
+        "max_weight": 20.0
+      },
       "label": "Good Vendor",
       "mob": {
         "attack": 10,
@@ -417,6 +423,9 @@
     },
     "36": {
       "id": 36,
+      "inventory": {
+        "max_weight": 20.0
+      },
       "label": "Good Vendor",
       "mob": {
         "attack": 10,
@@ -431,6 +440,9 @@
     },
     "37": {
       "id": 37,
+      "inventory": {
+        "max_weight": 20.0
+      },
       "label": "Ore Vendor",
       "mob": {
         "attack": 10,
@@ -446,6 +458,9 @@
     "6": {
       "desc": "A normal and boring human being",
       "id": 6,
+      "inventory": {
+        "max_weight": 20.0
+      },
       "label": "Human",
       "mob": {
         "attack": 10,
@@ -458,5 +473,5 @@
       }
     }
   },
-  "version": 0
+  "version": 3
 }
