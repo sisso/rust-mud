@@ -28,7 +28,7 @@ pub struct ServerChanges {
     pub inputs: Vec<ServerInput>,
 }
 
-pub trait Server {
+pub trait SocketServer {
     fn run(&mut self) -> ServerChanges;
     fn output(&mut self, connection_id: ConnectionId, msg: String);
     fn disconnect(&mut self, connection_id: ConnectionId);

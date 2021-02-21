@@ -47,16 +47,16 @@ pub enum ConnectionViewAction {
 }
 
 /// Manage connectivity and messages to players through a socket.
-pub struct Controller {
+pub struct ConnectionController {
     connections: HashMap<ConnectionId, ConnectionState>,
     connection_id_by_player_id: HashMap<PlayerId, ConnectionId>,
     server_outputs: Vec<(ConnectionId, String)>,
     connections_with_input: HashSet<ConnectionId>,
 }
 
-impl Controller {
+impl ConnectionController {
     pub fn new() -> Self {
-        Controller {
+        ConnectionController {
             connections: Default::default(),
             connection_id_by_player_id: Default::default(),
             server_outputs: Default::default(),
@@ -413,6 +413,24 @@ impl Controller {
             .get(&connection_id)
             .and_then(|i| i.player_id)
     }
+}
+
+#[derive(Debug)]
+pub enum Request {
+    GetObjects,
+    GetPrefabs,
+    GetObj(ObjId),
+    GetPrefab(ObjId),
+}
+
+#[derive(Debug)]
+pub enum Response {}
+
+pub fn handle_request(
+    container: &mut Container,
+    request: &Request,
+) -> crate::errors::Result<Response> {
+    unimplemented!()
 }
 
 fn process_rich_text(mut msg: String) -> String {

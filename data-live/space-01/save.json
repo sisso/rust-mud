@@ -739,6 +739,9 @@
       "label": "credits"
     },
     "43": {
+      "ai": {
+        "commandable": true
+      },
       "desc": "A robot capable of lift and hauler heavy cargo",
       "id": 43,
       "inventory": {
@@ -763,9 +766,6 @@
           "robot_lift",
           "robot_civil"
         ]
-      },
-      "ai": {
-          "commandable": true
       }
     },
     "6": {
@@ -786,5 +786,5 @@
       }
     }
   },
-  "version": 2
+  "version": 3
 }

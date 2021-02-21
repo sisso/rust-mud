@@ -7,7 +7,7 @@ use super::*;
 use commons::ConnectionId;
 use std::collections::HashMap;
 
-pub struct SocketServer {
+pub struct DefaultSocketServer {
     next_connection_id: u32,
     connections: HashMap<ConnectionId, Connection>,
     listener: Option<TcpListener>,
@@ -39,7 +39,7 @@ impl Connection {
     }
 }
 
-impl Server for SocketServer {
+impl SocketServer for DefaultSocketServer {
     fn run(&mut self) -> ServerChanges {
         let outputs = self.pending_outputs.take().unwrap_or(vec![]);
         self.read_write(outputs)
@@ -56,7 +56,7 @@ impl Server for SocketServer {
     }
 }
 
-impl SocketServer {
+impl DefaultSocketServer {
     fn next_connection_id(&mut self) -> ConnectionId {
         let id = self.next_connection_id;
         self.next_connection_id += 1;
@@ -64,7 +64,7 @@ impl SocketServer {
     }
 
     pub fn new(port: u32) -> Self {
-        let mut ins = SocketServer {
+        let mut ins = DefaultSocketServer {
             next_connection_id: 0,
             connections: HashMap::new(),
             listener: None,
@@ -133,7 +133,7 @@ impl SocketServer {
             trace!(
                 "{:?} sending '{}'",
                 output.connection_id,
-                SocketServer::clean_output_to_log(&output.msg)
+                DefaultSocketServer::clean_output_to_log(&output.msg)
             );
 
             match self.connections.get_mut(&output.connection_id) {

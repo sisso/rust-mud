@@ -4,7 +4,7 @@ use commons::*;
 use container::Container;
 use logs::*;
 
-use crate::controller::Controller;
+use crate::controller::{ConnectionController, Request, Response};
 use crate::errors::*;
 use crate::game::location::LocationId;
 use crate::game::mob::MobId;
@@ -64,16 +64,6 @@ pub mod triggers;
 pub mod vendors;
 pub mod zone;
 
-// /// TODO: replace by buffer? looks a like of extra work keep this abstraction as reference
-// pub trait Outputs {
-//     /// For all mobs recursive inside the location
-//     fn broadcast_all(&mut self, exclude: Option<MobId>, location_id: LocationId, msg: String);
-//     /// For all mobs in current location
-//     fn broadcast(&mut self, exclude: Option<MobId>, location_id: LocationId, msg: String);
-//     /// Just to a specific mob
-//     fn private(&mut self, mob_id: MobId, msg: String);
-// }
-
 #[derive(Clone, Debug, Deserialize)]
 pub struct GameCfg {}
 
@@ -87,7 +77,7 @@ impl GameCfg {
 pub struct Game {
     cfg: GameCfg,
     pub container: Container,
-    controller: Controller,
+    controller: ConnectionController,
     systems: Systems,
 }
 
@@ -98,7 +88,7 @@ impl Game {
         Game {
             cfg,
             container,
-            controller: Controller::new(),
+            controller: ConnectionController::new(),
             systems,
         }
     }
@@ -120,6 +110,10 @@ impl Game {
     pub fn handle_input(&mut self, connection_id: ConnectionId, input: &str) {
         self.controller
             .handle_input(&mut self.container, connection_id, input);
+    }
+
+    pub fn handle_request(&mut self, request: &Request) -> Result<Response> {
+        crate::controller::handle_request(&mut self.container, request)
     }
 
     pub fn tick(&mut self, delta_time: DeltaTime) {

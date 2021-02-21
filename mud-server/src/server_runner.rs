@@ -1,7 +1,9 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use crate::http_handler;
 use commons::DeltaTime;
+use http_server::HttpServer;
 use logs::*;
 use mud_domain::errors::Error;
 use mud_domain::game::container::Container;
@@ -15,29 +17,33 @@ use std::sync::Arc;
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 pub struct ServerConfig {
-    pub port: u32,
+    pub socket_port: u32,
+    pub http_port: u32,
     pub data_folder: PathBuf,
     pub module_path: PathBuf,
     pub profile: Option<String>,
 }
 
 pub struct ServerRunner {
-    server: Box<dyn Server>,
     server_cfg: ServerConfig,
+    socket_server: Box<dyn SocketServer>,
+    http_server: Box<dyn HttpServer>,
     game: Game,
     stop_flag: Arc<AtomicBool>,
 }
 
 impl ServerRunner {
     pub fn new(
-        server: Box<dyn Server>,
         server_cfg: ServerConfig,
+        socket_server: Box<dyn SocketServer>,
+        http_server: Box<dyn HttpServer>,
         game: Game,
         stop_flag: Arc<AtomicBool>,
     ) -> Self {
         ServerRunner {
-            server,
             server_cfg,
+            socket_server,
+            http_server,
             game,
             stop_flag,
         }
@@ -58,22 +64,7 @@ impl ServerRunner {
             if tick % 1000 == 0 || kill_signal {
                 // create snapshot
                 if self.server_cfg.profile.is_some() {
-                    let data = Loader::create_snapshot(&self.game.container)?;
-
-                    let snapshot_file = snapshot_filename(&self.server_cfg, None)?;
-                    info!(
-                        "backup snapshot: {:?}",
-                        snapshot_file.with_file_name("snapshot_backup.json")
-                    );
-                    let _ = backup_filename(snapshot_file.as_path()).map_err(|err| {
-                        warn!("fail to generate backup: {:?}", err);
-                    });
-                    info!("saving snapshot: {:?}", snapshot_file);
-                    Loader::write_snapshot(&snapshot_file, &data)?;
-
-                    let snapshot_history = snapshot_filename(&self.server_cfg, Some(tick))?;
-                    info!("saving snapshot: {:?}", snapshot_history);
-                    Loader::write_snapshot(&snapshot_history, &data)?;
+                    self.create_snapshot(tick);
                 }
             }
 
@@ -86,30 +77,63 @@ impl ServerRunner {
         Ok(())
     }
 
+    fn create_snapshot(&mut self, tick: u32) -> Result<()> {
+        let data = Loader::create_snapshot(&self.game.container)?;
+
+        let snapshot_file = snapshot_filename(&self.server_cfg, None)?;
+        info!(
+            "backup snapshot: {:?}",
+            snapshot_file.with_file_name("snapshot_backup.json")
+        );
+        let _ = backup_filename(snapshot_file.as_path()).map_err(|err| {
+            warn!("fail to generate backup: {:?}", err);
+        });
+        info!("saving snapshot: {:?}", snapshot_file);
+        Loader::write_snapshot(&snapshot_file, &data)?;
+
+        let snapshot_history = snapshot_filename(&self.server_cfg, Some(tick))?;
+        info!("saving snapshot: {:?}", snapshot_history);
+        Loader::write_snapshot(&snapshot_history, &data)?;
+        Ok(())
+    }
+
     pub fn stop(&self) -> Result<()> {
         unimplemented!()
     }
 
     fn run_tick(&mut self, delta_time: DeltaTime) {
-        let result = self.server.run();
+        // handle socket requests
+        let socket_requests = self.socket_server.run();
 
-        for connection_id in result.connects {
+        for connection_id in socket_requests.connects {
             self.game.add_connection(connection_id);
         }
 
-        for connection_id in result.disconnects {
+        for connection_id in socket_requests.disconnects {
             self.game.disconnect(connection_id);
         }
 
-        for input in result.inputs {
+        for input in socket_requests.inputs {
             self.game
                 .handle_input(input.connection_id, input.msg.as_ref());
         }
 
+        // handle http requests
+        let http_requests = self
+            .http_server
+            .take_requests()
+            .expect("fail to take http requests");
+        let http_responses = http_handler::handle_requests(&mut self.game, http_requests);
+        self.http_server
+            .provide_responses(http_responses)
+            .expect("fail to provide responses");
+
+        // update game
         self.game.tick(delta_time);
 
+        // sockets responses
         for (connection_id, msg) in self.game.flush_outputs() {
-            self.server.output(connection_id, msg);
+            self.socket_server.output(connection_id, msg);
         }
     }
 }
@@ -132,8 +156,16 @@ pub fn create_server(server_cfg: ServerConfig, stop_flag: Arc<AtomicBool>) -> Re
     let game = Game::new(game_cfg, container);
 
     // create server
-    let server = server_socket::SocketServer::new(server_cfg.port);
-    let runner = ServerRunner::new(Box::new(server), server_cfg, game, stop_flag);
+    let socket_server = server_socket::DefaultSocketServer::new(server_cfg.socket_port);
+    let http_server =
+        http_server::HttpServer::new(server_cfg.http_port).expect("fail to create http server");
+    let runner = ServerRunner::new(
+        server_cfg,
+        Box::new(socket_server),
+        http_server,
+        game,
+        stop_flag,
+    );
     Ok(runner)
 }
 

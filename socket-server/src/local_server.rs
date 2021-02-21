@@ -64,7 +64,7 @@ impl LocalServer {
     }
 }
 
-impl Server for LocalServer {
+impl SocketServer for LocalServer {
     fn run(&mut self) -> ServerChanges {
         let mut sc = ServerChanges {
             connects: vec![],

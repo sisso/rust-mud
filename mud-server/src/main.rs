@@ -4,13 +4,16 @@ extern crate mud_domain;
 extern crate rand;
 extern crate socket_server;
 
-use crate::game_server::ServerConfig;
-use logs::*;
 use std::process::exit;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
-pub mod game_server;
+use logs::*;
+
+use crate::server_runner::ServerConfig;
+
+pub mod http_handler;
+pub mod server_runner;
 
 fn main() {
     let arguments: Vec<String> = std::env::args().collect();
@@ -35,9 +38,10 @@ fn main() {
         .expect("Error setting Ctrl-C handler");
     }
 
-    let mut server = crate::game_server::create_server(
+    let mut server = crate::server_runner::create_server(
         ServerConfig {
-            port: 3333,
+            socket_port: 3333,
+            http_port: 8333,
             data_folder: std::path::PathBuf::from("data-live"),
             module_path: std::path::PathBuf::from(module),
             profile: profile.cloned(),
