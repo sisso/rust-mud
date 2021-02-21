@@ -1,13 +1,17 @@
 use crate::controller::view_login::LoginResult;
 use crate::errors::AsResult;
+use crate::errors::{Error, Result};
 use crate::game::avatars;
 use crate::game::container::Container;
+use crate::game::loader::dto::{ObjData, StaticId};
+use crate::game::loader::Loader;
 use crate::game::location::LocationId;
 use crate::game::mob::MobId;
 use crate::game::outputs::{OMarker, Output, Outputs};
 use commons::asciicolors;
 use commons::*;
 use logs::*;
+use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 
 mod input_handle_hire;
@@ -420,17 +424,38 @@ pub enum Request {
     GetObjects,
     GetPrefabs,
     GetObj(ObjId),
-    GetPrefab(ObjId),
+    GetPrefab(StaticId),
 }
 
-#[derive(Debug)]
-pub enum Response {}
+#[derive(Debug, Serialize, Clone)]
+pub enum Response {
+    GetObjects { objects: Vec<ObjData> },
+    GetObject { object: ObjData },
+}
 
 pub fn handle_request(
     container: &mut Container,
     request: &Request,
 ) -> crate::errors::Result<Response> {
-    unimplemented!()
+    match request {
+        Request::GetObjects => handle_request_get_objects(container),
+        Request::GetObj(id) => handle_request_get_object(container, *id),
+        _ => Err(Error::NotImplementedException),
+    }
+}
+
+fn handle_request_get_objects(container: &mut Container) -> Result<Response> {
+    let objects = Loader::create_snapshot(container)?
+        .objects
+        .into_iter()
+        .map(|(k, v)| v)
+        .collect();
+    Ok(Response::GetObjects { objects })
+}
+
+fn handle_request_get_object(container: &mut Container, id: ObjId) -> Result<Response> {
+    let object = Loader::snapshot_obj(container, id)?;
+    Ok(Response::GetObject { object })
 }
 
 fn process_rich_text(mut msg: String) -> String {

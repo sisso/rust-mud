@@ -51,6 +51,8 @@ impl HttpServer for TinyHttpServer {
                         )
                     };
 
+                    let path = request.url().to_string();
+
                     let http_request = HttpRequest {
                         request_id: id,
                         method: match request.method() {
@@ -60,7 +62,7 @@ impl HttpServer for TinyHttpServer {
                             Method::Patch => HttpMethod::PATCH,
                             other => HttpMethod::GET,
                         },
-                        path: request.url().split("/").map(|s| String::from(s)).collect(),
+                        path: path,
                         body: content_json,
                     };
 

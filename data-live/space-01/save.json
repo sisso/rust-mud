@@ -3,8 +3,8 @@
     "avatar_mob": 6,
     "initial_room": 2,
     "money_id": 42,
-    "tick": 35104,
-    "total_time": 3510.4000523090363
+    "tick": 35579,
+    "total_time": 3557.9000530168414
   },
   "objects": {
     "0": {
@@ -36,8 +36,8 @@
       "tags": {
         "values": [
           "ship",
-          "ship_transport",
-          "ship_civil"
+          "ship_civil",
+          "ship_transport"
         ]
       }
     },
