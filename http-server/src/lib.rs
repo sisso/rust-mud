@@ -83,7 +83,7 @@ pub trait HttpServer {
     fn shutdown(&mut self) -> Result<(), HttpError>;
 }
 
-impl HttpServer {
+impl dyn HttpServer {
     pub fn new(port: u32) -> Result<Box<dyn HttpServer>, HttpError> {
         Ok(Box::new(tiny::TinyHttpServer::new(port)?))
     }

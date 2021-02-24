@@ -1,7 +1,5 @@
 use super::*;
 use std::io::Cursor;
-use std::ops::RangeTo;
-use std::sync::{Arc, Mutex};
 use tiny_http::{Header, Method, Request, Response, Server, StatusCode};
 
 pub struct TinyHttpServer {

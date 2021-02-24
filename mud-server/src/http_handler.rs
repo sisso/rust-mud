@@ -3,7 +3,7 @@
 ///
 use http_server::{HttpMethod, HttpRequest, HttpResponse, HttpStatus};
 use mud_domain::controller::{Request, Response};
-use mud_domain::errors::Result;
+use mud_domain::errors::{Error, Result};
 use mud_domain::game::loader::dto::StaticId;
 use mud_domain::game::Game;
 use serde_json::json;
@@ -30,6 +30,13 @@ fn handle_request(game: &mut Game, http_request: HttpRequest) -> HttpResponse {
                 http_request.into_success_body(json!({ "objects": objects }))
             }
             Ok(Response::GetObject { object }) => http_request.into_success_body(object),
+            Ok(Response::GetPrefabs { prefabs }) => {
+                http_request.into_success_body(json!({ "prefabs": prefabs }))
+            }
+            Ok(Response::GetPrefab { prefab }) => http_request.into_success_body(prefab),
+            Err(Error::NotFoundStaticId(_)) | Err(Error::NotFoundFailure) => {
+                http_request.into_error_response(HttpStatus::NotFound, &format!("{}", "not found"))
+            }
             Err(err) => http_request.into_error_response(HttpStatus::Error, &format!("{}", err)),
         },
         Err(response) => response,

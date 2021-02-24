@@ -431,6 +431,8 @@ pub enum Request {
 pub enum Response {
     GetObjects { objects: Vec<ObjData> },
     GetObject { object: ObjData },
+    GetPrefabs { prefabs: Vec<ObjData> },
+    GetPrefab { prefab: ObjData },
 }
 
 pub fn handle_request(
@@ -440,6 +442,8 @@ pub fn handle_request(
     match request {
         Request::GetObjects => handle_request_get_objects(container),
         Request::GetObj(id) => handle_request_get_object(container, *id),
+        Request::GetPrefabs => handle_request_get_prefabs(container),
+        Request::GetPrefab(static_id) => handle_request_get_prefab(container, *static_id),
         _ => Err(Error::NotImplementedException),
     }
 }
@@ -451,6 +455,21 @@ fn handle_request_get_objects(container: &mut Container) -> Result<Response> {
         .map(|(k, v)| v)
         .collect();
     Ok(Response::GetObjects { objects })
+}
+
+fn handle_request_get_prefab(container: &mut Container, static_id: StaticId) -> Result<Response> {
+    let prefab = container
+        .loader
+        .get_prefab(static_id)
+        .ok_or(Error::NotFoundStaticId(static_id))?
+        .clone();
+    Ok(Response::GetPrefab { prefab })
+}
+
+fn handle_request_get_prefabs(container: &mut Container) -> Result<Response> {
+    Ok(Response::GetPrefabs {
+        prefabs: container.loader.list_prefabs().cloned().collect(),
+    })
 }
 
 fn handle_request_get_object(container: &mut Container, id: ObjId) -> Result<Response> {
