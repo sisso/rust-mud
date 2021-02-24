@@ -1,51 +1,50 @@
 ///
 /// Handle http request/response into game requests/responses
 ///
-use http_server::{HttpMethod, HttpRequest, HttpResponse, HttpStatus};
+use http_server::{HttpMethod, HttpRequest, HttpRequestId, HttpResponse, HttpStatus};
 use mud_domain::controller::{Request, Response};
 use mud_domain::errors::{Error, Result};
 use mud_domain::game::loader::dto::StaticId;
 use mud_domain::game::Game;
 use serde_json::json;
 
-pub struct HttpHandler {}
-
-impl HttpHandler {
-    pub fn new() -> Self {
-        HttpHandler {}
-    }
-}
-
 pub fn handle_requests(game: &mut Game, requests: Vec<HttpRequest>) -> Vec<HttpResponse> {
     requests
         .into_iter()
-        .map(|http_request| handle_request(game, http_request))
+        .map(|http_request| handle_request(game, &http_request))
         .collect()
 }
 
-fn handle_request(game: &mut Game, http_request: HttpRequest) -> HttpResponse {
-    match route_path(http_request) {
-        Ok((http_request, request)) => match game.handle_request(&request) {
-            Ok(Response::GetObjects { objects }) => {
-                http_request.into_success_body(json!({ "objects": objects }))
-            }
-            Ok(Response::GetObject { object }) => http_request.into_success_body(object),
-            Ok(Response::GetPrefabs { prefabs }) => {
-                http_request.into_success_body(json!({ "prefabs": prefabs }))
-            }
-            Ok(Response::GetPrefab { prefab }) => http_request.into_success_body(prefab),
-            Err(Error::NotFoundStaticId(_)) | Err(Error::NotFoundFailure) => {
-                http_request.into_error_response(HttpStatus::NotFound, &format!("{}", "not found"))
-            }
-            Err(err) => http_request.into_error_response(HttpStatus::Error, &format!("{}", err)),
-        },
+fn handle_request(game: &mut Game, http_request: &HttpRequest) -> HttpResponse {
+    match map_http_into_request(&http_request) {
+        Ok(request) => {
+            let resp = game.handle_request(&request);
+            map_response_into_http(http_request.request_id, resp)
+        }
         Err(response) => response,
     }
 }
 
-fn route_path(
-    http_request: HttpRequest,
-) -> std::result::Result<(HttpRequest, Request), HttpResponse> {
+fn map_response_into_http(request_id: HttpRequestId, resp: Result<Response>) -> HttpResponse {
+    match resp {
+        Ok(Response::GetObjects { objects }) => {
+            HttpResponse::new_success_body(request_id, json!({ "objects": objects }))
+        }
+        Ok(Response::GetObject { object }) => HttpResponse::new_success_body(request_id, object),
+        Ok(Response::GetPrefabs { prefabs }) => {
+            HttpResponse::new_success_body(request_id, json!({ "prefabs": prefabs }))
+        }
+        Ok(Response::GetPrefab { prefab }) => HttpResponse::new_success_body(request_id, prefab),
+        Err(Error::NotFoundStaticId(_)) | Err(Error::NotFoundFailure) => HttpResponse::new_error(
+            request_id,
+            HttpStatus::NotFound,
+            &format!("{}", "not found"),
+        ),
+        Err(err) => HttpResponse::new_error(request_id, HttpStatus::Error, &format!("{}", err)),
+    }
+}
+
+fn map_http_into_request(http_request: &HttpRequest) -> std::result::Result<Request, HttpResponse> {
     let paths: Vec<&str> = http_request.path.split("/").skip(1).collect();
 
     let request = match (&http_request.method, paths.as_slice()) {
@@ -54,7 +53,11 @@ fn route_path(
             Ok(id) => Request::GetObj(id.into()),
             _ => {
                 let error_msg = &format!("invalid id '{}'", id_str);
-                return Err(http_request.into_error_response(HttpStatus::Invalid, error_msg));
+                return Err(HttpResponse::new_error(
+                    http_request.request_id,
+                    HttpStatus::Invalid,
+                    error_msg,
+                ));
             }
         },
         (HttpMethod::GET, ["prefabs"]) => Request::GetPrefabs,
@@ -62,13 +65,21 @@ fn route_path(
             Ok(static_id) => Request::GetPrefab(StaticId(static_id)),
             _ => {
                 let error_msg = &format!("invalid id '{}'", id_str);
-                return Err(http_request.into_error_response(HttpStatus::Invalid, error_msg));
+                return Err(HttpResponse::new_error(
+                    http_request.request_id,
+                    HttpStatus::Invalid,
+                    error_msg,
+                ));
             }
         },
         _ => {
-            return Err(http_request.into_error_response(HttpStatus::NotFound, "not found"));
+            return Err(HttpResponse::new_error(
+                http_request.request_id,
+                HttpStatus::NotFound,
+                "not found",
+            ));
         }
     };
 
-    Ok((http_request, request))
+    Ok(request)
 }

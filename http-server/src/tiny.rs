@@ -80,7 +80,7 @@ impl HttpServer for TinyHttpServer {
             let index = self
                 .pending_requests
                 .iter()
-                .position(|(id, _)| *id == http_response.request.request_id)
+                .position(|(id, _)| *id == http_response.request_id)
                 .expect("could not found request index");
 
             let (_, request) = self.pending_requests.remove(index);

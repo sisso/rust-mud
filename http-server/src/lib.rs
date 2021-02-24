@@ -22,31 +22,46 @@ pub enum HttpStatus {
     Error,
 }
 
+pub type HttpRequestId = u32;
+
 #[derive(Debug)]
 pub struct HttpRequest {
-    pub request_id: u32,
+    pub request_id: HttpRequestId,
     pub method: HttpMethod,
     pub path: String,
     pub body: Option<serde_json::Value>,
 }
 
-impl HttpRequest {
-    pub fn into_error_response(self, status: HttpStatus, error_msg: &str) -> HttpResponse {
+impl HttpRequest {}
+
+#[derive(Debug)]
+pub struct HttpResponse {
+    pub request_id: HttpRequestId,
+    pub status: HttpStatus,
+    pub body: Option<serde_json::Value>,
+}
+
+impl HttpResponse {
+    pub fn new_error(
+        request_id: HttpRequestId,
+        status: HttpStatus,
+        error_msg: &str,
+    ) -> HttpResponse {
         HttpResponse {
-            request: self,
+            request_id: request_id,
             status: status,
             body: Some(json!({ "error": error_msg })),
         }
     }
 
-    pub fn into_success(self) -> HttpResponse {
+    pub fn new_success(request_id: HttpRequestId) -> HttpResponse {
         HttpResponse {
-            request: self,
+            request_id: request_id,
             status: HttpStatus::Ok,
             body: None,
         }
     }
-    pub fn into_success_body<T>(self, value: T) -> HttpResponse
+    pub fn new_success_body<T>(request_id: HttpRequestId, value: T) -> HttpResponse
     where
         T: serde::Serialize,
     {
@@ -55,21 +70,14 @@ impl HttpRequest {
                 value.strip_nulls();
 
                 HttpResponse {
-                    request: self,
+                    request_id: request_id,
                     status: HttpStatus::Ok,
                     body: Some(value),
                 }
             }
-            Err(e) => self.into_error_response(HttpStatus::Error, &format!("{}", e)),
+            Err(e) => HttpResponse::new_error(request_id, HttpStatus::Error, &format!("{}", e)),
         }
     }
-}
-
-#[derive(Debug)]
-pub struct HttpResponse {
-    pub request: HttpRequest,
-    pub status: HttpStatus,
-    pub body: Option<serde_json::Value>,
 }
 
 #[derive(Debug)]
