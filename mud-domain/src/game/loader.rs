@@ -71,7 +71,7 @@ impl ValidationResult {
 
 trait Migration {
     fn version(&self) -> u32;
-    fn migrate_obj_or_prefab(&mut self, data: &mut ObjData) -> Result<()> {
+    fn migrate_obj_or_prefab(&mut self, _: &mut ObjData) -> Result<()> {
         Ok(())
     }
     fn migrate(&mut self, data: &mut LoaderData) -> Result<()> {
@@ -1029,7 +1029,7 @@ impl Loader {
             });
         }
 
-        if let Some(ship) = container.ships.get(id) {
+        if let Some(_) = container.ships.get(id) {
             obj_data.craft = Some(CraftData {});
         }
 

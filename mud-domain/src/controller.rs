@@ -424,7 +424,11 @@ pub enum Request {
     GetObjects,
     GetPrefabs,
     GetObj(ObjId),
+    UpdateObj(ObjData),
+    AddObj(ObjData),
     GetPrefab(StaticId),
+    UpdatePrefab(ObjData),
+    AddPrefab(ObjData),
 }
 
 #[derive(Debug, Serialize, Clone)]

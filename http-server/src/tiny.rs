@@ -75,7 +75,7 @@ impl HttpServer for TinyHttpServer {
     }
 
     fn provide_responses(&mut self, responses: Vec<HttpResponse>) -> Result<(), HttpError> {
-        // this algorithm can be a bit less ugly
+        // this algorithm can be a bit less ugly with n^2
         for http_response in responses {
             let index = self
                 .pending_requests
@@ -88,7 +88,7 @@ impl HttpServer for TinyHttpServer {
             let status_code = match http_response.status {
                 HttpStatus::Ok => StatusCode::from(200),
                 HttpStatus::NotFound => StatusCode::from(404),
-                HttpStatus::Invalid => StatusCode::from(403),
+                HttpStatus::Invalid => StatusCode::from(400),
                 HttpStatus::Error => StatusCode::from(500),
             };
 
@@ -104,7 +104,7 @@ impl HttpServer for TinyHttpServer {
             let data = Cursor::new(body_str);
 
             let response = Response::new(status_code, headers, data, Some(body_len), None);
-            request.respond(response);
+            request.respond(response).expect("fail to write response");
         }
 
         if !self.pending_requests.is_empty() {
