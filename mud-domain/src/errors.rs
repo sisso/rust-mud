@@ -20,7 +20,9 @@ pub enum Error {
     NotFoundStaticId(StaticId),
     InvalidStateFailure,
     InvalidArgumentFailure,
+    InvalidArgumentFailureStr(String),
     Failure(String),
+    ConflictFailure,
     // warning exceptions
     NotFoundException,
     ConflictException,
@@ -39,8 +41,9 @@ impl Error {
         match self {
             Error::NotFoundException
             | Error::ConflictException
-            | Error::Exception(_)
-            | Error::NotImplementedException => true,
+            | Error::InvalidStateException
+            | Error::NotImplementedException
+            | Error::Exception(_) => true,
             _ => false,
         }
     }

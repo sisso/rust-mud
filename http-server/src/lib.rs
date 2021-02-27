@@ -2,6 +2,7 @@ use serde;
 /// implementation neutral structures to deal with http connections
 ///
 use serde_json::json;
+use std::fmt::Debug;
 
 mod tiny;
 
@@ -63,10 +64,12 @@ impl HttpResponse {
     }
     pub fn new_success_body<T>(request_id: HttpRequestId, value: T) -> HttpResponse
     where
-        T: serde::Serialize,
+        T: serde::Serialize + Debug,
     {
+        println!("serializing {:?}", value);
         match serde_json::to_value(value) {
             Ok(mut value) => {
+                println!("into {:?}", value);
                 value.strip_nulls();
 
                 HttpResponse {

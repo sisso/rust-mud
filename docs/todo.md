@@ -1,5 +1,8 @@
 # Bug
 
+- players that die offline will not spawn a new character. The player will have a invalid 
+  avatar reference and crash the server
+
 # Main Todo
 
 - after login or switch a view, should show a first message

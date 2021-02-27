@@ -58,7 +58,7 @@ impl HttpServer for TinyHttpServer {
                             Method::Put => HttpMethod::PUT,
                             Method::Delete => HttpMethod::DELETE,
                             Method::Patch => HttpMethod::PATCH,
-                            other => HttpMethod::GET,
+                            _other => HttpMethod::GET,
                         },
                         path: path,
                         body: content_json,

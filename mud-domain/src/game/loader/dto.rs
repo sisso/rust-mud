@@ -157,6 +157,12 @@ impl From<&ObjId> for StaticId {
     }
 }
 
+impl From<u32> for StaticId {
+    fn from(value: u32) -> Self {
+        StaticId(value)
+    }
+}
+
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct PriceData {
     pub price: Option<u32>,

@@ -112,7 +112,7 @@ impl Game {
             .handle_input(&mut self.container, connection_id, input);
     }
 
-    pub fn handle_request(&mut self, request: &Request) -> Result<Response> {
+    pub fn handle_request(&mut self, request: Request) -> Result<Response> {
         crate::controller::handle_request(&mut self.container, request)
     }
 

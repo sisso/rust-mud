@@ -18,7 +18,7 @@ pub fn handle_requests(game: &mut Game, requests: Vec<HttpRequest>) -> Vec<HttpR
 fn handle_request(game: &mut Game, http_request: &HttpRequest) -> HttpResponse {
     match map_http_into_request(&http_request) {
         Ok(request) => {
-            let resp = game.handle_request(&request);
+            let resp = game.handle_request(request);
             map_response_into_http(http_request.request_id, resp)
         }
         Err(response) => response,
@@ -35,6 +35,10 @@ fn map_response_into_http(request_id: HttpRequestId, resp: Result<Response>) -> 
             HttpResponse::new_success_body(request_id, json!({ "prefabs": prefabs }))
         }
         Ok(Response::GetPrefab { prefab }) => HttpResponse::new_success_body(request_id, prefab),
+        Ok(Response::AddedPrefab { static_id }) => {
+            HttpResponse::new_success_body(request_id, json!({"static_id": static_id.as_u32() }))
+        }
+        Ok(Response::Ok) => HttpResponse::new_success_body(request_id, json!({})),
         Err(Error::NotFoundStaticId(_)) | Err(Error::NotFoundFailure) => HttpResponse::new_error(
             request_id,
             HttpStatus::NotFound,
@@ -65,7 +69,7 @@ fn map_http_into_request(http_request: &HttpRequest) -> std::result::Result<Requ
         }
         (HttpMethod::GET, ["prefabs"]) => Request::GetPrefabs,
         (HttpMethod::GET, ["prefabs", id_str]) => {
-            parse_id(request_id, id_str).map(|id| Request::GetObj(id))?
+            parse_id(request_id, id_str).map(|id| Request::GetPrefab(id))?
         }
         (HttpMethod::PUT, ["prefabs", id_str]) => {
             let id = parse_id(request_id, id_str)?;

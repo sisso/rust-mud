@@ -98,15 +98,40 @@ impl Loader {
         }
     }
 
-    pub fn add_prefab(&mut self, data: ObjData) {
-        // TODO: autogenerate id?
-        assert!(
-            data.id.is_some(),
-            "data can only be inserted with a valid id"
-        );
-        assert!(!self.index.contains_key(&data.get_id()));
-        debug!("{:?} adding prefab {:?}", data.id, data);
+    pub fn add_prefab(&mut self, mut data: ObjData) -> Result<StaticId> {
+        let id = match data.id.as_ref() {
+            Some(id) => *id,
+            None => {
+                let id = self.next_id();
+                data.id = Some(id);
+                id
+            }
+        };
+
+        if self.index.contains_key(&id) {
+            return Err(Error::ConflictFailure);
+        }
+
+        debug!("{:?} adding prefab {:?}", id, data);
+        self.index.insert(id, data).is_none();
+        Ok(id)
+    }
+
+    pub fn update_prefab(&mut self, data: ObjData) -> Result<()> {
+        if data.id.is_none() {
+            return Err(Error::InvalidArgumentFailureStr(
+                "data must have id".to_string(),
+            ));
+        }
+
+        if !self.index.contains_key(&data.get_id()) {
+            return Err(Error::NotFoundStaticId(data.get_id()));
+        }
+
+        debug!("{:?} update prefab {:?}", data.get_id(), data);
         self.index.insert(data.get_id(), data);
+
+        Ok(())
     }
 
     pub fn get_prefab(&self, id: StaticId) -> Option<&ObjData> {
@@ -180,6 +205,17 @@ impl Loader {
                 })
                 .is_some()
         })
+    }
+
+    fn next_id(&self) -> StaticId {
+        StaticId(
+            self.index
+                .keys()
+                .map(|i| i.as_u32())
+                .max()
+                .map(|i| i + 1)
+                .unwrap_or(0),
+        )
     }
 }
 
@@ -710,7 +746,7 @@ impl Loader {
         info!("reading file {:?}", json_file);
         let file = std::fs::File::open(json_file)?;
         let mut new_data = serde_json::from_reader(std::io::BufReader::new(file))?;
-        Loader::migrate(&mut new_data);
+        Loader::migrate(&mut new_data)?;
         data.extends(new_data)
     }
 
@@ -1243,7 +1279,7 @@ impl Loader {
 
     pub fn apply_ai_data(ai_repo: &mut AiRepo, mob_id: MobId, ai_data: &AiData) -> Result<()> {
         let ai = Loader::parse_ai(mob_id, ai_data);
-        ai_repo.add_or_update(ai);
+        ai_repo.add_or_update(ai)?;
         Ok(())
     }
 
