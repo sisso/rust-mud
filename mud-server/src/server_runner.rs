@@ -64,7 +64,7 @@ impl ServerRunner {
             if tick % 1000 == 0 || kill_signal {
                 // create snapshot
                 if self.server_cfg.profile.is_some() {
-                    self.create_snapshot(tick);
+                    self.create_snapshot(tick).unwrap();
                 }
             }
 

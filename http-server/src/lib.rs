@@ -19,7 +19,9 @@ pub enum HttpMethod {
 pub enum HttpStatus {
     Ok,
     NotFound,
+    // invalid request
     Invalid,
+    // internal error
     Error,
 }
 

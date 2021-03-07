@@ -4,7 +4,7 @@ use commons::*;
 use container::Container;
 use logs::*;
 
-use crate::controller::{ConnectionController, Request, Response};
+use crate::controller::ConnectionController;
 use crate::errors::*;
 use crate::game::location::LocationId;
 use crate::game::mob::MobId;
@@ -110,10 +110,6 @@ impl Game {
     pub fn handle_input(&mut self, connection_id: ConnectionId, input: &str) {
         self.controller
             .handle_input(&mut self.container, connection_id, input);
-    }
-
-    pub fn handle_request(&mut self, request: Request) -> Result<Response> {
-        crate::controller::handle_request(&mut self.container, request)
     }
 
     pub fn tick(&mut self, delta_time: DeltaTime) {

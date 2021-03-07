@@ -419,103 +419,58 @@ impl ConnectionController {
     }
 }
 
-#[derive(Debug)]
-pub enum Request {
-    GetObjects,
-    GetPrefabs,
-    GetObj(ObjId),
-    UpdateObj(ObjData),
-    AddObj(ObjData),
-    GetPrefab(StaticId),
-    UpdatePrefab(ObjData),
-    AddPrefab(ObjData),
-}
-
-#[derive(Debug, Serialize, Clone)]
-pub enum Response {
-    GetObjects { objects: Vec<ObjData> },
-    GetObject { object: ObjData },
-    GetPrefabs { prefabs: Vec<ObjData> },
-    GetPrefab { prefab: ObjData },
-    AddedPrefab { static_id: StaticId },
-    Ok,
-}
-
-pub fn handle_request(
-    container: &mut Container,
-    request: Request,
-) -> crate::errors::Result<Response> {
-    match request {
-        Request::GetObjects => handle_request_get_objects(container),
-        Request::GetObj(id) => handle_request_get_object(container, id),
-        Request::GetPrefabs => handle_request_get_prefabs(container),
-        Request::GetPrefab(static_id) => handle_request_get_prefab(container, static_id),
-        Request::UpdateObj(data) => handle_request_update_obj(container, data),
-        Request::AddObj(data) => handle_request_add_obj(container, data),
-        Request::UpdatePrefab(data) => handle_request_update_prefab(container, data),
-        Request::AddPrefab(data) => handle_request_add_prefab(container, data),
-        _ => Err(Error::NotImplementedException),
-    }
-}
-
-fn handle_request_get_objects(container: &mut Container) -> Result<Response> {
-    let objects = Loader::create_snapshot(container)?
+pub fn handle_request_get_objects(container: &Container) -> Result<Vec<ObjData>> {
+    Ok(Loader::create_snapshot(container)?
         .objects
         .into_iter()
         .map(|(_k, v)| v)
-        .collect();
-    Ok(Response::GetObjects { objects })
+        .collect())
 }
 
-fn handle_request_get_prefab(container: &mut Container, static_id: StaticId) -> Result<Response> {
-    let prefab = container
+pub fn handle_request_get_prefab(container: &Container, static_id: StaticId) -> Result<ObjData> {
+    Ok(container
         .loader
         .get_prefab(static_id)
         .ok_or(Error::NotFoundStaticId(static_id))?
-        .clone();
-
-    println!("this is what I found {:?}", prefab);
-    Ok(Response::GetPrefab { prefab })
+        .clone())
 }
 
-fn handle_request_get_prefabs(container: &mut Container) -> Result<Response> {
-    Ok(Response::GetPrefabs {
-        prefabs: container.loader.list_prefabs().cloned().collect(),
-    })
+pub fn handle_request_get_prefabs(container: &Container) -> Result<Vec<ObjData>> {
+    Ok(container.loader.list_prefabs().cloned().collect())
 }
 
-fn handle_request_get_object(container: &mut Container, id: ObjId) -> Result<Response> {
+pub fn handle_request_get_object(container: &Container, id: ObjId) -> Result<ObjData> {
     let object = Loader::snapshot_obj(container, id)?;
-    Ok(Response::GetObject { object })
+    Ok(object)
 }
 
-fn handle_request_update_obj(container: &mut Container, data: ObjData) -> Result<Response> {
+pub fn handle_request_update_obj(container: &mut Container, data: ObjData) -> Result<()> {
     Err(Error::NotImplementedException)
 }
 
-fn handle_request_add_obj(container: &mut Container, data: ObjData) -> Result<Response> {
+pub fn handle_request_add_obj(container: &mut Container, data: ObjData) -> Result<ObjId> {
     Err(Error::NotImplementedException)
 }
 
-fn handle_request_add_prefab(container: &mut Container, data: ObjData) -> Result<Response> {
+pub fn handle_request_add_prefab(container: &mut Container, data: ObjData) -> Result<StaticId> {
     if data.id.is_some() {
         Err(Error::InvalidArgumentFailureStr(
             "a new prefab should not have id".to_string(),
         ))
     } else {
         let id = container.loader.add_prefab(data)?;
-        Ok(Response::AddedPrefab { static_id: id })
+        Ok(id)
     }
 }
 
-fn handle_request_update_prefab(container: &mut Container, data: ObjData) -> Result<Response> {
+pub fn handle_request_update_prefab(container: &mut Container, data: ObjData) -> Result<()> {
     if data.id.is_none() {
         Err(Error::InvalidArgumentFailureStr(
             "a new prefab should not have id".to_string(),
         ))
     } else {
         container.loader.update_prefab(data)?;
-        Ok(Response::Ok)
+        Ok(())
     }
 }
 
