@@ -1,3 +1,4 @@
+use commons::ObjId;
 ///
 /// Handle http request/response into game requests/responses
 ///
@@ -28,6 +29,21 @@ fn handle_request(game: &mut Game, http_request: &HttpRequest) -> HttpResult {
         (HttpMethod::GET, ["objects"]) => handle_get_objects(&game, request_id),
         (HttpMethod::GET, ["objects", id_str]) => {
             handle_get_object_by_id(&game, request_id, id_str)
+        }
+        (HttpMethod::DELETE, ["objects", id_str]) => {
+            handle_delete_object_by_id(game, request_id, id_str)
+        }
+        (HttpMethod::GET, ["objects", id_str]) => {
+            handle_get_object_by_id(&game, request_id, id_str)
+        }
+        (HttpMethod::PUT, ["objects", id_str]) => {
+            handle_put_object(game, request_id, id_str, http_request.body.as_ref())
+        }
+        (HttpMethod::DELETE, ["prefabs", id_str]) => {
+            handle_delete_prefab_by_id(game, request_id, id_str)
+        }
+        (HttpMethod::POST, ["objects"]) => {
+            handle_post_object(game, request_id, http_request.body.as_ref())
         }
         (HttpMethod::GET, ["prefabs"]) => handle_get_prefabs(&game, request_id),
         (HttpMethod::GET, ["prefabs", id_str]) => handle_get_prefab_by_id(game, request_id, id_str),
@@ -63,6 +79,13 @@ fn handle_get_object_by_id(game: &Game, request_id: u32, id_str: &str) -> HttpRe
     Ok(HttpResponse::new_success_body(request_id, data))
 }
 
+fn handle_delete_object_by_id(game: &mut Game, request_id: u32, id_str: &str) -> HttpResult {
+    let id = parse_id(request_id, id_str)?;
+    let _ = controller::handle_request_remove_object(&mut game.container, id)
+        .map_err(|err| handle_error::<()>(request_id, err))?;
+    Ok(HttpResponse::new_success(request_id))
+}
+
 fn handle_get_objects(game: &Game, request_id: u32) -> HttpResult {
     let objects = controller::handle_request_get_objects(&game.container)
         .map_err(|err| handle_error::<Vec<ObjData>>(request_id, err))?;
@@ -70,6 +93,37 @@ fn handle_get_objects(game: &Game, request_id: u32) -> HttpResult {
         request_id,
         json!({ "objects": objects }),
     ))
+}
+
+fn handle_post_object(game: &mut Game, request_id: u32, body: Option<&Value>) -> HttpResult {
+    let data = parse_body_as_objdata(request_id, body)?;
+    let obj_id = controller::handle_request_add_obj(&mut game.container, data)
+        .map_err(|err| handle_error::<ObjId>(request_id, err))?;
+    Ok(HttpResponse::new_success_body(
+        request_id,
+        json!({"obj_id": obj_id.as_u32()}),
+    ))
+}
+
+fn handle_delete_prefab_by_id(game: &mut Game, request_id: u32, id_str: &str) -> HttpResult {
+    let id = parse_id(request_id, id_str)?;
+    let _ = controller::handle_request_remove_prefab(&mut game.container, id)
+        .map_err(|err| handle_error::<()>(request_id, err))?;
+    Ok(HttpResponse::new_success(request_id))
+}
+
+fn handle_put_object(
+    game: &mut Game,
+    request_id: u32,
+    id_str: &str,
+    body: Option<&Value>,
+) -> HttpResult {
+    let id = parse_id(request_id, id_str)?;
+    let data = parse_body_as_objdata(request_id, body)?;
+    let _ = assert_request_data_id(request_id, &data, id)?;
+    controller::handle_request_update_obj(&mut game.container, data)
+        .map_err(|err| handle_error::<()>(request_id, err))?;
+    Ok(HttpResponse::new_success(request_id))
 }
 
 fn handle_post_prefab(game: &mut Game, request_id: u32, body: Option<&Value>) -> HttpResult {

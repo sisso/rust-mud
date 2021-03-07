@@ -134,6 +134,13 @@ impl Loader {
         Ok(())
     }
 
+    pub fn remove_prefab(&mut self, id: StaticId) -> Result<()> {
+        self.index
+            .remove(&id)
+            .ok_or(Error::NotFoundStaticId(id))
+            .map(|_| ())
+    }
+
     pub fn get_prefab(&self, id: StaticId) -> Option<&ObjData> {
         self.index.get(&id)
     }

@@ -68,7 +68,6 @@ impl HttpResponse {
     where
         T: serde::Serialize + Debug,
     {
-        println!("serializing {:?}", value);
         match serde_json::to_value(value) {
             Ok(mut value) => {
                 println!("into {:?}", value);

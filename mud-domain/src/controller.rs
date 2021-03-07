@@ -440,18 +440,36 @@ pub fn handle_request_get_prefabs(container: &Container) -> Result<Vec<ObjData>>
 }
 
 pub fn handle_request_get_object(container: &Container, id: ObjId) -> Result<ObjData> {
-    let object = Loader::snapshot_obj(container, id)?;
-    Ok(object)
+    if container.objects.exists(id) {
+        let object = Loader::snapshot_obj(container, id)?;
+        Ok(object)
+    } else {
+        Err(Error::NotFoundFailure)
+    }
+}
+
+pub fn handle_request_remove_object(container: &mut Container, id: ObjId) -> Result<()> {
+    container.remove(id);
+    Ok(())
+}
+
+pub fn handle_request_remove_prefab(container: &mut Container, id: StaticId) -> Result<()> {
+    container.loader.remove_prefab(id)?;
+    Ok(())
 }
 
 pub fn handle_request_update_obj(container: &mut Container, data: ObjData) -> Result<()> {
     Err(Error::NotImplementedException)
 }
 
+// TODO: merge with admin_view.handle_add
 pub fn handle_request_add_obj(container: &mut Container, data: ObjData) -> Result<ObjId> {
-    Err(Error::NotImplementedException)
+    let obj_id = container.objects.create();
+    let _ = Loader::apply_data(container, obj_id, &data, &Default::default())?;
+    Ok(obj_id)
 }
 
+// TODO: merge with admin_view.handle_add
 pub fn handle_request_add_prefab(container: &mut Container, data: ObjData) -> Result<StaticId> {
     if data.id.is_some() {
         Err(Error::InvalidArgumentFailureStr(
