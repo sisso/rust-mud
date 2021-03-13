@@ -8,6 +8,7 @@ use mud_domain::controller;
 use mud_domain::errors::{Error, Result};
 use mud_domain::game::container::Container;
 use mud_domain::game::loader::dto::{ObjData, StaticId};
+use mud_domain::game::obj::PrefabId;
 use mud_domain::game::Game;
 use serde_json::{json, Value};
 
@@ -39,11 +40,14 @@ fn handle_request(game: &mut Game, http_request: &HttpRequest) -> HttpResult {
         (HttpMethod::PUT, ["objects", id_str]) => {
             handle_put_object(game, request_id, id_str, http_request.body.as_ref())
         }
-        (HttpMethod::DELETE, ["prefabs", id_str]) => {
-            handle_delete_prefab_by_id(game, request_id, id_str)
-        }
         (HttpMethod::POST, ["objects"]) => {
             handle_post_object(game, request_id, http_request.body.as_ref())
+        }
+        (HttpMethod::POST, ["objects", id_str, "spawn", prefab_id]) => {
+            handle_spawn_prefab(game, request_id, id_str, prefab_id)
+        }
+        (HttpMethod::DELETE, ["prefabs", id_str]) => {
+            handle_delete_prefab_by_id(game, request_id, id_str)
         }
         (HttpMethod::GET, ["prefabs"]) => handle_get_prefabs(&game, request_id),
         (HttpMethod::GET, ["prefabs", id_str]) => handle_get_prefab_by_id(game, request_id, id_str),
@@ -148,6 +152,22 @@ fn handle_put_prefab(
     controller::handle_request_update_prefab(&mut game.container, data)
         .map_err(|err| handle_error::<()>(request_id, err))?;
     Ok(HttpResponse::new_success(request_id))
+}
+
+fn handle_spawn_prefab(
+    game: &mut Game,
+    request_id: u32,
+    obj_id_str: &str,
+    prefab_id_str: &str,
+) -> HttpResult {
+    let obj_id: ObjId = parse_id(request_id, obj_id_str)?;
+    let prefab_id: PrefabId = parse_id(request_id, prefab_id_str)?;
+    let new_obj_id = controller::handle_spawn_prefab(&mut game.container, prefab_id, obj_id)
+        .map_err(|err| handle_error::<()>(request_id, err))?;
+    Ok(HttpResponse::new_success_body(
+        request_id,
+        json!({ "obj_id": new_obj_id.as_u32() }),
+    ))
 }
 
 fn handle_error<T>(request_id: HttpRequestId, err: Error) -> HttpResponse {

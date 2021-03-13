@@ -22,7 +22,6 @@ impl System for DecaySystem {
             .list(EventKind::Decay)
             .map(|event| match event {
                 Event::Obj { obj_id, .. } => *obj_id,
-                _other => panic!("unexpected event from kind"),
             })
             .collect();
 

@@ -241,31 +241,14 @@ fn handle_spawn(
         }
     };
 
-    if container.loader.get_prefab(static_id).is_none() {
-        outputs.push(format!(
-            "invalid argument, there is no prefab with id {:?}",
-            static_id
-        ));
-        return Ok(());
-    }
-
-    if !container.objects.exists(parent_id) {
-        outputs.push(format!(
-            "invalid argument, there is no object with id {:?}",
-            parent_id
-        ));
-        return Ok(());
-    }
-
-    match Loader::spawn_at(container, static_id, parent_id) {
+    match crate::controller::handle_spawn_prefab(container, static_id, parent_id) {
         Ok(obj_id) => {
             outputs.push(format!("object created with id {:?}", obj_id));
             Ok(())
         }
-
         Err(e) => {
             outputs.push(format!("fail to spawn: {:?}", e));
-            Err(e)
+            Ok(())
         }
     }
 }
@@ -302,7 +285,10 @@ fn handle_add(container: &mut Container, outputs: &mut Vec<String>, input: StrIn
                 )?;
             } else {
                 data.id = Some(obj_id.into());
-                container.loader.add_prefab(data);
+                container
+                    .loader
+                    .add_prefab(data)
+                    .expect("fail to add prefab");
             }
 
             outputs.push(format!("created id: {}", obj_id.as_u32()));

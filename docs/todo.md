@@ -2,6 +2,7 @@
 
 - players that die offline will not spawn a new character. The player will have a invalid 
   avatar reference and crash the server
+- spawn a shuttle by api didn trigger any message to local player
 
 # Main Todo
 
@@ -11,6 +12,7 @@
 
 # Features
 
+- hot re-load of game code without losing connections
 - admin verify / insert should support multiple lines 
 - specs
 - memory for the map

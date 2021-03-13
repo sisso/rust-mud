@@ -459,17 +459,29 @@ pub fn handle_request_remove_prefab(container: &mut Container, id: StaticId) -> 
 }
 
 pub fn handle_request_update_obj(container: &mut Container, data: ObjData) -> Result<()> {
-    Err(Error::NotImplementedException)
+    let obj_id = match data.id {
+        Some(id) if id.is_prefab() => {
+            return Err(Error::InvalidArgumentFailureStr(
+                "could not add a object using a prefab id".to_string(),
+            ))
+        }
+        Some(id) => id.as_u32().into(),
+        None => {
+            return Err(Error::InvalidArgumentFailureStr(
+                "obj_id is require".to_string(),
+            ))
+        }
+    };
+
+    Loader::apply_data(container, obj_id, &data, &Default::default())
 }
 
-// TODO: merge with admin_view.handle_add
 pub fn handle_request_add_obj(container: &mut Container, data: ObjData) -> Result<ObjId> {
     let obj_id = container.objects.create();
     let _ = Loader::apply_data(container, obj_id, &data, &Default::default())?;
     Ok(obj_id)
 }
 
-// TODO: merge with admin_view.handle_add
 pub fn handle_request_add_prefab(container: &mut Container, data: ObjData) -> Result<StaticId> {
     if data.id.is_some() {
         Err(Error::InvalidArgumentFailureStr(
@@ -490,6 +502,28 @@ pub fn handle_request_update_prefab(container: &mut Container, data: ObjData) ->
         container.loader.update_prefab(data)?;
         Ok(())
     }
+}
+
+pub fn handle_spawn_prefab(
+    container: &mut Container,
+    static_id: StaticId,
+    parent_id: ObjId,
+) -> Result<ObjId> {
+    if container.loader.get_prefab(static_id).is_none() {
+        return Err(Error::InvalidArgumentFailureStr(format!(
+            "invalid argument, there is no prefab with id {:?}",
+            static_id
+        )));
+    }
+
+    if !container.objects.exists(parent_id) {
+        return Err(Error::InvalidArgumentFailureStr(format!(
+            "invalid argument, there is no object with id {:?}",
+            parent_id
+        )));
+    }
+
+    Loader::spawn_at(container, static_id, parent_id)
 }
 
 fn process_rich_text(mut msg: String) -> String {
