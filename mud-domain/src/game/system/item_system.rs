@@ -27,6 +27,13 @@ impl System for DecaySystem {
 
         for obj_id in to_remove {
             info!("{:?} removed by decay", obj_id);
+
+            // remove internal obj
+            for child_id in container.locations.list_deep_at(obj_id) {
+                info!("{:?} removed by parent decay", child_id);
+                container.remove(child_id);
+            }
+
             if let Some(location_id) = container.locations.get(obj_id) {
                 let label = container.labels.get_label_f(obj_id);
                 let msg = comm::item_body_disappears(label);
@@ -34,7 +41,6 @@ impl System for DecaySystem {
             }
 
             container.remove(obj_id);
-            container.items.remove(obj_id);
         }
 
         Ok(())

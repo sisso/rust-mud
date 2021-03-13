@@ -1,8 +1,5 @@
 use crate::errors::Result;
+use crate::game::combat::kill_mob;
 use crate::game::container::Container;
-use crate::game::mob::{kill_mob, MobId};
+use crate::game::mob::MobId;
 use crate::game::outputs::Outputs;
-
-pub fn force_kill(container: &mut Container, mob_id: MobId) -> Result<()> {
-    kill_mob(container, mob_id)
-}

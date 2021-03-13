@@ -125,9 +125,10 @@ impl Game {
             .controller
             .player_id_from_connection_id(connection_id)
             .as_result()?;
-        let avatar_id = self.container.players.get(player_id).as_result()?;
-        let mob_id = avatar_id.mob_id;
-        actions_admin::force_kill(&mut self.container, mob_id)
+
+        let mob_id = self.container.players.get_mob(player_id).as_result()?;
+
+        crate::game::combat::kill_mob(&mut self.container, mob_id)
     }
 }
 

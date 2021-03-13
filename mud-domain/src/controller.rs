@@ -2,6 +2,7 @@ use crate::controller::view_login::LoginResult;
 use crate::errors::AsResult;
 use crate::errors::{Error, Result};
 use crate::game::avatars;
+use crate::game::combat::kill_mob;
 use crate::game::container::Container;
 use crate::game::loader::dto::{ObjData, StaticId};
 use crate::game::loader::Loader;

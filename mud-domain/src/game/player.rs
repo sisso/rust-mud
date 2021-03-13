@@ -1,4 +1,5 @@
 use super::mob::MobId;
+use crate::errors::{Error, Result};
 use commons::*;
 use logs::*;
 use serde::{Deserialize, Serialize};
@@ -70,5 +71,15 @@ impl PlayerRepository {
 
     pub fn get_mob(&self, player_id: PlayerId) -> Option<MobId> {
         self.index.get(&player_id).map(|player| player.mob_id)
+    }
+
+    pub fn set_mob(&mut self, player_id: PlayerId, mob_id: MobId) -> Result<()> {
+        self.index
+            .get_mut(&player_id)
+            .map(|player| {
+                player.mob_id = mob_id;
+                ()
+            })
+            .ok_or(Error::NotFoundFailure)
     }
 }

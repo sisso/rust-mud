@@ -20,32 +20,45 @@ pub fn on_player_login(container: &mut Container, login: &str) -> Result<PlayerI
     }
 }
 
-// TODO: use trigger
-pub fn respawn_avatar(container: &mut Container, mob_id: MobId) -> Result<()> {
-    container.mobs.update(mob_id, |mob| {
-        assert!(mob.is_avatar);
-        mob.attributes.pv.current = 1;
-    })?;
-    let room_id = container.config.initial_room.unwrap();
+pub fn respawn_avatar(container: &mut Container, player_id: PlayerId) -> Result<()> {
+    let player_login = container.labels.get_label_f(player_id).to_string();
+    let mob_id = create_avatar(container, &player_login)?;
+    container.players.set_mob(player_id, mob_id)?;
 
-    let mob_label = container.labels.get_label(mob_id).unwrap();
-
-    container.locations.set(mob_id, room_id);
+    let room_id = container
+        .locations
+        .get(mob_id)
+        .ok_or_else(|| Error::Exception("new avatar has no location".to_string()))?;
 
     container
         .outputs
         .private(mob_id, comm::mob_you_resurrected());
     container
         .outputs
-        .broadcast(Some(mob_id), room_id, comm::mob_resurrected(mob_label));
+        .broadcast(Some(mob_id), room_id, comm::mob_resurrected(&player_login));
 
     Ok(())
 }
 
 pub fn create_player(container: &mut Container, login: &str) -> Result<PlayerId> {
+    // create avatar
+    let mob_id = create_avatar(container, login)?;
+
+    // add player to game
+    let player_id = container.objects.create();
+
+    let player = container
+        .players
+        .create(player_id, login.to_string(), mob_id);
+
+    container.labels.add(Label::new(player_id, login));
+
+    Ok(player.id)
+}
+
+fn create_avatar(container: &mut Container, login: &str) -> Result<MobId> {
     let avatar_static_id = container.config.avatar_id.unwrap();
     let room_id = container.config.initial_room.unwrap();
-    let player_id = container.objects.create();
 
     let mob_id = Loader::spawn_at(container, avatar_static_id, room_id)?;
 
@@ -59,14 +72,7 @@ pub fn create_player(container: &mut Container, login: &str) -> Result<PlayerId>
     // add avatar location to memories
     container.memories.add(mob_id, room_id).unwrap();
 
-    // add player to game
-    let player = container
-        .players
-        .create(player_id, login.to_string(), mob_id);
-
-    container.labels.add(Label::new(player_id, login));
-
-    Ok(player.id)
+    Ok(mob_id)
 }
 
 pub fn find_deep_players_in(container: &Container, location_id: LocationId) -> Vec<PlayerId> {

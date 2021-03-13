@@ -9,6 +9,8 @@ pub enum EventKind {
     Rest,
     Combat,
     Decay,
+    Removed,
+    Killed,
     /// Used now for last element
     Unknown,
 }
@@ -55,14 +57,14 @@ impl Triggers {
         debug!("push {:?}", event);
         self.index
             .get_mut(event.get_kind() as usize)
-            .expect("wrong events initalization")
+            .expect("wrong events initialization")
             .push(event);
     }
 
     pub fn list<'a>(&'a self, kind: EventKind) -> impl Iterator<Item = &Event> + 'a {
         self.index
             .get(kind as usize)
-            .expect("wrong events initalization")
+            .expect("wrong events initialization")
             .iter()
     }
 

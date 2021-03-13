@@ -141,6 +141,11 @@ impl Container {
         self.memories.remove(obj_id);
         self.inventories.remove(obj_id);
         self.ai.remove(obj_id);
+
+        self.triggers.push(Event::Obj {
+            kind: EventKind::Removed,
+            obj_id,
+        });
     }
 
     pub fn get_mob_ctx(&self, mob_id: MobId) -> Option<MobCtx> {

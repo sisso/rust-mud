@@ -1,3 +1,10 @@
+# Obj removal and referencing
+
+When a obj is removed many references can be leaking like, avatar_id, item_id, owner_id, parent, chield, etc.
+
+1. Clean up always properly
+2. Ignore invalid references during load
+
 # Error handling
 
 Each method could return

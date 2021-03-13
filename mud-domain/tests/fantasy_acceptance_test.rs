@@ -245,6 +245,7 @@ fn test_fantasy_player_respawn() {
     from_village_to_temple(&mut scenery);
     scenery
         .game
+        .container
         .admin_kill_avatar_from_connection(scenery.connection_id)
         .unwrap();
     scenery.assert_output(vec!["resurrect"]);

@@ -193,7 +193,7 @@ pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<ConnectionViewActio
                         room_id,
                         comm::admin_suicide_others(mob_label),
                     );
-                    actions_admin::force_kill(container, target_mob_id)
+                    crate::game::combat::kill_mob(container, target_mob_id)
                 }
                 _ => {
                     container

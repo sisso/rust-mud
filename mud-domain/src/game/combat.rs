@@ -5,9 +5,11 @@ use super::container::*;
 use super::mob::*;
 use crate::errors::Error::InvalidStateFailure;
 use crate::errors::{AsResult, Error, Result};
+use crate::game::corpse::create_corpse;
 use crate::game::mob;
 use crate::game::outputs::Outputs;
 use crate::game::ownership::Ownerships;
+use crate::game::triggers::{Event, EventKind};
 use commons::ObjId;
 use logs::*;
 
@@ -62,6 +64,20 @@ pub fn tick_attack(container: &mut Container, mob_id: MobId, target_id: MobId) -
         cancel_attack(container, mob_id, None);
         Ok(())
     }
+}
+
+pub fn kill_mob(container: &mut Container, mob_id: MobId) -> Result<()> {
+    info!("{:?} was killed", mob_id);
+
+    create_corpse(container, mob_id);
+    container.remove(mob_id);
+
+    container.triggers.push(Event::Obj {
+        kind: EventKind::Killed,
+        obj_id: mob_id,
+    });
+
+    Ok(())
 }
 
 fn cancel_attack(container: &mut Container, mob_id: MobId, _target: Option<&MobId>) {
@@ -155,7 +171,7 @@ fn execute_attack_killed(
         .outputs
         .broadcast(Some(mob_id), room_id, comm::killed(defender_label));
 
-    mob::kill_mob(container, target_id)
+    kill_mob(container, target_id)
 }
 
 fn roll_attack(attack: u32, damage: &Damage, defense: u32, rd: u32) -> AttackResult {

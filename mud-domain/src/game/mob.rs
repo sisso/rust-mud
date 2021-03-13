@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use crate::game::corpse::create_corpse;
 use commons::*;
 use logs::*;
 
@@ -285,63 +284,6 @@ impl MobRepository {
     pub fn is_avatar(&self, id: MobId) -> bool {
         self.index.get(&id).unwrap().is_avatar
     }
-
-    //    pub fn save(&self, save: &mut dyn Save) {
-    //        use serde_json::json;
-    //
-    //        for (id, obj) in self.index.iter() {
-    //            let command_json = match obj.command {
-    //                MobCommand::None => json!({ "kind": "idle" }),
-    //                MobCommand::Kill { target } => json!({ "kind": "kill", "target": target.0 }),
-    //            };
-    //
-    //            let obj_json = json!({
-    //                "room_id": obj.room_id.0,
-    //                "label": obj.label,
-    //                "is_avatar": obj.is_avatar,
-    //                "command": command_json,
-    //                "attributes": {
-    //                    "attack": obj.attributes.attack,
-    //                    "defense": obj.attributes.defense,
-    //                    "damage_min": obj.attributes.damage.min,
-    //                    "damage_max": obj.attributes.damage.max,
-    //                    "damage_calm_down": obj.attributes.attack_calm_down.as_float(),
-    //                    "pv": obj.attributes.pv.current,
-    //                    "pv_max": obj.attributes.pv.max,
-    //                    "pv_heal_rate": obj.attributes.pv.heal_rate.as_float(),
-    //                },
-    //                "state": {
-    //                    "attack_ready": obj.state.attack_calm_down.as_float(),
-    //                    "heal_ready": obj.state.heal_calm_down.as_float(),
-    //                    "action": match obj.state.action {
-    //                        MobAction::None => "none",
-    //                        MobAction::Combat => "combat",
-    //                        MobAction::Resting => "rest",
-    //                    },
-    //                }
-    //            });
-    //
-    //            save.add(id.0, "mob", obj_json);
-    //        }
-    //    }
-}
-
-// TODO: move game rules with output outside of mobs module
-// TODO: become a trigger?
-pub fn kill_mob(container: &mut Container, mob_id: MobId) -> Result<()> {
-    info!("{:?} was killed", mob_id);
-
-    let _ = create_corpse(container, mob_id);
-
-    // remove mob
-    let mob = container.mobs.get(mob_id).unwrap();
-    if mob.is_avatar {
-        avatars::respawn_avatar(container, mob_id)?;
-    } else {
-        container.remove(mob_id);
-    }
-
-    Ok(())
 }
 
 pub fn search_mobs_at(
