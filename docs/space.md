@@ -1,6 +1,5 @@
 # TODO
 
-- item weight
 - drag items to ship cargo hold
 - ship seller
 - multiple ships, to have something to do
@@ -11,7 +10,6 @@
     - show numbers
     - show coords
     - allow to move by numbers
-- time to land, time to launch
 - see inside a Vehicle
 
 # Design

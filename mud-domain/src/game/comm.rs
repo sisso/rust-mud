@@ -854,120 +854,6 @@ pub fn vendor_buy_success_floor_others(mob_label: &str, item_label: &str) -> Str
     )
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use commons::V2;
-
-    #[test]
-    fn help_test() {
-        let result = help();
-        assert!(result.len() > 0);
-    }
-
-    #[test]
-    fn test_space_show_starmap() {
-        let objects = vec![
-            SurfaceDesc {
-                kind: ShowStarmapDescKind::Planet,
-                pos: V2::new(-2.0, 1.0),
-                me: false,
-                label: "one".to_string(),
-            },
-            SurfaceDesc {
-                kind: ShowStarmapDescKind::Planet,
-                pos: V2::new(1.0, 3.0),
-                me: false,
-                label: "two".to_string(),
-            },
-            SurfaceDesc {
-                kind: ShowStarmapDescKind::Craft,
-                pos: V2::new(1.0, 0.0),
-                me: true,
-                label: "three".to_string(),
-            },
-            SurfaceDesc {
-                kind: ShowStarmapDescKind::Craft,
-                pos: V2::new(2.0, -1.0),
-                me: false,
-                label: "four".to_string(),
-            },
-        ];
-
-        let string = show_surface_map(&objects);
-        //        assert_eq!("", string.as_str());
-        assert!(string.as_str().contains("2 - @ three"));
-    }
-
-    #[test]
-    fn test_show_sectortree() {
-        let bodies = vec![
-            ShowSectorTreeBody {
-                id: ObjId(1),
-                label: "Sun",
-                orbit_id: ObjId(0),
-                orbit_distance: 0.0,
-                kind: AstroBodyKind::Star.into(),
-                is_self: false,
-            },
-            ShowSectorTreeBody {
-                id: ObjId(2),
-                label: "Earth",
-                orbit_id: ObjId(1),
-                orbit_distance: 2.0,
-                kind: AstroBodyKind::Planet.into(),
-                is_self: false,
-            },
-            ShowSectorTreeBody {
-                id: ObjId(3),
-                label: "Moon",
-                orbit_id: ObjId(2),
-                orbit_distance: 0.4,
-                kind: AstroBodyKind::Planet.into(),
-                is_self: false,
-            },
-            ShowSectorTreeBody {
-                id: ObjId(4),
-                label: "Asteroids",
-                orbit_id: ObjId(1),
-                orbit_distance: 80.0,
-                kind: AstroBodyKind::AsteroidField.into(),
-                is_self: false,
-            },
-            ShowSectorTreeBody {
-                id: ObjId(5),
-                label: "Ring",
-                orbit_id: ObjId(3),
-                orbit_distance: 0.05,
-                kind: AstroBodyKind::Station.into(),
-                is_self: false,
-            },
-            ShowSectorTreeBody {
-                id: ObjId(6),
-                label: "Light Cargo",
-                orbit_id: ObjId(3),
-                orbit_distance: 0.01,
-                kind: AstroBodyKind::Ship.into(),
-                is_self: true,
-            },
-        ];
-
-        let sector_label = "Sector 1";
-        let result = show_sectortree(ObjId(0), sector_label, &bodies);
-        assert_eq!(
-            result.as_str(),
-            r##"[Sector 1]
-Sun 0.00
-- Earth 2.00
-  - Moon 0.40
-    - Ring 0.05
-    - Light Cargo 0.01 <
-- Asteroids 80.00
-"##
-        );
-    }
-}
-
 pub fn hire_fail() -> String {
     "you can not hire now".to_string()
 }
@@ -1092,4 +978,138 @@ pub fn space_jump_do() -> String {
 }
 pub fn space_jump_complete() -> String {
     "jump complete!".to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use commons::V2;
+
+    #[test]
+    fn help_test() {
+        let result = help();
+        assert!(result.len() > 0);
+    }
+
+    #[test]
+    fn test_space_show_starmap() {
+        let objects = vec![
+            SurfaceDesc {
+                kind: ShowStarmapDescKind::Planet,
+                pos: V2::new(-2.0, 1.0),
+                me: false,
+                label: "one".to_string(),
+            },
+            SurfaceDesc {
+                kind: ShowStarmapDescKind::Planet,
+                pos: V2::new(1.0, 3.0),
+                me: false,
+                label: "two".to_string(),
+            },
+            SurfaceDesc {
+                kind: ShowStarmapDescKind::Craft,
+                pos: V2::new(1.0, 0.0),
+                me: true,
+                label: "three".to_string(),
+            },
+            SurfaceDesc {
+                kind: ShowStarmapDescKind::Craft,
+                pos: V2::new(2.0, -1.0),
+                me: false,
+                label: "four".to_string(),
+            },
+        ];
+
+        let string = show_surface_map(&objects);
+        //        assert_eq!("", string.as_str());
+        assert!(string.as_str().contains("2 - @ three"));
+    }
+
+    #[test]
+    fn test_show_sectortree() {
+        let bodies = vec![
+            ShowSectorTreeBody {
+                id: ObjId(1),
+                label: "Sun",
+                orbit_id: ObjId(0),
+                orbit_distance: 0.0,
+                kind: AstroBodyKind::Star.into(),
+                is_self: false,
+            },
+            ShowSectorTreeBody {
+                id: ObjId(2),
+                label: "Earth",
+                orbit_id: ObjId(1),
+                orbit_distance: 2.0,
+                kind: AstroBodyKind::Planet.into(),
+                is_self: false,
+            },
+            ShowSectorTreeBody {
+                id: ObjId(3),
+                label: "Moon",
+                orbit_id: ObjId(2),
+                orbit_distance: 0.4,
+                kind: AstroBodyKind::Planet.into(),
+                is_self: false,
+            },
+            ShowSectorTreeBody {
+                id: ObjId(4),
+                label: "Asteroids",
+                orbit_id: ObjId(1),
+                orbit_distance: 80.0,
+                kind: AstroBodyKind::AsteroidField.into(),
+                is_self: false,
+            },
+            ShowSectorTreeBody {
+                id: ObjId(5),
+                label: "Ring",
+                orbit_id: ObjId(3),
+                orbit_distance: 0.05,
+                kind: AstroBodyKind::Station.into(),
+                is_self: false,
+            },
+            ShowSectorTreeBody {
+                id: ObjId(6),
+                label: "Light Cargo",
+                orbit_id: ObjId(3),
+                orbit_distance: 0.01,
+                kind: AstroBodyKind::Ship.into(),
+                is_self: true,
+            },
+        ];
+
+        let sector_label = "Sector 1";
+        let result = show_sectortree(ObjId(0), sector_label, &bodies);
+        assert_eq!(
+            result.as_str(),
+            r##"[Sector 1]
+Sun 0.00
+- Earth 2.00
+  - Moon 0.40
+    - Ring 0.05
+    - Light Cargo 0.01 <
+- Asteroids 80.00
+"##
+        );
+    }
+
+    #[test]
+    fn test_show_surface() {
+        let desc = vec![
+            SurfaceDesc {
+                kind: ShowStarmapDescKind::Planet,
+                pos: V2 { x: 5.0, y: 3.0 },
+                me: false,
+                label: "a planet".to_string(),
+            },
+            SurfaceDesc {
+                kind: ShowStarmapDescKind::Craft,
+                pos: V2 { x: 1.0, y: -2.0 },
+                me: true,
+                label: "A ship".to_string(),
+            },
+        ];
+        let str = show_surface_map(&desc);
+        assert_eq!("", str);
+    }
 }

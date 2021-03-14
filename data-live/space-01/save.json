@@ -3,8 +3,8 @@
     "avatar_mob": 6,
     "initial_room": 2,
     "money_id": 42,
-    "tick": 35579,
-    "total_time": 3557.9000530168414
+    "tick": 58617,
+    "total_time": 5861.700087346137
   },
   "objects": {
     "0": {
@@ -123,7 +123,7 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 100002
+      "parent": 3
     },
     "100007": {
       "desc": "other",
@@ -308,11 +308,45 @@
         ]
       }
     },
+    "100026": {
+      "code": [
+        "shuttle"
+      ],
+      "craft": {},
+      "desc": "Small shuttle",
+      "id": 100026,
+      "label": "Shuttle",
+      "parent": 3,
+      "price": {
+        "price": 10000
+      },
+      "tags": {
+        "values": [
+          "ship",
+          "ship_civil",
+          "ship_transport"
+        ]
+      }
+    },
+    "100027": {
+      "desc": "Small cockpit used to control the craft",
+      "id": 100027,
+      "label": "Cockpit",
+      "parent": 100026,
+      "room": {
+        "can_exit": true,
+        "exits": []
+      }
+    },
     "16": {
       "id": 16,
       "label": "Palace zone",
       "parent": 1,
-      "zone": {}
+      "zone": {},
+      "pos": {
+        "x": 3,
+        "y": 3
+      }
     },
     "17": {
       "astro_body": {
@@ -470,7 +504,7 @@
       "parent": 4,
       "spawn": {
         "max": 1,
-        "next_spawn": 3637.2810613811016,
+        "next_spawn": 5922.845170758665,
         "prefab_id": 36,
         "time_max": 360.0,
         "time_min": 60.0
@@ -482,7 +516,7 @@
       "parent": 21,
       "spawn": {
         "max": 1,
-        "next_spawn": 3625.959942020476,
+        "next_spawn": 5916.030138462782,
         "prefab_id": 37,
         "time_max": 360.0,
         "time_min": 60.0
@@ -767,6 +801,12 @@
           "robot_civil"
         ]
       }
+    },
+    "44": {
+      "desc": "x",
+      "id": 44,
+      "label": "This is something",
+      "parent": 100002
     },
     "6": {
       "desc": "A normal and boring human being",

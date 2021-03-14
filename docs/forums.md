@@ -1046,6 +1046,45 @@ Computing re-orbiting at 200km
 .
 .
 .
+
+## Counter argument
+
+Surfaces create a much easy way to give player the exploration. As is much easy to create a 10x10 grid and add one or 
+more point of interest, that create 100 rooms.
+
+    "1": {
+      "astro_body": {
+        "kind": "planet",
+        "orbit_distance": 150.0
+      },
+      "id": 1,
+      "label": "Dune",
+      "parent": 19,
+      "grid_surface": {
+        "width": 10,
+        "height": 10,
+        "cells": [
+          "...###..",
+          "........",
+          "...@....",
+          ".....#..",
+          "....##..",
+          "...##...",
+          "........"
+        ],
+        "cellMap": {
+          ".": "sand",
+          "#": "rocks"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "parent": 1,
+      "zone": {},
+      "label": "City Zone",
+      "pos": { "x": 3, "y": 3}
+    }
 ## Solar system structure
 
 Negative                                               Positive
