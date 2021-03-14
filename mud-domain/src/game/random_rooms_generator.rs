@@ -309,8 +309,8 @@ mod test {
         });
 
         for level in grids.levels {
-            let _buffer = level.print();
-            // println!("{}", buffer.as_str());
+            let buffer = level.print();
+            println!("{}", buffer.as_str());
         }
     }
 }

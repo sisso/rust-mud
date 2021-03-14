@@ -5,6 +5,53 @@ When a obj is removed many references can be leaking like, avatar_id, item_id, o
 1. Clean up always properly
 2. Ignore invalid references during load
 
+# Infinite world generator
+
+- random zones, each zone with a abound, and what limits will be open to new zones
+- when entering in a zone, all neighbors zones are instantiated
+- for first version, all 4 directions will always lead to some other place
+
+## space, 
+
+- don't need it directly, as single zone with random map per planet would be ok.
+- need to be able to add feature like city, trader, etc
+
+### TODO
+
+- create a infinite sector spawm:
+
+  
+    struct GridRow { coord: Coord }
+    struct GridRowCreated { coord: Coord }
+
+    struct InfiniteGrid {
+      rows: Map<Coord, GridRow>
+    }
+
+    impl InfiniteGrid {
+      fn on_enter(&mut self, coord: Coord) -> Vec<GridRowCreated> {
+        let mut r = vec![];
+
+        for c in get_bounds(coords) {
+          if !self.rows.contains_key(c) {
+            self.add_row(c);
+            r.push(GridRowCreated { coord });
+          }
+        }
+
+        r
+      }
+
+      fn add_row(&mut self, coord: Coord) {
+        let r = GridRow {
+          coord
+        };
+      }
+    }
+
+- just return that a new row was create is not enough, the code that generate the sector (or rooms) need to know where
+  it will connect.
+
 # Error handling
 
 Each method could return
