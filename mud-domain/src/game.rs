@@ -29,6 +29,7 @@ pub mod container;
 pub mod corpse;
 pub mod domain;
 pub mod equip;
+pub mod extractable;
 pub mod hire;
 mod inventory;
 pub mod inventory_service;

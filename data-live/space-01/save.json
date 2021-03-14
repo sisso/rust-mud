@@ -3,8 +3,8 @@
     "avatar_mob": 6,
     "initial_room": 2,
     "money_id": 42,
-    "tick": 58617,
-    "total_time": 5861.700087346137
+    "tick": 63612,
+    "total_time": 6361.200094789267
   },
   "objects": {
     "0": {
@@ -123,7 +123,7 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 3
+      "parent": 100029
     },
     "100007": {
       "desc": "other",
@@ -224,7 +224,7 @@
       "desc": "Small shuttle",
       "id": 100020,
       "label": "Shuttle",
-      "parent": 3
+      "parent": 100029
     },
     "100021": {
       "desc": "Small cockpit used to control the craft",
@@ -338,15 +338,30 @@
         "exits": []
       }
     },
+    "100028": {
+      "desc": "Ore deposit, you can extract ores from here",
+      "extractable": {
+        "prefab_id": 35
+      },
+      "id": 100028,
+      "label": "Ores deposit",
+      "parent": 100029
+    },
+    "100029": {
+      "desc": "Asteroid surface",
+      "id": 100029,
+      "label": "Asteroid surface",
+      "parent": 17,
+      "room": {
+        "can_exit": true,
+        "exits": []
+      }
+    },
     "16": {
       "id": 16,
       "label": "Palace zone",
       "parent": 1,
-      "zone": {},
-      "pos": {
-        "x": 3,
-        "y": 3
-      }
+      "zone": {}
     },
     "17": {
       "astro_body": {
@@ -504,7 +519,7 @@
       "parent": 4,
       "spawn": {
         "max": 1,
-        "next_spawn": 5922.845170758665,
+        "next_spawn": 6410.083031997085,
         "prefab_id": 36,
         "time_max": 360.0,
         "time_min": 60.0
@@ -516,7 +531,7 @@
       "parent": 21,
       "spawn": {
         "max": 1,
-        "next_spawn": 5916.030138462782,
+        "next_spawn": 6576.8921836689115,
         "prefab_id": 37,
         "time_max": 360.0,
         "time_min": 60.0

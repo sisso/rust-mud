@@ -34,6 +34,7 @@ pub mod dto;
 mod migrations;
 
 use crate::game::ai::{Ai, AiCommand, AiRepo};
+use crate::game::extractable::Extractable;
 use crate::game::inventory::Inventory;
 use crate::game::loader::migrations::*;
 use crate::game::market::{Market, MarketTrade};
@@ -617,6 +618,16 @@ impl Loader {
             container.ai.add_or_update(ai).unwrap();
         }
 
+        if let Some(extractable) = &data.extractable {
+            container
+                .extractables
+                .add(Extractable {
+                    id: obj_id,
+                    prefab_id: extractable.prefab_id,
+                })
+                .unwrap();
+        }
+
         if let Some(children) = data.children.clone() {
             for static_id in children.into_iter() {
                 trace!("{:?} spawn children {:?}", obj_id, static_id);
@@ -1139,6 +1150,12 @@ impl Loader {
 
         if let Some(ai) = container.ai.get(id) {
             obj_data.ai = Some(Loader::serialize_ai(ai));
+        }
+
+        if let Some(extracatble) = container.extractables.get(id) {
+            obj_data.extractable = Some(ExtractableData {
+                prefab_id: extracatble.prefab_id,
+            });
         }
 
         Ok(obj_data)

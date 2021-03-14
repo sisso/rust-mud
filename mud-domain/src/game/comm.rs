@@ -32,6 +32,7 @@ pub fn is_visible(container: &Container, obj_id: ObjId) -> bool {
     container.mobs.exists(obj_id)
         || container.items.exists(obj_id)
         || container.ships.exists(obj_id)
+        || container.extractables.exist(obj_id)
 }
 
 pub fn get_visible_objects(container: &Container, mob_id: MobId, room_id: RoomId) -> Vec<ObjId> {

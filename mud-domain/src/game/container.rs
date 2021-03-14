@@ -36,6 +36,7 @@ use commons::{DeltaTime, ObjId, PlayerId};
 use logs::*;
 
 use super::repo::*;
+use crate::game::extractable::Extractables;
 
 #[macro_export]
 macro_rules! get_or_return_msg {
@@ -83,6 +84,7 @@ pub struct Container {
     pub markets: Markets,
     pub inventories: Inventories,
     pub ai: AiRepo,
+    pub extractables: Extractables,
 }
 
 impl Container {
@@ -119,6 +121,7 @@ impl Container {
             markets: Markets::new(),
             inventories: Inventories::new(),
             ai: AiRepo::new(),
+            extractables: Extractables::new(),
         }
     }
 
@@ -141,6 +144,7 @@ impl Container {
         self.memories.remove(obj_id);
         self.inventories.remove(obj_id);
         self.ai.remove(obj_id);
+        self.extractables.remove(obj_id);
 
         self.triggers.push(Event::Obj {
             kind: EventKind::Removed,

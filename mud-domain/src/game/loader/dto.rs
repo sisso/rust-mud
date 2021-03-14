@@ -285,6 +285,7 @@ pub struct ObjData {
     pub market: Option<MarketData>,
     pub inventory: Option<InventoryData>,
     pub ai: Option<AiData>,
+    pub extractable: Option<ExtractableData>,
 }
 
 impl ObjData {
@@ -315,6 +316,7 @@ impl ObjData {
             market: None,
             inventory: None,
             ai: None,
+            extractable: None,
         }
     }
 
@@ -393,6 +395,11 @@ pub struct AiData {
     pub command_haul: Option<AiCommandHaulData>,
     pub commandable: Option<bool>,
     pub command_aggressive_patrol_home: Option<AiCommandAggressivePatrolHomeData>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct ExtractableData {
+    pub prefab_id: StaticId,
 }
 
 impl LoaderData {
