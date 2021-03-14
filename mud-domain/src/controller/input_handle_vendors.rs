@@ -114,7 +114,7 @@ pub fn parse_vendor_item(
 mod test {
     use crate::game::container::Container;
 
-    fn setup_scenery(container: &mut Container) {
+    fn setup_scenery(_container: &mut Container) {
         // add 2 room
         // add 2 items
         // add 2 markets

@@ -74,7 +74,7 @@ impl<T> IndexMap<T> {
         {
             let mut local: Option<(Id, T)> = None;
             std::mem::swap(&mut self.index[id.index], &mut local);
-            local.map(|(id, value)| value)
+            local.map(|(_, value)| value)
         } else {
             None
         }
@@ -83,6 +83,17 @@ impl<T> IndexMap<T> {
     pub fn get(&self, id: Id) -> Option<&T> {
         if self.index.len() > id.index {
             match &self.index[id.index] {
+                Some((i_id, value)) if i_id.gen == id.gen => Some(value),
+                _ => None,
+            }
+        } else {
+            None
+        }
+    }
+
+    pub fn get_mut(&mut self, id: Id) -> Option<&mut T> {
+        if self.index.len() > id.index {
+            match &mut self.index[id.index] {
                 Some((i_id, value)) if i_id.gen == id.gen => Some(value),
                 _ => None,
             }

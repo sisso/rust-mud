@@ -1151,7 +1151,7 @@ impl Loader {
 
         // add prefabs
         for (_k, v) in data.prefabs {
-            container.loader.add_prefab(v);
+            container.loader.add_prefab(v)?;
         }
 
         // add objects
@@ -1566,14 +1566,14 @@ prefabs.control_panel_command_2 {
         data1.tags = Some(TagsData {
             values: vec!["tag_a".to_string()],
         });
-        loader.add_prefab(data1);
+        loader.add_prefab(data1).unwrap();
 
         let mut data2 = ObjData::new();
         data2.id = Some(StaticId(1));
         data2.tags = Some(TagsData {
             values: vec!["tag_b".to_string()],
         });
-        loader.add_prefab(data2);
+        loader.add_prefab(data2).unwrap();
 
         let search_tags = vec!["tag_a"];
         let mut result = loader.find_prefabs_by_tags_or(&search_tags);

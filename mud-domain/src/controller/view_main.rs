@@ -249,7 +249,7 @@ fn action_examine(container: &mut Container, mob_id: MobId, target_label: &str) 
         Some(target_id) => {
             let mob_label = container.labels.get_label_f(target_id);
             let target_mob = container.mobs.get(target_id).unwrap();
-            let max_weight = container.inventories.get_max_weight(target_id);
+            let _max_weight = container.inventories.get_max_weight(target_id);
 
             container.outputs.private(
                 mob_id,
