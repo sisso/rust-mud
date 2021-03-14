@@ -20,7 +20,7 @@ pub fn run(container: &mut Container) {
     }
 
     for player_id in players_to_respawn {
-        avatars::respawn_avatar(container, player_id).map_err(|err| {
+        let _ = avatars::respawn_avatar(container, player_id).map_err(|err| {
             warn!("fail to respawn avatar for player {:?}", player_id);
         });
     }

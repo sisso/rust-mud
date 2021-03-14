@@ -1,7 +1,5 @@
 # Bug
 
-- spawn a shuttle by api didn trigger any message to local player
-
 # Main Todo
 
 - after login or switch a view, should show a first message
@@ -12,9 +10,8 @@
 
 - better reference clean up, when a obj is deleted a lot of reference are still being saved to the files and fail to load
 - hot re-load of game code without losing connections
-- admin verify / insert should support multiple lines 
 - specs
-- memory for the map
+- memory for the map be shared with player in the case of avatar respawn
 - portal distance 
 - movements points
 - commanding
@@ -47,6 +44,7 @@
 
 # refactoring
 
+- replace HashMap<Id, T> by Vec<T> where the index is Id(index, generation) like specs
 - normalize Option and Result usage and a clean way to return failure to player and errors messasges for log
     - the idea of use Result<bool> and return Ok(false) if messages were already send to player but fail to complete
       make a bit mess with ? and others result shurtcuts
