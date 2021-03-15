@@ -18,7 +18,6 @@ pub struct Templates {
     index: HashMap<ObjId, Template>,
 }
 
-// TODO: move mostly of this methods to a trait
 impl Templates {
     pub fn new() -> Self {
         Templates {
@@ -30,6 +29,11 @@ impl Templates {
         if self.index.contains_key(&template.id) {
             return Err(Error::ConflictException);
         }
+        self.index.insert(template.id, template);
+        Ok(())
+    }
+
+    pub fn update(&mut self, template: Template) -> Result<()> {
         self.index.insert(template.id, template);
         Ok(())
     }

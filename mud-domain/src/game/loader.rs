@@ -298,12 +298,11 @@ impl Loader {
             .ok_or_else(|| Error::Failure(format!("Static id {:?} can not be resolved", static_id)))
     }
 
-    /// Failed results should be usually thread as a Exception, as it is not atomic and could leak
-    /// components
     pub fn apply_data(
         container: &mut Container,
         obj_id: ObjId,
         data: &ObjData,
+        // used to keep created objects references like when you spawn a prefab with children
         references: &HashMap<StaticId, ObjId>,
     ) -> Result<()> {
         macro_rules! get_ref {
