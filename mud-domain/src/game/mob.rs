@@ -17,6 +17,8 @@ use crate::game::room::RoomId;
 use crate::game::{avatars, combat, comm};
 use serde::{Deserialize, Serialize};
 
+pub const EXTRACT_TIME: DeltaTime = DeltaTime(1.0);
+
 pub type MobId = ObjId;
 pub type Xp = u32;
 
@@ -25,6 +27,7 @@ pub type Xp = u32;
 pub enum MobCommand {
     None,
     Kill { target_id: MobId },
+    Extract { target_id: ObjId },
 }
 
 impl MobCommand {
@@ -43,6 +46,7 @@ pub enum MobAction {
     None,
     Combat,
     Resting,
+    Extracting,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -97,6 +101,7 @@ pub struct MobState {
     pub attack_calm_down: TotalTime,
     // after this total time can heal
     pub heal_calm_down: TotalTime,
+    pub extract_calm_down: TotalTime,
     pub action: MobAction,
 }
 
@@ -105,6 +110,7 @@ impl MobState {
         MobState {
             attack_calm_down: TotalTime(0.0),
             heal_calm_down: TotalTime(0.0),
+            extract_calm_down: TotalTime(0.0),
             action: MobAction::None,
         }
     }
@@ -184,6 +190,17 @@ impl Mob {
         self.state.action = MobAction::Resting;
         self.state.heal_calm_down = TimeTrigger::next(self.attributes.pv.heal_rate, total);
         Ok(())
+    }
+
+    pub fn set_action_extract(&mut self, target_id: ObjId, total: TotalTime) -> Result<()> {
+        if self.state.action == MobAction::Combat {
+            Err(InvalidStateFailure)
+        } else {
+            self.command = MobCommand::Extract { target_id };
+            self.state.action = MobAction::Extracting;
+            self.state.extract_calm_down = TimeTrigger::next(EXTRACT_TIME, total);
+            Ok(())
+        }
     }
 
     pub fn stop_rest(&mut self) -> Result<()> {
@@ -327,4 +344,33 @@ pub fn get_attributes_with_bonus(container: &Container, mob_id: MobId) -> Result
         });
 
     Ok(attributes)
+}
+
+pub fn system_run(container: &mut Container) {
+    let mut attacks = vec![];
+    let mut extracts = vec![];
+
+    for mob in container.mobs.list() {
+        match mob.command {
+            MobCommand::Kill { target_id } => attacks.push((mob.id, target_id)),
+            MobCommand::Extract { target_id } => extracts.push((mob.id, target_id)),
+            _ => {}
+        };
+    }
+
+    // execute extracts
+    for (mob_id, target_id) in &extracts {
+        match super::extractable::tick_extract(container, *mob_id, *target_id) {
+            Err(err) => warn!("{:?} fail to execute extract: {:?}", mob_id, err),
+            _ => {}
+        };
+    }
+
+    // execute attacks
+    for (mob_id, target_id) in &attacks {
+        match super::combat::tick_attack(container, *mob_id, *target_id) {
+            Err(err) => warn!("{:?} fail to execute attack: {:?}", mob_id, err),
+            _ => {}
+        };
+    }
 }

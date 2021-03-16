@@ -7,6 +7,7 @@ use crate::errors::{AsResult, Error, Result};
 use crate::game::comm::{RoomMap, RoomMapCell};
 use crate::game::item::ItemId;
 use crate::game::loader::dto::StaticId;
+use crate::game::location::LocationId;
 use crate::game::memory::Memories;
 use crate::game::room::RoomRepository;
 use crate::game::space_utils;
@@ -631,6 +632,34 @@ fn load_rooms_into_coords_map(
     }
 
     Ok(coords_map)
+}
+
+pub fn extract(
+    container: &mut Container,
+    mob_id: MobId,
+    location_id: LocationId,
+    target_id: ObjId,
+) -> Result<()> {
+    let mob_label = container.labels.get_label_f(mob_id);
+    let target_label = container.labels.get_label_f(target_id);
+
+    container
+        .mobs
+        .get_mut(mob_id)
+        .as_result()?
+        .set_action_extract(target_id, container.time.total)?;
+
+    container
+        .outputs
+        .private(mob_id, comm::extract_start(target_label));
+
+    container.outputs.broadcast(
+        Some(mob_id),
+        location_id,
+        comm::extract_start_others(mob_label, target_label),
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]

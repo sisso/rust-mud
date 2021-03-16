@@ -6,6 +6,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::panic::resume_unwind;
 
+pub const NO_LABEL: &str = "???";
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Label {
     pub id: ObjId,
@@ -78,7 +80,7 @@ impl Labels {
         self.index
             .get(&id)
             .map(|label| label.label.as_str())
-            .unwrap_or("???")
+            .unwrap_or(NO_LABEL)
     }
 
     pub fn resolve(&self, ids: &Vec<ObjId>) -> Vec<&Label> {

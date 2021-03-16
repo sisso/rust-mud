@@ -3,8 +3,8 @@
     "avatar_mob": 6,
     "initial_room": 2,
     "money_id": 42,
-    "tick": 63612,
-    "total_time": 6361.200094789267
+    "tick": 64027,
+    "total_time": 6402.700095407665
   },
   "objects": {
     "0": {
@@ -355,6 +355,996 @@
       "room": {
         "can_exit": true,
         "exits": []
+      }
+    },
+    "100030": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100030,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100031": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100031,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100032": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100032,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100033": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100033,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100034": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100034,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100035": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100035,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100036": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100036,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100037": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100037,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100038": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100038,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100039": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100039,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100040": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100040,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100041": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100041,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100042": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100042,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100043": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100043,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100044": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100044,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100045": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100045,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100046": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100046,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100047": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100047,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100048": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100048,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100049": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100049,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100050": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100050,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100051": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100051,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100052": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100052,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100053": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100053,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100054": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100054,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100055": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100055,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100056": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100056,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100057": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100057,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100058": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100058,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100059": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100059,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100060": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100060,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100061": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100061,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100062": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100062,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100063": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100063,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100064": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100064,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100065": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100065,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100066": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100066,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100067": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100067,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100068": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100068,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100069": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100069,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100070": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100070,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100071": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100071,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100072": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100072,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100073": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100073,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100074": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100074,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100075": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100075,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100076": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100076,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100077": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100077,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100078": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100078,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100079": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100079,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100080": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100080,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100081": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100081,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100082": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100082,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100083": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100083,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100084": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100084,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
       }
     },
     "16": {

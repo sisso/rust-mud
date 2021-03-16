@@ -224,6 +224,8 @@ pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<ConnectionViewActio
 
         _ if input.has_command("hire") => input_handle_hire::hire(container, mob_id, input),
 
+        _ if input.has_command("extract") => input_handle_extract(container, mob_id, input),
+
         _ => {
             container
                 .outputs
@@ -326,4 +328,27 @@ pub fn handle_general(ctx: &mut ViewHandleCtx, input: &StrInput) -> Result<Conne
 
         _ => Err(NotFoundFailure),
     }
+}
+
+pub fn input_handle_extract(
+    container: &mut Container,
+    mob_id: MobId,
+    args: StrInput,
+) -> Result<()> {
+    let location_id = container.locations.get(mob_id).as_result()?;
+
+    let founds = crate::game::location::search_at(
+        &container.labels,
+        &container.locations,
+        location_id,
+        args.plain_arguments(),
+    );
+
+    let extractable = founds
+        .iter()
+        .flat_map(|obj_id| container.extractables.get(*obj_id))
+        .next()
+        .ok_or(NotFoundFailure)?;
+
+    actions::extract(container, mob_id, location_id, extractable.id)
 }

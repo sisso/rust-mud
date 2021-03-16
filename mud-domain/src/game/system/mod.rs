@@ -5,7 +5,6 @@ use crate::game::system::item_system::DecaySystem;
 
 pub mod ai_system;
 pub mod avatars_systems;
-pub mod combat_system;
 pub mod item_system;
 pub mod random_room_generators_system;
 pub mod rest_system;
@@ -22,8 +21,6 @@ pub struct Systems {
 
 impl Systems {
     pub fn new(container: &mut Container) -> Self {
-        avatars_systems::start(container);
-
         Systems {
             decay_system: DecaySystem::new(),
         }
@@ -38,7 +35,7 @@ impl Systems {
         self.decay_system.tick(container).unwrap();
         spawn_system::run(container);
         ai_system::run(container);
-        combat_system::run(container);
+        super::mob::system_run(container);
         rest_system::run(container);
         ship_system::tick(container);
         random_room_generators_system::run(container);

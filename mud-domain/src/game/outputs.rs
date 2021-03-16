@@ -1,3 +1,4 @@
+use crate::game::comm::PPMsg;
 use crate::game::domain::Dir;
 use crate::game::item::ItemId;
 use crate::game::location::LocationId;
@@ -91,5 +92,11 @@ impl Outputs {
     /// Just to a specific mob
     pub fn private(&mut self, mob_id: MobId, msg: String) {
         self.list.push(Output::Private { mob_id, msg })
+    }
+
+    /// combination of private and broadcast
+    pub fn message(&mut self, mob_id: ObjId, location_id: ObjId, msg: PPMsg) {
+        self.private(mob_id, msg.private_msg);
+        self.broadcast(Some(mob_id), location_id, msg.public_msg);
     }
 }

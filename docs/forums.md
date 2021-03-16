@@ -1,3 +1,23 @@
+# Inputs handling and commands
+
+All inputs can be parsed and validated on request, but all actions and
+modifications should happens in the event loop. Very similar what would
+be expected when using Specs. 
+
+- How to deal with double validation? when accept the command and when execute it? Borring?
+
+# Actions 
+
+Currently Actions and commands are part of Mob. Where Command is what it should
+be doing, and Action is what is doing. 
+
+A similar design is used by ship when navigate.
+
+When new kinds of things appears and could share same actions, like "extract" resources
+from a Extractable, by a player or by a Vehicle. How should it be modeled?
+
+A new Action system? Vehicle.Command?
+
 # Obj removal and referencing
 
 When a obj is removed many references can be leaking like, avatar_id, item_id, owner_id, parent, chield, etc.

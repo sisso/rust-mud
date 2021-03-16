@@ -25,7 +25,7 @@ use crate::game::ships::Ships;
 use crate::game::spawn::Spawns;
 use crate::game::surfaces::Surfaces;
 use crate::game::surfaces_object::SurfaceObjects;
-use crate::game::system::{combat_system, item_system, rest_system, ship_system, spawn_system};
+use crate::game::system::{item_system, rest_system, ship_system, spawn_system};
 use crate::game::tags::Tags;
 use crate::game::timer::*;
 use crate::game::triggers::*;

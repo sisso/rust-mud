@@ -13,6 +13,11 @@ use commons::{ObjId, TotalTime, V2};
 use logs::*;
 use std::collections::{HashMap, HashSet};
 
+pub struct PPMsg {
+    pub private_msg: String,
+    pub public_msg: String,
+}
+
 pub struct InventoryDesc<'a> {
     pub max_weight: Option<Weight>,
     pub total_weight: Weight,
@@ -69,6 +74,7 @@ pub fn help() -> String {
   map                - show map of current zone
   buy <item>         - list objecst to buy or buy a item
   sell <item>        - list objecst to sell or sell a item
+  extract <obj>      - extract resources from a stuff that can be extracted
 -------------------------------------------------------------"#;
 
     str.to_string()
@@ -328,6 +334,10 @@ pub fn pick_fail_storage_is_not_inventory(target_item: &str) -> String {
 
 pub fn pick_fail_inventory_full(target_item: &str) -> String {
     format!("you can not pick {}, you already full", target_item)
+}
+
+pub fn inventory_full() -> String {
+    format!("your inventory is full")
 }
 
 pub fn equip_what() -> String {
@@ -979,6 +989,32 @@ pub fn space_jump_do() -> String {
 }
 pub fn space_jump_complete() -> String {
     "jump complete!".to_string()
+}
+
+pub fn extract_start(target: &str) -> String {
+    format!("you start to extract {}", target)
+}
+
+pub fn extract_start_others(mob: &str, target: &str) -> String {
+    format!("{} start to extract {}", mob, target)
+}
+
+pub fn extract_fail(target: &str) -> String {
+    format!("you fail to extract {}", target)
+}
+
+pub fn extract_success(mob: &str, target: &str, item: &str) -> PPMsg {
+    PPMsg {
+        private_msg: format!("you extract {} from {}", item, target),
+        public_msg: format!("{} extract {} from {}", mob, item, target),
+    }
+}
+
+pub fn extract_stop(mob: &str, target: &str) -> PPMsg {
+    PPMsg {
+        private_msg: format!("you stop to extract from {}", target),
+        public_msg: format!("{} stop to extract from {}", mob, target),
+    }
 }
 
 #[cfg(test)]

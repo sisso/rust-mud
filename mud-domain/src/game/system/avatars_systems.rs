@@ -3,8 +3,6 @@ use crate::game::container::Container;
 use crate::game::triggers::EventKind;
 use logs::*;
 
-pub fn start(_container: &mut Container) {}
-
 pub fn run(container: &mut Container) {
     let mut players_to_respawn = vec![];
 
