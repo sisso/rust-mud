@@ -68,9 +68,9 @@ pub fn is_valid_extract(container: &Container, _mob_id: MobId, target_id: ObjId)
 }
 
 pub fn tick_extract(container: &mut Container, mob_id: MobId, target_id: ObjId) -> Result<bool> {
-    if !is_valid_extract(container, mob_id, target_id) {
-        let target_label = container.labels.get_label_f(target_id);
+    let target_label = container.labels.get_label_f(target_id);
 
+    if !is_valid_extract(container, mob_id, target_id) {
         container
             .outputs
             .private(mob_id, comm::extract_fail(target_label));
@@ -81,12 +81,11 @@ pub fn tick_extract(container: &mut Container, mob_id: MobId, target_id: ObjId) 
     }
 
     let prefab_id = container.extractables.get(target_id).as_result()?.prefab_id;
+    let mob_label = container.labels.get_label_f(mob_id);
+    let prefab_label = container.loader.get_prefab_labelf(prefab_id);
+    let location_id = container.locations.get(mob_id).as_result()?;
 
     if !can_add_weight_by_prefab(container, mob_id, prefab_id) {
-        let target_label = container.labels.get_label_f(target_id);
-        let mob_label = container.labels.get_label_f(mob_id);
-        let location_id = container.locations.get(mob_id).as_result()?;
-
         container.outputs.private(mob_id, comm::inventory_full());
         container.outputs.message(
             mob_id,
@@ -108,16 +107,10 @@ pub fn tick_extract(container: &mut Container, mob_id: MobId, target_id: ObjId) 
         Some(next) => {
             mob.state.extract_calm_down = next;
 
-            Loader::spawn_at(container, prefab_id, mob_id);
-
-            let target_label = container.labels.get_label_f(target_id);
-            let mob_label = container.labels.get_label_f(mob_id);
-            let prefab_label = container.loader.get_prefab_labelf(prefab_id);
-            let location_id = container.locations.get(mob_id).as_result()?;
-
             let msg = comm::extract_success(mob_label, target_label, &prefab_label);
             container.outputs.message(mob_id, location_id, msg);
 
+            Loader::spawn_at(container, prefab_id, mob_id)?;
             update_inventory_weight(container, mob_id)?;
 
             Ok(true)
