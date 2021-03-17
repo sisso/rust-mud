@@ -1003,6 +1003,10 @@ pub fn extract_fail(target: &str) -> String {
     format!("you fail to extract {}", target)
 }
 
+pub fn extract_target_found(target: &str) -> String {
+    format!("you don't find a '{}' to extract", target)
+}
+
 pub fn extract_success(mob: &str, target: &str, item: &str) -> PPMsg {
     PPMsg {
         private_msg: format!("you extract {} from {}", item, target),

@@ -344,11 +344,17 @@ pub fn input_handle_extract(
         args.plain_arguments(),
     );
 
-    let extractable = founds
+    match founds
         .iter()
         .flat_map(|obj_id| container.extractables.get(*obj_id))
         .next()
-        .ok_or(NotFoundFailure)?;
-
-    actions::extract(container, mob_id, location_id, extractable.id)
+    {
+        Some(extractable) => actions::extract(container, mob_id, location_id, extractable.id),
+        None => {
+            container
+                .outputs
+                .private(mob_id, comm::extract_target_found(args.plain_arguments()));
+            Ok(())
+        }
+    }
 }

@@ -8,7 +8,7 @@ use crate::game::loader::dto::StaticId;
 use crate::game::loader::Loader;
 use crate::game::mob::{MobId, EXTRACT_TIME};
 use crate::utils::strinput::StrInput;
-use commons::ObjId;
+use commons::{ObjId, TimeTrigger};
 use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
@@ -75,6 +75,8 @@ pub fn tick_extract(container: &mut Container, mob_id: MobId, target_id: ObjId) 
             .outputs
             .private(mob_id, comm::extract_fail(target_label));
 
+        container.mobs.cancel_command(mob_id)?;
+
         return Ok(false);
     }
 
@@ -92,27 +94,34 @@ pub fn tick_extract(container: &mut Container, mob_id: MobId, target_id: ObjId) 
             comm::extract_stop(mob_label, target_label),
         );
 
+        container.mobs.cancel_command(mob_id)?;
+
         return Ok(false);
     }
 
     let mob = container.mobs.get_mut(mob_id).as_result()?;
-    if mob.state.extract_calm_down.is_before(container.time.total) {
-        mob.state.extract_calm_down.add(EXTRACT_TIME);
+    match TimeTrigger::check_trigger(
+        EXTRACT_TIME,
+        mob.state.extract_calm_down,
+        container.time.total,
+    ) {
+        Some(next) => {
+            mob.state.extract_calm_down = next;
 
-        Loader::spawn_at(container, prefab_id, mob_id);
+            Loader::spawn_at(container, prefab_id, mob_id);
 
-        let target_label = container.labels.get_label_f(target_id);
-        let mob_label = container.labels.get_label_f(mob_id);
-        let prefab_label = container.loader.get_prefab_labelf(prefab_id);
-        let location_id = container.locations.get(mob_id).as_result()?;
+            let target_label = container.labels.get_label_f(target_id);
+            let mob_label = container.labels.get_label_f(mob_id);
+            let prefab_label = container.loader.get_prefab_labelf(prefab_id);
+            let location_id = container.locations.get(mob_id).as_result()?;
 
-        let msg = comm::extract_success(mob_label, target_label, &prefab_label);
-        container.outputs.message(mob_id, location_id, msg);
+            let msg = comm::extract_success(mob_label, target_label, &prefab_label);
+            container.outputs.message(mob_id, location_id, msg);
 
-        update_inventory_weight(container, mob_id)?;
+            update_inventory_weight(container, mob_id)?;
 
-        Ok(true)
-    } else {
-        Ok(false)
+            Ok(true)
+        }
+        None => Ok(false),
     }
 }

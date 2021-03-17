@@ -253,6 +253,9 @@ impl TimeTrigger {
     }
 
     /// If trigger, return next trigger
+    /// match TimeTrigger::check_trigger(EXTRACT_TIME, mob.state.extract_calm_down, container.time.total) {
+    ///     Some(next) => { mob.state.extract_calm_down = next }, None => {}
+    /// }
     pub fn check_trigger(
         calm_down: DeltaTime,
         next_trigger: TotalTime,

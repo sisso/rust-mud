@@ -81,21 +81,7 @@ pub fn kill_mob(container: &mut Container, mob_id: MobId) -> Result<()> {
 }
 
 fn cancel_attack(container: &mut Container, mob_id: MobId, _target: Option<&MobId>) {
-    //    let attacker = container.get_mob(&mob_id.0);
-
-    //    let msg_others = comm::kill_cancel(attacker, defender);
-    //
-    //    if attacker.is_avatar {
-    //        let player = container.find_player_from_avatar_mob_id(&MobId(attacker.id)).unwrap();
-    //        let msg_player = comm::kill_player_cancel(defender);
-    //        container.outputs.private(player.id.clone(), msg_player);
-    //        container.outputs.room(player.id.clone(), attacker.room_id,msg_others);
-    //    } else {
-    //        container.outputs.room_all( attacker.room_id, msg_others);
-    //    }
-
-    //    let mut mob = attacker.clone();
-    container.mobs.cancel_attack(mob_id);
+    container.mobs.cancel_command(mob_id);
 }
 
 // TODO: fix multiples get from get two mutable

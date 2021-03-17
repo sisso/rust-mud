@@ -5,7 +5,7 @@ use logs::*;
 
 use super::container::Container;
 use crate::errors::Error::InvalidStateFailure;
-use crate::errors::{Error, Result, ResultError};
+use crate::errors::{AsResult, Error, Result, ResultError};
 use crate::game::domain::{Attribute, Rd};
 use crate::game::inventory_service;
 use crate::game::item::ItemPrefabId;
@@ -17,7 +17,7 @@ use crate::game::room::RoomId;
 use crate::game::{avatars, combat, comm};
 use serde::{Deserialize, Serialize};
 
-pub const EXTRACT_TIME: DeltaTime = DeltaTime(1.0);
+pub const EXTRACT_TIME: DeltaTime = DeltaTime(5.0);
 
 pub type MobId = ObjId;
 pub type Xp = u32;
@@ -292,10 +292,11 @@ impl MobRepository {
         mob.set_action_attack(target)
     }
 
-    pub fn cancel_attack(&mut self, mob_id: MobId) {
-        let mut mob = self.index.get_mut(&mob_id).unwrap();
+    pub fn cancel_command(&mut self, mob_id: MobId) -> Result<()> {
+        let mut mob = self.index.get_mut(&mob_id).as_result()?;
         mob.command = MobCommand::None;
         mob.state.action = MobAction::None;
+        Ok(())
     }
 
     pub fn is_avatar(&self, id: MobId) -> bool {
