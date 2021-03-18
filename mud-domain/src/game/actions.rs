@@ -287,15 +287,19 @@ pub fn enter(container: &mut Container, mob_id: MobId, arguments: &str) -> Resul
 
         None if arguments.is_empty() => {
             let codes = container.labels.resolve_labels_candidates(&candidates);
-            container.outputs.private(mob_id, comm::enter_list(&codes));
+            container.outputs.private(
+                mob_id,
+                comm::enter_list(&codes.iter().map(|i| i.as_str()).collect()),
+            );
             Err(Error::InvalidArgumentFailure)
         }
 
         None => {
             let codes = container.labels.resolve_labels_candidates(&candidates);
-            container
-                .outputs
-                .private(mob_id, comm::enter_invalid(arguments, &codes));
+            container.outputs.private(
+                mob_id,
+                comm::enter_invalid(arguments, &codes.iter().map(|i| i.as_str()).collect()),
+            );
             Err(Error::InvalidArgumentFailure)
         }
     }

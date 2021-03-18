@@ -88,14 +88,39 @@ impl Labels {
     }
 
     // list labels appending the number in case of similars
-    pub fn resolve_labels_candidates(&self, ids: &Vec<ObjId>) -> Vec<&str> {
-        ids.iter().map(|id| self.get_label_f(*id)).collect()
+    pub fn resolve_labels_candidates(&self, ids: &Vec<ObjId>) -> Vec<String> {
+        labels_for_candidates(ids.iter().flat_map(|id| self.get(*id)).collect())
     }
 
     pub fn search(&self, ids: &Vec<ObjId>, input: &str) -> Vec<ObjId> {
         let labels = self.resolve(ids);
         label_search(&labels, input)
     }
+}
+
+pub fn labels_for_candidates(labels: Vec<&Label>) -> Vec<String> {
+    // sort by label, id
+    let mut lab_id: Vec<_> = labels.iter().map(|l| (l.label.as_str(), l.id)).collect();
+    lab_id.sort();
+
+    // get labels as string
+    let mut lab = lab_id
+        .into_iter()
+        .map(|i| i.0.to_string())
+        .collect::<Vec<String>>();
+
+    // for each sequence of same lable, append a number after the first ocurrence
+    let mut k = 1;
+    for i in 1..lab.len() {
+        if lab[i] == lab[i - k] {
+            k += 1;
+            lab[i] = format!("{}.{}", lab[i], k);
+        } else {
+            k = 1;
+        }
+    }
+
+    lab
 }
 
 pub fn label_search<'a>(labels: &Vec<&'a Label>, input: &str) -> Vec<ObjId> {
@@ -140,10 +165,10 @@ pub fn label_search<'a>(labels: &Vec<&'a Label>, input: &str) -> Vec<ObjId> {
 mod test {
     use super::*;
 
-    fn test_label_search(labels: Vec<(u32, &str, &str)>, input: &str, expected: Vec<u32>) {
+    fn test_label_search(labels: Vec<(u32, &str)>, input: &str, expected: Vec<u32>) {
         let labels: Vec<Label> = labels
             .into_iter()
-            .map(|(id, label, code)| Label {
+            .map(|(id, label)| Label {
                 id: ObjId(id),
                 label: label.to_string(),
                 desc: "".to_string(),
@@ -159,23 +184,8 @@ mod test {
     #[test]
     fn test_label_search_with_full_label() {
         test_label_search(
-            vec![
-                (0, "Asteroid Field", "asteroid"),
-                (1, "Asteroid Station", "station"),
-            ],
+            vec![(0, "Asteroid Field"), (1, "Asteroid Station")],
             "asteroid field",
-            vec![0],
-        );
-    }
-
-    #[test]
-    fn test_label_search_with_full_code() {
-        test_label_search(
-            vec![
-                (0, "Asteroid Field", "asteroid"),
-                (1, "Asteroid Station", "asteroid_station"),
-            ],
-            "asteroid",
             vec![0],
         );
     }
@@ -183,24 +193,39 @@ mod test {
     #[test]
     fn test_label_search_with_partial_label() {
         test_label_search(
-            vec![
-                (0, "Asteroid Field", "not"),
-                (1, "Asteroid Station", "station"),
-            ],
+            vec![(0, "Asteroid Field"), (1, "Asteroid Station")],
             "asteroid",
             vec![0, 1],
         );
     }
 
     #[test]
-    fn test_label_search_with_partial_code() {
-        test_label_search(
-            vec![
-                (0, "Field", "asteroid_field"),
-                (1, "Station", "asteroid_station"),
-            ],
-            "asteroid",
-            vec![0, 1],
-        );
+    fn test_labels_for_candidates() {
+        let labels = vec![
+            Label {
+                id: 0.into(),
+                label: "ObjA".to_string(),
+                desc: "".to_string(),
+            },
+            Label {
+                id: 2.into(),
+                label: "ObjB".to_string(),
+                desc: "".to_string(),
+            },
+            Label {
+                id: 1.into(),
+                label: "ObjB".to_string(),
+                desc: "".to_string(),
+            },
+            Label {
+                id: 3.into(),
+                label: "ObjB".to_string(),
+                desc: "".to_string(),
+            },
+        ];
+
+        let labels_ref = labels.iter().collect();
+        let labels_str = super::labels_for_candidates(labels_ref);
+        assert_eq!(vec!["ObjA", "ObjB", "ObjB.2", "ObjB.3"], labels_str)
     }
 }
