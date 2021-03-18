@@ -3,14 +3,11 @@
     "avatar_mob": 6,
     "initial_room": 2,
     "money_id": 42,
-    "tick": 71550,
-    "total_time": 7155.000106617808
+    "tick": 73536,
+    "total_time": 7353.600109577179
   },
   "objects": {
     "0": {
-      "code": [
-        "sector1"
-      ],
       "id": 0,
       "label": "Sector 1",
       "sector": {}
@@ -25,9 +22,6 @@
       "parent": 19
     },
     "100000": {
-      "code": [
-        "transport"
-      ],
       "craft": {},
       "desc": "Small cargo craft designed to deliver small amount of cargo",
       "id": 100000,
@@ -123,7 +117,7 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 100029
+      "parent": 3
     },
     "100007": {
       "desc": "other",
@@ -217,14 +211,11 @@
       }
     },
     "100020": {
-      "code": [
-        "shuttle"
-      ],
       "craft": {},
       "desc": "Small shuttle",
       "id": 100020,
       "label": "Shuttle",
-      "parent": 100029
+      "parent": 3
     },
     "100021": {
       "desc": "Small cockpit used to control the craft",
@@ -309,9 +300,6 @@
       }
     },
     "100026": {
-      "code": [
-        "shuttle"
-      ],
       "craft": {},
       "desc": "Small shuttle",
       "id": 100026,
@@ -366,24 +354,6 @@
       },
       "label": "Ores",
       "parent": 100021,
-      "price": {
-        "price": 50
-      },
-      "tags": {
-        "values": [
-          "ore"
-        ]
-      }
-    },
-    "100085": {
-      "desc": "Mineral ores extracted directly from earth",
-      "id": 100085,
-      "item": {
-        "flags": {},
-        "weight": 10.0
-      },
-      "label": "Ores",
-      "parent": 100005,
       "price": {
         "price": 50
       },
@@ -483,6 +453,17 @@
         ]
       }
     },
+    "100092": {
+      "id": 100092,
+      "item": {
+        "amount": 122,
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "credits",
+      "parent": 100005
+    },
     "16": {
       "id": 16,
       "label": "Palace zone",
@@ -504,9 +485,6 @@
         "kind": "jump_gate",
         "orbit_distance": 200.0
       },
-      "code": [
-        "jump"
-      ],
       "id": 18,
       "label": "Jump point",
       "parent": 19
@@ -557,9 +535,6 @@
       }
     },
     "24": {
-      "code": [
-        "sector2"
-      ],
       "id": 24,
       "label": "Sector 2",
       "sector": {}
@@ -588,9 +563,6 @@
         "kind": "jump_gate",
         "orbit_distance": 200.0
       },
-      "code": [
-        "jump"
-      ],
       "id": 29,
       "label": "Jump Point",
       "parent": 25
@@ -645,7 +617,7 @@
       "parent": 4,
       "spawn": {
         "max": 1,
-        "next_spawn": 7169.067920163274,
+        "next_spawn": 7418.324487321079,
         "prefab_id": 36,
         "time_max": 360.0,
         "time_min": 60.0
@@ -657,7 +629,7 @@
       "parent": 21,
       "spawn": {
         "max": 1,
-        "next_spawn": 7205.103086732328,
+        "next_spawn": 7432.5876409336925,
         "prefab_id": 37,
         "time_max": 360.0,
         "time_min": 60.0
@@ -736,9 +708,6 @@
   },
   "prefabs": {
     "10": {
-      "code": [
-        "shuttle"
-      ],
       "craft": {},
       "desc": "Small shuttle",
       "id": 10,
@@ -764,9 +733,6 @@
       }
     },
     "12": {
-      "code": [
-        "transport"
-      ],
       "craft": {},
       "desc": "Small cargo craft designed to deliver small amount of cargo",
       "id": 12,
