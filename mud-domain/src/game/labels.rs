@@ -123,8 +123,19 @@ pub fn labels_for_candidates(labels: Vec<&Label>) -> Vec<String> {
     lab
 }
 
-pub fn label_search<'a>(labels: &Vec<&'a Label>, input: &str) -> Vec<ObjId> {
+pub fn label_search<'a>(labels: &Vec<&'a Label>, input_raw: &str) -> Vec<ObjId> {
     let mut result = vec![];
+
+    // remove numeric index from input
+    let (input, sep) = match input_raw.find(".") {
+        Some(index) => {
+            let input = &input_raw[..index];
+            let sep_str = &input_raw[index + 1..];
+            (input, sep_str.parse::<usize>().ok())
+        }
+        None => (input_raw, None),
+    };
+
     // search by exactly label
     for i in labels.iter() {
         if text::is_text_eq(i.label.as_str(), input) {
@@ -136,19 +147,16 @@ pub fn label_search<'a>(labels: &Vec<&'a Label>, input: &str) -> Vec<ObjId> {
         return result;
     }
 
-    if !result.is_empty() {
-        return result;
-    }
-
     // search by fuzzy label
     for i in labels.iter() {
-        // TODO: rmeove
+        // TODO: remove
         debug!(
             "checking {:?} with {:?} is {:?}",
             i.label.as_str(),
             input,
             text::is_text_like(i.label.as_str(), input)
         );
+
         if text::is_text_like(i.label.as_str(), input) {
             result.push(i.id);
         }
@@ -197,6 +205,37 @@ mod test {
             "asteroid",
             vec![0, 1],
         );
+    }
+
+    #[test]
+    fn test_label_search_with_id() {
+        let labels = vec![
+            Label {
+                id: 0.into(),
+                label: "ObjA".to_string(),
+                desc: "".to_string(),
+            },
+            Label {
+                id: 2.into(),
+                label: "ObjB".to_string(),
+                desc: "".to_string(),
+            },
+            Label {
+                id: 1.into(),
+                label: "ObjB".to_string(),
+                desc: "".to_string(),
+            },
+            Label {
+                id: 3.into(),
+                label: "ObjB".to_string(),
+                desc: "".to_string(),
+            },
+        ];
+
+        let labels_ref = labels.iter().collect();
+        let found = super::label_search(&labels_ref, "objb.2");
+        assert_eq!(1, found.len());
+        assert_eq!(ObjId(1), found[0]);
     }
 
     #[test]
