@@ -23,7 +23,7 @@ pub fn find_surface_target(
         .list_at(craft_location)
         .collect::<Vec<_>>();
 
-    let founds = container.labels.search_codes(&candidates, label);
+    let founds = container.labels.search(&candidates, label);
     founds.first().cloned().ok_or(Error::NotFoundFailure)
 }
 

@@ -55,7 +55,7 @@ pub fn search_at(
     input: &str,
 ) -> Vec<ObjId> {
     let candidates = locations.list_at(location_id).collect::<Vec<_>>();
-    labels.search_codes(&candidates, input)
+    labels.search(&candidates, input)
 }
 
 #[cfg(test)]

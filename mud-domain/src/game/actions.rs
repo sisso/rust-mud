@@ -270,7 +270,7 @@ pub fn enter(container: &mut Container, mob_id: MobId, arguments: &str) -> Resul
     let candidates = space_utils::find_ships_at(container, location_id);
     let target = container
         .labels
-        .search_codes(&candidates, arguments)
+        .search(&candidates, arguments)
         .first()
         .cloned();
 
@@ -286,13 +286,13 @@ pub fn enter(container: &mut Container, mob_id: MobId, arguments: &str) -> Resul
         Some(target) => enter_do(container, mob_id, target),
 
         None if arguments.is_empty() => {
-            let codes = container.labels.resolve_codes(&candidates);
+            let codes = container.labels.resolve_labels_candidates(&candidates);
             container.outputs.private(mob_id, comm::enter_list(&codes));
             Err(Error::InvalidArgumentFailure)
         }
 
         None => {
-            let codes = container.labels.resolve_codes(&candidates);
+            let codes = container.labels.resolve_labels_candidates(&candidates);
             container
                 .outputs
                 .private(mob_id, comm::enter_invalid(arguments, &codes));

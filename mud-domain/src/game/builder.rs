@@ -20,7 +20,6 @@ pub fn add_room(container: &mut Container, label: &str) -> RoomId {
         id: room_id,
         label: label.to_string(),
         // TODO: use autocode
-        code: label.to_string(),
         desc: label.to_string(),
     });
 

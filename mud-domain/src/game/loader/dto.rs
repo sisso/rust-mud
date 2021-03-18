@@ -166,9 +166,9 @@ impl From<u32> for StaticId {
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct PriceData {
     pub price: Option<u32>,
-    #[deprecated]
+    // #[deprecated]
     pub buy: Option<u32>,
-    #[deprecated]
+    // #[deprecated]
     pub sell: Option<u32>,
 }
 
@@ -261,7 +261,6 @@ pub struct ObjData {
     pub id: Option<StaticId>,
     pub prefab_id: Option<StaticId>,
     pub label: Option<String>,
-    pub code: Option<Vec<String>>,
     pub desc: Option<String>,
     pub owned_by: Option<StaticId>,
     pub room: Option<RoomData>,
@@ -294,7 +293,6 @@ impl ObjData {
             id: None,
             prefab_id: None,
             label: None,
-            code: None,
             desc: None,
             owned_by: None,
             room: None,

@@ -11,11 +11,7 @@ pub const NO_LABEL: &str = "???";
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Label {
     pub id: ObjId,
-    /// how we call it
     pub label: String,
-    /// tokens used to reference in commends
-    // TODO: array
-    pub code: String,
     pub desc: String,
 }
 
@@ -24,7 +20,6 @@ impl Label {
         Label {
             id,
             label: label.to_string(),
-            code: label.to_string(),
             desc: label.to_string(),
         }
     }
@@ -33,7 +28,6 @@ impl Label {
         Label {
             id,
             label: label.to_string(),
-            code: label.to_string(),
             desc: desc.to_string(),
         }
     }
@@ -89,48 +83,21 @@ impl Labels {
             .collect()
     }
 
-    // TODO: do not replace codes per ???
-    pub fn resolve_codes(&self, ids: &Vec<ObjId>) -> Vec<&str> {
-        // flat map can not be used because we want replace none by ???
-        ids.iter()
-            .map(|id| {
-                self.index
-                    .get(&id)
-                    .map(|labels| labels.code.as_str())
-                    .unwrap_or("???")
-            })
-            .collect()
-    }
-
     pub fn resolve_labels(&self, ids: &Vec<ObjId>) -> Vec<&str> {
         ids.iter().map(|id| self.get_label_f(*id)).collect()
     }
 
-    pub fn search_codes(&self, ids: &Vec<ObjId>, input: &str) -> Vec<ObjId> {
-        if input.is_empty() {
-            return vec![];
-        }
-
-        let candidates = self.resolve_codes(&ids);
-        let selected = text::search_label(input, &candidates);
-        let mut result = vec![];
-        for selected_index in selected {
-            result.push(ids[selected_index]);
-        }
-        result
+    // list labels appending the number in case of similars
+    pub fn resolve_labels_candidates(&self, ids: &Vec<ObjId>) -> Vec<&str> {
+        ids.iter().map(|id| self.get_label_f(*id)).collect()
     }
 
-    // TODO: to Iterator? mostly of time we just need the first one
     pub fn search(&self, ids: &Vec<ObjId>, input: &str) -> Vec<ObjId> {
         let labels = self.resolve(ids);
         label_search(&labels, input)
     }
-
-    // TODO: this signature is horrible, we need a better way to store prefab ObjData.codes
-    pub fn get_code(_label: &str, _codes: &Option<Vec<String>>) {}
 }
 
-// TODO: search by multiple strings (drop sword shield bag)
 pub fn label_search<'a>(labels: &Vec<&'a Label>, input: &str) -> Vec<ObjId> {
     let mut result = vec![];
     // search by exactly label
@@ -142,13 +109,6 @@ pub fn label_search<'a>(labels: &Vec<&'a Label>, input: &str) -> Vec<ObjId> {
 
     if !result.is_empty() {
         return result;
-    }
-
-    // search by exactly code
-    for i in labels.iter() {
-        if text::is_text_eq(i.code.as_str(), input) {
-            result.push(i.id);
-        }
     }
 
     if !result.is_empty() {
@@ -173,13 +133,6 @@ pub fn label_search<'a>(labels: &Vec<&'a Label>, input: &str) -> Vec<ObjId> {
         return result;
     }
 
-    // search by fuzzy code
-    for i in labels.iter() {
-        if text::is_text_like(i.code.as_str(), input) {
-            result.push(i.id);
-        }
-    }
-
     result
 }
 
@@ -193,7 +146,6 @@ mod test {
             .map(|(id, label, code)| Label {
                 id: ObjId(id),
                 label: label.to_string(),
-                code: code.to_string(),
                 desc: "".to_string(),
             })
             .collect();

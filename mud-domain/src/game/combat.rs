@@ -81,7 +81,7 @@ pub fn kill_mob(container: &mut Container, mob_id: MobId) -> Result<()> {
 }
 
 fn cancel_attack(container: &mut Container, mob_id: MobId, _target: Option<&MobId>) {
-    container.mobs.cancel_command(mob_id);
+    container.mobs.cancel_command(mob_id).unwrap();
 }
 
 // TODO: fix multiples get from get two mutable

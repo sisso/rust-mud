@@ -114,7 +114,7 @@ impl Loader {
         }
 
         debug!("{:?} adding prefab {:?}", id, data);
-        self.index.insert(id, data).is_none();
+        assert!(self.index.insert(id, data).is_none());
         Ok(id)
     }
 
@@ -326,20 +326,11 @@ impl Loader {
         }
 
         if let Some(label) = data.label.as_ref() {
-            // TODO: simplify
-            let code = data
-                .code
-                .clone()
-                .map(|i| i.first().cloned())
-                .and_then(|identity| identity)
-                .unwrap_or(label.clone());
-
             let desc = data.desc.clone().unwrap_or("".to_string());
 
             container.labels.add(Label {
                 id: obj_id,
                 label: label.clone(),
-                code,
                 desc,
             });
         }
@@ -913,10 +904,6 @@ impl Loader {
             obj_data.label = Some(label.label.clone());
             if !label.desc.is_empty() {
                 obj_data.desc = Some(label.desc.clone());
-            }
-
-            if label.code != label.label {
-                obj_data.code = Some(vec![label.code.clone()]);
             }
         }
 

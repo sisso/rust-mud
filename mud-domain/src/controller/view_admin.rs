@@ -343,23 +343,9 @@ impl VecStringFilter {
     fn is_valid_label(&self, data: &ObjData) -> bool {
         for s in self.labels.iter() {
             let is_label = data.label.as_ref().map(|l| l.contains(s)).unwrap_or(false);
-            let is_code = data
-                .code
-                .as_ref()
-                .map(|v| {
-                    for i in v.iter() {
-                        if i.contains(s) {
-                            return true;
-                        }
-                    }
-
-                    return false;
-                })
-                .unwrap_or(false);
-
             let is_id = format!("{}", data.get_id().as_u32()).contains(s);
 
-            let is_valid = is_label || is_code || is_id;
+            let is_valid = is_label || is_id;
 
             if !is_valid {
                 return false;

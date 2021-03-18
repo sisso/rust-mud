@@ -28,7 +28,6 @@ pub fn create_corpse(container: &mut Container, mob_id: MobId) {
     container.labels.add(Label {
         id: corpse_id,
         label: corpse_label.clone(),
-        code: "corpse".to_string(),
         desc: corpse_desc.to_string(),
     });
     inventory_service::move_all(&mut container.locations, mob_id, corpse_id);

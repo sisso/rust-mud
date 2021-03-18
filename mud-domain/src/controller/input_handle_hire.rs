@@ -21,7 +21,7 @@ pub fn hire(container: &mut Container, mob_id: MobId, input: StrInput) -> Result
         .collect::<Vec<_>>();
 
     let args = input.plain_arguments();
-    let founds = container.labels.search_codes(&candidates, args);
+    let founds = container.labels.search(&candidates, args);
 
     if let Some(&hired_id) = founds.first() {
         crate::game::actions_hire::hire(container, mob_id, hired_id)

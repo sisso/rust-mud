@@ -1,3 +1,10 @@
+# Code deprecation
+
+Code array was never something fun to have. Could be useful to fine define keywords to interact with objects, but it
+is a pain to maintain, and I will always be lazy to define nice codes.
+
+Better to have just labe and a better search.
+
 # Inputs handling and commands
 
 All inputs can be parsed and validated on request, but all actions and
