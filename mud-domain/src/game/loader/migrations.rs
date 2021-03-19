@@ -7,34 +7,6 @@ use crate::game::loader::{
 use logs::*;
 use rand::seq::index::IndexVec;
 
-/// Migrate price.buy/price.sell by price.price
-pub struct MigrationV1 {}
-
-impl Default for MigrationV1 {
-    fn default() -> Self {
-        MigrationV1 {}
-    }
-}
-
-impl Migration for MigrationV1 {
-    fn version(&self) -> u32 {
-        1
-    }
-
-    fn migrate_obj_or_prefab(&mut self, data: &mut ObjData) -> Result<()> {
-        if let Some(price) = data.price.as_mut() {
-            if price.price.is_none() && price.buy.is_some() {
-                info!("migration v1: {:?} setting price {:?}", data.id, price.buy);
-                price.price = price.buy;
-                price.buy = None;
-                price.sell = None;
-            }
-        }
-
-        Ok(())
-    }
-}
-
 /// Add item weight and mob inventory
 pub struct MigrationV2;
 

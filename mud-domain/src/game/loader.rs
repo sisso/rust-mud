@@ -734,8 +734,6 @@ impl Loader {
             if let Some(price_buy) = data.price_buy {
                 obj.price = Some(PriceData {
                     price: Some(price_buy),
-                    buy: None,
-                    sell: None,
                 });
             }
 
@@ -1136,8 +1134,6 @@ impl Loader {
         if let Some(price) = container.prices.get(id) {
             obj_data.price = Some(PriceData {
                 price: Some(price.price.as_u32()),
-                buy: None,
-                sell: None,
             });
         }
 
@@ -1243,7 +1239,6 @@ impl Loader {
         info!("checking for data migration for {:?}", data.version);
 
         let migrations: Vec<Box<dyn Migration>> = vec![
-            Box::new(MigrationV1::default()),
             Box::new(MigrationV2::default()),
             Box::new(MigrationV3::default()),
         ];

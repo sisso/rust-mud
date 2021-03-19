@@ -1626,9 +1626,6 @@
       "parent": 100049
     },
     "100108": {
-      "code": [
-        "corpse"
-      ],
       "desc": "The corpse of rat laying in the ground",
       "id": 100108,
       "item": {
@@ -1684,9 +1681,6 @@
       "parent": 100070
     },
     "100111": {
-      "code": [
-        "corpse"
-      ],
       "desc": "The corpse of rat laying in the ground",
       "id": 100111,
       "item": {
@@ -2784,9 +2778,6 @@
       "parent": 100048
     },
     "100167": {
-      "code": [
-        "corpse"
-      ],
       "desc": "The corpse of sisso laying in the ground",
       "id": 100167,
       "item": {
@@ -4081,9 +4072,6 @@
       "parent": 100018
     },
     "100313": {
-      "code": [
-        "corpse"
-      ],
       "desc": "The corpse of sisso laying in the ground",
       "id": 100313,
       "item": {
@@ -4096,9 +4084,6 @@
       "parent": 5
     },
     "100315": {
-      "code": [
-        "corpse"
-      ],
       "desc": "The corpse of sisso laying in the ground",
       "id": 100315,
       "item": {
@@ -4132,9 +4117,6 @@
       "parent": 100046
     },
     "100318": {
-      "code": [
-        "corpse"
-      ],
       "desc": "The corpse of sisso laying in the ground",
       "id": 100318,
       "item": {
@@ -4147,9 +4129,6 @@
       "parent": 5
     },
     "100320": {
-      "code": [
-        "corpse"
-      ],
       "desc": "The corpse of sisso laying in the ground",
       "id": 100320,
       "item": {
@@ -4162,9 +4141,6 @@
       "parent": 5
     },
     "100322": {
-      "code": [
-        "corpse"
-      ],
       "desc": "The corpse of sisso laying in the ground",
       "id": 100322,
       "item": {
@@ -4177,9 +4153,6 @@
       "parent": 5
     },
     "100324": {
-      "code": [
-        "corpse"
-      ],
       "desc": "The corpse of wolf laying in the ground",
       "id": 100324,
       "item": {
@@ -4527,9 +4500,6 @@
       }
     },
     "23": {
-      "code": [
-        "chest"
-      ],
       "desc": "Chest used to receive donations from the beliver",
       "id": 23,
       "item": {
@@ -4819,9 +4789,7 @@
       },
       "label": "meat",
       "price": {
-        "buy": 2,
-        "price": 2,
-        "sell": 1
+        "price": 2
       }
     },
     "19": {
@@ -4913,9 +4881,7 @@
       },
       "label": "Dagger",
       "price": {
-        "buy": 10,
-        "price": 10,
-        "sell": 5
+        "price": 10
       }
     },
     "32": {
@@ -4933,9 +4899,7 @@
       },
       "label": "Short Sword",
       "price": {
-        "buy": 300,
-        "price": 300,
-        "sell": 150
+        "price": 300
       }
     },
     "33": {
@@ -4953,9 +4917,7 @@
       },
       "label": "Axe",
       "price": {
-        "buy": 50,
-        "price": 50,
-        "sell": 25
+        "price": 50
       }
     },
     "34": {
@@ -4973,9 +4935,7 @@
       },
       "label": "Mace",
       "price": {
-        "buy": 100,
-        "price": 100,
-        "sell": 50
+        "price": 100
       }
     },
     "35": {
@@ -4993,9 +4953,7 @@
       },
       "label": "Sword",
       "price": {
-        "buy": 400,
-        "price": 400,
-        "sell": 200
+        "price": 400
       }
     },
     "36": {
@@ -5013,9 +4971,7 @@
       },
       "label": "Lance",
       "price": {
-        "buy": 150,
-        "price": 150,
-        "sell": 75
+        "price": 150
       }
     },
     "37": {
@@ -5033,9 +4989,7 @@
       },
       "label": "Quarterstaff",
       "price": {
-        "buy": 50,
-        "price": 50,
-        "sell": 25
+        "price": 50
       }
     },
     "38": {
@@ -5053,9 +5007,7 @@
       },
       "label": "Halberd",
       "price": {
-        "buy": 400,
-        "price": 400,
-        "sell": 200
+        "price": 400
       }
     },
     "39": {
@@ -5073,9 +5025,7 @@
       },
       "label": "Two hand Sword",
       "price": {
-        "buy": 800,
-        "price": 800,
-        "sell": 400
+        "price": 800
       }
     },
     "40": {
@@ -5093,9 +5043,7 @@
       },
       "label": "Two hand Axe",
       "price": {
-        "buy": 300,
-        "price": 300,
-        "sell": 150
+        "price": 300
       }
     },
     "41": {
@@ -5113,9 +5061,7 @@
       },
       "label": "Flail",
       "price": {
-        "buy": 200,
-        "price": 200,
-        "sell": 100
+        "price": 200
       }
     },
     "43": {
@@ -5130,9 +5076,7 @@
       },
       "label": "Buckler",
       "price": {
-        "buy": 50,
-        "price": 50,
-        "sell": 25
+        "price": 50
       }
     },
     "44": {
@@ -5147,9 +5091,7 @@
       },
       "label": "Shield",
       "price": {
-        "buy": 100,
-        "price": 100,
-        "sell": 50
+        "price": 100
       }
     },
     "45": {
@@ -5164,9 +5106,7 @@
       },
       "label": "Wall Shield",
       "price": {
-        "buy": 200,
-        "price": 200,
-        "sell": 100
+        "price": 200
       }
     },
     "47": {
@@ -5181,9 +5121,7 @@
       },
       "label": "Cap",
       "price": {
-        "buy": 50,
-        "price": 50,
-        "sell": 25
+        "price": 50
       }
     },
     "48": {
@@ -5198,9 +5136,7 @@
       },
       "label": "Helm",
       "price": {
-        "buy": 200,
-        "price": 200,
-        "sell": 100
+        "price": 200
       }
     },
     "49": {
@@ -5215,9 +5151,7 @@
       },
       "label": "Leather Armor",
       "price": {
-        "buy": 200,
-        "price": 200,
-        "sell": 100
+        "price": 200
       }
     },
     "50": {
@@ -5232,9 +5166,7 @@
       },
       "label": "Chain Mail",
       "price": {
-        "buy": 400,
-        "price": 400,
-        "sell": 200
+        "price": 400
       }
     },
     "51": {
@@ -5249,9 +5181,7 @@
       },
       "label": "Plate Mail",
       "price": {
-        "buy": 800,
-        "price": 800,
-        "sell": 400
+        "price": 800
       }
     },
     "53": {

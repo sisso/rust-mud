@@ -3,8 +3,8 @@
     "avatar_mob": 6,
     "initial_room": 2,
     "money_id": 42,
-    "tick": 73536,
-    "total_time": 7353.600109577179
+    "tick": 77217,
+    "total_time": 7721.700115062296
   },
   "objects": {
     "0": {
@@ -117,7 +117,7 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 3
+      "parent": 100021
     },
     "100007": {
       "desc": "other",
@@ -215,7 +215,7 @@
       "desc": "Small shuttle",
       "id": 100020,
       "label": "Shuttle",
-      "parent": 3
+      "parent": 100029
     },
     "100021": {
       "desc": "Small cockpit used to control the craft",
@@ -345,124 +345,142 @@
         "exits": []
       }
     },
-    "100084": {
-      "desc": "Mineral ores extracted directly from earth",
-      "id": 100084,
-      "item": {
-        "flags": {},
-        "weight": 10.0
-      },
-      "label": "Ores",
-      "parent": 100021,
-      "price": {
-        "price": 50
-      },
-      "tags": {
-        "values": [
-          "ore"
-        ]
-      }
-    },
-    "100086": {
-      "desc": "Mineral ores extracted directly from earth",
-      "id": 100086,
-      "item": {
-        "flags": {},
-        "weight": 10.0
-      },
-      "label": "Ores",
-      "parent": 100021,
-      "price": {
-        "price": 50
-      },
-      "tags": {
-        "values": [
-          "ore"
-        ]
-      }
-    },
-    "100087": {
-      "desc": "Mineral ores extracted directly from earth",
-      "id": 100087,
-      "item": {
-        "flags": {},
-        "weight": 10.0
-      },
-      "label": "Ores",
-      "parent": 100021,
-      "price": {
-        "price": 50
-      },
-      "tags": {
-        "values": [
-          "ore"
-        ]
-      }
-    },
-    "100088": {
-      "desc": "Mineral ores extracted directly from earth",
-      "id": 100088,
-      "item": {
-        "flags": {},
-        "weight": 10.0
-      },
-      "label": "Ores",
-      "parent": 100021,
-      "price": {
-        "price": 50
-      },
-      "tags": {
-        "values": [
-          "ore"
-        ]
-      }
-    },
-    "100089": {
-      "desc": "Mineral ores extracted directly from earth",
-      "id": 100089,
-      "item": {
-        "flags": {},
-        "weight": 10.0
-      },
-      "label": "Ores",
-      "parent": 100021,
-      "price": {
-        "price": 50
-      },
-      "tags": {
-        "values": [
-          "ore"
-        ]
-      }
-    },
-    "100090": {
-      "desc": "Mineral ores extracted directly from earth",
-      "id": 100090,
-      "item": {
-        "flags": {},
-        "weight": 10.0
-      },
-      "label": "Ores",
-      "parent": 100021,
-      "price": {
-        "price": 50
-      },
-      "tags": {
-        "values": [
-          "ore"
-        ]
-      }
-    },
     "100092": {
       "id": 100092,
       "item": {
-        "amount": 122,
+        "amount": 488,
         "flags": {
           "money": true
         }
       },
       "label": "credits",
       "parent": 100005
+    },
+    "100093": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100093,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100021,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100094": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100094,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100021,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100095": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100095,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100021,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100096": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100096,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100021,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100097": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100097,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100021,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100098": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100098,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100021,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100099": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100099,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
     },
     "16": {
       "id": 16,
@@ -617,7 +635,7 @@
       "parent": 4,
       "spawn": {
         "max": 1,
-        "next_spawn": 7418.324487321079,
+        "next_spawn": 8025.11432942003,
         "prefab_id": 36,
         "time_max": 360.0,
         "time_min": 60.0
@@ -629,7 +647,7 @@
       "parent": 21,
       "spawn": {
         "max": 1,
-        "next_spawn": 7432.5876409336925,
+        "next_spawn": 7955.532328158617,
         "prefab_id": 37,
         "time_max": 360.0,
         "time_min": 60.0
@@ -803,9 +821,7 @@
       },
       "label": "Goods",
       "price": {
-        "buy": 500,
-        "price": 500,
-        "sell": 400
+        "price": 500
       },
       "tags": {
         "values": [
@@ -821,9 +837,7 @@
       },
       "label": "Ores",
       "price": {
-        "buy": 50,
-        "price": 50,
-        "sell": 25
+        "price": 50
       },
       "tags": {
         "values": [

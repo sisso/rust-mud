@@ -166,19 +166,11 @@ impl From<u32> for StaticId {
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct PriceData {
     pub price: Option<u32>,
-    // #[deprecated]
-    pub buy: Option<u32>,
-    // #[deprecated]
-    pub sell: Option<u32>,
 }
 
 impl PriceData {
     pub fn new(price: u32) -> Self {
-        PriceData {
-            price: Some(price),
-            buy: None,
-            sell: None,
-        }
+        PriceData { price: Some(price) }
     }
 }
 
@@ -189,25 +181,9 @@ pub struct MarketTradeData {
     pub sell_price_mult: Option<f32>,
 }
 
-// #[derive(Deserialize, Serialize, Debug, Clone)]
-// pub struct VendorMarketBulkMinMaxPriceData {
-//     pub min: f32,
-//     pub max: f32,
-// }
-//
-// #[derive(Deserialize, Serialize, Debug, Clone)]
-// pub struct VendorMarketBulkData {
-//     pub item_tag: Vec<String>,
-//     pub buy: Option<VendorMarketBulkMinMaxPriceData>,
-//     pub sell: Option<VendorMarketBulkMinMaxPriceData>,
-//     pub max_stock: f32,
-//     pub stock_change_per_cycle: f32,
-// }
-
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct MarketData {
     pub trades: Vec<MarketTradeData>,
-    // bulk: Vec<VendorMarketBulkData>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
