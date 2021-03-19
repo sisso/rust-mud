@@ -9,7 +9,6 @@
 # Features
 
 - better reference clean up, when a obj is deleted a lot of reference are still being saved to the files and fail to load
-- hot re-load of game code without losing connections
 - specs
 - memory for the map be shared with player in the case of avatar respawn
 - portal distance 
@@ -31,14 +30,12 @@
 - add room size
 - add put item at
 - hire companions or controlled drones
-- advanced parse commands like "examine drunk body" || examine body || examine body.2 || examine all body?
 - persistence save and load
   - pre-requets to define a proper load and save format
 
 # usability
 
 - fix extra lines in output when look
-- intelligent creation of codes for a label
 - get usability by giving feedback with options when execute a get: get? get what? get what wher? get what in where?
 - there is no server buffering to send and receive messages, if user can not read, is possible that we lose output or stuck
 

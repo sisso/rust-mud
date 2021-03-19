@@ -283,6 +283,7 @@ pub fn sell(
 
     // remove item
     container.remove(item_id);
+    inventory_service::update_inventory_weight(container, mob_id)?;
 
     // print messages
     let mob_label = container.labels.get_label_f(mob_id);

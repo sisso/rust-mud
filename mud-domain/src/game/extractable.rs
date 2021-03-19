@@ -85,6 +85,16 @@ pub fn tick_extract(container: &mut Container, mob_id: MobId, target_id: ObjId) 
     let prefab_label = container.loader.get_prefab_labelf(prefab_id);
     let location_id = container.locations.get(mob_id).as_result()?;
 
+    if container.locations.get(target_id) != Some(location_id) {
+        container
+            .outputs
+            .private(mob_id, comm::extract_fail(target_label));
+
+        container.mobs.cancel_command(mob_id)?;
+
+        return Ok(false);
+    }
+
     if !can_add_weight_by_prefab(container, mob_id, prefab_id) {
         container.outputs.private(mob_id, comm::inventory_full());
         container.outputs.message(

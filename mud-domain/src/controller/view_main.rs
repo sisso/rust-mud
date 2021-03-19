@@ -6,15 +6,17 @@ use super::{input_handle_items, input_handle_space, input_handle_vendors};
 use crate::controller::{input_handle_hire, ConnectionView, ConnectionViewAction, ViewHandleCtx};
 use crate::errors::Error::NotFoundFailure;
 use crate::errors::{AsResult, Error, Result};
-use crate::game::actions;
 use crate::game::comm;
 use crate::game::comm::{InventoryDesc, InventoryItemDesc};
 use crate::game::container::Container;
 use crate::game::domain::Dir;
+use crate::game::location::search_at;
 use crate::game::mob::MobId;
 use crate::game::outputs::Outputs;
+use crate::game::{actions, location};
 use crate::game::{actions_admin, inventory_service, mob};
 use crate::utils::strinput::StrInput;
+use commons::unwrap_or_continue;
 use logs::*;
 
 fn get_inventory_desc(container: &Container, obj_id: ObjId) -> InventoryDesc {
@@ -285,6 +287,20 @@ fn action_examine(container: &mut Container, mob_id: MobId, target_label: &str) 
         _ => {}
     }
 
+    for id in location::search_at(
+        &container.labels,
+        &container.locations,
+        room_id,
+        target_label,
+    ) {
+        let label = unwrap_or_continue!(container.labels.get(id));
+        if !label.desc.is_empty() {
+            let msg = comm::examine_obj(&label.label, &label.desc);
+            container.outputs.private(mob_id, msg);
+            return Ok(());
+        }
+    }
+
     // else
     let msg = comm::examine_target_not_found(target_label);
     container.outputs.private(mob_id, msg);
@@ -349,7 +365,10 @@ pub fn input_handle_extract(
         .flat_map(|obj_id| container.extractables.get(*obj_id))
         .next()
     {
-        Some(extractable) => actions::extract(container, mob_id, location_id, extractable.id),
+        Some(extractable) => {
+            let id = extractable.id;
+            actions::extract(container, mob_id, location_id, id)
+        }
         None => {
             container
                 .outputs

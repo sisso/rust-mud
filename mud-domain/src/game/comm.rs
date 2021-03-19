@@ -255,6 +255,10 @@ pub fn examine_target(
     )
 }
 
+pub fn examine_obj(label: &str, desc: &str) -> String {
+    format!("you examine {}!\n{}", label, desc)
+}
+
 pub fn examine_target_item(item: &str, inventory: &InventoryDesc) -> String {
     format!("you examine {}!\n{}", item, show_inventory(inventory))
 }

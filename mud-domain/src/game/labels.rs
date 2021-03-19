@@ -89,7 +89,10 @@ impl Labels {
 
     // list labels appending the number in case of similars
     pub fn resolve_labels_candidates(&self, ids: &Vec<ObjId>) -> Vec<String> {
-        labels_for_candidates(ids.iter().flat_map(|id| self.get(*id)).collect())
+        labels_for_candidates(&ids.iter().flat_map(|id| self.get(*id)).collect())
+            .into_iter()
+            .map(|i| i.1)
+            .collect()
     }
 
     pub fn search(&self, ids: &Vec<ObjId>, input: &str) -> Vec<ObjId> {
@@ -98,7 +101,7 @@ impl Labels {
     }
 }
 
-pub fn labels_for_candidates(labels: Vec<&Label>) -> Vec<String> {
+pub fn labels_for_candidates(labels: &Vec<&Label>) -> Vec<(ObjId, String)> {
     // sort by label, id
     let mut lab_id: Vec<_> = labels.iter().map(|l| (l.label.as_str(), l.id)).collect();
     lab_id.sort();
@@ -106,15 +109,15 @@ pub fn labels_for_candidates(labels: Vec<&Label>) -> Vec<String> {
     // get labels as string
     let mut lab = lab_id
         .into_iter()
-        .map(|i| i.0.to_string())
-        .collect::<Vec<String>>();
+        .map(|i| (i.1, i.0.to_string()))
+        .collect::<Vec<(ObjId, String)>>();
 
-    // for each sequence of same lable, append a number after the first ocurrence
+    // for each sequence of same lable, append a number after the first occurrence
     let mut k = 1;
     for i in 1..lab.len() {
-        if lab[i] == lab[i - k] {
+        if lab[i].1 == lab[i - k].1 {
             k += 1;
-            lab[i] = format!("{}.{}", lab[i], k);
+            lab[i] = (lab[i].0, format!("{}.{}", lab[i].1, k));
         } else {
             k = 1;
         }
@@ -123,23 +126,15 @@ pub fn labels_for_candidates(labels: Vec<&Label>) -> Vec<String> {
     lab
 }
 
-pub fn label_search<'a>(labels: &Vec<&'a Label>, input_raw: &str) -> Vec<ObjId> {
+pub fn label_search<'a>(labels: &Vec<&'a Label>, input: &str) -> Vec<ObjId> {
+    let candidates = labels_for_candidates(labels);
+
     let mut result = vec![];
 
-    // remove numeric index from input
-    let (input, sep) = match input_raw.find(".") {
-        Some(index) => {
-            let input = &input_raw[..index];
-            let sep_str = &input_raw[index + 1..];
-            (input, sep_str.parse::<usize>().ok())
-        }
-        None => (input_raw, None),
-    };
-
     // search by exactly label
-    for i in labels.iter() {
-        if text::is_text_eq(i.label.as_str(), input) {
-            result.push(i.id);
+    for (id, label) in &candidates {
+        if text::is_text_eq(label.as_str(), input) {
+            result.push(*id);
         }
     }
 
@@ -148,22 +143,10 @@ pub fn label_search<'a>(labels: &Vec<&'a Label>, input_raw: &str) -> Vec<ObjId> 
     }
 
     // search by fuzzy label
-    for i in labels.iter() {
-        // TODO: remove
-        debug!(
-            "checking {:?} with {:?} is {:?}",
-            i.label.as_str(),
-            input,
-            text::is_text_like(i.label.as_str(), input)
-        );
-
-        if text::is_text_like(i.label.as_str(), input) {
-            result.push(i.id);
+    for (id, label) in &candidates {
+        if text::is_text_like(label.as_str(), input) {
+            result.push(*id);
         }
-    }
-
-    if !result.is_empty() {
-        return result;
     }
 
     result
@@ -212,30 +195,30 @@ mod test {
         let labels = vec![
             Label {
                 id: 0.into(),
-                label: "ObjA".to_string(),
-                desc: "".to_string(),
-            },
-            Label {
-                id: 2.into(),
-                label: "ObjB".to_string(),
+                label: "Obj A".to_string(),
                 desc: "".to_string(),
             },
             Label {
                 id: 1.into(),
-                label: "ObjB".to_string(),
+                label: "Obj B".to_string(),
+                desc: "".to_string(),
+            },
+            Label {
+                id: 2.into(),
+                label: "Obj B".to_string(),
                 desc: "".to_string(),
             },
             Label {
                 id: 3.into(),
-                label: "ObjB".to_string(),
+                label: "Obj B".to_string(),
                 desc: "".to_string(),
             },
         ];
 
         let labels_ref = labels.iter().collect();
-        let found = super::label_search(&labels_ref, "objb.2");
+        let found = super::label_search(&labels_ref, "obj b.2");
         assert_eq!(1, found.len());
-        assert_eq!(ObjId(1), found[0]);
+        assert_eq!(ObjId(2), found[0]);
     }
 
     #[test]
@@ -264,7 +247,15 @@ mod test {
         ];
 
         let labels_ref = labels.iter().collect();
-        let labels_str = super::labels_for_candidates(labels_ref);
-        assert_eq!(vec!["ObjA", "ObjB", "ObjB.2", "ObjB.3"], labels_str)
+        let labels_str = super::labels_for_candidates(&labels_ref);
+        assert_eq!(
+            vec![
+                (0.into(), "ObjA".to_string()),
+                (1.into(), "ObjB".to_string()),
+                (2.into(), "ObjB.2".to_string()),
+                (3.into(), "ObjB.3".to_string())
+            ],
+            labels_str
+        );
     }
 }
