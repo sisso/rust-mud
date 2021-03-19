@@ -1,5 +1,3 @@
-mod hocon_parser;
-
 use crate::errors::{AsResult, Error, Result};
 use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
 use crate::game::config::Config;
@@ -8,7 +6,6 @@ use crate::game::domain::{Dir, Modifier};
 use crate::game::hire::Hire;
 use crate::game::item::{Armor, Item, Weapon, Weight};
 use crate::game::labels::{Label, NO_LABEL};
-use crate::game::loader::hocon_parser::{HParser, ParseError};
 use crate::game::mob::{Damage, Mob, MobId};
 use crate::game::obj::Objects;
 use crate::game::pos::Pos;
@@ -234,7 +231,6 @@ impl Loader {
     }
 }
 
-// TODO: organize fields, it is a mess
 /// static fields
 impl Loader {
     pub fn spawn_at(
@@ -635,61 +631,6 @@ impl Loader {
         Ok(())
     }
 
-    pub fn load_hocon(container: &mut Container, buffer: &str) -> Result<()> {
-        let data: Result<LoaderData> = HParser::load_hocon_str(buffer).map_err(|e| {
-            let msg = format!("{:?}", e);
-            Error::Error(msg)
-        });
-
-        Loader::load_data(container, data?)
-    }
-
-    pub fn read_csv_files<T: AsRef<Path>>(data: &mut LoaderData, files: &Vec<T>) -> Result<()> {
-        let mut flat_data = vec![];
-
-        for file in files {
-            info!("reading file {:?}", file.as_ref());
-            let buffer = std::fs::read_to_string(file).unwrap();
-            let list = Loader::read_csv(buffer.as_str())?;
-            flat_data.extend(list);
-        }
-
-        Loader::parse_flat_data(data, flat_data)
-    }
-
-    pub fn read_csv(buffer: &str) -> Result<Vec<FlatData>> {
-        let csv = commons::csv::parse_csv(buffer);
-        let tables = commons::csv::csv_strings_to_tables(&csv).expect("fail to parse tables");
-
-        let mut parsers = HashMap::new();
-        parsers.insert("static_id", FieldKind::U32);
-        parsers.insert("item_weapon_attack", FieldKind::I32);
-        parsers.insert("item_weapon_defense", FieldKind::I32);
-        parsers.insert("item_weapon_damage_max", FieldKind::U32);
-        parsers.insert("item_weapon_damage_min", FieldKind::U32);
-        parsers.insert("item_weapon_calmdown", FieldKind::F32);
-        parsers.insert("item_armor_defense", FieldKind::I32);
-        parsers.insert("item_armor_rd", FieldKind::I32);
-        parsers.insert("price_buy", FieldKind::U32);
-
-        let mut result = vec![];
-        let json_list = commons::csv::tables_to_jsonp(&tables, &parsers).unwrap();
-        for value in json_list {
-            let data: FlatData = serde_json::from_value(value)
-                .map_err(|err| Error::Exception(format!("{}", err)))?;
-            result.push(data);
-        }
-
-        Ok(result)
-    }
-
-    pub fn load_from_csv(container: &mut Container, buffer: &str) -> Result<()> {
-        let flat_values = Loader::read_csv(buffer)?;
-        let mut data = LoaderData::new();
-        Loader::parse_flat_data(&mut data, flat_values)?;
-        Loader::load_data(container, data)
-    }
-
     pub fn parse_flat_data(root_data: &mut LoaderData, list: Vec<FlatData>) -> Result<()> {
         for data in list {
             let static_id = StaticId(data.static_id);
@@ -792,29 +733,6 @@ impl Loader {
         for json_file in json_files {
             Loader::read_json(&mut data, json_file)?;
         }
-
-        // load csv files
-        let csv_files = files
-            .iter()
-            .filter(|path| path.to_string_lossy().ends_with(".csv"))
-            .collect::<Vec<_>>();
-
-        Loader::read_csv_files(&mut data, &csv_files)?;
-
-        // load hocon files
-        let conf_files = files
-            .iter()
-            .filter(|path| path.to_string_lossy().ends_with(".conf"))
-            .collect();
-
-        HParser::load_hocon_files(&mut data, &conf_files).map_err(|e| match e {
-            ParseError::HoconError { error, hint } => {
-                warn!("Fail loading data {:?} {}", error, hint);
-                Error::Error(format!("Loading data {:?}: {}", error, hint))
-            }
-
-            e => Error::Error(format!("Fail loading data {:?}", e)),
-        })?;
 
         Ok(data)
     }
@@ -1406,97 +1324,100 @@ mod test {
 
     #[test]
     pub fn initialize_with_spawn() {
-        let buffer = r#"objects.sector_1_dune_palace {
-    id: 0,
-    label: "Palace"
-    desc: "The greate Palace of Dune"
-    room: {
-      exits: [
-        {dir: "s", to: ${objects.sector_1_dune_landing_pad.id} }
-      ]
-    }
-}
-
-objects.sector_1_dune_landing_pad {
-    id: 1,
-    label: "Landing pad"
-    desc: "City landing pad."
-    room: {
-      landing_pad: true
-      exits: [
-        {dir: "n", to: ${objects.sector_1_dune_palace.id} }
-      ]
-    }
-    children: [2]
-}
-
-prefabs.control_panel {
-    id: 2,
-    label: "Control Panel",
-}
-
-prefabs.control_panel_command_1 {
-    id: 3,
-    label: "Command 1",
-    parent: 2,
-    room: {
-        exits: [ {dir: "s", to: 4  } ]
-    }
-}
-
-prefabs.control_panel_command_2 {
-    id: 4,
-    label: "Command 2",
-    parent: 2,
-    room: {
-        exits: [ {dir: "n", to: 3  } ]
-    }
-}"#;
-
-        let mut container = Container::new();
-        Loader::load_hocon(&mut container, buffer).unwrap();
-
-        let landing_pad_id = ObjId(1);
-
-        let landing_pad = container.rooms.get(landing_pad_id).unwrap();
-        assert_eq!(ObjId(0), landing_pad.exits.first().unwrap().1);
-
-        let at_landing_pad = container
-            .locations
-            .list_at(landing_pad_id)
-            .collect::<Vec<_>>();
-        assert_eq!(1, at_landing_pad.len());
-
-        let control_panel_id = *at_landing_pad.first().unwrap();
-        let panel_str = container.labels.get_label_f(control_panel_id);
-        assert_eq!("Control Panel", panel_str);
-
-        let at_control_panel = container
-            .locations
-            .list_at(control_panel_id)
-            .collect::<Vec<_>>();
-        assert_eq!(2, at_control_panel.len());
-
-        let mut command1_id = None;
-        let mut command2_id = None;
-
-        for id in at_control_panel {
-            let label = container.labels.get_label(id).unwrap();
-            match label {
-                "Command 1" => command1_id = Some(id),
-                "Command 2" => command2_id = Some(id),
-                other => panic!("Unexpected {:?}", other),
+        // TOOD: conver into a test with builders
+        /*
+                let buffer = r#"objects.sector_1_dune_palace {
+            id: 0,
+            label: "Palace"
+            desc: "The greate Palace of Dune"
+            room: {
+              exits: [
+                {dir: "s", to: ${objects.sector_1_dune_landing_pad.id} }
+              ]
             }
         }
 
-        assert!(command1_id.is_some());
-        assert!(command2_id.is_some());
+        objects.sector_1_dune_landing_pad {
+            id: 1,
+            label: "Landing pad"
+            desc: "City landing pad."
+            room: {
+              landing_pad: true
+              exits: [
+                {dir: "n", to: ${objects.sector_1_dune_palace.id} }
+              ]
+            }
+            children: [2]
+        }
 
-        let room = container.rooms.get(command1_id.unwrap()).unwrap();
-        assert_eq!(command2_id.unwrap(), room.exits.first().unwrap().1);
+        prefabs.control_panel {
+            id: 2,
+            label: "Control Panel",
+        }
 
-        let room = container.rooms.get(command2_id.unwrap()).unwrap();
-        assert_eq!(command1_id.unwrap(), room.exits.first().unwrap().1);
+        prefabs.control_panel_command_1 {
+            id: 3,
+            label: "Command 1",
+            parent: 2,
+            room: {
+                exits: [ {dir: "s", to: 4  } ]
+            }
+        }
+
+        prefabs.control_panel_command_2 {
+            id: 4,
+            label: "Command 2",
+            parent: 2,
+            room: {
+                exits: [ {dir: "n", to: 3  } ]
+            }
+        }"#;
+
+                let mut container = Container::new();
+
+                let landing_pad_id = ObjId(1);
+
+                let landing_pad = container.rooms.get(landing_pad_id).unwrap();
+                assert_eq!(ObjId(0), landing_pad.exits.first().unwrap().1);
+
+                let at_landing_pad = container
+                    .locations
+                    .list_at(landing_pad_id)
+                    .collect::<Vec<_>>();
+                assert_eq!(1, at_landing_pad.len());
+
+                let control_panel_id = *at_landing_pad.first().unwrap();
+                let panel_str = container.labels.get_label_f(control_panel_id);
+                assert_eq!("Control Panel", panel_str);
+
+                let at_control_panel = container
+                    .locations
+                    .list_at(control_panel_id)
+                    .collect::<Vec<_>>();
+                assert_eq!(2, at_control_panel.len());
+
+                let mut command1_id = None;
+                let mut command2_id = None;
+
+                for id in at_control_panel {
+                    let label = container.labels.get_label(id).unwrap();
+                    match label {
+                        "Command 1" => command1_id = Some(id),
+                        "Command 2" => command2_id = Some(id),
+                        other => panic!("Unexpected {:?}", other),
+                    }
+                }
+
+                assert!(command1_id.is_some());
+                assert!(command2_id.is_some());
+
+                let room = container.rooms.get(command1_id.unwrap()).unwrap();
+                assert_eq!(command2_id.unwrap(), room.exits.first().unwrap().1);
+
+                let room = container.rooms.get(command2_id.unwrap()).unwrap();
+                assert_eq!(command1_id.unwrap(), room.exits.first().unwrap().1);
+
+                 */
     }
 
     fn list_data_folders_for_test() -> Vec<std::path::PathBuf> {
