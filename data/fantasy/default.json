@@ -2,29 +2,4465 @@
   "cfg": {
     "avatar_mob": 0,
     "initial_room": 2,
-    "money_id": 17
+    "money_id": 17,
+    "tick": 4845,
+    "total_time": 484.5000072196126
   },
   "objects": {
-    "54": {
-      "desc": "Market vendor",
-      "id": 54,
-      "label": "Market vendor",
-      "market": {
-        "trades": [
-          {
-            "buy_price_mult": 1.2000000476837158,
-            "sell_price_mult": 0.800000011920929,
-            "tags": [
-              "item"
-            ]
-          }
-        ]
-      }
-    },
     "1": {
       "id": 1,
       "label": "Village area",
       "zone": {}
+    },
+    "100000": {
+      "id": 100000,
+      "inventory": {
+        "max_weight": 20.0
+      },
+      "label": "vendor",
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 10
+      },
+      "parent": 4,
+      "vendor": {}
+    },
+    "100001": {
+      "desc": "Random room 0",
+      "id": 100001,
+      "label": "Random room 0",
+      "room": {
+        "exits": [
+          {
+            "dir": "e",
+            "to": 100002
+          },
+          {
+            "dir": "s",
+            "to": 100004
+          },
+          {
+            "dir": "w",
+            "to": 27
+          }
+        ]
+      }
+    },
+    "100002": {
+      "desc": "Random room 1",
+      "id": 100002,
+      "label": "Random room 1",
+      "room": {
+        "exits": [
+          {
+            "dir": "w",
+            "to": 100001
+          },
+          {
+            "dir": "e",
+            "to": 100003
+          },
+          {
+            "dir": "d",
+            "to": 100018
+          }
+        ]
+      }
+    },
+    "100003": {
+      "desc": "Random room 2",
+      "id": 100003,
+      "label": "Random room 2",
+      "room": {
+        "exits": [
+          {
+            "dir": "w",
+            "to": 100002
+          }
+        ]
+      }
+    },
+    "100004": {
+      "desc": "Random room 3",
+      "id": 100004,
+      "label": "Random room 3",
+      "room": {
+        "exits": [
+          {
+            "dir": "s",
+            "to": 100007
+          },
+          {
+            "dir": "n",
+            "to": 100001
+          },
+          {
+            "dir": "e",
+            "to": 100005
+          }
+        ]
+      }
+    },
+    "100005": {
+      "desc": "Random room 4",
+      "id": 100005,
+      "label": "Random room 4",
+      "room": {
+        "exits": [
+          {
+            "dir": "s",
+            "to": 100008
+          },
+          {
+            "dir": "w",
+            "to": 100004
+          },
+          {
+            "dir": "e",
+            "to": 100006
+          }
+        ]
+      }
+    },
+    "100006": {
+      "desc": "Random room 5",
+      "id": 100006,
+      "label": "Random room 5",
+      "room": {
+        "exits": [
+          {
+            "dir": "w",
+            "to": 100005
+          }
+        ]
+      }
+    },
+    "100007": {
+      "desc": "Random room 6",
+      "id": 100007,
+      "label": "Random room 6",
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 100004
+          }
+        ]
+      }
+    },
+    "100008": {
+      "desc": "Random room 7",
+      "id": 100008,
+      "label": "Random room 7",
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 100005
+          },
+          {
+            "dir": "e",
+            "to": 100009
+          }
+        ]
+      }
+    },
+    "100009": {
+      "desc": "Random room 8",
+      "id": 100009,
+      "label": "Random room 8",
+      "room": {
+        "exits": [
+          {
+            "dir": "w",
+            "to": 100008
+          }
+        ]
+      }
+    },
+    "100010": {
+      "id": 100010,
+      "parent": 100004,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 499.3938729688525,
+        "prefab_id": 53,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100011": {
+      "id": 100011,
+      "parent": 100008,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 499.83372715860605,
+        "prefab_id": 53,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100012": {
+      "desc": "Random room 0",
+      "id": 100012,
+      "label": "Random room 0",
+      "room": {
+        "exits": [
+          {
+            "dir": "e",
+            "to": 100013
+          },
+          {
+            "dir": "s",
+            "to": 100015
+          }
+        ]
+      }
+    },
+    "100013": {
+      "desc": "Random room 1",
+      "id": 100013,
+      "label": "Random room 1",
+      "room": {
+        "exits": [
+          {
+            "dir": "s",
+            "to": 100016
+          },
+          {
+            "dir": "w",
+            "to": 100012
+          },
+          {
+            "dir": "e",
+            "to": 100014
+          }
+        ]
+      }
+    },
+    "100014": {
+      "desc": "Random room 2",
+      "id": 100014,
+      "label": "Random room 2",
+      "room": {
+        "exits": [
+          {
+            "dir": "w",
+            "to": 100013
+          }
+        ]
+      }
+    },
+    "100015": {
+      "desc": "Random room 3",
+      "id": 100015,
+      "label": "Random room 3",
+      "room": {
+        "exits": [
+          {
+            "dir": "s",
+            "to": 100018
+          },
+          {
+            "dir": "n",
+            "to": 100012
+          }
+        ]
+      }
+    },
+    "100016": {
+      "desc": "Random room 4",
+      "id": 100016,
+      "label": "Random room 4",
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 100013
+          }
+        ]
+      }
+    },
+    "100017": {
+      "desc": "Random room 5",
+      "id": 100017,
+      "label": "Random room 5",
+      "room": {
+        "exits": [
+          {
+            "dir": "s",
+            "to": 100020
+          },
+          {
+            "dir": "d",
+            "to": 100034
+          }
+        ]
+      }
+    },
+    "100018": {
+      "desc": "Random room 6",
+      "id": 100018,
+      "label": "Random room 6",
+      "room": {
+        "exits": [
+          {
+            "dir": "e",
+            "to": 100019
+          },
+          {
+            "dir": "n",
+            "to": 100015
+          },
+          {
+            "dir": "u",
+            "to": 100002
+          }
+        ]
+      }
+    },
+    "100019": {
+      "desc": "Random room 7",
+      "id": 100019,
+      "label": "Random room 7",
+      "room": {
+        "exits": [
+          {
+            "dir": "e",
+            "to": 100020
+          },
+          {
+            "dir": "w",
+            "to": 100018
+          }
+        ]
+      }
+    },
+    "100020": {
+      "desc": "Random room 8",
+      "id": 100020,
+      "label": "Random room 8",
+      "room": {
+        "exits": [
+          {
+            "dir": "w",
+            "to": 100019
+          },
+          {
+            "dir": "n",
+            "to": 100017
+          }
+        ]
+      }
+    },
+    "100021": {
+      "id": 100021,
+      "parent": 100014,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 485.615763656795,
+        "prefab_id": 53,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100022": {
+      "id": 100022,
+      "parent": 100016,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 503.9237990602851,
+        "prefab_id": 53,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100023": {
+      "id": 100023,
+      "parent": 100018,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 529.0658235549927,
+        "prefab_id": 53,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100024": {
+      "id": 100024,
+      "parent": 100019,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 508.64174292236567,
+        "prefab_id": 53,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100025": {
+      "id": 100025,
+      "parent": 100020,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 493.7968347668648,
+        "prefab_id": 53,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100026": {
+      "desc": "Random room 0",
+      "id": 100026,
+      "label": "Random room 0",
+      "room": {
+        "exits": [
+          {
+            "dir": "s",
+            "to": 100029
+          }
+        ]
+      }
+    },
+    "100027": {
+      "desc": "Random room 1",
+      "id": 100027,
+      "label": "Random room 1",
+      "room": {
+        "exits": [
+          {
+            "dir": "s",
+            "to": 100030
+          },
+          {
+            "dir": "e",
+            "to": 100028
+          }
+        ]
+      }
+    },
+    "100028": {
+      "desc": "Random room 2",
+      "id": 100028,
+      "label": "Random room 2",
+      "room": {
+        "exits": [
+          {
+            "dir": "s",
+            "to": 100031
+          },
+          {
+            "dir": "w",
+            "to": 100027
+          }
+        ]
+      }
+    },
+    "100029": {
+      "desc": "Random room 3",
+      "id": 100029,
+      "label": "Random room 3",
+      "room": {
+        "exits": [
+          {
+            "dir": "e",
+            "to": 100030
+          },
+          {
+            "dir": "n",
+            "to": 100026
+          },
+          {
+            "dir": "s",
+            "to": 100032
+          }
+        ]
+      }
+    },
+    "100030": {
+      "desc": "Random room 4",
+      "id": 100030,
+      "label": "Random room 4",
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 100027
+          },
+          {
+            "dir": "w",
+            "to": 100029
+          },
+          {
+            "dir": "e",
+            "to": 100031
+          }
+        ]
+      }
+    },
+    "100031": {
+      "desc": "Random room 5",
+      "id": 100031,
+      "label": "Random room 5",
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 100028
+          },
+          {
+            "dir": "w",
+            "to": 100030
+          },
+          {
+            "dir": "s",
+            "to": 100034
+          }
+        ]
+      }
+    },
+    "100032": {
+      "desc": "Random room 6",
+      "id": 100032,
+      "label": "Random room 6",
+      "room": {
+        "exits": [
+          {
+            "dir": "e",
+            "to": 100033
+          },
+          {
+            "dir": "n",
+            "to": 100029
+          }
+        ]
+      }
+    },
+    "100033": {
+      "desc": "Random room 7",
+      "id": 100033,
+      "label": "Random room 7",
+      "room": {
+        "exits": [
+          {
+            "dir": "w",
+            "to": 100032
+          },
+          {
+            "dir": "d",
+            "to": 100045
+          }
+        ]
+      }
+    },
+    "100034": {
+      "desc": "Random room 8",
+      "id": 100034,
+      "label": "Random room 8",
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 100031
+          },
+          {
+            "dir": "u",
+            "to": 100017
+          }
+        ]
+      }
+    },
+    "100035": {
+      "id": 100035,
+      "parent": 100029,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 487.317827232182,
+        "prefab_id": 53,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100036": {
+      "id": 100036,
+      "parent": 100034,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 500.660598769784,
+        "prefab_id": 53,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100037": {
+      "id": 100037,
+      "parent": 100031,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 489.9780011922121,
+        "prefab_id": 53,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100038": {
+      "id": 100038,
+      "parent": 100032,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 491.7320627048611,
+        "prefab_id": 53,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100039": {
+      "id": 100039,
+      "parent": 100028,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 514.4082353115082,
+        "prefab_id": 53,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100040": {
+      "id": 100040,
+      "parent": 100027,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 522.9860110357404,
+        "prefab_id": 29,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100041": {
+      "id": 100041,
+      "parent": 100030,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 485.28766283392906,
+        "prefab_id": 29,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100042": {
+      "id": 100042,
+      "parent": 100026,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 491.28035631775856,
+        "prefab_id": 29,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100043": {
+      "id": 100043,
+      "parent": 100033,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 507.8775004222989,
+        "prefab_id": 29,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100044": {
+      "desc": "Random room 0",
+      "id": 100044,
+      "label": "Random room 0",
+      "room": {
+        "exits": [
+          {
+            "dir": "e",
+            "to": 100045
+          }
+        ]
+      }
+    },
+    "100045": {
+      "desc": "Random room 1",
+      "id": 100045,
+      "label": "Random room 1",
+      "room": {
+        "exits": [
+          {
+            "dir": "w",
+            "to": 100044
+          },
+          {
+            "dir": "e",
+            "to": 100046
+          },
+          {
+            "dir": "u",
+            "to": 100033
+          }
+        ]
+      }
+    },
+    "100046": {
+      "desc": "Random room 2",
+      "id": 100046,
+      "label": "Random room 2",
+      "room": {
+        "exits": [
+          {
+            "dir": "s",
+            "to": 100049
+          },
+          {
+            "dir": "w",
+            "to": 100045
+          }
+        ]
+      }
+    },
+    "100047": {
+      "desc": "Random room 3",
+      "id": 100047,
+      "label": "Random room 3",
+      "room": {
+        "exits": [
+          {
+            "dir": "s",
+            "to": 100050
+          },
+          {
+            "dir": "e",
+            "to": 100048
+          }
+        ]
+      }
+    },
+    "100048": {
+      "desc": "Random room 4",
+      "id": 100048,
+      "label": "Random room 4",
+      "room": {
+        "exits": [
+          {
+            "dir": "s",
+            "to": 100051
+          },
+          {
+            "dir": "e",
+            "to": 100049
+          },
+          {
+            "dir": "w",
+            "to": 100047
+          },
+          {
+            "dir": "d",
+            "to": 100069
+          }
+        ]
+      }
+    },
+    "100049": {
+      "desc": "Random room 5",
+      "id": 100049,
+      "label": "Random room 5",
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 100046
+          },
+          {
+            "dir": "w",
+            "to": 100048
+          }
+        ]
+      }
+    },
+    "100050": {
+      "desc": "Random room 6",
+      "id": 100050,
+      "label": "Random room 6",
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 100047
+          }
+        ]
+      }
+    },
+    "100051": {
+      "desc": "Random room 7",
+      "id": 100051,
+      "label": "Random room 7",
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 100048
+          },
+          {
+            "dir": "e",
+            "to": 100052
+          }
+        ]
+      }
+    },
+    "100052": {
+      "desc": "Random room 8",
+      "id": 100052,
+      "label": "Random room 8",
+      "room": {
+        "exits": [
+          {
+            "dir": "w",
+            "to": 100051
+          }
+        ]
+      }
+    },
+    "100053": {
+      "id": 100053,
+      "parent": 100048,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 495.0189374387264,
+        "prefab_id": 53,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100054": {
+      "id": 100054,
+      "parent": 100052,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 488.3145531117916,
+        "prefab_id": 53,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100055": {
+      "id": 100055,
+      "parent": 100051,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 484.92126424610615,
+        "prefab_id": 53,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100056": {
+      "id": 100056,
+      "parent": 100047,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 536.2220424041152,
+        "prefab_id": 53,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100057": {
+      "id": 100057,
+      "parent": 100050,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 504.8529909476638,
+        "prefab_id": 53,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100058": {
+      "id": 100058,
+      "parent": 100045,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 512.8850341364741,
+        "prefab_id": 29,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100059": {
+      "id": 100059,
+      "parent": 100044,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 496.030438773334,
+        "prefab_id": 29,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100060": {
+      "id": 100060,
+      "parent": 100049,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 491.9362247288227,
+        "prefab_id": 29,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100061": {
+      "id": 100061,
+      "parent": 100046,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 491.944659113884,
+        "prefab_id": 29,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100062": {
+      "desc": "Random room 0",
+      "id": 100062,
+      "label": "Random room 0",
+      "room": {
+        "exits": [
+          {
+            "dir": "e",
+            "to": 100063
+          },
+          {
+            "dir": "s",
+            "to": 100065
+          }
+        ]
+      }
+    },
+    "100063": {
+      "desc": "Random room 1",
+      "id": 100063,
+      "label": "Random room 1",
+      "room": {
+        "exits": [
+          {
+            "dir": "e",
+            "to": 100064
+          },
+          {
+            "dir": "w",
+            "to": 100062
+          },
+          {
+            "dir": "s",
+            "to": 100066
+          }
+        ]
+      }
+    },
+    "100064": {
+      "desc": "Random room 2",
+      "id": 100064,
+      "label": "Random room 2",
+      "room": {
+        "exits": [
+          {
+            "dir": "w",
+            "to": 100063
+          },
+          {
+            "dir": "s",
+            "to": 100067
+          }
+        ]
+      }
+    },
+    "100065": {
+      "desc": "Random room 3",
+      "id": 100065,
+      "label": "Random room 3",
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 100062
+          }
+        ]
+      }
+    },
+    "100066": {
+      "desc": "Random room 4",
+      "id": 100066,
+      "label": "Random room 4",
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 100063
+          },
+          {
+            "dir": "s",
+            "to": 100069
+          }
+        ]
+      }
+    },
+    "100067": {
+      "desc": "Random room 5",
+      "id": 100067,
+      "label": "Random room 5",
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 100064
+          }
+        ]
+      }
+    },
+    "100068": {
+      "desc": "Random room 6",
+      "id": 100068,
+      "label": "Random room 6",
+      "room": {
+        "exits": [
+          {
+            "dir": "e",
+            "to": 100069
+          }
+        ]
+      }
+    },
+    "100069": {
+      "desc": "Random room 7",
+      "id": 100069,
+      "label": "Random room 7",
+      "room": {
+        "exits": [
+          {
+            "dir": "w",
+            "to": 100068
+          },
+          {
+            "dir": "e",
+            "to": 100070
+          },
+          {
+            "dir": "n",
+            "to": 100066
+          },
+          {
+            "dir": "u",
+            "to": 100048
+          }
+        ]
+      }
+    },
+    "100070": {
+      "desc": "Random room 8",
+      "id": 100070,
+      "label": "Random room 8",
+      "room": {
+        "exits": [
+          {
+            "dir": "w",
+            "to": 100069
+          }
+        ]
+      }
+    },
+    "100071": {
+      "id": 100071,
+      "parent": 100067,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 486.9605705589056,
+        "prefab_id": 29,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100072": {
+      "id": 100072,
+      "parent": 100065,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 512.4454874396324,
+        "prefab_id": 29,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100073": {
+      "id": 100073,
+      "parent": 100070,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 502.42989557236433,
+        "prefab_id": 29,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100074": {
+      "id": 100074,
+      "parent": 100068,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 514.2797861918807,
+        "prefab_id": 29,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100075": {
+      "id": 100075,
+      "parent": 100062,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 487.4377957656979,
+        "prefab_id": 29,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100076": {
+      "id": 100076,
+      "parent": 100066,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 490.2895382270217,
+        "prefab_id": 29,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100077": {
+      "id": 100077,
+      "parent": 100063,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 508.3447897732258,
+        "prefab_id": 29,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100078": {
+      "id": 100078,
+      "parent": 100064,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 513.1307960525155,
+        "prefab_id": 29,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100079": {
+      "id": 100079,
+      "parent": 100069,
+      "spawn": {
+        "max": 4,
+        "next_spawn": 484.5279330313206,
+        "prefab_id": 29,
+        "time_max": 60.0,
+        "time_min": 10.0
+      }
+    },
+    "100080": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100080,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100024,
+      "parent": 100019
+    },
+    "100081": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100081,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100023,
+      "parent": 100018
+    },
+    "100082": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100082,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100054,
+      "parent": 100052
+    },
+    "100083": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100083,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100042,
+      "parent": 100026
+    },
+    "100084": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100084,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100022,
+      "parent": 100016
+    },
+    "100085": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100085,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100077,
+      "parent": 100063
+    },
+    "100086": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100086,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100056,
+      "parent": 100047
+    },
+    "100088": {
+      "id": 100088,
+      "item": {
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "gold",
+      "owned_by": 24,
+      "parent": 23
+    },
+    "100089": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100089,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100043,
+      "parent": 100033
+    },
+    "100092": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100092,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100053,
+      "parent": 100048
+    },
+    "100093": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100093,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100076,
+      "parent": 100066
+    },
+    "100094": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100094,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100035,
+      "parent": 100029
+    },
+    "100095": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100095,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100057,
+      "parent": 100050
+    },
+    "100096": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100096,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100059,
+      "parent": 100044
+    },
+    "100097": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100097,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100071,
+      "parent": 100067
+    },
+    "100098": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100098,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100022,
+      "parent": 100016
+    },
+    "100099": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100099,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100041,
+      "parent": 100030
+    },
+    "100100": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100100,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100054,
+      "parent": 100052
+    },
+    "100101": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100101,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100039,
+      "parent": 100028
+    },
+    "100102": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100102,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100075,
+      "parent": 100062
+    },
+    "100106": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100106,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100021,
+      "parent": 100014
+    },
+    "100107": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100107,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100060,
+      "parent": 100049
+    },
+    "100108": {
+      "desc": "The corpse of rat laying in the ground",
+      "id": 100108,
+      "item": {
+        "flags": {
+          "body": true,
+          "inventory": true
+        },
+        "weight": 1.0
+      },
+      "label": "rat corpse",
+      "parent": 100004
+    },
+    "100109": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100109,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100078,
+      "parent": 100064
+    },
+    "100110": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100110,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100073,
+      "parent": 100070
+    },
+    "100111": {
+      "desc": "The corpse of rat laying in the ground",
+      "id": 100111,
+      "item": {
+        "flags": {
+          "body": true,
+          "inventory": true
+        },
+        "weight": 1.0
+      },
+      "label": "rat corpse",
+      "parent": 100004
+    },
+    "100112": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100112,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100038,
+      "parent": 100032
+    },
+    "100113": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100113,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100037,
+      "parent": 100031
+    },
+    "100114": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100114,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100043,
+      "parent": 100033
+    },
+    "100115": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100115,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100022,
+      "parent": 100016
+    },
+    "100116": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100116,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100072,
+      "parent": 100065
+    },
+    "100117": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100117,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100055,
+      "parent": 100051
+    },
+    "100118": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100118,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100023,
+      "parent": 100018
+    },
+    "100119": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100119,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100079,
+      "parent": 100069
+    },
+    "100120": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100120,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100075,
+      "parent": 100062
+    },
+    "100121": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100121,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 3
+      },
+      "owned_by": 100010,
+      "parent": 100004
+    },
+    "100123": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100123,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100059,
+      "parent": 100044
+    },
+    "100124": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100124,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100042,
+      "parent": 100026
+    },
+    "100125": {
+      "id": 100125,
+      "item": {
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "gold",
+      "owned_by": 24,
+      "parent": 23
+    },
+    "100126": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100126,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100074,
+      "parent": 100068
+    },
+    "100127": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100127,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100058,
+      "parent": 100045
+    },
+    "100128": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100128,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100061,
+      "parent": 100046
+    },
+    "100129": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100129,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100040,
+      "parent": 100027
+    },
+    "100130": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100130,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100025,
+      "parent": 100020
+    },
+    "100131": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100131,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100036,
+      "parent": 100034
+    },
+    "100132": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100132,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100011,
+      "parent": 100008
+    },
+    "100133": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100133,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100053,
+      "parent": 100048
+    },
+    "100134": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100134,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100056,
+      "parent": 100047
+    },
+    "100135": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100135,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100038,
+      "parent": 100032
+    },
+    "100136": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100136,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100043,
+      "parent": 100033
+    },
+    "100137": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100137,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100024,
+      "parent": 100019
+    },
+    "100138": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100138,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100074,
+      "parent": 100068
+    },
+    "100139": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100139,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100021,
+      "parent": 100014
+    },
+    "100140": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100140,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100054,
+      "parent": 100052
+    },
+    "100141": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100141,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100077,
+      "parent": 100063
+    },
+    "100142": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100142,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100041,
+      "parent": 100030
+    },
+    "100143": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100143,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100057,
+      "parent": 100050
+    },
+    "100144": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100144,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100040,
+      "parent": 100027
+    },
+    "100145": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100145,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100056,
+      "parent": 100047
+    },
+    "100146": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100146,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100022,
+      "parent": 100016
+    },
+    "100147": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100147,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100053,
+      "parent": 100048
+    },
+    "100148": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100148,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100023,
+      "parent": 100018
+    },
+    "100149": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100149,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100079,
+      "parent": 100069
+    },
+    "100150": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100150,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100058,
+      "parent": 100045
+    },
+    "100151": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100151,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100035,
+      "parent": 100029
+    },
+    "100152": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100152,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100072,
+      "parent": 100065
+    },
+    "100155": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100155,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 5
+      },
+      "owned_by": 100010,
+      "parent": 100004
+    },
+    "100156": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100156,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100078,
+      "parent": 100064
+    },
+    "100157": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100157,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100039,
+      "parent": 100028
+    },
+    "100158": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100158,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100073,
+      "parent": 100070
+    },
+    "100159": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100159,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100055,
+      "parent": 100051
+    },
+    "100160": {
+      "ai": {
+        "commandable": true
+      },
+      "desc": "Sword for sell",
+      "id": 100160,
+      "inventory": {
+        "max_weight": 20.0
+      },
+      "label": "mercenary",
+      "mob": {
+        "attack": 10,
+        "damage_max": 4,
+        "damage_min": 2,
+        "defense": 10,
+        "hire_cost": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 10
+      },
+      "owned_by": 26,
+      "parent": 2
+    },
+    "100161": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100161,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100043,
+      "parent": 100033
+    },
+    "100162": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100162,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100076,
+      "parent": 100066
+    },
+    "100163": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100163,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100077,
+      "parent": 100063
+    },
+    "100164": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100164,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100071,
+      "parent": 100067
+    },
+    "100165": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100165,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100037,
+      "parent": 100031
+    },
+    "100166": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100166,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100053,
+      "parent": 100048
+    },
+    "100167": {
+      "desc": "The corpse of sisso laying in the ground",
+      "id": 100167,
+      "item": {
+        "flags": {
+          "body": true,
+          "inventory": true
+        }
+      },
+      "label": "sisso corpse",
+      "parent": 100004
+    },
+    "100168": {
+      "id": 100168,
+      "item": {
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "gold",
+      "owned_by": 24,
+      "parent": 23
+    },
+    "100169": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100169,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100036,
+      "parent": 100034
+    },
+    "100170": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100170,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100025,
+      "parent": 100020
+    },
+    "100171": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100171,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100061,
+      "parent": 100046
+    },
+    "100173": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100173,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100042,
+      "parent": 100026
+    },
+    "100174": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100174,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100060,
+      "parent": 100049
+    },
+    "100175": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100175,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100079,
+      "parent": 100069
+    },
+    "100176": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100176,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100038,
+      "parent": 100032
+    },
+    "100177": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100177,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100072,
+      "parent": 100065
+    },
+    "100178": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100178,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100035,
+      "parent": 100029
+    },
+    "100179": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100179,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100059,
+      "parent": 100044
+    },
+    "100180": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100180,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100075,
+      "parent": 100062
+    },
+    "100181": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100181,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100077,
+      "parent": 100063
+    },
+    "100182": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100182,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100011,
+      "parent": 100008
+    },
+    "100183": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100183,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100021,
+      "parent": 100014
+    },
+    "100184": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100184,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100039,
+      "parent": 100028
+    },
+    "100185": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100185,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100040,
+      "parent": 100027
+    },
+    "100186": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100186,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100024,
+      "parent": 100019
+    },
+    "100187": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100187,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100041,
+      "parent": 100030
+    },
+    "100188": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100188,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100025,
+      "parent": 100020
+    },
+    "100189": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100189,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100060,
+      "parent": 100049
+    },
+    "100190": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100190,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100037,
+      "parent": 100031
+    },
+    "100191": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100191,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100036,
+      "parent": 100034
+    },
+    "100192": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100192,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100058,
+      "parent": 100045
+    },
+    "100193": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100193,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100074,
+      "parent": 100068
+    },
+    "100194": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100194,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100072,
+      "parent": 100065
+    },
+    "100195": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100195,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100071,
+      "parent": 100067
+    },
+    "100196": {
+      "id": 100196,
+      "item": {
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "gold",
+      "owned_by": 24,
+      "parent": 23
+    },
+    "100197": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100197,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100076,
+      "parent": 100066
+    },
+    "100198": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100198,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100078,
+      "parent": 100064
+    },
+    "100199": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100199,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100054,
+      "parent": 100052
+    },
+    "100200": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100200,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100073,
+      "parent": 100070
+    },
+    "100201": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100201,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100056,
+      "parent": 100047
+    },
+    "100202": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100202,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100060,
+      "parent": 100049
+    },
+    "100203": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100203,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100057,
+      "parent": 100050
+    },
+    "100204": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100204,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100074,
+      "parent": 100068
+    },
+    "100207": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100207,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100035,
+      "parent": 100029
+    },
+    "100208": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100208,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100042,
+      "parent": 100026
+    },
+    "100209": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100209,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100059,
+      "parent": 100044
+    },
+    "100210": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100210,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100036,
+      "parent": 100034
+    },
+    "100211": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100211,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100010,
+      "parent": 100004
+    },
+    "100212": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100212,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100055,
+      "parent": 100051
+    },
+    "100213": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100213,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100076,
+      "parent": 100066
+    },
+    "100215": {
+      "desc": "sisso",
+      "id": 100215,
+      "label": "sisso",
+      "player": {
+        "avatar_id": 100344,
+        "id": 100215,
+        "login": "sisso"
+      }
+    },
+    "100216": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100216,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100058,
+      "parent": 100045
+    },
+    "100217": {
+      "id": 100217,
+      "item": {
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "gold",
+      "owned_by": 24,
+      "parent": 23
+    },
+    "100218": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100218,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100039,
+      "parent": 100028
+    },
+    "100226": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100226,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100079,
+      "parent": 100069
+    },
+    "100227": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100227,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100041,
+      "parent": 100030
+    },
+    "100241": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100241,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100021,
+      "parent": 100014
+    },
+    "100242": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100242,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100061,
+      "parent": 100046
+    },
+    "100245": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100245,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100037,
+      "parent": 100031
+    },
+    "100262": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100262,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100071,
+      "parent": 100067
+    },
+    "100271": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100271,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100038,
+      "parent": 100032
+    },
+    "100278": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100278,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100073,
+      "parent": 100070
+    },
+    "100279": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100279,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100078,
+      "parent": 100064
+    },
+    "100286": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100286,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100011,
+      "parent": 100008
+    },
+    "100288": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100288,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100024,
+      "parent": 100019
+    },
+    "100289": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100289,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100040,
+      "parent": 100027
+    },
+    "100307": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100307,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100075,
+      "parent": 100062
+    },
+    "100308": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100308,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100057,
+      "parent": 100050
+    },
+    "100309": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100309,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100025,
+      "parent": 100020
+    },
+    "100310": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100310,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100023,
+      "parent": 100018
+    },
+    "100313": {
+      "desc": "The corpse of sisso laying in the ground",
+      "id": 100313,
+      "item": {
+        "flags": {
+          "body": true,
+          "inventory": true
+        }
+      },
+      "label": "sisso corpse",
+      "parent": 5
+    },
+    "100315": {
+      "desc": "The corpse of sisso laying in the ground",
+      "id": 100315,
+      "item": {
+        "flags": {
+          "body": true,
+          "inventory": true
+        }
+      },
+      "label": "sisso corpse",
+      "parent": 5
+    },
+    "100317": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100317,
+      "inventory": {
+        "max_weight": 12.0
+      },
+      "label": "skeleton",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 9,
+        "pv": 6,
+        "pv_max": 6,
+        "xp": 5
+      },
+      "owned_by": 100061,
+      "parent": 100046
+    },
+    "100318": {
+      "desc": "The corpse of sisso laying in the ground",
+      "id": 100318,
+      "item": {
+        "flags": {
+          "body": true,
+          "inventory": true
+        }
+      },
+      "label": "sisso corpse",
+      "parent": 5
+    },
+    "100320": {
+      "desc": "The corpse of sisso laying in the ground",
+      "id": 100320,
+      "item": {
+        "flags": {
+          "body": true,
+          "inventory": true
+        }
+      },
+      "label": "sisso corpse",
+      "parent": 5
+    },
+    "100322": {
+      "desc": "The corpse of sisso laying in the ground",
+      "id": 100322,
+      "item": {
+        "flags": {
+          "body": true,
+          "inventory": true
+        }
+      },
+      "label": "sisso corpse",
+      "parent": 5
+    },
+    "100324": {
+      "desc": "The corpse of wolf laying in the ground",
+      "id": 100324,
+      "item": {
+        "flags": {
+          "body": true,
+          "inventory": true
+        }
+      },
+      "label": "wolf corpse",
+      "parent": 5
+    },
+    "100325": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100325,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100055,
+      "parent": 100051
+    },
+    "100326": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100326,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100010,
+      "parent": 100004
+    },
+    "100327": {
+      "id": 100327,
+      "item": {
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "gold",
+      "owned_by": 24,
+      "parent": 23
+    },
+    "100328": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100328,
+      "inventory": {
+        "max_weight": 4.0
+      },
+      "label": "rat",
+      "mob": {
+        "attack": 6,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 6,
+        "pv": 2,
+        "pv_max": 2,
+        "xp": 1
+      },
+      "owned_by": 100011,
+      "parent": 100008
+    },
+    "100329": {
+      "ai": {
+        "commandable": true
+      },
+      "desc": "Sword for sell",
+      "id": 100329,
+      "inventory": {
+        "max_weight": 20.0
+      },
+      "label": "mercenary",
+      "mob": {
+        "attack": 10,
+        "damage_max": 4,
+        "damage_min": 2,
+        "defense": 10,
+        "hire_cost": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 10
+      },
+      "owned_by": 26,
+      "parent": 2
+    },
+    "100330": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100330,
+      "inventory": {
+        "max_weight": 8.0
+      },
+      "label": "wolf",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 8,
+        "pv": 4,
+        "pv_max": 4,
+        "xp": 5
+      },
+      "owned_by": 16,
+      "parent": 5
+    },
+    "100331": {
+      "id": 100331,
+      "item": {
+        "flags": {},
+        "weight": 1.0
+      },
+      "label": "meat",
+      "parent": 100330,
+      "price": {
+        "price": 2
+      }
+    },
+    "100332": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100332,
+      "inventory": {
+        "max_weight": 8.0
+      },
+      "label": "wolf",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 8,
+        "pv": 4,
+        "pv_max": 4,
+        "xp": 5
+      },
+      "owned_by": 16,
+      "parent": 5
+    },
+    "100333": {
+      "id": 100333,
+      "item": {
+        "flags": {},
+        "weight": 1.0
+      },
+      "label": "meat",
+      "parent": 100332,
+      "price": {
+        "price": 2
+      }
+    },
+    "100335": {
+      "id": 100335,
+      "item": {
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "gold",
+      "owned_by": 24,
+      "parent": 23
+    },
+    "100336": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100336,
+      "inventory": {
+        "max_weight": 8.0
+      },
+      "label": "wolf",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 8,
+        "pv": 4,
+        "pv_max": 4,
+        "xp": 5
+      },
+      "owned_by": 16,
+      "parent": 5
+    },
+    "100337": {
+      "id": 100337,
+      "item": {
+        "flags": {},
+        "weight": 1.0
+      },
+      "label": "meat",
+      "parent": 100336,
+      "price": {
+        "price": 2
+      }
+    },
+    "100338": {
+      "id": 100338,
+      "item": {
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "gold",
+      "owned_by": 24,
+      "parent": 23
+    },
+    "100339": {
+      "id": 100339,
+      "item": {
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "gold",
+      "owned_by": 24,
+      "parent": 23
+    },
+    "100340": {
+      "ai": {
+        "command_aggressive": true
+      },
+      "id": 100340,
+      "inventory": {
+        "max_weight": 8.0
+      },
+      "label": "wolf",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 8,
+        "pv": 1,
+        "pv_max": 4,
+        "xp": 5
+      },
+      "owned_by": 16,
+      "parent": 5
+    },
+    "100341": {
+      "id": 100341,
+      "item": {
+        "flags": {},
+        "weight": 1.0
+      },
+      "label": "meat",
+      "parent": 100340,
+      "price": {
+        "price": 2
+      }
+    },
+    "100342": {
+      "id": 100342,
+      "item": {
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "gold",
+      "owned_by": 24,
+      "parent": 23
+    },
+    "100344": {
+      "desc": "sisso",
+      "id": 100344,
+      "inventory": {
+        "max_weight": 20.0
+      },
+      "label": "sisso",
+      "memory": {
+        "knows": [
+          2,
+          4,
+          5
+        ]
+      },
+      "mob": {
+        "attack": 10,
+        "damage_max": 4,
+        "damage_min": 2,
+        "defense": 10,
+        "pv": 5,
+        "pv_max": 10,
+        "xp": 0
+      },
+      "parent": 4
     },
     "16": {
       "id": 16,
@@ -35,10 +4471,10 @@
           5
         ],
         "max": 4,
+        "next_spawn": 519.3859751448035,
         "prefab_id": 15,
         "time_max": 60.0,
-        "time_min": 10.0,
-        "next_spawn": 0.0
+        "time_min": 10.0
       }
     },
     "2": {
@@ -64,10 +4500,7 @@
       }
     },
     "23": {
-      "code": [
-        "chest"
-      ],
-      "desc": "Chest used to receive donations from the believer",
+      "desc": "Chest used to receive donations from the beliver",
       "id": 23,
       "item": {
         "flags": {
@@ -76,13 +4509,7 @@
         "weight": 1.0
       },
       "label": "donation chest",
-      "parent": 6,
-      "tags": {
-        "values": [
-          "item",
-          "furniture"
-        ]
-      }
+      "parent": 6
     },
     "24": {
       "id": 24,
@@ -90,10 +4517,10 @@
       "parent": 23,
       "spawn": {
         "max": 10,
+        "next_spawn": 485.36788081377745,
         "prefab_id": 17,
         "time_max": 60.0,
-        "time_min": 10.0,
-        "next_spawn": 0.0
+        "time_min": 10.0
       }
     },
     "26": {
@@ -102,10 +4529,10 @@
       "parent": 2,
       "spawn": {
         "max": 2,
+        "next_spawn": 549.5959021896124,
         "prefab_id": 25,
         "time_max": 180.0,
-        "time_min": 60.0,
-        "next_spawn": 0.0
+        "time_min": 60.0
       }
     },
     "27": {
@@ -118,6 +4545,10 @@
           {
             "dir": "w",
             "to": 5
+          },
+          {
+            "dir": "e",
+            "to": 100001
           }
         ]
       }
@@ -129,7 +4560,7 @@
         "random_rooms": {
           "entrance_dir": "e",
           "entrance_room_id": 27,
-          "generated": false,
+          "generated": true,
           "height": 3,
           "levels": 5,
           "spawns": [
@@ -137,11 +4568,6 @@
               "amount": 2,
               "level_max": 0,
               "spawn": {
-                "ai_overwrite": {
-                  "command_aggressive_patrol_home": {
-                    "distance": 1
-                  }
-                },
                 "max": 4,
                 "prefab_id": 53,
                 "time_max": 60.0,
@@ -153,11 +4579,6 @@
               "level_max": 3,
               "level_min": 1,
               "spawn": {
-                "ai_overwrite": {
-                  "command_aggressive_patrol_home": {
-                    "distance": 1
-                  }
-                },
                 "max": 4,
                 "prefab_id": 53,
                 "time_max": 60.0,
@@ -168,11 +4589,6 @@
               "amount": 10,
               "level_min": 2,
               "spawn": {
-                "ai_overwrite": {
-                  "command_aggressive_patrol_home": {
-                    "distance": 1
-                  }
-                },
                 "max": 4,
                 "prefab_id": 29,
                 "time_max": 60.0,
@@ -213,9 +4629,6 @@
       }
     },
     "4": {
-      "children": [
-        19
-      ],
       "desc": "Village market center is where people can buy and sell stuff",
       "id": 4,
       "label": "Market",
@@ -307,13 +4720,7 @@
       "item": {
         "weight": 1.0
       },
-      "label": "Coal",
-      "tags": {
-        "values": [
-          "item",
-          "resource"
-        ]
-      }
+      "label": "Coal"
     },
     "11": {
       "id": 11,
@@ -373,13 +4780,7 @@
           "money": true
         }
       },
-      "label": "gold",
-      "tags": {
-        "values": [
-          "item",
-          "gold"
-        ]
-      }
+      "label": "gold"
     },
     "18": {
       "id": 18,
@@ -389,12 +4790,6 @@
       "label": "meat",
       "price": {
         "price": 2
-      },
-      "tags": {
-        "values": [
-          "item",
-          "food"
-        ]
       }
     },
     "19": {
@@ -412,9 +4807,7 @@
         "pv_max": 10,
         "xp": 10
       },
-      "vendor": {
-        "market_id":54
-      }
+      "vendor": {}
     },
     "20": {
       "desc": "A normal and boring human being",
@@ -489,12 +4882,6 @@
       "label": "Dagger",
       "price": {
         "price": 10
-      },
-      "tags": {
-        "values": [
-          "item",
-          "weapon"
-        ]
       }
     },
     "32": {
@@ -513,12 +4900,6 @@
       "label": "Short Sword",
       "price": {
         "price": 300
-      },
-      "tags": {
-        "values": [
-          "item",
-          "weapon"
-        ]
       }
     },
     "33": {
@@ -537,12 +4918,6 @@
       "label": "Axe",
       "price": {
         "price": 50
-      },
-      "tags": {
-        "values": [
-          "item",
-          "weapon"
-        ]
       }
     },
     "34": {
@@ -561,12 +4936,6 @@
       "label": "Mace",
       "price": {
         "price": 100
-      },
-      "tags": {
-        "values": [
-          "item",
-          "weapon"
-        ]
       }
     },
     "35": {
@@ -585,12 +4954,6 @@
       "label": "Sword",
       "price": {
         "price": 400
-      },
-      "tags": {
-        "values": [
-          "item",
-          "weapon"
-        ]
       }
     },
     "36": {
@@ -609,12 +4972,6 @@
       "label": "Lance",
       "price": {
         "price": 150
-      },
-      "tags": {
-        "values": [
-          "item",
-          "weapon"
-        ]
       }
     },
     "37": {
@@ -633,12 +4990,6 @@
       "label": "Quarterstaff",
       "price": {
         "price": 50
-      },
-      "tags": {
-        "values": [
-          "item",
-          "weapon"
-        ]
       }
     },
     "38": {
@@ -657,12 +5008,6 @@
       "label": "Halberd",
       "price": {
         "price": 400
-      },
-      "tags": {
-        "values": [
-          "item",
-          "weapon"
-        ]
       }
     },
     "39": {
@@ -681,12 +5026,6 @@
       "label": "Two hand Sword",
       "price": {
         "price": 800
-      },
-      "tags": {
-        "values": [
-          "item",
-          "weapon"
-        ]
       }
     },
     "40": {
@@ -705,12 +5044,6 @@
       "label": "Two hand Axe",
       "price": {
         "price": 300
-      },
-      "tags": {
-        "values": [
-          "item",
-          "weapon"
-        ]
       }
     },
     "41": {
@@ -729,12 +5062,6 @@
       "label": "Flail",
       "price": {
         "price": 200
-      },
-      "tags": {
-        "values": [
-          "item",
-          "weapon"
-        ]
       }
     },
     "43": {
@@ -750,12 +5077,6 @@
       "label": "Buckler",
       "price": {
         "price": 50
-      },
-      "tags": {
-        "values": [
-          "item",
-          "shield"
-        ]
       }
     },
     "44": {
@@ -771,12 +5092,6 @@
       "label": "Shield",
       "price": {
         "price": 100
-      },
-      "tags": {
-        "values": [
-          "item",
-          "shield"
-        ]
       }
     },
     "45": {
@@ -792,12 +5107,6 @@
       "label": "Wall Shield",
       "price": {
         "price": 200
-      },
-      "tags": {
-        "values": [
-          "item",
-          "shield"
-        ]
       }
     },
     "47": {
@@ -813,13 +5122,6 @@
       "label": "Cap",
       "price": {
         "price": 50
-      },
-      "tags": {
-        "values": [
-          "item",
-          "armor",
-          "head_armor"
-        ]
       }
     },
     "48": {
@@ -835,13 +5137,6 @@
       "label": "Helm",
       "price": {
         "price": 200
-      },
-      "tags": {
-        "values": [
-          "item",
-          "armor",
-          "head_armor"
-        ]
       }
     },
     "49": {
@@ -857,13 +5152,6 @@
       "label": "Leather Armor",
       "price": {
         "price": 200
-      },
-      "tags": {
-        "values": [
-          "item",
-          "armor",
-          "chest_armor"
-        ]
       }
     },
     "50": {
@@ -879,13 +5167,6 @@
       "label": "Chain Mail",
       "price": {
         "price": 400
-      },
-      "tags": {
-        "values": [
-          "item",
-          "armor",
-          "chest_armor"
-        ]
       }
     },
     "51": {
@@ -901,13 +5182,6 @@
       "label": "Plate Mail",
       "price": {
         "price": 800
-      },
-      "tags": {
-        "values": [
-          "item",
-          "armor",
-          "chest_armor"
-        ]
       }
     },
     "53": {
@@ -934,39 +5208,21 @@
       "item": {
         "weight": 1.0
       },
-      "label": "Wood",
-      "tags": {
-        "values": [
-          "item",
-          "resource"
-        ]
-      }
+      "label": "Wood"
     },
     "8": {
       "id": 8,
       "item": {
         "weight": 1.0
       },
-      "label": "Iron Ore",
-      "tags": {
-        "values": [
-          "item",
-          "resource"
-        ]
-      }
+      "label": "Iron Ore"
     },
     "9": {
       "id": 9,
       "item": {
         "weight": 1.0
       },
-      "label": "Iron",
-      "tags": {
-        "values": [
-          "item",
-          "resource"
-        ]
-      }
+      "label": "Iron"
     }
   },
   "version": 3

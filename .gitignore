@@ -3,4 +3,4 @@
 .idea
 Cargo.lock
 *.swp
-data-live/*/snapshot*
+/data-live

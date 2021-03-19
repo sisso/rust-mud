@@ -2,14 +2,12 @@
   "cfg": {
     "avatar_mob": 6,
     "initial_room": 2,
-    "tick": 7356,
-    "total_time": 735.6000109612942
+    "money_id": 42,
+    "tick": 77217,
+    "total_time": 7721.700115062296
   },
   "objects": {
     "0": {
-      "code": [
-        "sector1"
-      ],
       "id": 0,
       "label": "Sector 1",
       "sector": {}
@@ -24,14 +22,18 @@
       "parent": 19
     },
     "100000": {
-      "code": [
-        "transport"
-      ],
       "craft": {},
       "desc": "Small cargo craft designed to deliver small amount of cargo",
       "id": 100000,
       "label": "Light Transport",
-      "parent": 33
+      "parent": 21,
+      "tags": {
+        "values": [
+          "ship",
+          "ship_civil",
+          "ship_transport"
+        ]
+      }
     },
     "100001": {
       "desc": "Craft airlock",
@@ -115,10 +117,48 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 33
+      "parent": 100021
     },
-    "100006": {
-      "id": 100006,
+    "100007": {
+      "desc": "other",
+      "id": 100007,
+      "label": "other",
+      "player": {
+        "avatar_id": 100008,
+        "id": 100007,
+        "login": "other"
+      }
+    },
+    "100008": {
+      "desc": "other",
+      "id": 100008,
+      "inventory": {
+        "max_weight": 20.0
+      },
+      "label": "other",
+      "memory": {
+        "knows": [
+          2,
+          3,
+          4,
+          100001,
+          100002,
+          100003
+        ]
+      },
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 0
+      },
+      "parent": 21
+    },
+    "100010": {
+      "id": 100010,
       "inventory": {
         "max_weight": 20.0
       },
@@ -133,7 +173,314 @@
         "xp": 10
       },
       "owned_by": 38,
-      "parent": 4
+      "parent": 4,
+      "vendor": {
+        "market_id": 40
+      }
+    },
+    "100017": {
+      "id": 100017,
+      "item": {
+        "amount": 1421,
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "credits",
+      "parent": 100008
+    },
+    "100019": {
+      "id": 100019,
+      "inventory": {
+        "max_weight": 20.0
+      },
+      "label": "Ore Vendor",
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 10
+      },
+      "owned_by": 39,
+      "parent": 21,
+      "vendor": {
+        "market_id": 41
+      }
+    },
+    "100020": {
+      "craft": {},
+      "desc": "Small shuttle",
+      "id": 100020,
+      "label": "Shuttle",
+      "parent": 100029
+    },
+    "100021": {
+      "desc": "Small cockpit used to control the craft",
+      "id": 100021,
+      "label": "Cockpit",
+      "parent": 100020,
+      "room": {
+        "can_exit": true,
+        "exits": []
+      }
+    },
+    "100022": {
+      "desc": "Commercial Goods",
+      "id": 100022,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Goods",
+      "parent": 100008,
+      "price": {
+        "price": 500
+      },
+      "tags": {
+        "values": [
+          "goods"
+        ]
+      }
+    },
+    "100023": {
+      "desc": "Commercial Goods",
+      "id": 100023,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Goods",
+      "parent": 100008,
+      "price": {
+        "price": 500
+      },
+      "tags": {
+        "values": [
+          "goods"
+        ]
+      }
+    },
+    "100024": {
+      "desc": "Commercial Goods",
+      "id": 100024,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Goods",
+      "parent": 100002,
+      "price": {
+        "price": 500
+      },
+      "tags": {
+        "values": [
+          "goods"
+        ]
+      }
+    },
+    "100025": {
+      "desc": "Commercial Goods",
+      "id": 100025,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Goods",
+      "parent": 100002,
+      "price": {
+        "price": 500
+      },
+      "tags": {
+        "values": [
+          "goods"
+        ]
+      }
+    },
+    "100026": {
+      "craft": {},
+      "desc": "Small shuttle",
+      "id": 100026,
+      "label": "Shuttle",
+      "parent": 3,
+      "price": {
+        "price": 10000
+      },
+      "tags": {
+        "values": [
+          "ship",
+          "ship_civil",
+          "ship_transport"
+        ]
+      }
+    },
+    "100027": {
+      "desc": "Small cockpit used to control the craft",
+      "id": 100027,
+      "label": "Cockpit",
+      "parent": 100026,
+      "room": {
+        "can_exit": true,
+        "exits": []
+      }
+    },
+    "100028": {
+      "desc": "Ore deposit, you can extract ores from here",
+      "extractable": {
+        "prefab_id": 35
+      },
+      "id": 100028,
+      "label": "Ores deposit",
+      "parent": 100029
+    },
+    "100029": {
+      "desc": "Asteroid surface",
+      "id": 100029,
+      "label": "Asteroid surface",
+      "parent": 17,
+      "room": {
+        "can_exit": true,
+        "exits": []
+      }
+    },
+    "100092": {
+      "id": 100092,
+      "item": {
+        "amount": 488,
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "credits",
+      "parent": 100005
+    },
+    "100093": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100093,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100021,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100094": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100094,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100021,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100095": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100095,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100021,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100096": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100096,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100021,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100097": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100097,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100021,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100098": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100098,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100021,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "100099": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 100099,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 100005,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
     },
     "16": {
       "id": 16,
@@ -156,9 +503,6 @@
         "kind": "jump_gate",
         "orbit_distance": 200.0
       },
-      "code": [
-        "jump"
-      ],
       "id": 18,
       "label": "Jump point",
       "parent": 19
@@ -209,9 +553,6 @@
       }
     },
     "24": {
-      "code": [
-        "sector2"
-      ],
       "id": 24,
       "label": "Sector 2",
       "sector": {}
@@ -240,9 +581,6 @@
         "kind": "jump_gate",
         "orbit_distance": 200.0
       },
-      "code": [
-        "jump"
-      ],
       "id": 29,
       "label": "Jump Point",
       "parent": 25
@@ -297,7 +635,7 @@
       "parent": 4,
       "spawn": {
         "max": 1,
-        "next_spawn": 988.9828599244356,
+        "next_spawn": 8025.11432942003,
         "prefab_id": 36,
         "time_max": 360.0,
         "time_min": 60.0
@@ -309,7 +647,7 @@
       "parent": 21,
       "spawn": {
         "max": 1,
-        "next_spawn": 932.116401784122,
+        "next_spawn": 7955.532328158617,
         "prefab_id": 37,
         "time_max": 360.0,
         "time_min": 60.0
@@ -328,17 +666,80 @@
           }
         ]
       }
+    },
+    "40": {
+      "desc": "Buy raw material and sell goods",
+      "id": 40,
+      "label": "Planet market",
+      "market": {
+        "trades": [
+          {
+            "buy_price_mult": 1.2000000476837158,
+            "tags": [
+              "ore"
+            ]
+          },
+          {
+            "sell_price_mult": 0.800000011920929,
+            "tags": [
+              "goods"
+            ]
+          },
+          {
+            "buy_price_mult": 0.800000011920929,
+            "sell_price_mult": 1.2000000476837158,
+            "tags": [
+              "ship_civil"
+            ]
+          },
+          {
+            "buy_price_mult": 0.800000011920929,
+            "sell_price_mult": 1.2000000476837158,
+            "tags": [
+              "robot_civil"
+            ]
+          }
+        ]
+      }
+    },
+    "41": {
+      "desc": "Sell raw material and buy goods",
+      "id": 41,
+      "label": "Asteroid market",
+      "market": {
+        "trades": [
+          {
+            "buy_price_mult": 1.2000000476837158,
+            "tags": [
+              "goods"
+            ]
+          },
+          {
+            "sell_price_mult": 0.800000011920929,
+            "tags": [
+              "ore"
+            ]
+          }
+        ]
+      }
     }
   },
   "prefabs": {
     "10": {
-      "code": [
-        "shuttle"
-      ],
       "craft": {},
       "desc": "Small shuttle",
       "id": 10,
-      "label": "Shuttle"
+      "label": "Shuttle",
+      "price": {
+        "price": 10000
+      },
+      "tags": {
+        "values": [
+          "ship",
+          "ship_transport",
+          "ship_civil"
+        ]
+      }
     },
     "11": {
       "desc": "Small cockpit used to control the craft",
@@ -350,13 +751,20 @@
       }
     },
     "12": {
-      "code": [
-        "transport"
-      ],
       "craft": {},
       "desc": "Small cargo craft designed to deliver small amount of cargo",
       "id": 12,
-      "label": "Light Transport"
+      "label": "Light Transport",
+      "price": {
+        "price": 50000
+      },
+      "tags": {
+        "values": [
+          "ship",
+          "ship_transport",
+          "ship_civil"
+        ]
+      }
     },
     "13": {
       "desc": "Craft bridge.",
@@ -406,20 +814,36 @@
       }
     },
     "34": {
-      "desc": "1 Ton of Commercial Goods",
+      "desc": "Commercial Goods",
       "id": 34,
       "item": {
-        "weight": 1000.0
+        "weight": 10.0
       },
-      "label": "Goods"
+      "label": "Goods",
+      "price": {
+        "price": 500
+      },
+      "tags": {
+        "values": [
+          "goods"
+        ]
+      }
     },
     "35": {
-      "desc": "1 Ton of Mineral ores extracted directly from earth",
+      "desc": "Mineral ores extracted directly from earth",
       "id": 35,
       "item": {
-        "weight": 1000.0
+        "weight": 10.0
       },
-      "label": "Ores"
+      "label": "Ores",
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
     },
     "36": {
       "id": 36,
@@ -436,7 +860,9 @@
         "pv_max": 10,
         "xp": 10
       },
-      "vendor": {}
+      "vendor": {
+        "market_id": 40
+      }
     },
     "37": {
       "id": 37,
@@ -453,7 +879,55 @@
         "pv_max": 10,
         "xp": 10
       },
-      "vendor": {}
+      "vendor": {
+        "market_id": 41
+      }
+    },
+    "42": {
+      "id": 42,
+      "item": {
+        "amount": 1,
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "credits"
+    },
+    "43": {
+      "ai": {
+        "commandable": true
+      },
+      "desc": "A robot capable of lift and hauler heavy cargo",
+      "id": 43,
+      "inventory": {
+        "max_weight": 100.0
+      },
+      "label": "Lift Robot",
+      "mob": {
+        "attack": 3,
+        "damage_max": 1,
+        "damage_min": 1,
+        "defense": 3,
+        "pv": 3,
+        "pv_max": 3,
+        "xp": 1
+      },
+      "price": {
+        "price": 2000
+      },
+      "tags": {
+        "values": [
+          "robot",
+          "robot_lift",
+          "robot_civil"
+        ]
+      }
+    },
+    "44": {
+      "desc": "x",
+      "id": 44,
+      "label": "This is something",
+      "parent": 100002
     },
     "6": {
       "desc": "A normal and boring human being",
