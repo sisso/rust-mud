@@ -86,17 +86,17 @@ pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<ConnectionViewActio
     let command_result = match input.as_str() {
         "l" | "look" => actions::look(container, mob_id),
 
-        "n" => actions::mv(container, mob_id, Dir::N),
+        "n" => actions::move_dir(container, mob_id, Dir::N),
 
-        "s" => actions::mv(container, mob_id, Dir::S),
+        "s" => actions::move_dir(container, mob_id, Dir::S),
 
-        "e" => actions::mv(container, mob_id, Dir::E),
+        "e" => actions::move_dir(container, mob_id, Dir::E),
 
-        "w" => actions::mv(container, mob_id, Dir::W),
+        "w" => actions::move_dir(container, mob_id, Dir::W),
 
-        "u" => actions::mv(container, mob_id, Dir::U),
+        "u" => actions::move_dir(container, mob_id, Dir::U),
 
-        "d" => actions::mv(container, mob_id, Dir::D),
+        "d" => actions::move_dir(container, mob_id, Dir::D),
 
         "enter" => actions::enter(container, mob_id, ""),
 

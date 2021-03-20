@@ -178,6 +178,10 @@ impl Mob {
         trigger
     }
 
+    pub fn is_idle(&self) -> bool {
+        self.state.action == MobAction::None
+    }
+
     pub fn is_combat(&self) -> bool {
         self.state.action == MobAction::Combat
     }
@@ -187,13 +191,17 @@ impl Mob {
     }
 
     pub fn set_action_rest(&mut self, total: TotalTime) -> Result<()> {
-        self.state.action = MobAction::Resting;
-        self.state.heal_calm_down = TimeTrigger::next(self.attributes.pv.heal_rate, total);
-        Ok(())
+        if !self.is_idle() {
+            Err(InvalidStateFailure)
+        } else {
+            self.state.action = MobAction::Resting;
+            self.state.heal_calm_down = TimeTrigger::next(self.attributes.pv.heal_rate, total);
+            Ok(())
+        }
     }
 
     pub fn set_action_extract(&mut self, target_id: ObjId, total: TotalTime) -> Result<()> {
-        if self.state.action == MobAction::Combat {
+        if !self.is_idle() {
             Err(InvalidStateFailure)
         } else {
             self.command = MobCommand::Extract { target_id };

@@ -135,6 +135,10 @@ pub fn move_not_possible(dir: &Dir) -> String {
     format!("not possible to move to {}!", dir.as_str())
 }
 
+pub fn move_not_possible_resting() -> String {
+    format!("you can not go there, you are to lazy to stand up")
+}
+
 pub fn spawn_mob(label: &str) -> String {
     format!("a {} appears here from no where", label)
 }

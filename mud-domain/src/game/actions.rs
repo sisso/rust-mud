@@ -136,12 +136,18 @@ pub fn say(container: &mut Container, mob_id: MobId, msg: &str) -> Result<()> {
     Ok(())
 }
 
-// optional PlayerId
-pub fn mv(container: &mut Container, mob_id: MobId, dir: Dir) -> Result<()> {
+pub fn move_dir(container: &mut Container, mob_id: MobId, dir: Dir) -> Result<()> {
     let location_id = container.locations.get(mob_id).as_result()?;
     let mob = container.mobs.get(mob_id).as_result()?;
     let room = container.rooms.get(location_id).as_result()?;
     let exit_room_id = room.get_exit(&dir);
+
+    if mob.is_resting() {
+        container
+            .outputs
+            .private(mob_id, comm::move_not_possible_resting());
+        return Err(Error::InvalidArgumentFailure);
+    }
 
     match exit_room_id {
         Some(exit_room_id) => {
@@ -211,7 +217,6 @@ pub fn attack(container: &mut Container, mob_id: MobId, target_mob_id: MobId) ->
     Ok(())
 }
 
-// optional PlayerId
 pub fn rest(container: &mut Container, mob_id: MobId) -> Result<()> {
     let room_id = container.locations.get(mob_id).as_result()?;
     let mob = container.mobs.get(mob_id).as_result()?;
@@ -237,11 +242,10 @@ pub fn rest(container: &mut Container, mob_id: MobId) -> Result<()> {
     })
 }
 
-// optional PlayerId
 pub fn stand(container: &mut Container, mob_id: MobId) -> Result<()> {
     let ctx = container.get_mob_ctx(mob_id).as_result()?;
 
-    if ctx.mob.is_resting() {
+    if !ctx.mob.is_resting() {
         container
             .outputs
             .private(mob_id, comm::stand_fail_not_resting());
