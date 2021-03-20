@@ -3,8 +3,8 @@
     "avatar_mob": 0,
     "initial_room": 2,
     "money_id": 17,
-    "tick": 9863,
-    "total_time": 986.3000146970155
+    "tick": 11501,
+    "total_time": 1150.100017137826
   },
   "objects": {
     "1": {
@@ -190,7 +190,7 @@
       "parent": 100004,
       "spawn": {
         "max": 4,
-        "next_spawn": 1002.5198612585666,
+        "next_spawn": 1159.4862624779348,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -201,7 +201,7 @@
       "parent": 100008,
       "spawn": {
         "max": 4,
-        "next_spawn": 990.3806856274604,
+        "next_spawn": 1171.0167274773125,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -365,7 +365,7 @@
       "parent": 100014,
       "spawn": {
         "max": 4,
-        "next_spawn": 1008.3704667389395,
+        "next_spawn": 1165.9575868994002,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -376,7 +376,7 @@
       "parent": 100016,
       "spawn": {
         "max": 4,
-        "next_spawn": 1008.3914977163078,
+        "next_spawn": 1167.389325588942,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -387,7 +387,7 @@
       "parent": 100018,
       "spawn": {
         "max": 4,
-        "next_spawn": 986.9178327843548,
+        "next_spawn": 1179.1345446705823,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -398,7 +398,7 @@
       "parent": 100019,
       "spawn": {
         "max": 4,
-        "next_spawn": 990.7785078808668,
+        "next_spawn": 1185.179460972548,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -409,7 +409,7 @@
       "parent": 100020,
       "spawn": {
         "max": 4,
-        "next_spawn": 990.7918680906296,
+        "next_spawn": 1158.1021288707857,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -581,7 +581,7 @@
       "parent": 100029,
       "spawn": {
         "max": 4,
-        "next_spawn": 991.0857103168964,
+        "next_spawn": 1184.311995878816,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -592,7 +592,7 @@
       "parent": 100034,
       "spawn": {
         "max": 4,
-        "next_spawn": 1001.4620664268732,
+        "next_spawn": 1165.827008709312,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -603,7 +603,7 @@
       "parent": 100031,
       "spawn": {
         "max": 4,
-        "next_spawn": 1009.700344733894,
+        "next_spawn": 1169.824534632266,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -614,7 +614,7 @@
       "parent": 100032,
       "spawn": {
         "max": 4,
-        "next_spawn": 1022.5513207986953,
+        "next_spawn": 1164.719433151186,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -625,7 +625,7 @@
       "parent": 100028,
       "spawn": {
         "max": 4,
-        "next_spawn": 1027.0002227947118,
+        "next_spawn": 1183.8798220381145,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -636,7 +636,7 @@
       "parent": 100027,
       "spawn": {
         "max": 4,
-        "next_spawn": 1032.749133333564,
+        "next_spawn": 1156.180778972805,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -647,7 +647,7 @@
       "parent": 100030,
       "spawn": {
         "max": 4,
-        "next_spawn": 991.0639531612396,
+        "next_spawn": 1156.0165580436592,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -658,7 +658,7 @@
       "parent": 100026,
       "spawn": {
         "max": 4,
-        "next_spawn": 996.2048154622316,
+        "next_spawn": 1171.344284370542,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -669,7 +669,7 @@
       "parent": 100033,
       "spawn": {
         "max": 4,
-        "next_spawn": 1006.9956555813552,
+        "next_spawn": 1164.5358771383767,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -833,7 +833,7 @@
       "parent": 100048,
       "spawn": {
         "max": 4,
-        "next_spawn": 1006.547493569553,
+        "next_spawn": 1165.6969751864676,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -844,7 +844,7 @@
       "parent": 100052,
       "spawn": {
         "max": 4,
-        "next_spawn": 988.6323181167246,
+        "next_spawn": 1163.3117934092884,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -855,7 +855,7 @@
       "parent": 100051,
       "spawn": {
         "max": 4,
-        "next_spawn": 987.528403453529,
+        "next_spawn": 1171.5272314697509,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -866,7 +866,7 @@
       "parent": 100047,
       "spawn": {
         "max": 4,
-        "next_spawn": 997.544907785952,
+        "next_spawn": 1156.3685921952133,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -877,7 +877,7 @@
       "parent": 100050,
       "spawn": {
         "max": 4,
-        "next_spawn": 994.3290396705272,
+        "next_spawn": 1157.0162305086856,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -888,7 +888,7 @@
       "parent": 100045,
       "spawn": {
         "max": 4,
-        "next_spawn": 1027.3479447737338,
+        "next_spawn": 1156.0989931672816,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -899,7 +899,7 @@
       "parent": 100044,
       "spawn": {
         "max": 4,
-        "next_spawn": 991.69987475127,
+        "next_spawn": 1150.9609793946152,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -910,7 +910,7 @@
       "parent": 100049,
       "spawn": {
         "max": 4,
-        "next_spawn": 993.9251767098904,
+        "next_spawn": 1170.8222578093414,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -921,7 +921,7 @@
       "parent": 100046,
       "spawn": {
         "max": 4,
-        "next_spawn": 1005.7136689275505,
+        "next_spawn": 1168.3411820903425,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -1081,7 +1081,7 @@
       "parent": 100067,
       "spawn": {
         "max": 4,
-        "next_spawn": 997.2639443874361,
+        "next_spawn": 1156.9822682738309,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -1092,7 +1092,7 @@
       "parent": 100065,
       "spawn": {
         "max": 4,
-        "next_spawn": 988.8398075550796,
+        "next_spawn": 1181.3945922851567,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -1103,7 +1103,7 @@
       "parent": 100070,
       "spawn": {
         "max": 4,
-        "next_spawn": 1019.9961824268105,
+        "next_spawn": 1165.8373755887155,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -1114,7 +1114,7 @@
       "parent": 100068,
       "spawn": {
         "max": 4,
-        "next_spawn": 1030.4925233200195,
+        "next_spawn": 1163.5216595232491,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -1125,7 +1125,7 @@
       "parent": 100062,
       "spawn": {
         "max": 4,
-        "next_spawn": 999.2825375422836,
+        "next_spawn": 1155.8101352453236,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -1136,7 +1136,7 @@
       "parent": 100066,
       "spawn": {
         "max": 4,
-        "next_spawn": 1043.35527741164,
+        "next_spawn": 1170.7157831862573,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -1147,7 +1147,7 @@
       "parent": 100063,
       "spawn": {
         "max": 4,
-        "next_spawn": 1014.3281186744573,
+        "next_spawn": 1190.7322322130208,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -1158,7 +1158,7 @@
       "parent": 100064,
       "spawn": {
         "max": 4,
-        "next_spawn": 986.7771910205483,
+        "next_spawn": 1191.3257851749663,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -1169,7 +1169,7 @@
       "parent": 100069,
       "spawn": {
         "max": 4,
-        "next_spawn": 1016.6035956516864,
+        "next_spawn": 1161.4320542886858,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -4417,7 +4417,8 @@
       "memory": {
         "knows": [
           2,
-          4
+          4,
+          5
         ]
       },
       "mob": {
@@ -4429,7 +4430,7 @@
         "pv_max": 10,
         "xp": 0
       },
-      "parent": 4
+      "parent": 5
     },
     "100350": {
       "desc": "The corpse of wolf laying in the ground",
@@ -4600,14 +4601,9 @@
         "trades": [
           {
             "buy_price_mult": 0.4000000059604645,
-            "tags": [
-              "items"
-            ]
-          },
-          {
             "sell_price_mult": 1.0,
             "tags": [
-              "items"
+              "item"
             ]
           }
         ]
@@ -4615,6 +4611,71 @@
     },
     "100553": {
       "id": 100553,
+      "item": {
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "gold",
+      "owned_by": 24,
+      "parent": 23,
+      "tags": {
+        "values": [
+          "money"
+        ]
+      }
+    },
+    "100554": {
+      "id": 100554,
+      "item": {
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "gold",
+      "owned_by": 24,
+      "parent": 23,
+      "tags": {
+        "values": [
+          "money"
+        ]
+      }
+    },
+    "100555": {
+      "id": 100555,
+      "item": {
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "gold",
+      "owned_by": 24,
+      "parent": 23,
+      "tags": {
+        "values": [
+          "money"
+        ]
+      }
+    },
+    "100556": {
+      "id": 100556,
+      "item": {
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "gold",
+      "owned_by": 24,
+      "parent": 23,
+      "prefab_id": 17,
+      "tags": {
+        "values": [
+          "money"
+        ]
+      }
+    },
+    "100557": {
+      "id": 100557,
       "item": {
         "flags": {
           "money": true
@@ -4636,7 +4697,7 @@
       "parent": 5,
       "spawn": {
         "max": 4,
-        "next_spawn": 1000.762729294598,
+        "next_spawn": 1155.8234464824204,
         "prefab_id": 15,
         "time_max": 60.0,
         "time_min": 10.0
@@ -4687,7 +4748,7 @@
       "parent": 23,
       "spawn": {
         "max": 10,
-        "next_spawn": 1042.39960192889,
+        "next_spawn": 1176.883681505919,
         "prefab_id": 17,
         "time_max": 60.0,
         "time_min": 10.0
@@ -4699,7 +4760,7 @@
       "parent": 2,
       "spawn": {
         "max": 2,
-        "next_spawn": 1065.0323072969911,
+        "next_spawn": 1214.2299597188835,
         "prefab_id": 25,
         "time_max": 180.0,
         "time_min": 60.0
