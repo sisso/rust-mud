@@ -8,6 +8,7 @@ use crate::game::mob::MobId;
 use crate::game::{comm, inventory_service};
 use crate::utils::strinput::StrInput;
 use commons::{ObjId, PlayerId};
+use logs::*;
 
 #[derive(Debug)]
 pub enum ParseItemError {
@@ -46,13 +47,46 @@ pub fn parse_not_owned_item(
     locations: &Locations,
     items: &ItemRepository,
     item_location: ObjId,
-    args: StrInput,
+    input: StrInput,
 ) -> std::result::Result<(ItemId, Option<ItemId>), ParseItemError> {
-    let is_preposition = { |s: &str| s.eq("in") || s.eq("at") || s.eq("from") };
+    let args = input.parse_arguments();
 
-    let args = args.parse_arguments();
-    match (args.get(0), args.get(1), args.get(2)) {
-        (Some(item_label), None, None) => {
+    // check if command has any preposition
+    let prep_i = args
+        .iter()
+        .position(|&s| s.eq("in") || s.eq("at") || s.eq("from"));
+
+    match prep_i {
+        Some(prep_index) => {
+            let item_label = args[0..prep_index].join(" ");
+            let container_label = args[prep_index + 1..].join(" ");
+
+            let found_container = inventory_service::search_one(
+                &labels,
+                &locations,
+                &items,
+                item_location,
+                &container_label,
+            )
+            .ok_or(ParseItemError::ItemNotFound {
+                label: container_label.to_string(),
+            })?;
+
+            let found_item = inventory_service::search_one(
+                &labels,
+                &locations,
+                &items,
+                found_container,
+                &item_label,
+            )
+            .ok_or(ParseItemError::ItemNotFound {
+                label: item_label.to_string(),
+            })?;
+
+            Ok((found_item, Some(found_container)))
+        }
+        None => {
+            let item_label = input.plain_arguments();
             let found = inventory_service::search_one(
                 &labels,
                 &locations,
@@ -66,34 +100,6 @@ pub fn parse_not_owned_item(
 
             Ok((found, None))
         }
-        (Some(item_label), Some(preposition), Some(container_label))
-            if is_preposition(preposition) =>
-        {
-            let found_container = inventory_service::search_one(
-                &labels,
-                &locations,
-                &items,
-                item_location,
-                container_label,
-            )
-            .ok_or(ParseItemError::ItemNotFound {
-                label: container_label.to_string(),
-            })?;
-
-            let found_item = inventory_service::search_one(
-                &labels,
-                &locations,
-                &items,
-                found_container,
-                item_label,
-            )
-            .ok_or(ParseItemError::ItemNotFound {
-                label: item_label.to_string(),
-            })?;
-
-            Ok((found_item, Some(found_container)))
-        }
-        _ => Err(ParseItemError::ItemNotProvided),
     }
 }
 
@@ -175,6 +181,7 @@ pub fn strip(container: &mut Container, mob_id: MobId, args: StrInput) -> Result
 pub mod test {
     use super::*;
     use crate::game::actions_items::test::setup;
+    use crate::game::builder;
 
     #[test]
     fn test_parse_not_owned_item_not_found_in_room() {
@@ -244,6 +251,31 @@ pub mod test {
                 assert_eq!(container_id, scenery.container_id);
             }
             _ => panic!(),
+        }
+    }
+
+    #[test]
+    fn test_parse_not_owned_item_should_find_item_in_the_container_with_spaces() {
+        let mut container = Container::new();
+        let room_id = builder::add_room(&mut container, "test_room");
+        let container_id = builder::add_container(&mut container, "my corpse", room_id, true);
+        let item_id = builder::add_item(&mut container, "nice item", container_id);
+        let mob_id = builder::add_mob(&mut container, "mob", room_id);
+
+        let result = parse_not_owned_item(
+            &container.labels,
+            &container.locations,
+            &container.items,
+            room_id,
+            StrInput("get nice item in my corpse"),
+        );
+
+        match result {
+            Ok((found_iid, Some(found_cid))) => {
+                assert_eq!(found_iid, item_id);
+                assert_eq!(found_cid, container_id);
+            }
+            other => panic!("found {:?}", other),
         }
     }
 }

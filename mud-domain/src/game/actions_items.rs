@@ -23,8 +23,6 @@ impl From<Error> for PickUpError {
 
 const NOT_FOUND_EXCEPTION: PickUpError = PickUpError::Other(Error::NotFoundException);
 
-// TODO: why this method receive a inventory_id? Looks like it is not needed, we can use
-//       item_location_id and decide
 pub fn do_pickup(
     container: &mut Container,
     mob_id: MobId,
@@ -238,19 +236,9 @@ pub mod test {
     pub fn setup() -> TestScenery {
         let mut container = Container::new();
         let room_id = builder::add_room(&mut container, "test_room");
-
-        // TODO: remove hack when we use proper item builder
-        let container_id = builder::add_item(&mut container, "container1", room_id);
-        {
-            let mut item = container.items.remove(container_id).unwrap();
-            item.flags.is_stuck = true;
-            item.flags.is_inventory = true;
-            container.items.add(item);
-        }
-
+        let container_id = builder::add_container(&mut container, "container1", room_id, true);
         let item1_id = builder::add_item(&mut container, "item1", room_id);
         let item2_id = builder::add_item(&mut container, "item2", container_id);
-
         let mob_id = builder::add_mob(&mut container, "mob", room_id);
 
         TestScenery {

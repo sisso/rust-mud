@@ -19,7 +19,6 @@ pub fn add_room(container: &mut Container, label: &str) -> RoomId {
     container.labels.add(Label {
         id: room_id,
         label: label.to_string(),
-        // TODO: use autocode
         desc: label.to_string(),
     });
 
@@ -30,6 +29,25 @@ pub fn add_item(container: &mut Container, label: &str, location_id: ObjId) -> I
     let item_id = container.objects.create();
 
     let item = Item::new(item_id);
+    container.items.add(item);
+
+    container.labels.add(Label::new(item_id, label));
+    container.locations.set(item_id, location_id);
+
+    item_id
+}
+
+pub fn add_container(
+    container: &mut Container,
+    label: &str,
+    location_id: ObjId,
+    stuck: bool,
+) -> ItemId {
+    let item_id = container.objects.create();
+
+    let mut item = Item::new(item_id);
+    item.flags.is_stuck = stuck;
+    item.flags.is_inventory = true;
     container.items.add(item);
 
     container.labels.add(Label::new(item_id, label));
