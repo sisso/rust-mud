@@ -2,7 +2,7 @@ use crate::errors::{self, AsResult, Error, Result};
 use crate::game::domain::NextId;
 use crate::game::loader::dto::StaticId;
 use crate::game::repo::{RepoList, RepoRemove};
-use commons::{ObjId, OBJ_ID_STATIC_RANGE};
+use commons::ObjId;
 use logs::*;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -35,7 +35,7 @@ pub struct Objects {
 impl Objects {
     pub fn new() -> Self {
         Objects {
-            next_id: NextId::new_from(OBJ_ID_STATIC_RANGE),
+            next_id: NextId::new(),
             objects: HashMap::new(),
         }
     }

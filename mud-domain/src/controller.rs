@@ -4,6 +4,7 @@ use crate::errors::{Error, Result};
 use crate::game::avatars;
 use crate::game::combat::kill_mob;
 use crate::game::container::Container;
+use crate::game::inventory_service::compute_total_weight;
 use crate::game::loader::dto::{ObjData, StaticId};
 use crate::game::loader::Loader;
 use crate::game::location::LocationId;
@@ -460,20 +461,14 @@ pub fn handle_request_remove_prefab(container: &mut Container, id: StaticId) -> 
 }
 
 pub fn handle_request_update_obj(container: &mut Container, data: ObjData) -> Result<()> {
-    let obj_id = match data.id {
-        Some(id) if id.is_prefab() => {
-            return Err(Error::InvalidArgumentFailureStr(
-                "could not add a object using a prefab id".to_string(),
-            ))
-        }
-        Some(id) => id.as_u32().into(),
-        None => {
-            return Err(Error::InvalidArgumentFailureStr(
-                "obj_id is require".to_string(),
-            ))
-        }
-    };
+    if data.id.is_none() || !container.objects.exists(data.id.unwrap().as_u32().into()) {
+        return Err(Error::InvalidArgumentFailureStr(format!(
+            "could not found object id {:?}",
+            data.id
+        )));
+    }
 
+    let obj_id = data.id.unwrap().as_u32().into();
     Loader::apply_data(container, obj_id, &data, &Default::default())
 }
 

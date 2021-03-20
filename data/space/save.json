@@ -3,8 +3,8 @@
     "avatar_mob": 6,
     "initial_room": 2,
     "money_id": 42,
-    "tick": 77217,
-    "total_time": 7721.700115062296
+    "tick": 77361,
+    "total_time": 7736.100115276873
   },
   "objects": {
     "0": {
@@ -19,618 +19,77 @@
       },
       "id": 1,
       "label": "Dune",
-      "parent": 19
+      "parent": 8
     },
-    "100000": {
-      "craft": {},
-      "desc": "Small cargo craft designed to deliver small amount of cargo",
-      "id": 100000,
-      "label": "Light Transport",
-      "parent": 21,
-      "tags": {
-        "values": [
-          "ship",
-          "ship_civil",
-          "ship_transport"
-        ]
-      }
-    },
-    "100001": {
-      "desc": "Craft airlock",
-      "id": 100001,
-      "label": "Airlock",
-      "parent": 100000,
-      "room": {
-        "can_exit": true,
-        "exits": [
-          {
-            "dir": "n",
-            "to": 100002
-          }
-        ]
-      }
-    },
-    "100002": {
-      "desc": "Cargo storage.",
-      "id": 100002,
-      "label": "Cargo Storage",
-      "parent": 100000,
-      "room": {
-        "exits": [
-          {
-            "dir": "n",
-            "to": 100003
-          },
-          {
-            "dir": "s",
-            "to": 100001
-          }
-        ]
-      }
-    },
-    "100003": {
-      "desc": "Craft bridge.",
-      "id": 100003,
-      "label": "Bridge",
-      "parent": 100000,
-      "room": {
-        "exits": [
-          {
-            "dir": "s",
-            "to": 100002
-          }
-        ]
-      }
-    },
-    "100004": {
-      "id": 100004,
-      "label": "Player sisso",
-      "player": {
-        "avatar_id": 100005,
-        "id": 100004,
-        "login": "sisso"
-      }
-    },
-    "100005": {
-      "desc": "sisso",
-      "id": 100005,
-      "inventory": {
-        "max_weight": 20.0
-      },
-      "label": "sisso",
-      "memory": {
-        "knows": [
-          2,
-          3,
-          4,
-          100001,
-          100002,
-          100003
-        ]
-      },
-      "mob": {
-        "attack": 10,
-        "damage_max": 2,
-        "damage_min": 1,
-        "defense": 10,
-        "pv": 10,
-        "pv_max": 10,
-        "xp": 0
-      },
-      "parent": 100021
-    },
-    "100007": {
-      "desc": "other",
-      "id": 100007,
-      "label": "other",
-      "player": {
-        "avatar_id": 100008,
-        "id": 100007,
-        "login": "other"
-      }
-    },
-    "100008": {
-      "desc": "other",
-      "id": 100008,
-      "inventory": {
-        "max_weight": 20.0
-      },
-      "label": "other",
-      "memory": {
-        "knows": [
-          2,
-          3,
-          4,
-          100001,
-          100002,
-          100003
-        ]
-      },
-      "mob": {
-        "attack": 10,
-        "damage_max": 2,
-        "damage_min": 1,
-        "defense": 10,
-        "pv": 10,
-        "pv_max": 10,
-        "xp": 0
-      },
-      "parent": 21
-    },
-    "100010": {
-      "id": 100010,
-      "inventory": {
-        "max_weight": 20.0
-      },
-      "label": "Good Vendor",
-      "mob": {
-        "attack": 10,
-        "damage_max": 2,
-        "damage_min": 1,
-        "defense": 10,
-        "pv": 10,
-        "pv_max": 10,
-        "xp": 10
-      },
-      "owned_by": 38,
-      "parent": 4,
-      "vendor": {
-        "market_id": 40
-      }
-    },
-    "100017": {
-      "id": 100017,
-      "item": {
-        "amount": 1421,
-        "flags": {
-          "money": true
-        }
-      },
-      "label": "credits",
-      "parent": 100008
-    },
-    "100019": {
-      "id": 100019,
-      "inventory": {
-        "max_weight": 20.0
-      },
-      "label": "Ore Vendor",
-      "mob": {
-        "attack": 10,
-        "damage_max": 2,
-        "damage_min": 1,
-        "defense": 10,
-        "pv": 10,
-        "pv_max": 10,
-        "xp": 10
-      },
-      "owned_by": 39,
-      "parent": 21,
-      "vendor": {
-        "market_id": 41
-      }
-    },
-    "100020": {
-      "craft": {},
-      "desc": "Small shuttle",
-      "id": 100020,
-      "label": "Shuttle",
-      "parent": 100029
-    },
-    "100021": {
-      "desc": "Small cockpit used to control the craft",
-      "id": 100021,
-      "label": "Cockpit",
-      "parent": 100020,
-      "room": {
-        "can_exit": true,
-        "exits": []
-      }
-    },
-    "100022": {
-      "desc": "Commercial Goods",
-      "id": 100022,
-      "item": {
-        "flags": {},
-        "weight": 10.0
-      },
-      "label": "Goods",
-      "parent": 100008,
-      "price": {
-        "price": 500
-      },
-      "tags": {
-        "values": [
-          "goods"
-        ]
-      }
-    },
-    "100023": {
-      "desc": "Commercial Goods",
-      "id": 100023,
-      "item": {
-        "flags": {},
-        "weight": 10.0
-      },
-      "label": "Goods",
-      "parent": 100008,
-      "price": {
-        "price": 500
-      },
-      "tags": {
-        "values": [
-          "goods"
-        ]
-      }
-    },
-    "100024": {
-      "desc": "Commercial Goods",
-      "id": 100024,
-      "item": {
-        "flags": {},
-        "weight": 10.0
-      },
-      "label": "Goods",
-      "parent": 100002,
-      "price": {
-        "price": 500
-      },
-      "tags": {
-        "values": [
-          "goods"
-        ]
-      }
-    },
-    "100025": {
-      "desc": "Commercial Goods",
-      "id": 100025,
-      "item": {
-        "flags": {},
-        "weight": 10.0
-      },
-      "label": "Goods",
-      "parent": 100002,
-      "price": {
-        "price": 500
-      },
-      "tags": {
-        "values": [
-          "goods"
-        ]
-      }
-    },
-    "100026": {
-      "craft": {},
-      "desc": "Small shuttle",
-      "id": 100026,
-      "label": "Shuttle",
-      "parent": 3,
-      "price": {
-        "price": 10000
-      },
-      "tags": {
-        "values": [
-          "ship",
-          "ship_civil",
-          "ship_transport"
-        ]
-      }
-    },
-    "100027": {
-      "desc": "Small cockpit used to control the craft",
-      "id": 100027,
-      "label": "Cockpit",
-      "parent": 100026,
-      "room": {
-        "can_exit": true,
-        "exits": []
-      }
-    },
-    "100028": {
-      "desc": "Ore deposit, you can extract ores from here",
-      "extractable": {
-        "prefab_id": 35
-      },
-      "id": 100028,
-      "label": "Ores deposit",
-      "parent": 100029
-    },
-    "100029": {
-      "desc": "Asteroid surface",
-      "id": 100029,
-      "label": "Asteroid surface",
-      "parent": 17,
-      "room": {
-        "can_exit": true,
-        "exits": []
-      }
-    },
-    "100092": {
-      "id": 100092,
-      "item": {
-        "amount": 488,
-        "flags": {
-          "money": true
-        }
-      },
-      "label": "credits",
-      "parent": 100005
-    },
-    "100093": {
-      "desc": "Mineral ores extracted directly from earth",
-      "id": 100093,
-      "item": {
-        "flags": {},
-        "weight": 10.0
-      },
-      "label": "Ores",
-      "parent": 100021,
-      "price": {
-        "price": 50
-      },
-      "tags": {
-        "values": [
-          "ore"
-        ]
-      }
-    },
-    "100094": {
-      "desc": "Mineral ores extracted directly from earth",
-      "id": 100094,
-      "item": {
-        "flags": {},
-        "weight": 10.0
-      },
-      "label": "Ores",
-      "parent": 100021,
-      "price": {
-        "price": 50
-      },
-      "tags": {
-        "values": [
-          "ore"
-        ]
-      }
-    },
-    "100095": {
-      "desc": "Mineral ores extracted directly from earth",
-      "id": 100095,
-      "item": {
-        "flags": {},
-        "weight": 10.0
-      },
-      "label": "Ores",
-      "parent": 100021,
-      "price": {
-        "price": 50
-      },
-      "tags": {
-        "values": [
-          "ore"
-        ]
-      }
-    },
-    "100096": {
-      "desc": "Mineral ores extracted directly from earth",
-      "id": 100096,
-      "item": {
-        "flags": {},
-        "weight": 10.0
-      },
-      "label": "Ores",
-      "parent": 100021,
-      "price": {
-        "price": 50
-      },
-      "tags": {
-        "values": [
-          "ore"
-        ]
-      }
-    },
-    "100097": {
-      "desc": "Mineral ores extracted directly from earth",
-      "id": 100097,
-      "item": {
-        "flags": {},
-        "weight": 10.0
-      },
-      "label": "Ores",
-      "parent": 100021,
-      "price": {
-        "price": 50
-      },
-      "tags": {
-        "values": [
-          "ore"
-        ]
-      }
-    },
-    "100098": {
-      "desc": "Mineral ores extracted directly from earth",
-      "id": 100098,
-      "item": {
-        "flags": {},
-        "weight": 10.0
-      },
-      "label": "Ores",
-      "parent": 100021,
-      "price": {
-        "price": 50
-      },
-      "tags": {
-        "values": [
-          "ore"
-        ]
-      }
-    },
-    "100099": {
-      "desc": "Mineral ores extracted directly from earth",
-      "id": 100099,
-      "item": {
-        "flags": {},
-        "weight": 10.0
-      },
-      "label": "Ores",
-      "parent": 100005,
-      "price": {
-        "price": 50
-      },
-      "tags": {
-        "values": [
-          "ore"
-        ]
-      }
-    },
-    "16": {
-      "id": 16,
-      "label": "Palace zone",
-      "parent": 1,
-      "zone": {}
-    },
-    "17": {
-      "astro_body": {
-        "kind": "asteroid_field",
-        "orbit_distance": 180.0
-      },
-      "id": 17,
-      "label": "Asteroid Field",
-      "parent": 19
-    },
-    "18": {
-      "astro_body": {
-        "jump_target_id": 29,
-        "kind": "jump_gate",
-        "orbit_distance": 200.0
-      },
-      "id": 18,
-      "label": "Jump point",
-      "parent": 19
-    },
-    "19": {
-      "astro_body": {
-        "kind": "star",
-        "orbit_distance": 0.0
-      },
-      "id": 19,
-      "label": "Red Star",
-      "parent": 0
-    },
-    "2": {
-      "desc": "The great Palace of Dune",
-      "id": 2,
-      "label": "Palace",
-      "parent": 16,
-      "room": {
-        "exits": [
-          {
-            "dir": "s",
-            "to": 3
-          }
-        ]
-      }
-    },
-    "20": {
-      "astro_body": {
-        "kind": "station",
-        "orbit_distance": 2.0
-      },
-      "id": 20,
-      "label": "Station",
-      "parent": 1,
-      "pos": {
-        "x": 1.0,
-        "y": 0.0
-      }
-    },
-    "21": {
-      "id": 21,
+    "10": {
+      "id": 10,
       "label": "Station hangar",
-      "parent": 20,
+      "parent": 9,
       "room": {
         "can_exit": true,
         "exits": []
       }
     },
-    "24": {
-      "id": 24,
+    "11": {
+      "id": 11,
       "label": "Sector 2",
       "sector": {}
     },
-    "25": {
+    "12": {
       "astro_body": {
         "kind": "star",
         "orbit_distance": 0.0
       },
-      "id": 25,
+      "id": 12,
       "label": "Yellow Star",
-      "parent": 24
+      "parent": 11
     },
-    "26": {
+    "13": {
       "astro_body": {
         "kind": "asteroid_field",
         "orbit_distance": 40.0
       },
-      "id": 26,
+      "id": 13,
       "label": "Asteroid Field",
-      "parent": 25
+      "parent": 12
     },
-    "29": {
+    "14": {
       "astro_body": {
-        "jump_target_id": 18,
+        "jump_target_id": 7,
         "kind": "jump_gate",
         "orbit_distance": 200.0
       },
-      "id": 29,
+      "id": 14,
       "label": "Jump Point",
-      "parent": 25
+      "parent": 12
     },
-    "3": {
-      "desc": "City landing pad.",
-      "id": 3,
-      "label": "Landing Pad",
-      "parent": 16,
-      "room": {
-        "can_exit": true,
-        "exits": [
-          {
-            "dir": "n",
-            "to": 2
-          },
-          {
-            "dir": "s",
-            "to": 4
-          }
-        ]
-      }
-    },
-    "31": {
+    "15": {
       "astro_body": {
         "kind": "planet",
         "orbit_distance": 80.0
       },
-      "id": 31,
+      "id": 15,
       "label": "Jumanji",
-      "parent": 19
+      "parent": 8
     },
-    "32": {
-      "id": 32,
+    "16": {
+      "id": 16,
       "label": "Jungle Landing Zone",
-      "parent": 31,
+      "parent": 15,
       "zone": {}
     },
-    "33": {
+    "17": {
       "desc": "Jungle landing pad",
-      "id": 33,
+      "id": 17,
       "label": "Landing Pad",
-      "parent": 32,
+      "parent": 16,
       "room": {
         "can_exit": true,
         "exits": []
       }
     },
-    "38": {
-      "id": 38,
+    "18": {
+      "id": 18,
       "label": "Goods vendor spawn",
       "parent": 4,
       "spawn": {
@@ -641,10 +100,10 @@
         "time_min": 60.0
       }
     },
-    "39": {
-      "id": 39,
+    "19": {
+      "id": 19,
       "label": "Ore vendor spawn",
-      "parent": 21,
+      "parent": 10,
       "spawn": {
         "max": 1,
         "next_spawn": 7955.532328158617,
@@ -653,23 +112,23 @@
         "time_min": 60.0
       }
     },
-    "4": {
-      "desc": "The deserts market and city center",
-      "id": 4,
-      "label": "City center",
-      "parent": 16,
+    "2": {
+      "desc": "The great Palace of Dune",
+      "id": 2,
+      "label": "Palace",
+      "parent": 5,
       "room": {
         "exits": [
           {
-            "dir": "n",
+            "dir": "s",
             "to": 3
           }
         ]
       }
     },
-    "40": {
+    "20": {
       "desc": "Buy raw material and sell goods",
-      "id": 40,
+      "id": 20,
       "label": "Planet market",
       "market": {
         "trades": [
@@ -702,9 +161,9 @@
         ]
       }
     },
-    "41": {
+    "21": {
       "desc": "Sell raw material and buy goods",
-      "id": 41,
+      "id": 21,
       "label": "Asteroid market",
       "market": {
         "trades": [
@@ -721,6 +180,557 @@
             ]
           }
         ]
+      }
+    },
+    "22": {
+      "craft": {},
+      "desc": "Small cargo craft designed to deliver small amount of cargo",
+      "id": 22,
+      "label": "Light Transport",
+      "parent": 10,
+      "tags": {
+        "values": [
+          "ship",
+          "ship_civil",
+          "ship_transport"
+        ]
+      }
+    },
+    "23": {
+      "desc": "Craft airlock",
+      "id": 23,
+      "label": "Airlock",
+      "parent": 22,
+      "room": {
+        "can_exit": true,
+        "exits": [
+          {
+            "dir": "n",
+            "to": 24
+          }
+        ]
+      }
+    },
+    "24": {
+      "desc": "Cargo storage.",
+      "id": 24,
+      "label": "Cargo Storage",
+      "parent": 22,
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 25
+          },
+          {
+            "dir": "s",
+            "to": 23
+          }
+        ]
+      }
+    },
+    "25": {
+      "desc": "Craft bridge.",
+      "id": 25,
+      "label": "Bridge",
+      "parent": 22,
+      "room": {
+        "exits": [
+          {
+            "dir": "s",
+            "to": 24
+          }
+        ]
+      }
+    },
+    "26": {
+      "id": 26,
+      "label": "Player sisso",
+      "player": {
+        "avatar_id": 27,
+        "id": 26,
+        "login": "sisso"
+      }
+    },
+    "27": {
+      "desc": "sisso",
+      "id": 27,
+      "inventory": {
+        "max_weight": 20.0
+      },
+      "label": "sisso",
+      "memory": {
+        "knows": [
+          2,
+          3,
+          4,
+          23,
+          24,
+          25
+        ]
+      },
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 0
+      },
+      "parent": 34
+    },
+    "28": {
+      "desc": "other",
+      "id": 28,
+      "label": "other",
+      "player": {
+        "avatar_id": 29,
+        "id": 28,
+        "login": "other"
+      }
+    },
+    "29": {
+      "desc": "other",
+      "id": 29,
+      "inventory": {
+        "max_weight": 20.0
+      },
+      "label": "other",
+      "memory": {
+        "knows": [
+          2,
+          3,
+          4,
+          23,
+          24,
+          25
+        ]
+      },
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 0
+      },
+      "parent": 10
+    },
+    "3": {
+      "desc": "City landing pad.",
+      "id": 3,
+      "label": "Landing Pad",
+      "parent": 5,
+      "room": {
+        "can_exit": true,
+        "exits": [
+          {
+            "dir": "n",
+            "to": 2
+          },
+          {
+            "dir": "s",
+            "to": 4
+          }
+        ]
+      }
+    },
+    "30": {
+      "id": 30,
+      "inventory": {
+        "max_weight": 20.0
+      },
+      "label": "Good Vendor",
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 10
+      },
+      "owned_by": 18,
+      "parent": 4,
+      "vendor": {
+        "market_id": 20
+      }
+    },
+    "31": {
+      "id": 31,
+      "item": {
+        "amount": 1421,
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "credits",
+      "parent": 29,
+      "tags": {
+        "values": [
+          "money"
+        ]
+      }
+    },
+    "32": {
+      "id": 32,
+      "inventory": {
+        "max_weight": 20.0
+      },
+      "label": "Ore Vendor",
+      "mob": {
+        "attack": 10,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 10
+      },
+      "owned_by": 19,
+      "parent": 10,
+      "vendor": {
+        "market_id": 21
+      }
+    },
+    "33": {
+      "craft": {},
+      "desc": "Small shuttle",
+      "id": 33,
+      "label": "Shuttle",
+      "parent": 42
+    },
+    "34": {
+      "desc": "Small cockpit used to control the craft",
+      "id": 34,
+      "label": "Cockpit",
+      "parent": 33,
+      "room": {
+        "can_exit": true,
+        "exits": []
+      }
+    },
+    "35": {
+      "desc": "Commercial Goods",
+      "id": 35,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Goods",
+      "parent": 29,
+      "price": {
+        "price": 500
+      },
+      "tags": {
+        "values": [
+          "goods"
+        ]
+      }
+    },
+    "36": {
+      "desc": "Commercial Goods",
+      "id": 36,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Goods",
+      "parent": 29,
+      "price": {
+        "price": 500
+      },
+      "tags": {
+        "values": [
+          "goods"
+        ]
+      }
+    },
+    "37": {
+      "desc": "Commercial Goods",
+      "id": 37,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Goods",
+      "parent": 24,
+      "price": {
+        "price": 500
+      },
+      "tags": {
+        "values": [
+          "goods"
+        ]
+      }
+    },
+    "38": {
+      "desc": "Commercial Goods",
+      "id": 38,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Goods",
+      "parent": 24,
+      "price": {
+        "price": 500
+      },
+      "tags": {
+        "values": [
+          "goods"
+        ]
+      }
+    },
+    "39": {
+      "craft": {},
+      "desc": "Small shuttle",
+      "id": 39,
+      "label": "Shuttle",
+      "parent": 3,
+      "price": {
+        "price": 10000
+      },
+      "tags": {
+        "values": [
+          "ship",
+          "ship_civil",
+          "ship_transport"
+        ]
+      }
+    },
+    "4": {
+      "desc": "The deserts market and city center",
+      "id": 4,
+      "label": "City center",
+      "parent": 5,
+      "room": {
+        "exits": [
+          {
+            "dir": "n",
+            "to": 3
+          }
+        ]
+      }
+    },
+    "40": {
+      "desc": "Small cockpit used to control the craft",
+      "id": 40,
+      "label": "Cockpit",
+      "parent": 39,
+      "room": {
+        "can_exit": true,
+        "exits": []
+      }
+    },
+    "41": {
+      "desc": "Ore deposit, you can extract ores from here",
+      "extractable": {
+        "prefab_id": 35
+      },
+      "id": 41,
+      "label": "Ores deposit",
+      "parent": 42
+    },
+    "42": {
+      "desc": "Asteroid surface",
+      "id": 42,
+      "label": "Asteroid surface",
+      "parent": 6,
+      "room": {
+        "can_exit": true,
+        "exits": []
+      }
+    },
+    "43": {
+      "id": 43,
+      "item": {
+        "amount": 488,
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "credits",
+      "parent": 27,
+      "tags": {
+        "values": [
+          "money"
+        ]
+      }
+    },
+    "44": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 44,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 34,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "45": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 45,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 34,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "46": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 46,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 34,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "47": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 47,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 34,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "48": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 48,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 34,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "49": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 49,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 34,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "5": {
+      "id": 5,
+      "label": "Palace zone",
+      "parent": 1,
+      "zone": {}
+    },
+    "50": {
+      "desc": "Mineral ores extracted directly from earth",
+      "id": 50,
+      "item": {
+        "flags": {},
+        "weight": 10.0
+      },
+      "label": "Ores",
+      "parent": 27,
+      "price": {
+        "price": 50
+      },
+      "tags": {
+        "values": [
+          "ore"
+        ]
+      }
+    },
+    "6": {
+      "astro_body": {
+        "kind": "asteroid_field",
+        "orbit_distance": 180.0
+      },
+      "id": 6,
+      "label": "Asteroid Field",
+      "parent": 8
+    },
+    "7": {
+      "astro_body": {
+        "jump_target_id": 14,
+        "kind": "jump_gate",
+        "orbit_distance": 200.0
+      },
+      "id": 7,
+      "label": "Jump point",
+      "parent": 8
+    },
+    "8": {
+      "astro_body": {
+        "kind": "star",
+        "orbit_distance": 0.0
+      },
+      "id": 8,
+      "label": "Red Star",
+      "parent": 0
+    },
+    "9": {
+      "astro_body": {
+        "kind": "station",
+        "orbit_distance": 2.0
+      },
+      "id": 9,
+      "label": "Station",
+      "parent": 1,
+      "pos": {
+        "x": 1.0,
+        "y": 0.0
       }
     }
   },
@@ -891,7 +901,12 @@
           "money": true
         }
       },
-      "label": "credits"
+      "label": "credits",
+      "tags": {
+        "values": [
+          "money"
+        ]
+      }
     },
     "43": {
       "ai": {
@@ -947,5 +962,5 @@
       }
     }
   },
-  "version": 3
+  "version": 4
 }

@@ -44,6 +44,7 @@ const MIGRATION_LATEST_VERSION: u32 = 4;
 #[derive(Debug, Clone)]
 pub struct ValidationResult {
     pub duplicate_ids: Vec<StaticId>,
+    pub duplicate_prefabs_ids: Vec<StaticId>,
     pub mismatch_ids: Vec<(StaticId, StaticId)>,
 }
 
@@ -231,6 +232,21 @@ impl Loader {
     }
 }
 
+#[derive(Debug)]
+pub struct LoadingCtx {
+    id_map: HashMap<StaticId, ObjId>,
+}
+
+impl Default for LoadingCtx {
+    fn default() -> Self {
+        LoadingCtx {
+            id_map: HashMap::new(),
+        }
+    }
+}
+
+impl LoadingCtx {}
+
 /// static fields
 impl Loader {
     pub fn spawn_at(
@@ -246,14 +262,14 @@ impl Loader {
     pub fn instantiate(container: &mut Container, static_id: StaticId) -> Result<ObjId> {
         debug!("instantiate prefab {:?}", static_id);
 
-        let mut references = HashMap::new();
+        let mut loading_ctx = LoadingCtx::default();
 
         // create objects
         let obj_id = container.objects.create();
         container.objects.set_prefab_id(obj_id, static_id)?;
 
         trace!("{:?} creating prefab of {:?}", obj_id, static_id);
-        references.insert(static_id, obj_id);
+        assert!(loading_ctx.id_map.insert(static_id, obj_id).is_none());
 
         // instantiate children
         let children_prefabs = container.loader.find_deep_prefabs_by_parents(static_id);
@@ -265,18 +281,18 @@ impl Loader {
                 child_static_id,
                 child_id
             );
-            references.insert(child_static_id, child_id);
+            loading_ctx.id_map.insert(child_static_id, child_id);
         }
 
         // initialize all
-        for (&static_id, &obj_id) in &references {
+        for (&static_id, &obj_id) in &loading_ctx.id_map {
             let data = container
                 .loader
                 .get_prefab(static_id)
                 .expect("static id not found")
                 .clone();
 
-            Loader::apply_data(container, obj_id, &data, &references)?;
+            Loader::apply_data(container, obj_id, &data, &loading_ctx)?;
         }
 
         Ok(obj_id)
@@ -285,11 +301,12 @@ impl Loader {
     /// Resolve the static id to a ObjId by first searching in reference_map and then in container
     fn get_by_static_id(
         objects: &Objects,
-        ref_map: &HashMap<StaticId, ObjId>,
+        ref_map: &LoadingCtx,
         static_id: StaticId,
     ) -> Result<ObjId> {
         // search from map and fallback to real ObjId
         ref_map
+            .id_map
             .get(&static_id)
             .cloned()
             .or_else(|| {
@@ -308,7 +325,7 @@ impl Loader {
         obj_id: ObjId,
         data: &ObjData,
         // used to keep created objects references like when you spawn a prefab with children
-        references: &HashMap<StaticId, ObjId>,
+        references: &LoadingCtx,
     ) -> Result<()> {
         macro_rules! get_ref {
             ($res:expr) => {
@@ -1116,8 +1133,10 @@ impl Loader {
 
     pub fn validate_and_normalize(data: &mut LoaderData) -> Result<ValidationResult> {
         let mut ids = HashSet::new();
+        let mut prefabs_ids = HashSet::new();
         let mut result = ValidationResult {
             duplicate_ids: vec![],
+            duplicate_prefabs_ids: vec![],
             mismatch_ids: vec![],
         };
 
@@ -1147,8 +1166,8 @@ impl Loader {
                 data.id = Some(*static_id);
             }
 
-            if !ids.insert(data.id) {
-                result.duplicate_ids.push(*static_id);
+            if !prefabs_ids.insert(data.id) {
+                result.duplicate_prefabs_ids.push(*static_id);
             }
         }
 
@@ -1187,13 +1206,22 @@ impl Loader {
     }
 
     fn load_all(container: &mut Container, objects: BTreeMap<StaticId, ObjData>) -> Result<()> {
+        let mut loading_ctx = LoadingCtx::default();
+
+        // instantiate
         for (key, _) in &objects {
-            container.objects.insert(ObjId(key.as_u32()))?;
+            let id = container.objects.create();
+            loading_ctx.id_map.insert(*key, id);
         }
 
+        // initialize
         for (id, data) in &objects {
-            let mut empty_references = Default::default();
-            Loader::apply_data(container, ObjId(id.as_u32()), data, &mut empty_references)?;
+            Loader::apply_data(
+                container,
+                *loading_ctx.id_map.get(id).unwrap(),
+                data,
+                &mut loading_ctx,
+            )?;
         }
 
         Ok(())

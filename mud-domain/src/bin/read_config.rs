@@ -5,38 +5,28 @@ use serde_json;
 use std::collections::{HashMap, HashSet};
 use std::env;
 
+use clap::{self, Clap};
 use commons::{asciicolors, jsons::JsonValueExtra};
 use std::path::Path;
 
-// TODO: refactory everything, it got ugly,
-// TODO: support commands
-// TODO: dump ID should be able to pipe to jq
-// TODO: show hierarchic as tree
-
-fn usage() {
-    println!();
-    println!("Usage:");
-    println!();
-    println!("{} config-folder [id]", env::args().nth(0).unwrap());
-    println!();
+/// This doc string acts as a help message when the user runs '--help'
+/// as do all doc strings on fields
+#[derive(Clap)]
+struct Opts {
+    #[clap(about = "Directory to read all files or a json file")]
+    path: String,
+    #[clap(short, long, about = "obj id to describe")]
+    obj_id: Option<u32>,
+    #[clap(short, long, about = "prefab id to describe")]
+    prefab_id: Option<u32>,
 }
 
 fn main() {
-    if env::args().len() < 1 {
-        usage();
-        std::process::exit(1);
-    }
-
-    // TODO: require a proper argument parser
-    let path = env::args().nth(1).unwrap_or("data/space".to_string());
-    let dump_id: Option<u32> = env::args().nth(2).map(|s| match s.parse() {
-        Ok(id) => id,
-        _ => {
-            eprintln!("Invalid id {:?}", s);
-            usage();
-            std::process::exit(1);
-        }
-    });
+    let opts: Opts = Opts::parse();
+    let path = opts.path;
+    let dump_obj_id = opts.obj_id;
+    let dump_prefab_id = opts.prefab_id;
+    let is_dump = dump_obj_id.is_some() || dump_prefab_id.is_some();
 
     let path = Path::new(path.as_str());
 
@@ -49,10 +39,12 @@ fn main() {
         std::process::exit(2);
     };
 
-    let mut data_by_id = HashMap::new();
+    let mut dataobj_by_id = HashMap::new();
+    let mut dataprefab_by_id = HashMap::new();
     let mut roots = vec![];
     let mut roots_prefabs = vec![];
-    let mut tree = Tree::<u32>::new();
+    let mut tree_obj = Tree::<u32>::new();
+    let mut tree_prefab = Tree::<u32>::new();
     let mut max_id = 0;
     let mut max_prefab_id = 0;
     let mut errors = vec![];
@@ -72,55 +64,69 @@ fn main() {
         errors.push(format!("duplicate id {:?}", id));
     }
 
-    for (static_id, e) in &data.objects {
+    for (_static_id, e) in &data.objects {
         match e.parent {
             Some(parent_id) => {
-                tree.insert(e.get_id().as_u32(), parent_id.as_u32());
+                tree_obj.insert(e.get_id().as_u32(), parent_id.as_u32());
             }
             None => roots.push(e.get_id().as_u32()),
         }
 
         max_id = max_id.max(e.get_id().as_u32());
-        if static_id.is_prefab() {
-            max_prefab_id = max_prefab_id.max(e.get_id().as_u32());
-        }
-
-        data_by_id.insert(e.get_id().as_u32(), e);
+        dataobj_by_id.insert(e.get_id().as_u32(), e);
     }
 
     for (_, e) in &data.prefabs {
         match e.parent {
             Some(parent_id) => {
-                tree.insert(e.get_id().as_u32(), parent_id.as_u32());
+                tree_prefab.insert(e.get_id().as_u32(), parent_id.as_u32());
             }
             None => roots_prefabs.push(e.get_id().as_u32()),
         }
 
         max_prefab_id = max_prefab_id.max(e.get_id().as_u32());
 
-        data_by_id.insert(e.get_id().as_u32(), e);
+        dataprefab_by_id.insert(e.get_id().as_u32(), e);
     }
 
-    if dump_id.is_none() {
-        println!();
-        println!("Prefabs:");
-
-        roots_prefabs.sort();
-        for key in roots_prefabs {
-            print_deep(0, key, &data_by_id, &tree, &broken_set);
+    let mut free_prefab_ids = vec![];
+    for id in 0..max_prefab_id {
+        if !dataprefab_by_id.contains_key(&id) {
+            free_prefab_ids.push(id);
         }
+    }
 
+    if !is_dump {
         println!();
         println!("Objects:");
 
         roots.sort();
         for key in roots {
-            print_deep(0, key, &data_by_id, &tree, &broken_set);
+            print_deep(0, key, &dataobj_by_id, &tree_obj, &broken_set);
         }
+
+        println!();
+        println!("Prefabs:");
+
+        roots_prefabs.sort();
+        for key in roots_prefabs {
+            print_deep(0, key, &dataprefab_by_id, &tree_prefab, &broken_set);
+        }
+
+        println!();
+        println!("Free prefab ids:");
+        println!("{:?}", free_prefab_ids);
     }
 
-    if let Some(id) = dump_id {
-        let obj = data_by_id.get(&id).unwrap();
+    if let Some(id) = dump_obj_id {
+        let obj = dataobj_by_id.get(&id).unwrap();
+        let mut value = serde_json::to_value(&obj).expect("fail to serialize object into value");
+        value.strip_nulls();
+
+        let json = serde_json::to_string(&value).expect("Failed to serialize object");
+        println!("{}", json);
+    } else if let Some(id) = dump_prefab_id {
+        let obj = dataprefab_by_id.get(&id).unwrap();
         let mut value = serde_json::to_value(&obj).expect("fail to serialize object into value");
         value.strip_nulls();
 
@@ -175,7 +181,9 @@ fn print_deep(
 ) {
     print_one(
         deep,
-        data_by_id.get(&key).unwrap(),
+        data_by_id
+            .get(&key)
+            .expect(&format!("could not found data for id {}", key)),
         broken_set.contains(&key),
     );
 

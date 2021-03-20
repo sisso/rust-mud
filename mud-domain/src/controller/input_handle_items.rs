@@ -260,7 +260,7 @@ pub mod test {
         let room_id = builder::add_room(&mut container, "test_room");
         let container_id = builder::add_container(&mut container, "my corpse", room_id, true);
         let item_id = builder::add_item(&mut container, "nice item", container_id);
-        let mob_id = builder::add_mob(&mut container, "mob", room_id);
+        let _mob_id = builder::add_mob(&mut container, "mob", room_id);
 
         let result = parse_not_owned_item(
             &container.labels,
