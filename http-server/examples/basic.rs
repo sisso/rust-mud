@@ -19,7 +19,7 @@ fn handle_request(request: HttpRequest) -> HttpResponse {
     println!("receive {:?}", request);
 
     HttpResponse {
-        request,
+        request_id: request.request_id,
         status: HttpStatus::Ok,
         body: Some(json!({"ok": true})),
     }
