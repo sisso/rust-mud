@@ -5,25 +5,30 @@ use serde_json;
 use std::collections::{HashMap, HashSet};
 use std::env;
 
+use clap;
 use commons::{asciicolors, jsons::JsonValueExtra};
 use std::path::Path;
 
-fn usage() {
-    println!();
-    println!("Usage:");
-    println!();
-    println!("{} config-file", env::args().nth(0).unwrap());
-    println!();
-}
-
 fn main() {
-    if env::args().len() < 1 {
-        usage();
-        std::process::exit(1);
-    }
+    let matches = clap::App::new("update config")
+        .arg(
+            clap::Arg::new("path")
+                .about("path to the config file")
+                .required(true)
+                .index(1),
+        )
+        .arg(
+            clap::Arg::new("dry")
+                .short('d')
+                .long("dry-run")
+                .about("dry run"),
+        )
+        .get_matches();
 
-    let path = env::args().nth(1).expect("config file is require");
-    let path = Path::new(path.as_str());
+    let path = matches.value_of("path").unwrap();
+    let dry = matches.is_present("dry");
+
+    let path = Path::new(path);
 
     let mut data = if path.is_dir() {
         eprintln!("source config file can not be a directory");
@@ -37,6 +42,8 @@ fn main() {
 
     // migrate it
     Loader::migrate(&mut data).expect("fail to migrate data");
-    Loader::write_snapshot(path, &data).expect("fail to write config file");
+    if !dry {
+        Loader::write_snapshot(path, &data).expect("fail to write config file");
+    }
     println!("done");
 }

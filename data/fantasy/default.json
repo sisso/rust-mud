@@ -3,8 +3,8 @@
     "avatar_mob": 0,
     "initial_room": 2,
     "money_id": 17,
-    "tick": 4845,
-    "total_time": 484.5000072196126
+    "tick": 9863,
+    "total_time": 986.3000146970155
   },
   "objects": {
     "1": {
@@ -28,7 +28,9 @@
         "xp": 10
       },
       "parent": 4,
-      "vendor": {}
+      "vendor": {
+        "market_id": 100552
+      }
     },
     "100001": {
       "desc": "Random room 0",
@@ -188,7 +190,7 @@
       "parent": 100004,
       "spawn": {
         "max": 4,
-        "next_spawn": 499.3938729688525,
+        "next_spawn": 1002.5198612585666,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -199,7 +201,7 @@
       "parent": 100008,
       "spawn": {
         "max": 4,
-        "next_spawn": 499.83372715860605,
+        "next_spawn": 990.3806856274604,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -363,7 +365,7 @@
       "parent": 100014,
       "spawn": {
         "max": 4,
-        "next_spawn": 485.615763656795,
+        "next_spawn": 1008.3704667389395,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -374,7 +376,7 @@
       "parent": 100016,
       "spawn": {
         "max": 4,
-        "next_spawn": 503.9237990602851,
+        "next_spawn": 1008.3914977163078,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -385,7 +387,7 @@
       "parent": 100018,
       "spawn": {
         "max": 4,
-        "next_spawn": 529.0658235549927,
+        "next_spawn": 986.9178327843548,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -396,7 +398,7 @@
       "parent": 100019,
       "spawn": {
         "max": 4,
-        "next_spawn": 508.64174292236567,
+        "next_spawn": 990.7785078808668,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -407,7 +409,7 @@
       "parent": 100020,
       "spawn": {
         "max": 4,
-        "next_spawn": 493.7968347668648,
+        "next_spawn": 990.7918680906296,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -579,7 +581,7 @@
       "parent": 100029,
       "spawn": {
         "max": 4,
-        "next_spawn": 487.317827232182,
+        "next_spawn": 991.0857103168964,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -590,7 +592,7 @@
       "parent": 100034,
       "spawn": {
         "max": 4,
-        "next_spawn": 500.660598769784,
+        "next_spawn": 1001.4620664268732,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -601,7 +603,7 @@
       "parent": 100031,
       "spawn": {
         "max": 4,
-        "next_spawn": 489.9780011922121,
+        "next_spawn": 1009.700344733894,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -612,7 +614,7 @@
       "parent": 100032,
       "spawn": {
         "max": 4,
-        "next_spawn": 491.7320627048611,
+        "next_spawn": 1022.5513207986953,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -623,7 +625,7 @@
       "parent": 100028,
       "spawn": {
         "max": 4,
-        "next_spawn": 514.4082353115082,
+        "next_spawn": 1027.0002227947118,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -634,7 +636,7 @@
       "parent": 100027,
       "spawn": {
         "max": 4,
-        "next_spawn": 522.9860110357404,
+        "next_spawn": 1032.749133333564,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -645,7 +647,7 @@
       "parent": 100030,
       "spawn": {
         "max": 4,
-        "next_spawn": 485.28766283392906,
+        "next_spawn": 991.0639531612396,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -656,7 +658,7 @@
       "parent": 100026,
       "spawn": {
         "max": 4,
-        "next_spawn": 491.28035631775856,
+        "next_spawn": 996.2048154622316,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -667,7 +669,7 @@
       "parent": 100033,
       "spawn": {
         "max": 4,
-        "next_spawn": 507.8775004222989,
+        "next_spawn": 1006.9956555813552,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -831,7 +833,7 @@
       "parent": 100048,
       "spawn": {
         "max": 4,
-        "next_spawn": 495.0189374387264,
+        "next_spawn": 1006.547493569553,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -842,7 +844,7 @@
       "parent": 100052,
       "spawn": {
         "max": 4,
-        "next_spawn": 488.3145531117916,
+        "next_spawn": 988.6323181167246,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -853,7 +855,7 @@
       "parent": 100051,
       "spawn": {
         "max": 4,
-        "next_spawn": 484.92126424610615,
+        "next_spawn": 987.528403453529,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -864,7 +866,7 @@
       "parent": 100047,
       "spawn": {
         "max": 4,
-        "next_spawn": 536.2220424041152,
+        "next_spawn": 997.544907785952,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -875,7 +877,7 @@
       "parent": 100050,
       "spawn": {
         "max": 4,
-        "next_spawn": 504.8529909476638,
+        "next_spawn": 994.3290396705272,
         "prefab_id": 53,
         "time_max": 60.0,
         "time_min": 10.0
@@ -886,7 +888,7 @@
       "parent": 100045,
       "spawn": {
         "max": 4,
-        "next_spawn": 512.8850341364741,
+        "next_spawn": 1027.3479447737338,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -897,7 +899,7 @@
       "parent": 100044,
       "spawn": {
         "max": 4,
-        "next_spawn": 496.030438773334,
+        "next_spawn": 991.69987475127,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -908,7 +910,7 @@
       "parent": 100049,
       "spawn": {
         "max": 4,
-        "next_spawn": 491.9362247288227,
+        "next_spawn": 993.9251767098904,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -919,7 +921,7 @@
       "parent": 100046,
       "spawn": {
         "max": 4,
-        "next_spawn": 491.944659113884,
+        "next_spawn": 1005.7136689275505,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -1079,7 +1081,7 @@
       "parent": 100067,
       "spawn": {
         "max": 4,
-        "next_spawn": 486.9605705589056,
+        "next_spawn": 997.2639443874361,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -1090,7 +1092,7 @@
       "parent": 100065,
       "spawn": {
         "max": 4,
-        "next_spawn": 512.4454874396324,
+        "next_spawn": 988.8398075550796,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -1101,7 +1103,7 @@
       "parent": 100070,
       "spawn": {
         "max": 4,
-        "next_spawn": 502.42989557236433,
+        "next_spawn": 1019.9961824268105,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -1112,7 +1114,7 @@
       "parent": 100068,
       "spawn": {
         "max": 4,
-        "next_spawn": 514.2797861918807,
+        "next_spawn": 1030.4925233200195,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -1123,7 +1125,7 @@
       "parent": 100062,
       "spawn": {
         "max": 4,
-        "next_spawn": 487.4377957656979,
+        "next_spawn": 999.2825375422836,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -1134,7 +1136,7 @@
       "parent": 100066,
       "spawn": {
         "max": 4,
-        "next_spawn": 490.2895382270217,
+        "next_spawn": 1043.35527741164,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -1145,7 +1147,7 @@
       "parent": 100063,
       "spawn": {
         "max": 4,
-        "next_spawn": 508.3447897732258,
+        "next_spawn": 1014.3281186744573,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -1156,7 +1158,7 @@
       "parent": 100064,
       "spawn": {
         "max": 4,
-        "next_spawn": 513.1307960525155,
+        "next_spawn": 986.7771910205483,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -1167,7 +1169,7 @@
       "parent": 100069,
       "spawn": {
         "max": 4,
-        "next_spawn": 484.5279330313206,
+        "next_spawn": 1016.6035956516864,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -1323,13 +1325,18 @@
     "100088": {
       "id": 100088,
       "item": {
+        "amount": 10,
         "flags": {
           "money": true
         }
       },
       "label": "gold",
-      "owned_by": 24,
-      "parent": 23
+      "parent": 100348,
+      "tags": {
+        "values": [
+          "money"
+        ]
+      }
     },
     "100089": {
       "ai": {
@@ -1636,7 +1643,12 @@
         "weight": 1.0
       },
       "label": "rat corpse",
-      "parent": 100004
+      "parent": 100004,
+      "tags": {
+        "values": [
+          "body"
+        ]
+      }
     },
     "100109": {
       "ai": {
@@ -1691,7 +1703,12 @@
         "weight": 1.0
       },
       "label": "rat corpse",
-      "parent": 100004
+      "parent": 100004,
+      "tags": {
+        "values": [
+          "body"
+        ]
+      }
     },
     "100112": {
       "ai": {
@@ -1944,17 +1961,6 @@
       },
       "owned_by": 100042,
       "parent": 100026
-    },
-    "100125": {
-      "id": 100125,
-      "item": {
-        "flags": {
-          "money": true
-        }
-      },
-      "label": "gold",
-      "owned_by": 24,
-      "parent": 23
     },
     "100126": {
       "ai": {
@@ -2628,29 +2634,6 @@
       "owned_by": 100055,
       "parent": 100051
     },
-    "100160": {
-      "ai": {
-        "commandable": true
-      },
-      "desc": "Sword for sell",
-      "id": 100160,
-      "inventory": {
-        "max_weight": 20.0
-      },
-      "label": "mercenary",
-      "mob": {
-        "attack": 10,
-        "damage_max": 4,
-        "damage_min": 2,
-        "defense": 10,
-        "hire_cost": 10,
-        "pv": 10,
-        "pv_max": 10,
-        "xp": 10
-      },
-      "owned_by": 26,
-      "parent": 2
-    },
     "100161": {
       "ai": {
         "command_aggressive": true
@@ -2787,18 +2770,12 @@
         }
       },
       "label": "sisso corpse",
-      "parent": 100004
-    },
-    "100168": {
-      "id": 100168,
-      "item": {
-        "flags": {
-          "money": true
-        }
-      },
-      "label": "gold",
-      "owned_by": 24,
-      "parent": 23
+      "parent": 100004,
+      "tags": {
+        "values": [
+          "body"
+        ]
+      }
     },
     "100169": {
       "ai": {
@@ -3346,17 +3323,6 @@
       "owned_by": 100071,
       "parent": 100067
     },
-    "100196": {
-      "id": 100196,
-      "item": {
-        "flags": {
-          "money": true
-        }
-      },
-      "label": "gold",
-      "owned_by": 24,
-      "parent": 23
-    },
     "100197": {
       "ai": {
         "command_aggressive": true
@@ -3677,7 +3643,7 @@
       "id": 100215,
       "label": "sisso",
       "player": {
-        "avatar_id": 100344,
+        "avatar_id": 100349,
         "id": 100215,
         "login": "sisso"
       }
@@ -3702,17 +3668,6 @@
       },
       "owned_by": 100058,
       "parent": 100045
-    },
-    "100217": {
-      "id": 100217,
-      "item": {
-        "flags": {
-          "money": true
-        }
-      },
-      "label": "gold",
-      "owned_by": 24,
-      "parent": 23
     },
     "100218": {
       "ai": {
@@ -4081,7 +4036,12 @@
         }
       },
       "label": "sisso corpse",
-      "parent": 5
+      "parent": 5,
+      "tags": {
+        "values": [
+          "body"
+        ]
+      }
     },
     "100315": {
       "desc": "The corpse of sisso laying in the ground",
@@ -4093,7 +4053,12 @@
         }
       },
       "label": "sisso corpse",
-      "parent": 5
+      "parent": 5,
+      "tags": {
+        "values": [
+          "body"
+        ]
+      }
     },
     "100317": {
       "ai": {
@@ -4126,7 +4091,12 @@
         }
       },
       "label": "sisso corpse",
-      "parent": 5
+      "parent": 5,
+      "tags": {
+        "values": [
+          "body"
+        ]
+      }
     },
     "100320": {
       "desc": "The corpse of sisso laying in the ground",
@@ -4138,7 +4108,12 @@
         }
       },
       "label": "sisso corpse",
-      "parent": 5
+      "parent": 5,
+      "tags": {
+        "values": [
+          "body"
+        ]
+      }
     },
     "100322": {
       "desc": "The corpse of sisso laying in the ground",
@@ -4150,7 +4125,12 @@
         }
       },
       "label": "sisso corpse",
-      "parent": 5
+      "parent": 5,
+      "tags": {
+        "values": [
+          "body"
+        ]
+      }
     },
     "100324": {
       "desc": "The corpse of wolf laying in the ground",
@@ -4162,7 +4142,12 @@
         }
       },
       "label": "wolf corpse",
-      "parent": 5
+      "parent": 5,
+      "tags": {
+        "values": [
+          "body"
+        ]
+      }
     },
     "100325": {
       "ai": {
@@ -4205,17 +4190,6 @@
       },
       "owned_by": 100010,
       "parent": 100004
-    },
-    "100327": {
-      "id": 100327,
-      "item": {
-        "flags": {
-          "money": true
-        }
-      },
-      "label": "gold",
-      "owned_by": 24,
-      "parent": 23
     },
     "100328": {
       "ai": {
@@ -4261,27 +4235,6 @@
       "owned_by": 26,
       "parent": 2
     },
-    "100330": {
-      "ai": {
-        "command_aggressive": true
-      },
-      "id": 100330,
-      "inventory": {
-        "max_weight": 8.0
-      },
-      "label": "wolf",
-      "mob": {
-        "attack": 9,
-        "damage_max": 2,
-        "damage_min": 1,
-        "defense": 8,
-        "pv": 4,
-        "pv_max": 4,
-        "xp": 5
-      },
-      "owned_by": 16,
-      "parent": 5
-    },
     "100331": {
       "id": 100331,
       "item": {
@@ -4289,15 +4242,18 @@
         "weight": 1.0
       },
       "label": "meat",
-      "parent": 100330,
+      "parent": 100350,
       "price": {
         "price": 2
+      },
+      "tags": {
+        "values": [
+          "item"
+        ]
       }
     },
     "100332": {
-      "ai": {
-        "command_aggressive": true
-      },
+      "ai": {},
       "id": 100332,
       "inventory": {
         "max_weight": 8.0
@@ -4325,10 +4281,68 @@
       "parent": 100332,
       "price": {
         "price": 2
+      },
+      "tags": {
+        "values": [
+          "item"
+        ]
       }
     },
-    "100335": {
-      "id": 100335,
+    "100336": {
+      "ai": {},
+      "id": 100336,
+      "inventory": {
+        "max_weight": 8.0
+      },
+      "label": "wolf",
+      "mob": {
+        "attack": 9,
+        "damage_max": 2,
+        "damage_min": 1,
+        "defense": 8,
+        "pv": 4,
+        "pv_max": 4,
+        "xp": 25
+      },
+      "owned_by": 16,
+      "parent": 5
+    },
+    "100337": {
+      "id": 100337,
+      "item": {
+        "flags": {},
+        "weight": 1.0
+      },
+      "label": "meat",
+      "parent": 100336,
+      "price": {
+        "price": 2
+      },
+      "tags": {
+        "values": [
+          "item"
+        ]
+      }
+    },
+    "100341": {
+      "id": 100341,
+      "item": {
+        "flags": {},
+        "weight": 1.0
+      },
+      "label": "meat",
+      "parent": 100347,
+      "price": {
+        "price": 2
+      },
+      "tags": {
+        "values": [
+          "item"
+        ]
+      }
+    },
+    "100345": {
+      "id": 100345,
       "item": {
         "flags": {
           "money": true
@@ -4336,13 +4350,163 @@
       },
       "label": "gold",
       "owned_by": 24,
-      "parent": 23
+      "parent": 23,
+      "tags": {
+        "values": [
+          "money"
+        ]
+      }
     },
-    "100336": {
-      "ai": {
-        "command_aggressive": true
+    "100346": {
+      "id": 100346,
+      "item": {
+        "flags": {
+          "money": true
+        }
       },
-      "id": 100336,
+      "label": "gold",
+      "owned_by": 24,
+      "parent": 23,
+      "tags": {
+        "values": [
+          "money"
+        ]
+      }
+    },
+    "100347": {
+      "desc": "The corpse of wolf laying in the ground",
+      "id": 100347,
+      "item": {
+        "flags": {
+          "body": true,
+          "inventory": true
+        }
+      },
+      "label": "wolf corpse",
+      "parent": 5,
+      "tags": {
+        "values": [
+          "body"
+        ]
+      }
+    },
+    "100348": {
+      "desc": "The corpse of sisso laying in the ground",
+      "id": 100348,
+      "item": {
+        "flags": {
+          "body": true,
+          "inventory": true
+        }
+      },
+      "label": "sisso corpse",
+      "parent": 5,
+      "tags": {
+        "values": [
+          "body"
+        ]
+      }
+    },
+    "100349": {
+      "desc": "sisso",
+      "id": 100349,
+      "inventory": {
+        "max_weight": 20.0
+      },
+      "label": "sisso",
+      "memory": {
+        "knows": [
+          2,
+          4
+        ]
+      },
+      "mob": {
+        "attack": 10,
+        "damage_max": 4,
+        "damage_min": 2,
+        "defense": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 0
+      },
+      "parent": 4
+    },
+    "100350": {
+      "desc": "The corpse of wolf laying in the ground",
+      "id": 100350,
+      "item": {
+        "flags": {
+          "body": true,
+          "inventory": true
+        }
+      },
+      "label": "wolf corpse",
+      "parent": 5,
+      "tags": {
+        "values": [
+          "body"
+        ]
+      }
+    },
+    "100351": {
+      "desc": "The corpse of mercenary laying in the ground",
+      "id": 100351,
+      "item": {
+        "flags": {
+          "body": true,
+          "inventory": true
+        }
+      },
+      "label": "mercenary corpse",
+      "parent": 5,
+      "tags": {
+        "values": [
+          "body"
+        ]
+      }
+    },
+    "100352": {
+      "ai": {
+        "commandable": true
+      },
+      "desc": "Sword for sell",
+      "id": 100352,
+      "inventory": {
+        "max_weight": 20.0
+      },
+      "label": "mercenary",
+      "mob": {
+        "attack": 10,
+        "damage_max": 4,
+        "damage_min": 2,
+        "defense": 10,
+        "hire_cost": 10,
+        "pv": 10,
+        "pv_max": 10,
+        "xp": 10
+      },
+      "owned_by": 26,
+      "parent": 2
+    },
+    "100353": {
+      "id": 100353,
+      "item": {
+        "flags": {
+          "money": true
+        }
+      },
+      "label": "gold",
+      "owned_by": 24,
+      "parent": 23,
+      "tags": {
+        "values": [
+          "money"
+        ]
+      }
+    },
+    "100354": {
+      "ai": {},
+      "id": 100354,
       "inventory": {
         "max_weight": 8.0
       },
@@ -4359,20 +4523,25 @@
       "owned_by": 16,
       "parent": 5
     },
-    "100337": {
-      "id": 100337,
+    "100355": {
+      "id": 100355,
       "item": {
         "flags": {},
         "weight": 1.0
       },
       "label": "meat",
-      "parent": 100336,
+      "parent": 100354,
       "price": {
         "price": 2
+      },
+      "tags": {
+        "values": [
+          "item"
+        ]
       }
     },
-    "100338": {
-      "id": 100338,
+    "100356": {
+      "id": 100356,
       "item": {
         "flags": {
           "money": true
@@ -4380,24 +4549,16 @@
       },
       "label": "gold",
       "owned_by": 24,
-      "parent": 23
+      "parent": 23,
+      "tags": {
+        "values": [
+          "money"
+        ]
+      }
     },
-    "100339": {
-      "id": 100339,
-      "item": {
-        "flags": {
-          "money": true
-        }
-      },
-      "label": "gold",
-      "owned_by": 24,
-      "parent": 23
-    },
-    "100340": {
-      "ai": {
-        "command_aggressive": true
-      },
-      "id": 100340,
+    "100357": {
+      "ai": {},
+      "id": 100357,
       "inventory": {
         "max_weight": 8.0
       },
@@ -4407,27 +4568,53 @@
         "damage_max": 2,
         "damage_min": 1,
         "defense": 8,
-        "pv": 1,
+        "pv": 4,
         "pv_max": 4,
         "xp": 5
       },
       "owned_by": 16,
       "parent": 5
     },
-    "100341": {
-      "id": 100341,
+    "100358": {
+      "id": 100358,
       "item": {
         "flags": {},
         "weight": 1.0
       },
       "label": "meat",
-      "parent": 100340,
+      "parent": 100357,
       "price": {
         "price": 2
+      },
+      "tags": {
+        "values": [
+          "item"
+        ]
       }
     },
-    "100342": {
-      "id": 100342,
+    "100552": {
+      "desc": "Buy and sell everything",
+      "id": 100552,
+      "label": "General Market",
+      "market": {
+        "trades": [
+          {
+            "buy_price_mult": 0.4000000059604645,
+            "tags": [
+              "items"
+            ]
+          },
+          {
+            "sell_price_mult": 1.0,
+            "tags": [
+              "items"
+            ]
+          }
+        ]
+      }
+    },
+    "100553": {
+      "id": 100553,
       "item": {
         "flags": {
           "money": true
@@ -4435,43 +4622,21 @@
       },
       "label": "gold",
       "owned_by": 24,
-      "parent": 23
-    },
-    "100344": {
-      "desc": "sisso",
-      "id": 100344,
-      "inventory": {
-        "max_weight": 20.0
-      },
-      "label": "sisso",
-      "memory": {
-        "knows": [
-          2,
-          4,
-          5
+      "parent": 23,
+      "prefab_id": 17,
+      "tags": {
+        "values": [
+          "money"
         ]
-      },
-      "mob": {
-        "attack": 10,
-        "damage_max": 4,
-        "damage_min": 2,
-        "defense": 10,
-        "pv": 5,
-        "pv_max": 10,
-        "xp": 0
-      },
-      "parent": 4
+      }
     },
     "16": {
       "id": 16,
       "label": "Wolf spawn",
-      "parent": 1,
+      "parent": 5,
       "spawn": {
-        "locations_id": [
-          5
-        ],
         "max": 4,
-        "next_spawn": 519.3859751448035,
+        "next_spawn": 1000.762729294598,
         "prefab_id": 15,
         "time_max": 60.0,
         "time_min": 10.0
@@ -4509,7 +4674,12 @@
         "weight": 1.0
       },
       "label": "donation chest",
-      "parent": 6
+      "parent": 6,
+      "tags": {
+        "values": [
+          "item"
+        ]
+      }
     },
     "24": {
       "id": 24,
@@ -4517,7 +4687,7 @@
       "parent": 23,
       "spawn": {
         "max": 10,
-        "next_spawn": 485.36788081377745,
+        "next_spawn": 1042.39960192889,
         "prefab_id": 17,
         "time_max": 60.0,
         "time_min": 10.0
@@ -4529,7 +4699,7 @@
       "parent": 2,
       "spawn": {
         "max": 2,
-        "next_spawn": 549.5959021896124,
+        "next_spawn": 1065.0323072969911,
         "prefab_id": 25,
         "time_max": 180.0,
         "time_min": 60.0
@@ -4720,39 +4890,64 @@
       "item": {
         "weight": 1.0
       },
-      "label": "Coal"
+      "label": "Coal",
+      "tags": {
+        "values": [
+          "item"
+        ]
+      }
     },
     "11": {
       "id": 11,
       "item": {
         "weight": 1.0
       },
-      "label": "Tree"
+      "label": "Tree",
+      "tags": {
+        "values": [
+          "item"
+        ]
+      }
     },
     "12": {
       "id": 12,
       "item": {
         "weight": 1.0
       },
-      "label": "Ore mine"
+      "label": "Ore mine",
+      "tags": {
+        "values": [
+          "item"
+        ]
+      }
     },
     "13": {
       "id": 13,
       "item": {
         "weight": 1.0
       },
-      "label": "Burner"
+      "label": "Burner",
+      "tags": {
+        "values": [
+          "item"
+        ]
+      }
     },
     "14": {
       "id": 14,
       "item": {
         "weight": 1.0
       },
-      "label": "Forge"
+      "label": "Forge",
+      "tags": {
+        "values": [
+          "item"
+        ]
+      }
     },
     "15": {
       "ai": {
-        "command_aggressive": true
+        "command_aggressive": false
       },
       "children": [
         18
@@ -4780,7 +4975,12 @@
           "money": true
         }
       },
-      "label": "gold"
+      "label": "gold",
+      "tags": {
+        "values": [
+          "money"
+        ]
+      }
     },
     "18": {
       "id": 18,
@@ -4790,6 +4990,11 @@
       "label": "meat",
       "price": {
         "price": 2
+      },
+      "tags": {
+        "values": [
+          "item"
+        ]
       }
     },
     "19": {
@@ -4882,6 +5087,12 @@
       "label": "Dagger",
       "price": {
         "price": 10
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "32": {
@@ -4900,6 +5111,12 @@
       "label": "Short Sword",
       "price": {
         "price": 300
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "33": {
@@ -4918,6 +5135,12 @@
       "label": "Axe",
       "price": {
         "price": 50
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "34": {
@@ -4936,6 +5159,12 @@
       "label": "Mace",
       "price": {
         "price": 100
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "35": {
@@ -4954,6 +5183,12 @@
       "label": "Sword",
       "price": {
         "price": 400
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "36": {
@@ -4972,6 +5207,12 @@
       "label": "Lance",
       "price": {
         "price": 150
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "37": {
@@ -4990,6 +5231,12 @@
       "label": "Quarterstaff",
       "price": {
         "price": 50
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "38": {
@@ -5008,6 +5255,12 @@
       "label": "Halberd",
       "price": {
         "price": 400
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "39": {
@@ -5026,6 +5279,12 @@
       "label": "Two hand Sword",
       "price": {
         "price": 800
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "40": {
@@ -5044,6 +5303,12 @@
       "label": "Two hand Axe",
       "price": {
         "price": 300
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "41": {
@@ -5062,6 +5327,12 @@
       "label": "Flail",
       "price": {
         "price": 200
+      },
+      "tags": {
+        "values": [
+          "item",
+          "weapon"
+        ]
       }
     },
     "43": {
@@ -5077,6 +5348,12 @@
       "label": "Buckler",
       "price": {
         "price": 50
+      },
+      "tags": {
+        "values": [
+          "item",
+          "armor"
+        ]
       }
     },
     "44": {
@@ -5092,6 +5369,12 @@
       "label": "Shield",
       "price": {
         "price": 100
+      },
+      "tags": {
+        "values": [
+          "item",
+          "armor"
+        ]
       }
     },
     "45": {
@@ -5107,6 +5390,12 @@
       "label": "Wall Shield",
       "price": {
         "price": 200
+      },
+      "tags": {
+        "values": [
+          "item",
+          "armor"
+        ]
       }
     },
     "47": {
@@ -5122,6 +5411,12 @@
       "label": "Cap",
       "price": {
         "price": 50
+      },
+      "tags": {
+        "values": [
+          "item",
+          "armor"
+        ]
       }
     },
     "48": {
@@ -5137,6 +5432,12 @@
       "label": "Helm",
       "price": {
         "price": 200
+      },
+      "tags": {
+        "values": [
+          "item",
+          "armor"
+        ]
       }
     },
     "49": {
@@ -5152,6 +5453,12 @@
       "label": "Leather Armor",
       "price": {
         "price": 200
+      },
+      "tags": {
+        "values": [
+          "item",
+          "armor"
+        ]
       }
     },
     "50": {
@@ -5167,6 +5474,12 @@
       "label": "Chain Mail",
       "price": {
         "price": 400
+      },
+      "tags": {
+        "values": [
+          "item",
+          "armor"
+        ]
       }
     },
     "51": {
@@ -5182,6 +5495,12 @@
       "label": "Plate Mail",
       "price": {
         "price": 800
+      },
+      "tags": {
+        "values": [
+          "item",
+          "armor"
+        ]
       }
     },
     "53": {
@@ -5208,22 +5527,37 @@
       "item": {
         "weight": 1.0
       },
-      "label": "Wood"
+      "label": "Wood",
+      "tags": {
+        "values": [
+          "item"
+        ]
+      }
     },
     "8": {
       "id": 8,
       "item": {
         "weight": 1.0
       },
-      "label": "Iron Ore"
+      "label": "Iron Ore",
+      "tags": {
+        "values": [
+          "item"
+        ]
+      }
     },
     "9": {
       "id": 9,
       "item": {
         "weight": 1.0
       },
-      "label": "Iron"
+      "label": "Iron",
+      "tags": {
+        "values": [
+          "item"
+        ]
+      }
     }
   },
-  "version": 3
+  "version": 4
 }

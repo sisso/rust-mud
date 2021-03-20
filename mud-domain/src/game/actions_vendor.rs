@@ -31,14 +31,14 @@ pub fn get_vendor_trades(container: &Container, vendor_id: MobId) -> Option<&Vec
 pub fn find_vendor_list(container: &Container, vendor_id: MobId) -> Result<Vec<VendorTradeObj>> {
     let mut result = vec![];
 
-    let trades =
-        get_vendor_trades(container, vendor_id).as_exception_str("vendor must have a market")?;
+    let trades = get_vendor_trades(container, vendor_id)
+        .as_exception_str(format!("vendor {:?} must have a market", vendor_id))?;
 
     for trade in trades {
         let tags_str = container
             .tags
             .resolve_str(&trade.tags)
-            .as_exception_str("could not find tags")?;
+            .as_exception_str("could not find tags".to_string())?;
 
         for data in container.loader.find_prefabs_by_tags_or(&tags_str) {
             let data_id = match data.id {

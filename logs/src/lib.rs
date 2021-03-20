@@ -54,10 +54,10 @@ macro_rules! error {
 #[macro_export]
 macro_rules! warn {
     (target: $target:expr, $($arg:tt)+) => (
-        log!(target: $target, "WARN", $($arg)+);
+        log!(target: $target, "\x1B[38;5;3mWARN\x1B[0m", $($arg)+);
     );
     ($($arg:tt)+) => (
-        log!("WARN", $($arg)+);
+        log!("\x1B[38;5;3mWARN\x1B[0m", $($arg)+);
     )
 }
 

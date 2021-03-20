@@ -95,7 +95,7 @@ pub trait AsResult<T> {
     fn as_result(self) -> Result<T>;
     fn as_result_str(self, reason: &str) -> Result<T>;
     fn as_result_exception(self) -> Result<T>;
-    fn as_exception_str(self, reason: &str) -> Result<T>;
+    fn as_exception_str(self, reason: String) -> Result<T>;
 }
 
 impl<T> AsResult<T> for Option<T> {
@@ -107,8 +107,8 @@ impl<T> AsResult<T> for Option<T> {
         self.ok_or(Error::Failure(reason.to_string()))
     }
 
-    fn as_exception_str(self, reason: &str) -> Result<T> {
-        self.ok_or(Error::Exception(reason.to_string()))
+    fn as_exception_str(self, reason: String) -> Result<T> {
+        self.ok_or(Error::Exception(reason))
     }
 
     fn as_result_exception(self) -> Result<T> {

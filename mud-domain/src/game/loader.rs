@@ -39,7 +39,7 @@ use commons::jsons::JsonValueExtra;
 use dto::*;
 use std::io::Write;
 
-const MIGRATION_LATEST_VERSION: u32 = 3;
+const MIGRATION_LATEST_VERSION: u32 = 4;
 
 #[derive(Debug, Clone)]
 pub struct ValidationResult {
@@ -250,6 +250,8 @@ impl Loader {
 
         // create objects
         let obj_id = container.objects.create();
+        container.objects.set_prefab_id(obj_id, static_id)?;
+
         trace!("{:?} creating prefab of {:?}", obj_id, static_id);
         references.insert(static_id, obj_id);
 
@@ -1159,6 +1161,7 @@ impl Loader {
         let migrations: Vec<Box<dyn Migration>> = vec![
             Box::new(MigrationV2::default()),
             Box::new(MigrationV3::default()),
+            Box::new(MigrationV4::default()),
         ];
 
         for mut migration in migrations {
