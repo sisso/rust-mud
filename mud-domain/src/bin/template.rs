@@ -2,6 +2,24 @@ use std::error::Error;
 
 const PUB_IMPORT: &str = "// EOF pub mods";
 
+type R<T> = Result<T, Box<dyn Error>>;
+
+fn create_file() -> R<()> {
+    unimplemented!()
+}
+
+fn add_mod(file: &str, module_name: &str) -> R<()> {
+    unimplemented!()
+}
+
+fn add_field(file: &str, module_name: &str) -> R<()> {
+    unimplemented!()
+}
+
+fn add_to_feld_to_new(file: &str, module_name: &str) -> R<()> {
+    unimplemented!()
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let name = match std::env::args().nth(1) {
         Some(name) if !name.is_empty() => name,
@@ -42,6 +60,30 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
     // open container file, add attribute, add initializer
+    {
+        let file = "mud-domain/src/game/container.rs";
+        let mut changed = false;
+        let mut body = std::fs::read_to_string(file)?;
+
+        let start = body
+            .find("pub struct Container {")
+            .expect("could not found container struct");
+        let end = body[start..].find("}").expect("could not find struct end") + start;
+        let struct_body = &body[start..end];
+
+        let reference = format!("    pub {}: {},\n", name_lower, name);
+        if struct_body.contains(&reference) {
+            println!("container already have reference")
+        } else {
+            body.insert_str(end, &reference);
+            changed = true;
+        }
+
+        if changed {
+            println!("update{}", file);
+            std::fs::write(file, body)?;
+        }
+    }
     // create loader, add data, add apply_data and snapshot_obj
     Ok(())
 }

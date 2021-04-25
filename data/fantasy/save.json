@@ -5144,6 +5144,9 @@
       "inventory": {
         "max_weight": 12.0
       },
+      "children": [
+        17
+      ],
       "label": "skeleton",
       "mob": {
         "attack": 9,

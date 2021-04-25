@@ -85,6 +85,7 @@ pub struct Container {
     pub inventories: Inventories,
     pub ai: AiRepo,
     pub extractables: Extractables,
+    pub loot: Loots,
 }
 
 impl Container {
