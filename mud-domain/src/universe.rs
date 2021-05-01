@@ -14,13 +14,17 @@ pub enum RDistrib {
 impl RDistrib {
     pub fn next(&self, rng: &mut StdRng) -> f32 {
         match self {
-            RDistrib::MinMax(min, max) => rng.gen_range(min..max),
+            RDistrib::MinMax(min, max) => rng.gen_range(*min..*max),
 
             RDistrib::Normal(mean, std_dev) => {
-                let normal = Normal::new(mean, std_dev).unwrap();
+                let normal = Normal::new(*mean, *std_dev).unwrap();
                 normal.sample(rng) as f32
             }
         }
+    }
+
+    pub fn next_int(&self, rng: &mut StdRng) -> i32 {
+        self.next(rng).round() as i32
     }
 }
 
@@ -73,17 +77,30 @@ pub enum GenerateError {
     Generic(String),
 }
 
+pub struct IdGen {
+    pub v: usize,
+}
+
+impl IdGen {
+    pub fn next(&mut self) -> usize {
+        let v = self.v;
+        self.v += 1;
+        v
+    }
+}
+
 pub fn generate(
     cfg: &UniverseCfg,
     params: &GenerateParams,
     rng: &mut StdRng,
 ) -> Result<Universe, GenerateError> {
     let mut systems = vec![];
+    let mut ids = IdGen { v: 0 };
 
     let level = LevelGrid::new(&params.sectors, rng);
     for x in 0..level.width {
         for y in 0..level.height {
-            let system = new_system(cfg, rng, V2I::new(x as i32, y as i32));
+            let system = new_system(cfg, rng, &mut ids, V2I::new(x as i32, y as i32));
             systems.push(system);
         }
     }
@@ -91,20 +108,19 @@ pub fn generate(
     Ok(Universe { systems })
 }
 
-fn new_system(cfg: &UniverseCfg, rng: &mut StdRng, coords: V2I) -> System {
+fn new_system(cfg: &UniverseCfg, rng: &mut StdRng, igen: &mut IdGen, coords: V2I) -> System {
     let star = SpaceBody {
-        index: 0,
+        index: igen.next(),
         parent: 0,
         kind: SpaceBodyKind::Star,
         distance: 0.0,
     };
 
-    let mut bodies = vec![];
+    let mut bodies = vec![star];
 
-    let num_bodies = cfg.planets_prob.count_prob.next(rng);
-    let num_bodies = next_incremental_prob(rng, cfg.system_body_prob, 1.0);
-    for index in 1..(num_bodies + 1) {
-        let body = new_body(cfg, rng, index as usize, 0);
+    let num_bodies = cfg.planets_prob.count_prob.next_int(rng);
+    for i in 0..num_bodies {
+        let body = new_planet(cfg, rng, igen, star.index, 0);
         bodies.extend(body);
     }
 
@@ -114,20 +130,32 @@ fn new_system(cfg: &UniverseCfg, rng: &mut StdRng, coords: V2I) -> System {
     }
 }
 
-fn new_body(cfg: &UniverseCfg, rng: &mut StdRng, index: usize, parent: usize) -> Vec<SpaceBody> {
-    let distance = rng.gen_range(cfg.min_distance..cfg.max_distance);
-    let kind = if rng.gen_bool(0.75) {
-        SpaceBodyKind::Planet
-    } else {
-        SpaceBodyKind::AsteroidField
-    };
+fn new_planet(
+    cfg: &UniverseCfg,
+    rng: &mut StdRng,
+    igen: &mut IdGen,
+    parent: usize,
+    deep: usize,
+) -> Vec<SpaceBody> {
+    let distance = cfg.planets_prob.distance_prob.next(rng);
+    let kind = SpaceBodyKind::Planet;
 
-    vec![SpaceBody {
-        index,
+    let planet = SpaceBody {
+        index: igen.next(),
         parent,
         kind,
         distance,
-    }]
+    };
+
+    let mut bodies = vec![planet];
+
+    let num_m = cfg.moons_prob.count_prob.next_int(rng);
+    for i in 0..num_m {
+        let body = new_planet(cfg, rng, igen, planet.index, deep + 1);
+        bodies.extend(body);
+    }
+
+    bodies
 }
 
 fn next_incremental_prob(rng: &mut StdRng, mut prob: f32, decay: f32) -> u32 {

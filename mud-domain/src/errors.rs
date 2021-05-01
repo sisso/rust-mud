@@ -1,6 +1,6 @@
 use crate::game::loader::dto::StaticId;
-use serde::export::Formatter;
 use std::any::Any;
+use std::fmt::Formatter;
 use std::path::Display;
 
 // TODO: rename for a less conflicting

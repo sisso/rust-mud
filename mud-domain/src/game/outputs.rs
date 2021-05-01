@@ -5,7 +5,7 @@ use crate::game::location::LocationId;
 use crate::game::mob::{Damage, MobId};
 use crate::game::room::RoomId;
 use commons::ObjId;
-use serde::export::Formatter;
+use std::fmt::Formatter;
 
 pub const O_PLAIN: &str = "^pl";
 pub const O_RESET: &str = "^rs";
