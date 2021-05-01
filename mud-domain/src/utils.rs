@@ -1,4 +1,5 @@
 pub mod geometry;
+pub mod prob;
 pub mod strinput;
 pub mod text;
 

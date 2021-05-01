@@ -6,6 +6,29 @@ pub struct Tree<K: Hash + Eq + Copy + Clone> {
     parents: HashMap<K, K>,
 }
 
+#[derive(Debug, Clone)]
+pub struct TreeHier<K: Hash + Eq + Copy + Clone> {
+    pub index: K,
+    pub parent: Option<K>,
+    pub deep: usize,
+}
+
+pub struct TreeIterator<'a, K: Hash + Eq + Copy + Clone> {
+    tree: &'a Tree<K>,
+    // roots: Vec<K>,
+    // current_root: usize,
+    // current_children: Option<Vec<K>>,
+    // current_deep: usize,
+}
+
+impl<'a, K: Hash + Eq + Copy + Clone> Iterator for TreeIterator<'a, K> {
+    type Item = TreeHier<K>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        unimplemented!()
+    }
+}
+
 impl<K: Hash + Eq + Copy + Clone> Tree<K> {
     pub fn new() -> Self {
         Tree {
@@ -60,6 +83,10 @@ impl<K: Hash + Eq + Copy + Clone> Tree<K> {
 
     pub fn list_all(&self) -> &HashMap<K, K> {
         &self.parents
+    }
+
+    pub fn iter_hier<'a>(&'a self) -> impl Iterator<Item = TreeHier<K>> + 'a {
+        TreeIterator { tree: self }
     }
 
     fn find_parents(&self, buffer: &mut Vec<K>, from: K) {
@@ -174,6 +201,48 @@ mod test {
                 (1, 0) | (2, 0) | (3, 1) => {}
                 other => panic!("unexpected {:?}", other),
             }
+        }
+    }
+
+    #[test]
+    fn test_tree_iter_hier() {
+        let mut tree = Tree::new();
+        /*
+           0
+           +1
+           |+2
+           |+4
+           +3
+           8
+           +9
+           +10
+        */
+        tree.insert(1, 0);
+        tree.insert(2, 1);
+        tree.insert(3, 0);
+        tree.insert(4, 1);
+        tree.insert(5, 2);
+        tree.insert(6, 5);
+        tree.insert(7, 4);
+        tree.insert(9, 8);
+        tree.insert(10, 8);
+
+        let expected = vec![
+            (None, 0, 0),
+            (Some(0), 1, 1),
+            (Some(1), 2, 2),
+            (Some(1), 4, 2),
+            (Some(0), 3, 1),
+            (None, 8, 0),
+            (Some(8), 9, 1),
+            (Some(8), 10, 1),
+        ];
+
+        for (i, e) in tree.iter_hier().enumerate() {
+            let (exp_parent, exp_index, exp_deep) = expected[i];
+            assert_eq!(exp_index, e.index);
+            assert_eq!(exp_parent, e.parent);
+            assert_eq!(exp_deep, e.deep);
         }
     }
 }
