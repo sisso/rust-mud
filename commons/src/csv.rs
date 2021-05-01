@@ -6,6 +6,10 @@ const COMMENT_PREFIX: char = '#';
 const TABLE_TAG: &str = ">Table";
 
 pub fn parse_csv(data: &str) -> Vec<Vec<&str>> {
+    parse_csv_ext(data, ',')
+}
+
+pub fn parse_csv_ext(data: &str, sep: char) -> Vec<Vec<&str>> {
     let lines = data.split_terminator("\n").collect::<Vec<&str>>();
     let mut result = vec![];
     let mut max_columns = 0;
@@ -17,7 +21,7 @@ pub fn parse_csv(data: &str) -> Vec<Vec<&str>> {
         }
 
         let mut row = vec![];
-        let columns = line.split_terminator(",").collect::<Vec<&str>>();
+        let columns = line.split_terminator(sep).collect::<Vec<&str>>();
         for r in columns {
             row.push(r);
         }
