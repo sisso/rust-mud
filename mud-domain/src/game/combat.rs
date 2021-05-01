@@ -177,12 +177,12 @@ fn roll_attack(attack: u32, damage: &Damage, defense: u32, rd: u32) -> AttackRes
 fn roll_dice() -> u32 {
     let mut rng = rand::thread_rng();
 
-    [0..2].iter().map(|_| rng.gen_range(1, 6 + 1)).sum()
+    [0..2].iter().map(|_| rng.gen_range(1..6 + 1)).sum()
 }
 
 fn roll_damage(damage: &Damage) -> u32 {
     let mut rng = rand::thread_rng();
-    rng.gen_range(damage.min, damage.max + 1)
+    rng.gen_range(damage.min..damage.max + 1)
 }
 
 /// mob_id is the mob that receive the attack

@@ -1,41 +1,38 @@
-extern crate rand;
-
 use rand::prelude::StdRng;
 use rand::{thread_rng, Rng, RngCore, SeedableRng};
 use std::collections::HashSet;
 
-pub struct RandomLevelsCfg<'a> {
-    pub rng: &'a mut StdRng,
+pub struct RandomGridCfg {
     pub width: usize,
     pub height: usize,
     pub portal_prob: f32,
     pub deep_levels: u32,
 }
 
-pub struct RandomLevels {
+pub struct RandomGrid {
     pub levels: Vec<LevelGrid>,
 }
 
-impl RandomLevels {
-    pub fn new(cfg: &mut RandomLevelsCfg) -> Self {
+impl RandomGrid {
+    pub fn new(cfg: &RandomGridCfg, rng: &mut StdRng) -> Self {
         let mut levels = vec![];
         for deep in 0..cfg.deep_levels {
-            let mut grid = LevelGrid::new(cfg);
+            let mut grid = LevelGrid::new(cfg, rng);
 
             if deep < cfg.deep_levels - 1 {
-                let down_index = cfg.rng.gen_range(0, grid.len());
+                let down_index = rng.gen_range(0..grid.len());
                 grid.down_portal = Some(down_index);
             }
 
             if deep > 0 {
-                let up_index = cfg.rng.gen_range(0, grid.len());
+                let up_index = rng.gen_range(0..grid.len());
                 grid.up_portal = Some(up_index);
             }
 
             levels.push(grid);
         }
 
-        RandomLevels { levels }
+        RandomGrid { levels }
     }
 }
 
@@ -87,7 +84,7 @@ impl LevelGrid {
         list
     }
 
-    pub fn new(cfg: &mut RandomLevelsCfg) -> LevelGrid {
+    pub fn new(cfg: &RandomGridCfg, rng: &mut StdRng) -> LevelGrid {
         let mut rooms = LevelGrid {
             width: cfg.width,
             height: cfg.height,
@@ -100,7 +97,7 @@ impl LevelGrid {
         assert!(door_prob > 0.1);
         assert!(door_prob < 1.0);
 
-        rooms.create_portals(cfg.rng, door_prob);
+        rooms.create_portals(rng, door_prob);
         rooms.connect_all_rooms();
 
         rooms
@@ -272,8 +269,8 @@ impl RandomSpawn {
 
         for spawn_id in cfg.spawns_to_add {
             loop {
-                let candidate_x = rng.gen_range(0, rooms.width) as usize;
-                let candidate_y = rng.gen_range(0, rooms.height) as usize;
+                let candidate_x = rng.gen_range(0..rooms.width) as usize;
+                let candidate_y = rng.gen_range(0..rooms.height) as usize;
 
                 // check no collision
                 if spawns
@@ -299,14 +296,16 @@ mod test {
 
     #[test]
     pub fn test_generate_rooms() {
-        let mut rng = SeedableRng::seed_from_u64(0);
-        let grids = RandomLevels::new(&mut RandomLevelsCfg {
-            rng: &mut rng,
-            width: 5,
-            height: 5,
-            portal_prob: 0.5,
-            deep_levels: 3,
-        });
+        let mut rng: StdRng = SeedableRng::seed_from_u64(0);
+        let grids = RandomGrid::new(
+            &RandomGridCfg {
+                width: 5,
+                height: 5,
+                portal_prob: 0.5,
+                deep_levels: 3,
+            },
+            &mut rng,
+        );
 
         for level in grids.levels {
             let buffer = level.print();

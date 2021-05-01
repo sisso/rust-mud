@@ -41,7 +41,7 @@ pub fn run(container: &mut Container) {
             let location_id = if spawn.locations_id.is_empty() {
                 container.locations.get(spawn.id)
             } else {
-                let index = thread_rng().gen_range(0, spawn.locations_id.len());
+                let index = thread_rng().gen_range(0..spawn.locations_id.len());
                 spawn.locations_id.get(index).cloned()
             };
 
@@ -118,10 +118,7 @@ fn schedule_first_spawn(timer: &mut Timer, now: TotalTime, spawn: &mut Spawn) {
 
 fn schedule_next_spawn(timer: &mut Timer, now: TotalTime, spawn: &mut Spawn) {
     let mut rng = rand::thread_rng();
-    let range = rng.gen_range(
-        spawn.delay.min.as_seconds_f32(),
-        spawn.delay.max.as_seconds_f32(),
-    );
+    let range = rng.gen_range(spawn.delay.min.as_seconds_f32()..spawn.delay.max.as_seconds_f32());
     let next = now + DeltaTime(range);
     spawn.next = next;
     add_spawn_to_trigger(timer, spawn.next, spawn.id);

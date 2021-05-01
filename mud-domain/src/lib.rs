@@ -7,4 +7,6 @@ extern crate serde_json;
 pub mod controller;
 pub mod errors;
 pub mod game;
+pub mod random_grid;
+pub mod universe;
 pub mod utils;

@@ -5,9 +5,9 @@ use crate::game::labels::{Label, Labels};
 use crate::game::location::Locations;
 use crate::game::obj::Objects;
 use crate::game::random_rooms::{RandomRoomsCfg, RandomRoomsSpawnCfg};
-use crate::game::random_rooms_generator::{LevelGrid, RandomLevels, RandomLevelsCfg};
 use crate::game::room::{Room, RoomId, RoomRepository};
 use crate::game::spawn::Spawns;
+use crate::random_grid::*;
 use commons::ObjId;
 use logs::*;
 use rand::prelude::StdRng;
@@ -33,15 +33,14 @@ pub fn init(container: &mut Container) {
 
         info!("{:?} generating random rooms", rr.cfg.id);
 
-        let mut cfg = RandomLevelsCfg {
-            rng: &mut rr.rng,
+        let mut cfg = RandomGridCfg {
             width: rr.cfg.width as usize,
             height: rr.cfg.height as usize,
             portal_prob: 0.5,
             deep_levels: rr.cfg.levels,
         };
 
-        let levels = RandomLevels::new(&mut cfg);
+        let levels = RandomGrid::new(&mut cfg, &mut rr.rng);
 
         let mut previous_down: Option<usize> = None;
         let mut previous_rooms_ids: Option<Vec<ObjId>> = None;
@@ -126,7 +125,7 @@ fn create_spawns(
             }
 
             // find available room
-            let candidate_index = rng.gen_range(0, availables.len());
+            let candidate_index = rng.gen_range(0..availables.len());
             let room_id = availables.remove(candidate_index);
 
             let spawn_id = objects.create();
