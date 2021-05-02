@@ -8,5 +8,6 @@ pub mod controller;
 pub mod errors;
 pub mod game;
 pub mod random_grid;
+pub mod random_grid_infinite;
 pub mod universe;
 pub mod utils;
