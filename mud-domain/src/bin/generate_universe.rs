@@ -2,7 +2,7 @@ use commons::csv;
 use mud_domain::random_grid::RandomGridCfg;
 use mud_domain::universe::*;
 use mud_domain::utils::prob::{self, RDistrib, Weighted};
-use rand::prelude::StdRng;
+use rand::prelude::*;
 
 fn main() {
     let mut rng: StdRng = rand::SeedableRng::seed_from_u64(0);
@@ -44,6 +44,18 @@ Acid	1
 Amonia	1"#,
     );
 
+    let resources = load_csv_into_resources(
+        r#"basic metals	10			gas
+rare metals	1			gas
+water	4	water		gas
+basic gas	4	gas		
+rare gas	0.1		gas	
+organic	4		jungle,swamp,tropical	
+none	10"#,
+    );
+
+    println!("{:?}", resources);
+
     let cfg = UniverseCfg {
         planets_prob: AstroProb {
             count_prob: RDistrib::List {
@@ -75,13 +87,16 @@ Amonia	1"#,
         gravity_force: RDistrib::MinMax(0.25, 10.0),
         planet_size: RDistrib::MinMax(0.1, 10.0),
         star_kinds: stars,
+        resources,
+        system_resources_max: 3,
+        system_resources_amount: RDistrib::Normal(0.5, 0.5),
     };
 
     let params = GenerateParams {
         sectors: RandomGridCfg {
-            width: 2,
-            height: 2,
-            portal_prob: 0.25,
+            width: 3,
+            height: 3,
+            portal_prob: 0.55,
             deep_levels: 0,
         },
     };
@@ -120,4 +135,26 @@ fn load_csv_into_weighted(raw: &str) -> Vec<Weighted<String>> {
         });
     }
     r
+}
+
+fn load_csv_into_resources(raw: &str) -> Vec<Resource> {
+    fn to_str_array(s: &str) -> Vec<String> {
+        s.split(",")
+            .map(String::from)
+            .filter(|i| !i.is_empty())
+            .collect()
+    }
+
+    let csv = csv::parse_csv_ext(raw, '\t');
+    let mut list = vec![];
+    for r in &csv {
+        list.push(Resource {
+            kind: r[0].to_string(),
+            prob: r[1].parse().unwrap(),
+            always: to_str_array(r[2]),
+            require: to_str_array(r[3]),
+            forbidden: to_str_array(r[4]),
+        });
+    }
+    list
 }

@@ -84,6 +84,13 @@ impl LevelGrid {
         list
     }
 
+    pub fn neighbors_connected(&self, index: usize) -> Vec<usize> {
+        self.neighbors(index)
+            .into_iter()
+            .filter(|i| self.is_portal(index, *i))
+            .collect()
+    }
+
     pub fn new(cfg: &RandomGridCfg, rng: &mut StdRng) -> LevelGrid {
         let mut rooms = LevelGrid {
             width: cfg.width,
@@ -164,11 +171,11 @@ impl LevelGrid {
             for x in 0..self.width {
                 let index = self.get_index(x, y);
 
-                if y != 0 && rng.gen::<f32>() < door_prob {
+                if y != 0 && rng.gen_bool(door_prob as f64) {
                     self.portals.insert((index, self.get_index(x, y - 1)));
                 }
 
-                if x != 0 && rng.gen::<f32>() < door_prob {
+                if x != 0 && rng.gen_bool(door_prob as f64) {
                     self.portals.insert((index, self.get_index(x - 1, y)));
                 }
             }

@@ -44,6 +44,10 @@ impl RDistrib {
         }
     }
 
+    pub fn next_positive(&self, rng: &mut StdRng) -> f32 {
+        self.next(rng).max(0.0)
+    }
+
     pub fn next_int(&self, rng: &mut StdRng) -> i32 {
         (self.next(rng).round() as i32).max(0)
     }
