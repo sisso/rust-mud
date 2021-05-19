@@ -1,4 +1,5 @@
 use commons::csv;
+use commons::tree::Tree;
 use mud_domain::random_grid::RandomGridCfg;
 use mud_domain::universe::*;
 use mud_domain::utils::prob::{self, RDistrib, Weighted};
@@ -104,22 +105,20 @@ none	10"#,
     let universe = generate(&cfg, &params, &mut rng).unwrap();
 
     for (i, b) in universe.systems.iter().enumerate() {
-        // let mut tree = Tree::new();
-        // for b in b.bodies.iter() {
-        //     tree.insert(b.index, b.parent);
-        // }
-        //
-        println!("System {:?}", b.coords);
-
-        for i in b.bodies.iter() {
-            println!("- {:?}", i);
+        let mut tree = Tree::new();
+        for b in b.bodies.iter() {
+            if b.index == 0 && b.parent == 0 {
+                continue;
+            }
+            tree.insert(b.index, b.parent);
         }
 
-        // let star = &b.bodies[0];
-        // // println!("- {:?}", star);
-        // for i in tree.children(star.index) {
-        //     println!("- {:?}", &b.bodies[i]);
-        // }
+        println!("System {:?}", b.coords);
+
+        for i in tree.iter_hier() {
+            let prefix = (0..i.deep).fold(String::new(), |acc, v| format!("{}--", acc));
+            println!("{}{:?}", prefix, b.bodies[i.index]);
+        }
     }
 
     println!("{:?}", universe);
@@ -157,4 +156,80 @@ fn load_csv_into_resources(raw: &str) -> Vec<Resource> {
         });
     }
     list
+}
+
+#[test]
+fn test_parse_cfg() {
+    let raw = r#">Table,PlanetKind,,,,,,,
+id,kind,prob,,,,,,
+0,Arid,3,,,,,,
+1,Desert,3,,,,,,
+2,Barrent,8,,,,,,
+3,Jungle,1,,,,,,
+4,Swamp,1,,,,,,
+5,Tropical,1,,,,,,
+6,Ice,2,,,,,,
+7,Water,1,,,,,,
+8,Mountains,1,,,,,,
+9,Gas,6,,,,,,
+,,,,,,,,
+,,,,,,,,
+>Table,PlanetAtm,,,,,,,
+id,kind,prob,,,,,,
+0,Breathable,1,,,,,,
+1,Non-Breathable,2,,,,,,
+2,Toxic,1,,,,,,
+3,None,4,,,,,,
+,,,,,,,,
+,,,,,,,,
+>Table,PlanetGravity,,,,,,,
+id,kind,,,,,,,
+0,None,,,,,,,
+1,Very-Low,,,,,,,
+2,Low,,,,,,,
+3,Normal,,,,,,,
+4,High,,,,,,,
+5,Very-High,,,,,,,
+6,Deadly,,,,,,,
+,,,,,,,,
+>Table,PlanetSize,,,,,,,
+size,gravity_mod,,,,,,,
+Tiny,-3,,,,,,,
+Small,-1,,,,,,,
+Avarage,0,,,,,,,
+Big,0,,,,,,,
+Huge,1,,,,,,,
+,,,,,,,,
+,,,,,,,,
+>Table,PlanetOcean,,,,,,,
+0,None,6,,,,,,
+1,Salt water,4,,,,,,
+2,Water,2,,,,,,
+3,Acid,1,,,,,,
+4,Amonia,1,,,,,,
+,,,,,,,,
+>Table,Stars,,,,,,,
+,Orange,4,,,,,,
+,Green,1,,,,,,
+,Yellow,4,,,,,,
+,Red,4,,,,,,
+,Blue,1,,,,,,
+,White,1,,,,,,
+,,,,,,,,
+>Table,Resources,,,,,,,
+kind,prob,always,require,forbidden,,,,
+basic metals,10,,,gas,,,,
+rare metals,1,,,gas,,,,
+water,4,water,,gas,,,,
+basic gas,4,gas,,,,,,
+rare gas,0.1,,gas,,,,,
+organic,2,,"jungle,swamp,tropical",,,,,
+none,10,,,,,,,
+"#;
+
+    let data = csv::parse_csv(raw);
+    let tables = csv::csv_strings_to_tables(&data).unwrap();
+    for table in &tables {
+        println!("{:?}", table);
+    }
 }

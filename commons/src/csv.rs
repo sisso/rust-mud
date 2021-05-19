@@ -41,6 +41,7 @@ pub fn parse_csv_ext(data: &str, sep: char) -> Vec<Vec<&str>> {
     result
 }
 
+#[derive(Debug)]
 pub struct Table {
     pub name: String,
     pub columns: Vec<String>,

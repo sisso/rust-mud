@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::hash::Hash;
 
 #[derive(Debug, Clone)]
@@ -15,17 +15,48 @@ pub struct TreeHier<K: Hash + Eq + Copy + Clone> {
 
 pub struct TreeIterator<'a, K: Hash + Eq + Copy + Clone> {
     tree: &'a Tree<K>,
-    // roots: Vec<K>,
-    // current_root: usize,
-    // current_children: Option<Vec<K>>,
-    // current_deep: usize,
+    list: VecDeque<TreeHier<K>>,
+}
+
+impl<'a, K: Hash + Eq + Copy + Clone> TreeIterator<'a, K> {
+    pub fn new(tree: &'a Tree<K>) -> Self {
+        fn add_recursive<K: Hash + Eq + Copy + Clone>(
+            tree: &Tree<K>,
+            list: &mut VecDeque<TreeHier<K>>,
+            deep: usize,
+            parent: K,
+        ) {
+            tree.children(parent).for_each(|i| {
+                list.push_back(TreeHier {
+                    index: i,
+                    parent: Some(parent),
+                    deep: deep,
+                });
+
+                add_recursive(tree, list, deep + 1, i);
+            });
+        }
+
+        let mut list = VecDeque::new();
+
+        for root in tree.find_roots() {
+            list.push_back(TreeHier {
+                index: root,
+                parent: None,
+                deep: 0,
+            });
+            add_recursive(tree, &mut list, 1, root);
+        }
+
+        TreeIterator { tree, list }
+    }
 }
 
 impl<'a, K: Hash + Eq + Copy + Clone> Iterator for TreeIterator<'a, K> {
     type Item = TreeHier<K>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        unimplemented!()
+        self.list.pop_front()
     }
 }
 
@@ -86,7 +117,7 @@ impl<K: Hash + Eq + Copy + Clone> Tree<K> {
     }
 
     pub fn iter_hier<'a>(&'a self) -> impl Iterator<Item = TreeHier<K>> + 'a {
-        TreeIterator { tree: self }
+        TreeIterator::new(self)
     }
 
     fn find_parents(&self, buffer: &mut Vec<K>, from: K) {
@@ -101,6 +132,20 @@ impl<K: Hash + Eq + Copy + Clone> Tree<K> {
                 None => break,
             }
         }
+    }
+
+    fn find_roots(&self) -> Vec<K> {
+        let mut roots: HashSet<K> = HashSet::new();
+
+        self.parents
+            .values()
+            .filter(|i| self.parents(**i).is_empty())
+            .copied()
+            .for_each(|i| {
+                roots.insert(i);
+            });
+
+        roots.into_iter().collect()
     }
 }
 
@@ -204,45 +249,129 @@ mod test {
         }
     }
 
-    // #[test]
-    // fn test_tree_iter_hier() {
-    //     let mut tree = Tree::new();
-    //     /*
-    //        0
-    //        +1
-    //        |+2
-    //        |+4
-    //        +3
-    //        8
-    //        +9
-    //        +10
-    //     */
-    //     tree.insert(1, 0);
-    //     tree.insert(2, 1);
-    //     tree.insert(3, 0);
-    //     tree.insert(4, 1);
-    //     tree.insert(5, 2);
-    //     tree.insert(6, 5);
-    //     tree.insert(7, 4);
-    //     tree.insert(9, 8);
-    //     tree.insert(10, 8);
-    //
-    //     let expected = vec![
-    //         (None, 0, 0),
-    //         (Some(0), 1, 1),
-    //         (Some(1), 2, 2),
-    //         (Some(1), 4, 2),
-    //         (Some(0), 3, 1),
-    //         (None, 8, 0),
-    //         (Some(8), 9, 1),
-    //         (Some(8), 10, 1),
-    //     ];
-    //
-    //     for (i, e) in tree.iter_hier().enumerate() {
-    //         let (exp_parent, exp_index, exp_deep) = expected[i];
-    //         assert_eq!(exp_index, e.index);
-    //         assert_eq!(exp_parent, e.parent);
-    //         assert_eq!(exp_deep, e.deep);
-    //     }
-    // }
+    #[test]
+    fn test_find_roots() {
+        let tree = sample_tree();
+        assert_eq!(vec![0], tree.find_roots());
+    }
+
+    #[test]
+    fn test_tree_iter_empty() {
+        let mut tree = Tree::<u32>::new();
+        assert_eq!(0, tree.iter_hier().count());
+    }
+
+    #[test]
+    fn test_tree_iter_one() {
+        let mut tree = Tree::new();
+        tree.insert(1, 0);
+        assert_tree_iter(&tree, vec![(None, 0, 0), (Some(0), 1, 1)]);
+    }
+
+    #[test]
+    fn test_tree_iter_two_roots() {
+        let mut tree = Tree::new();
+        tree.insert(1, 0);
+        tree.insert(3, 2);
+        assert_tree_iter_set(
+            &tree,
+            vec![(None, 0, 0), (Some(0), 1, 1), (None, 2, 0), (Some(2), 3, 1)]
+                .into_iter()
+                .collect(),
+        );
+    }
+
+    #[test]
+    fn test_tree_iter_hier() {
+        let mut tree = Tree::new();
+        /*
+           0
+           +1
+           |+2
+           | +5
+           |  +6
+           |+4
+           | +7
+           +3
+           8
+           +9
+           +10
+        */
+        tree.insert(1, 0);
+        tree.insert(2, 1);
+        tree.insert(3, 0);
+        tree.insert(4, 1);
+        tree.insert(5, 2);
+        tree.insert(6, 5);
+        tree.insert(7, 4);
+        tree.insert(9, 8);
+        tree.insert(10, 8);
+
+        let expected = vec![
+            (None, 0, 0),
+            (Some(0), 1, 1),
+            (Some(1), 2, 2),
+            (Some(2), 5, 3),
+            (Some(5), 6, 4),
+            (Some(1), 4, 2),
+            (Some(4), 7, 3),
+            (Some(0), 3, 1),
+            (None, 8, 0),
+            (Some(8), 9, 1),
+            (Some(8), 10, 1),
+        ];
+
+        assert_tree_iter_set(&tree, expected.into_iter().collect());
+    }
+
+    #[test]
+    fn test_tree_iter_sequence_tree() {
+        let mut tree = Tree::new();
+        /*
+           0
+           +1
+            +2
+             +5
+        */
+        tree.insert(1, 0);
+        tree.insert(2, 1);
+        tree.insert(5, 2);
+
+        let expected = vec![
+            (None, 0, 0),
+            (Some(0), 1, 1),
+            (Some(1), 2, 2),
+            (Some(2), 5, 3),
+        ];
+
+        assert_tree_iter(&tree, expected);
+    }
+
+    fn assert_tree_iter(tree: &Tree<i32>, expected: Vec<(Option<i32>, i32, usize)>) {
+        let mut list: Vec<TreeHier<i32>> = tree.iter_hier().collect();
+
+        for i in &list {
+            println!("{:?}", i);
+        }
+
+        for (i, e) in list.iter().enumerate() {
+            let (exp_parent, exp_index, exp_deep) = expected[i];
+            assert_eq!(exp_index, e.index, "bad index");
+            assert_eq!(exp_parent, e.parent, "bad parent");
+            assert_eq!(exp_deep, e.deep, "bad deep");
+        }
+
+        assert_eq!(expected.len(), list.len());
+    }
+
+    fn assert_tree_iter_set(tree: &Tree<i32>, expected: HashSet<(Option<i32>, i32, usize)>) {
+        let mut list: Vec<TreeHier<i32>> = tree.iter_hier().collect();
+
+        for (i, e) in list.iter().enumerate() {
+            let value = (e.parent, e.index, e.deep);
+            assert!(expected.contains(&value), format!("could not find {:?}", e));
+        }
+
+        assert_eq!(expected.len(), list.len());
+    }
 }
