@@ -1,5 +1,6 @@
 use crate::errors::{Error, Result};
 use crate::game::item::Weight;
+use crate::game::loader::dto::{ObjData, ObjLoader};
 use commons::ObjId;
 use std::collections::HashMap;
 
@@ -77,5 +78,17 @@ impl Inventories {
 
     pub fn get_max_weight(&self, id: ObjId) -> Option<Weight> {
         self.index.get(&id).and_then(|i| i.max_weight)
+    }
+}
+
+impl ObjLoader for Inventories {
+    fn load(&mut self, obj_id: ObjId, data: &ObjData) -> Result<()> {
+        if let Some(inventory_data) = &data.inventory {
+            let mut inv = Inventory::new(obj_id);
+            inv.max_weight = inventory_data.max_weight;
+            self.add(inv).unwrap();
+        }
+
+        Ok(())
     }
 }

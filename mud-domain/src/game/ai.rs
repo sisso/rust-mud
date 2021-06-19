@@ -1,4 +1,5 @@
 use crate::errors::{Error, Result};
+use crate::game::loader::dto::{AiData, ObjData, ObjLoader};
 use crate::game::mob::{MobCommand, MobId};
 use crate::game::room::RoomId;
 use commons::ObjId;
@@ -86,5 +87,42 @@ impl AiRepo {
 
     pub fn list<'a>(&'a self) -> impl Iterator<Item = &Ai> + 'a {
         self.index.values()
+    }
+}
+
+impl ObjLoader for AiRepo {
+    fn load(&mut self, obj_id: ObjId, data: &ObjData) -> Result<()> {
+        if let Some(ai_data) = &data.ai {
+            let ai = parse_ai(obj_id, ai_data);
+            self.add_or_update(ai).unwrap();
+        }
+
+        Ok(())
+    }
+}
+
+pub fn parse_ai(obj_id: ObjId, ai_data: &AiData) -> Ai {
+    let command = if ai_data.command_aggressive.unwrap_or(false) {
+        AiCommand::Aggressive
+    } else if let Some(target_id) = ai_data.command_follow_and_protect {
+        AiCommand::FollowAndProtect { target_id }
+    } else if let Some(haul) = &ai_data.command_haul {
+        AiCommand::Hauler {
+            from: haul.from_id.clone(),
+            to: haul.to_id.clone(),
+            wares: haul.targets.clone(),
+        }
+    } else if let Some(patrol_data) = &ai_data.command_aggressive_patrol_home {
+        AiCommand::AggressivePatrolHome {
+            distance: patrol_data.distance,
+        }
+    } else {
+        AiCommand::Idle
+    };
+
+    Ai {
+        id: obj_id,
+        command: command,
+        commandable: ai_data.commandable.unwrap_or(false),
     }
 }

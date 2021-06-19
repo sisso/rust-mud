@@ -372,6 +372,10 @@ pub struct ExtractableData {
     pub prefab_id: StaticId,
 }
 
+pub trait ObjLoader {
+    fn load(&mut self, obj_id: ObjId, data: &ObjData) -> Result<()>;
+}
+
 impl LoaderData {
     pub fn new() -> Self {
         LoaderData {

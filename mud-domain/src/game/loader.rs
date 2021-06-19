@@ -30,6 +30,7 @@ use std::path::{Path, PathBuf};
 pub mod dto;
 mod migrations;
 
+use crate::game::ai;
 use crate::game::ai::{Ai, AiCommand, AiRepo};
 use crate::game::extractable::Extractable;
 use crate::game::inventory::Inventory;
@@ -619,25 +620,14 @@ impl Loader {
                 .expect("fail to insert market");
         }
 
-        if let Some(inventory_data) = &data.inventory {
-            let mut inv = Inventory::new(obj_id);
-            inv.max_weight = inventory_data.max_weight;
-            container.inventories.add(inv).unwrap();
-        }
+        let loaders: Vec<&mut dyn ObjLoader> = vec![
+            &mut container.ai,
+            &mut container.extractables,
+            &mut container.inventories,
+        ];
 
-        if let Some(ai_data) = &data.ai {
-            let ai = Loader::parse_ai(obj_id, ai_data);
-            container.ai.add_or_update(ai).unwrap();
-        }
-
-        if let Some(extractable) = &data.extractable {
-            container
-                .extractables
-                .add(Extractable {
-                    id: obj_id,
-                    prefab_id: extractable.prefab_id,
-                })
-                .unwrap();
+        for loader in loaders {
+            loader.load(obj_id, &data)?;
         }
 
         if let Some(children) = data.children.clone() {
@@ -1239,35 +1229,9 @@ impl Loader {
     }
 
     pub fn apply_ai_data(ai_repo: &mut AiRepo, mob_id: MobId, ai_data: &AiData) -> Result<()> {
-        let ai = Loader::parse_ai(mob_id, ai_data);
+        let ai = ai::parse_ai(mob_id, ai_data);
         ai_repo.add_or_update(ai)?;
         Ok(())
-    }
-
-    fn parse_ai(obj_id: ObjId, ai_data: &AiData) -> Ai {
-        let command = if ai_data.command_aggressive.unwrap_or(false) {
-            AiCommand::Aggressive
-        } else if let Some(target_id) = ai_data.command_follow_and_protect {
-            AiCommand::FollowAndProtect { target_id }
-        } else if let Some(haul) = &ai_data.command_haul {
-            AiCommand::Hauler {
-                from: haul.from_id.clone(),
-                to: haul.to_id.clone(),
-                wares: haul.targets.clone(),
-            }
-        } else if let Some(patrol_data) = &ai_data.command_aggressive_patrol_home {
-            AiCommand::AggressivePatrolHome {
-                distance: patrol_data.distance,
-            }
-        } else {
-            AiCommand::Idle
-        };
-
-        Ai {
-            id: obj_id,
-            command: command,
-            commandable: ai_data.commandable.unwrap_or(false),
-        }
     }
 
     fn serialize_ai(ai: &Ai) -> AiData {
