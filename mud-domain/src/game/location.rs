@@ -19,6 +19,9 @@ impl Locations {
 
     pub fn set(&mut self, obj_id: ObjId, location_id: LocationId) {
         debug!("{:?} set location {:?}", obj_id, location_id);
+        if obj_id == location_id {
+            panic!("object location can not be itself for obj_id {:?}", obj_id);
+        }
         self.index.insert(obj_id, location_id);
     }
 

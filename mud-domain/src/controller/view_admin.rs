@@ -76,23 +76,37 @@ pub fn handle(
 }
 
 fn handle_get(container: &mut Container, outputs: &mut Vec<String>, input: StrInput) -> Result<()> {
-    let id = match input.parse_arguments().get(0).map(|s| s.parse()) {
-        Some(Ok(id)) => ObjId(id),
+    let args = input.parse_arguments();
+    if args.len() < 2 {
+        outputs.push(format!("invalid number argument"));
+        return Ok(());
+    }
+
+    let id = match args[1].parse() {
+        Ok(id) => ObjId(id),
         _ => {
-            outputs.push(format!("invalid number argument"));
+            outputs.push(format!("invalid id {:?}", args[1]));
             return Ok(());
         }
     };
 
-    let data = container.loader.get_prefab(id.into()).cloned().or_else(|| {
-        match loader::Loader::snapshot_obj(container, id) {
+    let data: Option<ObjData> = match args[0] {
+        "p" => container.loader.get_prefab(id.into()).cloned(),
+        "o" => match loader::Loader::snapshot_obj(container, id) {
             Ok(data) => Some(data),
             Err(e) => {
-                warn!("admin fail to to get {:?}: {:?}", id, e);
+                warn!("fail to serialize {:?}: {:?}", id, e);
                 None
             }
+        },
+        _ => {
+            outputs.push(format!(
+                "invalid type {:?}, only p (prefab) and o (object) are supported",
+                args[0]
+            ));
+            return Ok(());
         }
-    });
+    };
 
     match data {
         Some(data) => {

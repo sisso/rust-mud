@@ -369,7 +369,7 @@ mod test {
 
         for (i, e) in list.iter().enumerate() {
             let value = (e.parent, e.index, e.deep);
-            assert!(expected.contains(&value), format!("could not find {:?}", e));
+            assert!(expected.contains(&value), "could not find {:?}", e);
         }
 
         assert_eq!(expected.len(), list.len());

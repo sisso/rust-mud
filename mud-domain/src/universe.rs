@@ -160,7 +160,7 @@ fn new_system(cfg: &UniverseCfg, rng: &mut StdRng, sub_cfg: &SystemSubCfg) -> Sy
     let mut bodies = vec![star];
 
     let num_bodies = cfg.planets_prob.count_prob.next_int(rng);
-    for i in 0..num_bodies {
+    for _ in 0..num_bodies {
         let body = new_planet(cfg, rng, &mut igen, star_i);
         bodies.extend(body);
     }

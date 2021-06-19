@@ -21,10 +21,15 @@ fn test_admin_menu() {
     let outputs = game.flush_outputs();
     assert_contains(outputs, "player1");
 
-    game.handle_input(connection_id, "get 1");
+    game.handle_input(connection_id, "get o 0");
     game.tick(DELTA_TIME);
     let outputs = game.flush_outputs();
     assert_contains(outputs, "void");
+
+    game.handle_input(connection_id, "get p 0");
+    game.tick(DELTA_TIME);
+    let outputs = game.flush_outputs();
+    assert_contains(outputs, "God");
 
     game.handle_input(connection_id, "ls p mob");
     game.tick(DELTA_TIME);

@@ -49,11 +49,11 @@ pub mod test {
         assert_eq!(lerp_2(0.0, 1.0, 0.0, 2.0, 1.0), 0.5);
     }
 
-    pub fn assert_json_eq<T: serde::ser::Serialize>(value: &T, expected: &T) {
+    pub fn assert_json_eq<T: serde::ser::Serialize>(value: &T, expected: &T, hint: &str) {
         let json_value = serde_json::to_string_pretty(value).expect("value can not be serialized");
         let json_expected =
             serde_json::to_string_pretty(expected).expect("expected can not be serialized");
 
-        assert_eq!(json_value, json_expected);
+        assert_eq!(json_value, json_expected, "{}", hint);
     }
 }

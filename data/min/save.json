@@ -1,12 +1,12 @@
 {
   "cfg": {
     "avatar_mob": 0,
-    "initial_room": 1
+    "initial_room": 0
   },
   "objects": {
-    "1": {
+    "0": {
       "desc": "This is the place where gods lives",
-      "id": 1,
+      "id": 0,
       "label": "The void",
       "room": {}
     }
