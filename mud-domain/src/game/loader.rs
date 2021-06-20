@@ -336,6 +336,10 @@ impl Loader {
 
         debug!("{:?} apply prefab {:?}", obj_id, data);
 
+        if let Some(prefab_id) = data.prefab_id {
+            container.objects.set_prefab_id(obj_id, prefab_id);
+        }
+
         if let Some(parent) = &data.parent {
             let parent_id = Loader::get_by_static_id(&container.objects, &references, *parent)?;
             container.locations.set(obj_id, parent_id)

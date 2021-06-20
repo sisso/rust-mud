@@ -45,7 +45,5 @@ fn assert_json_eq<T: serde::ser::Serialize>(value: &T, expected: &T) {
     let json_expected =
         serde_json::to_string_pretty(expected).expect("expected can not be serialized");
 
-    std::fs::write("/tmp/01.json", json_value.clone()).unwrap();
-
     assert_eq!(json_value, json_expected);
 }
