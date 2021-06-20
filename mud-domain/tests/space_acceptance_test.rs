@@ -140,7 +140,7 @@ fn test_launch_land_and_launch() {
 
     move_to_space(&mut scenery);
     land_at(&mut scenery, "Landing Pad");
-    move_to_space(&mut scenery);
+    launch_ship(&mut scenery);
 }
 
 #[test]
@@ -188,20 +188,22 @@ fn launch_ship(scenery: &mut TestScenery) {
 
 fn enter_ship_and_move_to_cockpit(scenery: &mut TestScenery) {
     scenery.send_input("look");
-    scenery.wait_for("Light Transport");
+    scenery.wait_for("Shuttle");
 
-    scenery.send_input("enter transport");
+    scenery.send_input("enter shuttle");
     scenery.wait_for("you enter in");
+
+    scenery.send_input("look");
+    scenery.wait_for("Cockpit");
 
     scenery.send_input("out");
     scenery.wait_for("Landing Pad");
 
-    scenery.send_input("enter transport");
+    scenery.send_input("enter shuttle");
     scenery.wait_for("you enter in");
 
-    scenery.send_input("n");
-    scenery.send_input("n");
-    scenery.wait_for("Bridge");
+    scenery.send_input("look");
+    scenery.wait_for("Cockpit");
 }
 
 fn go_to_landing_pad(scenery: &mut TestScenery) {
@@ -223,5 +225,5 @@ fn jump_to_sector_2(scenery: &mut TestScenery) {
 }
 
 fn assert_ship_in_orbit_sol(scenery: &mut TestScenery) {
-    scenery.eventually("sm", "\n- Light Transport");
+    scenery.eventually("sm", "\n- Shuttle");
 }

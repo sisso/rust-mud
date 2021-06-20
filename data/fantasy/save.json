@@ -1,7 +1,7 @@
 {
   "cfg": {
     "avatar_mob": 0,
-    "initial_room": 2,
+    "initial_room": 1,
     "money_id": 17,
     "tick": 12578,
     "total_time": 1257.800018742681
