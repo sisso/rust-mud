@@ -214,7 +214,7 @@ fn new_planet(
 
     let num_m = cfg.moons_prob.count_prob.next_int(rng);
 
-    for i in 0..num_m {
+    for _ in 0..num_m {
         let body = new_moon(
             cfg,
             &PlanetSubCfg {
@@ -271,9 +271,9 @@ fn new_moon(
 fn generate_resources(
     cfg: &UniverseCfg,
     rng: &mut StdRng,
-    atm: &str,
+    _atm: &str,
     biome: &str,
-    ocean: &str,
+    _ocean: &str,
 ) -> Vec<BodyResource> {
     fn cmp(a: &str, b: &str) -> bool {
         a.eq_ignore_ascii_case(b)

@@ -2,8 +2,6 @@ use mud_domain::game::loader::{dto::ObjData, Loader};
 
 use commons::tree::Tree;
 use serde_json;
-use std::collections::{HashMap, HashSet};
-use std::env;
 
 use clap;
 use commons::{asciicolors, jsons::JsonValueExtra};

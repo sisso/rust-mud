@@ -257,7 +257,7 @@ mod test {
 
     #[test]
     fn test_tree_iter_empty() {
-        let mut tree = Tree::<u32>::new();
+        let tree = Tree::<u32>::new();
         assert_eq!(0, tree.iter_hier().count());
     }
 
@@ -348,7 +348,7 @@ mod test {
     }
 
     fn assert_tree_iter(tree: &Tree<i32>, expected: Vec<(Option<i32>, i32, usize)>) {
-        let mut list: Vec<TreeHier<i32>> = tree.iter_hier().collect();
+        let list: Vec<TreeHier<i32>> = tree.iter_hier().collect();
 
         for i in &list {
             println!("{:?}", i);
@@ -365,9 +365,9 @@ mod test {
     }
 
     fn assert_tree_iter_set(tree: &Tree<i32>, expected: HashSet<(Option<i32>, i32, usize)>) {
-        let mut list: Vec<TreeHier<i32>> = tree.iter_hier().collect();
+        let list: Vec<TreeHier<i32>> = tree.iter_hier().collect();
 
-        for (i, e) in list.iter().enumerate() {
+        for (_, e) in list.iter().enumerate() {
             let value = (e.parent, e.index, e.deep);
             assert!(expected.contains(&value), "could not find {:?}", e);
         }

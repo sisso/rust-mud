@@ -28,6 +28,7 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
 pub mod dto;
+mod hocon_parser;
 mod migrations;
 
 use crate::game::ai;
@@ -337,7 +338,7 @@ impl Loader {
         debug!("{:?} apply prefab {:?}", obj_id, data);
 
         if let Some(prefab_id) = data.prefab_id {
-            container.objects.set_prefab_id(obj_id, prefab_id);
+            container.objects.set_prefab_id(obj_id, prefab_id)?;
         }
 
         if let Some(parent) = &data.parent {
@@ -706,6 +707,17 @@ impl Loader {
     /// 4. Instantiate all static data
     pub fn load_folders(container: &mut Container, folder: &Path) -> Result<()> {
         let data = Loader::read_folders(folder)?;
+        Loader::load_data(container, data)
+    }
+
+    pub fn load_hocon_file(container: &mut Container, path: &str) -> Result<()> {
+        let data = std::fs::read_to_string(path)?;
+        Loader::load_hocon(container, &data)
+    }
+
+    pub fn load_hocon(container: &mut Container, hocon: &str) -> Result<()> {
+        let mut data = hocon_parser::HParser::load_hocon_str(hocon)
+            .map_err(|e| Error::Exception(format!("{:?}", e)))?;
         Loader::load_data(container, data)
     }
 

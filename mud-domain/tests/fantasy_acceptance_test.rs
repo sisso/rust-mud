@@ -2,7 +2,11 @@ extern crate mud_domain;
 
 use commons::{ConnectionId, DeltaTime};
 use logs::*;
+use mud_domain::game::builder;
 use mud_domain::game::container::Container;
+use mud_domain::game::domain::Dir;
+use mud_domain::game::loader::dto::{ItemData, ItemFlagsData, ObjData, TagsData};
+use mud_domain::game::loader::Loader;
 use mud_domain::game::prices::Money;
 use mud_domain::game::{inventory_service, loader, Game, GameCfg};
 use std::path::Path;
@@ -14,10 +18,7 @@ pub struct TestScenery {
 }
 
 impl TestScenery {
-    pub fn new() -> Self {
-        let mut container = Container::new();
-        // loader::scenery_space::load(&mut container);
-        loader::Loader::load_folders(&mut container, &Path::new("../data/fantasy")).unwrap();
+    pub fn new(container: Container) -> Self {
         TestScenery {
             game: Game::new(GameCfg::new(), container),
             connection_id: ConnectionId(0),
@@ -139,30 +140,33 @@ fn check_output(outputs: &Vec<String>, contains: &Vec<&str>, exclude: &Vec<&str>
     true
 }
 
+fn load_city_forest_wolf_vendor(container: &mut Container) {
+    loader::Loader::load_hocon_file(container, "../data/tests/scenery_forest_wolf.conf").unwrap();
+}
+
+fn load_fantasy() -> Container {
+    let mut container = Container::new();
+    // loader::scenery_space::load(&mut container);
+    loader::Loader::load_folders(&mut container, &Path::new("../data/fantasy")).unwrap();
+    container
+}
+
 #[test]
 fn test_fantasy_kill_wolf_and_sell_meat() {
-    let mut scenery = TestScenery::new();
+    let mut container = Container::new();
+    load_city_forest_wolf_vendor(&mut container);
+
+    let mut scenery = TestScenery::new(container);
     scenery.login();
-    from_village_to_market(&mut scenery);
-    // run the following lines multiple times can cause have multiple bodies
-    from_market_to_forest(&mut scenery);
+    scenery_forest_wolf_from_village_to_forest(&mut scenery);
     kill_wolf_and_loot(&mut scenery);
-    from_forest_to_market(&mut scenery);
+    scenery_forest_wolf_from_forest_to_village(&mut scenery);
     sell_meat(&mut scenery);
 }
 
-// // TODO: wolfs are not aggressive anymore
-// // #[test]
-// fn test_fantasy_wolf_are_aggressive() {
-//     let mut scenery = TestScenery::new();
-//     scenery.login();
-//     from_village_to_forest(&mut scenery);
-//     scenery.wait_for("wolf execute a attack");
-// }
-
 #[test]
 fn test_fantasy_collect_money_should_be_merged() {
-    let mut scenery = TestScenery::new();
+    let mut scenery = TestScenery::new(load_fantasy());
     scenery.login();
     from_village_to_temple(&mut scenery);
 
@@ -178,7 +182,7 @@ fn test_fantasy_collect_money_should_be_merged() {
 
 #[test]
 fn test_fantasy_steal_temple() {
-    let mut scenery = TestScenery::new();
+    let mut scenery = TestScenery::new(load_fantasy());
     scenery.login();
     from_village_to_temple(&mut scenery);
     for _ in 0..5 {
@@ -188,7 +192,7 @@ fn test_fantasy_steal_temple() {
 
 #[test]
 fn test_fantasy_buy_weapon() {
-    let mut scenery = TestScenery::new();
+    let mut scenery = TestScenery::new(load_fantasy());
     scenery.login();
     scenery.give_money(1000);
     from_village_to_market(&mut scenery);
@@ -198,7 +202,7 @@ fn test_fantasy_buy_weapon() {
 
 #[test]
 fn test_fantasy_hire_mercenary_and_fight() {
-    let mut scenery = TestScenery::new();
+    let mut scenery = TestScenery::new(load_fantasy());
     scenery.login();
     scenery.give_money(100);
     // wait until mercenary spaw
@@ -215,7 +219,7 @@ fn test_fantasy_hire_mercenary_and_fight() {
 
 #[test]
 fn test_fantasy_show_map() {
-    let mut scenery = TestScenery::new();
+    let mut scenery = TestScenery::new(load_fantasy());
     scenery.login();
     scenery.input("map");
     scenery.wait_until(vec!["Map", "**"], vec![]);
@@ -231,7 +235,7 @@ fn test_fantasy_show_map() {
 
 #[test]
 fn test_fantasy_random_rooms() {
-    let mut scenery = TestScenery::new();
+    let mut scenery = TestScenery::new(load_fantasy());
     scenery.login();
     from_village_to_dungeons(&mut scenery);
     scenery.input("map");
@@ -285,10 +289,10 @@ fn kill_wolf_and_loot(scenery: &mut TestScenery) {
     // kill a wolf
     scenery.input("k wolf");
     scenery.wait_for("wolf corpse");
-    scenery.input("examine corpse");
+    scenery.input("examine wolf corpse");
     scenery.wait_for("- meat");
     // collect loot
-    scenery.input("get meat in corpse");
+    scenery.input("get meat in wolf corpse");
     scenery.wait_for("you pick");
     scenery.input("inv");
     scenery.wait_for("- meat");
@@ -298,7 +302,7 @@ fn from_village_to_market(scenery: &mut TestScenery) {
     scenery.input("look");
     scenery.wait_for("Village");
     scenery.input("s");
-    scenery.wait_for("Market");
+    scenery.wait_for("For");
     scenery.input("look");
     scenery.wait_for("vendor");
 }
@@ -309,6 +313,20 @@ fn from_village_to_forest(scenery: &mut TestScenery) {
     scenery.input("s");
     scenery.input("s");
     scenery.wait_for("forest");
+}
+
+fn scenery_forest_wolf_from_village_to_forest(scenery: &mut TestScenery) {
+    scenery.input("look");
+    scenery.wait_for("village");
+    scenery.input("s");
+    scenery.wait_for("forest");
+}
+
+fn scenery_forest_wolf_from_forest_to_village(scenery: &mut TestScenery) {
+    scenery.input("look");
+    scenery.wait_for("forest");
+    scenery.input("n");
+    scenery.wait_for("village");
 }
 
 fn from_village_to_dungeons(scenery: &mut TestScenery) {
@@ -336,11 +354,6 @@ fn pick_money_from_chest(scenery: &mut TestScenery) {
     scenery.input("get gold in chest");
     scenery.wait_for("pick");
 }
-
-// fn from_temple_to_market(scenery: &mut TestScenery) {
-//     scenery.input_and_wait("e", "Village");
-//     scenery.input_and_wait("s", "Market");
-// }
 
 fn buy_sword(scenery: &mut TestScenery) {
     scenery.input_and_wait("buy", "Short Sword");

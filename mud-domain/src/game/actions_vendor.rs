@@ -244,6 +244,8 @@ pub fn sell(
 ) -> Result<()> {
     let vendor_trades = get_vendor_trades(container, vendor_id);
 
+    debug!("selling for {:?}", vendor_trades);
+
     let sell_price = match (vendor_trades, container.prices.get(item_id)) {
         (Some(trades), Some(price)) => {
             let sell_price = trades
@@ -269,6 +271,7 @@ pub fn sell(
                 mob_id,
                 comm::vendor_sell_item_fail_has_no_price(item_label.as_str()),
             );
+            warn!("could not find selling price for {:?}", item_id);
             return Err(Error::InvalidStateFailure);
         }
     };

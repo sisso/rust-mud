@@ -113,8 +113,11 @@ impl Spawns {
     }
 
     pub fn remove(&mut self, id: ObjId) -> Option<Spawn> {
-        debug!("{:?} spawn removed", id);
-        self.index.remove(&id)
+        let value = self.index.remove(&id);
+        if value.is_some() {
+            debug!("{:?} spawn removed", id);
+        }
+        value
     }
 
     pub fn get(&self, id: ObjId) -> Option<&Spawn> {
