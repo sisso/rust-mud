@@ -77,12 +77,18 @@ pub fn set_mob_max_carry_weight(container: &mut Container, obj_id: ObjId, max_we
 }
 
 pub fn add_portal(container: &mut Container, from: RoomId, to: RoomId, dir: Dir) {
-    container.rooms.update(from, |r| {
-        r.exits.push((dir, to));
-    });
-    container.rooms.update(to, |r| {
-        r.exits.push((dir.inv(), from));
-    });
+    container
+        .rooms
+        .update(from, |r| {
+            r.exits.push((dir, to));
+        })
+        .unwrap();
+    container
+        .rooms
+        .update(to, |r| {
+            r.exits.push((dir.inv(), from));
+        })
+        .unwrap();
 }
 
 pub fn add_money(container: &mut Container) -> StaticId {

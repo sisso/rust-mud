@@ -724,7 +724,7 @@ impl Loader {
     }
 
     pub fn load_hocon(container: &mut Container, hocon: &str) -> Result<()> {
-        let mut data = hocon_parser::HParser::load_hocon_str(hocon)
+        let data = hocon_parser::HParser::load_hocon_str(hocon)
             .map_err(|e| Error::Exception(format!("{:?}", e)))?;
         Loader::load_data(container, data)
     }

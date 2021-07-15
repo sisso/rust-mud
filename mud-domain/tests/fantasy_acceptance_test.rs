@@ -188,16 +188,6 @@ fn test_fantasy_collect_money_should_be_merged() {
 }
 
 #[test]
-fn test_fantasy_steal_temple() {
-    let mut scenery = TestScenery::new(load_fantasy());
-    scenery.login();
-    from_village_to_temple(&mut scenery);
-    for _ in 0..5 {
-        pick_money_from_chest(&mut scenery);
-    }
-}
-
-#[test]
 fn test_fantasy_buy_weapon() {
     let mut container = Container::new();
     load_city_forest_wolf_vendor(&mut container);
