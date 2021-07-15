@@ -1,11 +1,11 @@
 extern crate mud_domain;
 
-use commons::{ConnectionId, DeltaTime};
+use commons::{ConnectionId, DeltaTime, ObjId};
 use logs::*;
 use mud_domain::game::builder;
 use mud_domain::game::container::Container;
 use mud_domain::game::domain::Dir;
-use mud_domain::game::loader::dto::{ItemData, ItemFlagsData, ObjData, TagsData};
+use mud_domain::game::loader::dto::{ItemData, ItemFlagsData, ObjData, StaticId, TagsData};
 use mud_domain::game::loader::Loader;
 use mud_domain::game::prices::Money;
 use mud_domain::game::{inventory_service, loader, Game, GameCfg};
@@ -166,16 +166,23 @@ fn test_fantasy_kill_wolf_and_sell_meat() {
 
 #[test]
 fn test_fantasy_collect_money_should_be_merged() {
-    let mut scenery = TestScenery::new(load_fantasy());
+    let mut container = Container::new();
+    load_city_forest_wolf_vendor(&mut container);
+
+    let mut scenery = TestScenery::new(container);
     scenery.login();
-    from_village_to_temple(&mut scenery);
+
+    let chest_id = builder::add_container(&mut scenery.game.container, "chest", ObjId(0), true);
+    Loader::spawn_at(&mut scenery.game.container, StaticId(1), chest_id).unwrap();
 
     pick_money_from_chest(&mut scenery);
     assert_money(&mut scenery, 1);
 
+    Loader::spawn_at(&mut scenery.game.container, StaticId(1), chest_id).unwrap();
     pick_money_from_chest(&mut scenery);
     assert_money(&mut scenery, 2);
 
+    Loader::spawn_at(&mut scenery.game.container, StaticId(1), chest_id).unwrap();
     pick_money_from_chest(&mut scenery);
     assert_money(&mut scenery, 3);
 }
