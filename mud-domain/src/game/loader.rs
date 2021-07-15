@@ -715,6 +715,14 @@ impl Loader {
         Loader::load_hocon(container, &data)
     }
 
+    pub fn load_hocon_files(container: &mut Container, paths: Vec<&str>) -> Result<()> {
+        let paths = paths.iter().map(|p| std::path::Path::new(p)).collect();
+        let mut data = LoaderData::new();
+        hocon_parser::HParser::load_hocon_files(&mut data, &paths)
+            .map_err(|e| Error::Exception(format!("{:?}", e)))?;
+        Loader::load_data(container, data)
+    }
+
     pub fn load_hocon(container: &mut Container, hocon: &str) -> Result<()> {
         let mut data = hocon_parser::HParser::load_hocon_str(hocon)
             .map_err(|e| Error::Exception(format!("{:?}", e)))?;

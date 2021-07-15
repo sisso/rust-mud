@@ -14,7 +14,7 @@ pub struct TreeHier<K: Hash + Eq + Copy + Clone> {
 }
 
 pub struct TreeIterator<'a, K: Hash + Eq + Copy + Clone> {
-    tree: &'a Tree<K>,
+    _tree: &'a Tree<K>,
     list: VecDeque<TreeHier<K>>,
 }
 
@@ -48,7 +48,7 @@ impl<'a, K: Hash + Eq + Copy + Clone> TreeIterator<'a, K> {
             add_recursive(tree, &mut list, 1, root);
         }
 
-        TreeIterator { tree, list }
+        TreeIterator { _tree: tree, list }
     }
 }
 

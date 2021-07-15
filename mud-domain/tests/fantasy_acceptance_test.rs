@@ -192,10 +192,12 @@ fn test_fantasy_steal_temple() {
 
 #[test]
 fn test_fantasy_buy_weapon() {
-    let mut scenery = TestScenery::new(load_fantasy());
+    let mut container = Container::new();
+    load_city_forest_wolf_vendor(&mut container);
+
+    let mut scenery = TestScenery::new(container);
     scenery.login();
     scenery.give_money(1000);
-    from_village_to_market(&mut scenery);
     buy_sword(&mut scenery);
     equip_sword(&mut scenery);
 }
@@ -356,12 +358,12 @@ fn pick_money_from_chest(scenery: &mut TestScenery) {
 }
 
 fn buy_sword(scenery: &mut TestScenery) {
-    scenery.input_and_wait("buy", "Short Sword");
-    scenery.input_and_wait("buy short sword", "bought");
+    scenery.input_and_wait("buy", "sword");
+    scenery.input_and_wait("buy sword", "bought");
 }
 
 fn equip_sword(scenery: &mut TestScenery) {
-    scenery.input_and_wait("equip short sword", "you equip");
+    scenery.input_and_wait("equip sword", "you equip");
 }
 
 fn assert_money(scenery: &mut TestScenery, expected: u32) {
