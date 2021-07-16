@@ -2,7 +2,7 @@ use commons::csv;
 use commons::tree::Tree;
 use mud_domain::random_grid::RandomGridCfg;
 use mud_domain::universe::*;
-use mud_domain::utils::prob::{self, RDistrib, Weighted};
+use mud_domain::utils::prob::{RDistrib, Weighted};
 use rand::prelude::*;
 
 fn main() {
@@ -104,7 +104,7 @@ none	10"#,
 
     let universe = generate(&cfg, &params, &mut rng).unwrap();
 
-    for (i, b) in universe.systems.iter().enumerate() {
+    for (_i, b) in universe.systems.iter().enumerate() {
         let mut tree = Tree::new();
         for b in b.bodies.iter() {
             if b.index == 0 && b.parent == 0 {
@@ -116,7 +116,7 @@ none	10"#,
         println!("System {:?}", b.coords);
 
         for i in tree.iter_hier() {
-            let prefix = (0..i.deep).fold(String::new(), |acc, v| format!("{}--", acc));
+            let prefix = (0..i.deep).fold(String::new(), |acc, _v| format!("{}--", acc));
             println!("{}{:?}", prefix, b.bodies[i.index]);
         }
     }

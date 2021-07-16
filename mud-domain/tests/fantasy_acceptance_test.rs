@@ -4,7 +4,7 @@ use commons::{ConnectionId, DeltaTime, ObjId};
 use logs::*;
 use mud_domain::game::builder;
 use mud_domain::game::container::Container;
-use mud_domain::game::domain::Dir;
+
 use mud_domain::game::loader::dto::{ItemData, ItemFlagsData, ObjData, StaticId, TagsData};
 use mud_domain::game::loader::Loader;
 use mud_domain::game::prices::Money;

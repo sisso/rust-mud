@@ -6,8 +6,8 @@ use std::io::BufRead;
 fn main() {
     let mut rng = thread_rng();
     let mut input = String::new();
-    let mut mult: f32 = std::env::args().nth(1).unwrap().parse().unwrap();
-    let mut add: f32 = std::env::args().nth(2).unwrap().parse().unwrap();
+    let mult: f32 = std::env::args().nth(1).unwrap().parse().unwrap();
+    let add: f32 = std::env::args().nth(2).unwrap().parse().unwrap();
 
     loop {
         println!();

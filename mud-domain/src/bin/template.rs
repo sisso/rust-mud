@@ -8,15 +8,15 @@ fn create_file() -> R<()> {
     unimplemented!()
 }
 
-fn add_mod(file: &str, module_name: &str) -> R<()> {
+fn add_mod(_file: &str, _module_name: &str) -> R<()> {
     unimplemented!()
 }
 
-fn add_field(file: &str, module_name: &str) -> R<()> {
+fn add_field(_file: &str, _module_name: &str) -> R<()> {
     unimplemented!()
 }
 
-fn add_to_feld_to_new(file: &str, module_name: &str) -> R<()> {
+fn add_to_feld_to_new(_file: &str, _module_name: &str) -> R<()> {
     unimplemented!()
 }
 

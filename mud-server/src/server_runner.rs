@@ -158,7 +158,7 @@ pub fn create_server(server_cfg: ServerConfig, stop_flag: Arc<AtomicBool>) -> Re
     // create server
     let socket_server = server_socket::DefaultSocketServer::new(server_cfg.socket_port);
     let http_server =
-        http_server::HttpServer::new(server_cfg.http_port).expect("fail to create http server");
+        <dyn http_server::HttpServer>::new(server_cfg.http_port).expect("fail to create http server");
     let runner = ServerRunner::new(
         server_cfg,
         Box::new(socket_server),

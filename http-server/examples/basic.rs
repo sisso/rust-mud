@@ -2,7 +2,7 @@ use http_server::*;
 use serde_json::json;
 
 fn main() {
-    let mut server: Box<dyn HttpServer> = HttpServer::new(8333).expect("fail to create");
+    let mut server: Box<dyn HttpServer> = <dyn HttpServer>::new(8333).expect("fail to create");
 
     loop {
         std::thread::sleep(::std::time::Duration::from_millis(1000));

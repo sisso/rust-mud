@@ -187,7 +187,7 @@ fn new_planet(
     igen: &mut IdGen,
     parent: usize,
 ) -> Vec<SpaceBody> {
-    let mut distance = cfg.planets_prob.distance_prob.next(rng);
+    let distance = cfg.planets_prob.distance_prob.next(rng);
 
     let planet_i = igen.next();
     let atm = prob::select(rng, &cfg.atm_kinds).unwrap().clone();
