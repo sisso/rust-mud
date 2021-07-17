@@ -1,6 +1,7 @@
 extern crate mud_domain;
 
 use commons::{ConnectionId, DeltaTime};
+use logs::*;
 use mud_domain::game::container::Container;
 use mud_domain::game::{loader, Game, GameCfg};
 use std::path::Path;
@@ -11,7 +12,7 @@ pub struct TestScenery {
 }
 
 impl TestScenery {
-    pub fn new() -> Self {
+    pub fn new_active() -> Self {
         let mut container = Container::new();
         loader::Loader::load_folders(&mut container, &Path::new("../data/space")).unwrap();
         TestScenery {
@@ -20,12 +21,21 @@ impl TestScenery {
         }
     }
 
+    pub fn new_from_file(file: &str) -> Self {
+        let mut container = Container::new();
+        loader::Loader::load_hocon_file(&mut container, file).unwrap();
+        TestScenery {
+            game: Game::new(GameCfg::new(), container),
+            connection_id: ConnectionId(0),
+        }
+    }
+
     pub fn new_sectors_with_jump() -> Self {
-        TestScenery::new()
+        TestScenery::new_active()
     }
 
     pub fn new_landed_with_ship() -> Self {
-        TestScenery::new()
+        TestScenery::new_active()
     }
 
     pub fn login(&mut self) {
@@ -122,6 +132,42 @@ fn check_output(outputs: &Vec<String>, contains: &Vec<&str>, exclude: &Vec<&str>
     }
 
     true
+}
+
+struct SceneryMin {
+    base: TestScenery,
+}
+
+impl SceneryMin {
+    pub fn new() -> Self {
+        let base = TestScenery::new_from_file("../data/tests/scenery_space_min.conf");
+        SceneryMin { base }
+    }
+
+    fn move_to_cockpit(&mut self) {
+        self.base.send_input("look");
+        self.base.wait_for("transport");
+    }
+
+    fn launch(&mut self) {
+        todo!()
+    }
+    fn land(&mut self) {
+        todo!()
+    }
+    fn move_out_ship(&mut self) {
+        todo!()
+    }
+}
+
+// should replace test_fly_to_and_land
+#[test]
+fn test_launch_and_land() {
+    let mut s = SceneryMin::new();
+    s.base.login();
+    s.move_to_cockpit();
+    s.launch();
+    s.land();
 }
 
 #[test]
