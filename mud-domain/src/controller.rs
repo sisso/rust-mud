@@ -537,14 +537,5 @@ fn process_rich_text(mut msg: String) -> String {
 }
 
 fn strip_rich_text(mut msg: String) -> String {
-    for mark in OMarker::list() {
-        match mark {
-            OMarker::Plain => {}
-            OMarker::Literal => msg = msg.replace(mark.id(), ""),
-            OMarker::Reset => msg = msg.replace(mark.id(), ""),
-            OMarker::Label => msg = msg.replace(mark.id(), ""),
-        }
-    }
-
-    msg
+    OMarker::strip(msg)
 }

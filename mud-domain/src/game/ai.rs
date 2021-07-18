@@ -5,6 +5,7 @@ use crate::game::room::RoomId;
 use commons::ObjId;
 use std::collections::HashMap;
 
+// TODO: implement those commands, they are not in use
 #[derive(Debug, Clone, PartialEq)]
 pub enum AiCommand {
     Idle,

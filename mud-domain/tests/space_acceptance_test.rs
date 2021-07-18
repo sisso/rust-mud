@@ -1,10 +1,9 @@
 extern crate mud_domain;
 
 use commons::{ConnectionId, DeltaTime};
-use logs::*;
 use mud_domain::game::container::Container;
+use mud_domain::game::outputs::OMarker;
 use mud_domain::game::{loader, Game, GameCfg};
-use std::path::Path;
 
 pub struct TestScenery {
     pub game: Game,
@@ -70,11 +69,11 @@ impl TestScenery {
             }
         }
 
-        panic!(format!(
+        panic!(
             "timeout waiting for {:?}, output received\n{}",
             expected,
             buffer.join("\n")
-        ));
+        );
     }
 
     pub fn wait_for(&mut self, contains: &str) -> Vec<String> {
@@ -82,7 +81,9 @@ impl TestScenery {
 
         for _ in 0..100 {
             let outputs = self.take_outputs();
-            let found = outputs.iter().find(|msg| msg.contains(contains));
+            let found = outputs
+                .iter()
+                .find(|msg| OMarker::strip((*msg).clone()).contains(contains));
 
             if found.is_some() {
                 return outputs;
@@ -211,7 +212,8 @@ fn test_mining_bot() {
     s.login();
 
     s.send_wait("command", "mining bot");
-    s.send_wait("command mining bot: follow me", "accept");
+    s.send_wait("command mining bot: follow me", "is now following");
     s.send_wait("s", "room2");
     s.send_wait("look", "mining bot");
+    // TODO: command mining bot to mine
 }

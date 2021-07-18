@@ -3,6 +3,7 @@ use super::domain::*;
 use super::item::*;
 use super::mob::*;
 use crate::errors::{AsResult, Result};
+use crate::game::actions_command::RequestCommand;
 use crate::game::astro_bodies::{AstroBodyKind, DistanceMkm};
 use crate::game::labels::Label;
 use crate::game::obj::Obj;
@@ -1048,6 +1049,63 @@ pub fn list_commandables(list: &Vec<&Label>) -> String {
     }
 
     buffer
+}
+
+pub fn list_commands(target: &str, list: &Vec<RequestCommand>) -> String {
+    let mut buffer = format!(
+        "Available commands for {}{}{}:",
+        OMarker::Label,
+        target,
+        OMarker::Reset
+    );
+    if list.is_empty() {
+        buffer.push_str(&format!("{}none{}", OMarker::Label, OMarker::Reset));
+    } else {
+        for i in list {
+            let label = match i {
+                RequestCommand::Idle => "idle",
+                RequestCommand::FollowMe => "follow me",
+            };
+
+            buffer.push_str(&format!(
+                "- {}{}{}\n",
+                OMarker::Label,
+                label,
+                OMarker::Reset
+            ));
+        }
+    }
+
+    buffer
+}
+
+pub fn command_invalid() -> String {
+    "invalid command".to_string()
+}
+
+pub fn command_target_not_found(target: &str) -> String {
+    format!(
+        "you have no {}{}{} to command.",
+        OMarker::Label,
+        target,
+        OMarker::Reset
+    )
+}
+
+pub fn command_invalid_for_target(target: &str, command: &str) -> String {
+    format!(
+        "unknown command {}{}{} for {}{}{}.",
+        OMarker::Label,
+        command,
+        OMarker::Reset,
+        OMarker::Label,
+        target,
+        OMarker::Reset
+    )
+}
+
+pub fn command_follow_me(target: &str) -> String {
+    format!("{} is now following you", OMarker::Label.wrap(target))
 }
 
 #[cfg(test)]

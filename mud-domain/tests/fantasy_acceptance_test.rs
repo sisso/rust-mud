@@ -7,6 +7,7 @@ use mud_domain::game::container::Container;
 
 use mud_domain::game::loader::dto::{ItemData, ItemFlagsData, ObjData, StaticId, TagsData};
 use mud_domain::game::loader::Loader;
+use mud_domain::game::outputs::OMarker;
 use mud_domain::game::prices::Money;
 use mud_domain::game::{inventory_service, loader, Game, GameCfg};
 use std::path::Path;
@@ -127,6 +128,8 @@ fn check_output(outputs: &Vec<String>, contains: &Vec<&str>, exclude: &Vec<&str>
     for expected in contains {
         match outputs.iter().find(|s| s.contains(expected)) {
             Some(line) => {
+                let line = OMarker::strip(line.clone());
+
                 for not_expected in exclude {
                     if line.contains(not_expected) {
                         return false;
@@ -208,7 +211,7 @@ fn test_fantasy_hire_mercenary_and_fight() {
     ]);
 
     scenery.give_money(100);
-    // wait until mercenary spaw
+    // wait until mercenary spawn
     hire_mercenary(&mut scenery);
     scenery_forest_wolf_from_village_to_forest(&mut scenery);
     // confirm mercenary have follow us
@@ -262,7 +265,7 @@ fn test_fantasy_player_respawn() {
 
 fn new_scenery(files: Vec<&str>) -> TestScenery {
     let mut container = Container::new();
-    loader::Loader::load_hocon_files(&mut container, files).unwrap();
+    loader::Loader::load_hocon_files(&mut container, &files).unwrap();
 
     let mut scenery = TestScenery::new(container);
     scenery.login();

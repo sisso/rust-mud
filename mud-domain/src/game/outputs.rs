@@ -33,8 +33,25 @@ impl OMarker {
             OMarker::Plain => "\\p",
             OMarker::Reset => "\\r",
             OMarker::Literal => "\\l",
-            OMarker::Label => "\\ll",
+            OMarker::Label => "\\L",
         }
+    }
+
+    pub fn wrap(&self, text: &str) -> String {
+        format!("{}{}{}", self.id(), text, OMarker::Reset.id())
+    }
+
+    pub fn strip(mut msg: String) -> String {
+        for mark in OMarker::list() {
+            match mark {
+                OMarker::Plain => {}
+                OMarker::Literal => msg = msg.replace(mark.id(), ""),
+                OMarker::Reset => msg = msg.replace(mark.id(), ""),
+                OMarker::Label => msg = msg.replace(mark.id(), ""),
+            }
+        }
+
+        msg
     }
 }
 
