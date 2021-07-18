@@ -144,132 +144,61 @@ impl SceneryMin {
         SceneryMin { base }
     }
 
-    fn move_to_cockpit(&mut self) {
+    fn enter_ship_and_move_to_bridge(&mut self) {
         self.base.send_input("look");
         self.base.wait_for("transport");
+        self.base.send_input("enter transport");
+        self.base.wait_for("you enter");
+        self.base.send_input("n");
+        self.base.wait_for("you move");
+        self.base.send_input("n");
+        self.base.wait_for("bridge");
     }
 
     fn launch(&mut self) {
-        todo!()
+        self.base.send_input("launch");
+        self.base.wait_for("launch complete");
     }
     fn land(&mut self) {
-        todo!()
+        self.base.send_input("land");
+        self.base.wait_for("landing zone");
+        self.base.send_input("land landing zone");
+        self.base.wait_for("landing complete");
     }
     fn move_out_ship(&mut self) {
-        todo!()
+        self.base.send_input("s");
+        self.base.send_input("s");
+        self.base.send_input("exit");
+        self.base.wait_for("landing zone");
+    }
+    fn move_to_sector2(&mut self) {
+        self.base.send_input("move");
+        self.base.wait_for("jump sector2");
+        self.base.send_input("move jump sector2");
+        self.base.wait_for("command complete");
+        self.base.send_input("sm");
+        self.base.send_input("jump");
+        self.base.wait_for("jump complete");
+        self.base.send_input("sm");
+    }
+    fn move_to_planet2(&mut self) {
+        self.base.send_input("move");
+        self.base.send_input("move planet2");
+        self.base.wait_for("command complete");
+    }
+    fn assert_ship_in_orbit_sol(&mut self) {
+        self.base.eventually("sm", "- transport");
     }
 }
 
-// should replace test_fly_to_and_land
 #[test]
 fn test_launch_and_land() {
     let mut s = SceneryMin::new();
     s.base.login();
-    s.move_to_cockpit();
+    s.enter_ship_and_move_to_bridge();
     s.launch();
+    s.assert_ship_in_orbit_sol();
+    s.move_to_sector2();
+    s.move_to_planet2();
     s.land();
-}
-
-#[test]
-fn test_fly_to_and_land() {
-    let mut scenery = TestScenery::new_landed_with_ship();
-    scenery.login();
-
-    move_to_space(&mut scenery);
-    fly_and_land_at_jumanji(&mut scenery);
-}
-
-#[test]
-fn test_launch_land_and_launch() {
-    let mut scenery = TestScenery::new_landed_with_ship();
-    scenery.login();
-
-    move_to_space(&mut scenery);
-    land_at(&mut scenery, "Landing Pad");
-    launch_ship(&mut scenery);
-}
-
-#[test]
-fn test_jump_to_sector_2() {
-    let mut scenery = TestScenery::new_sectors_with_jump();
-    let scenery = &mut scenery;
-    scenery.login();
-    move_to_space(scenery);
-    jump_to_sector_2(scenery);
-}
-
-fn fly_and_land_at_jumanji(scenery: &mut TestScenery) {
-    scenery.send_input("move");
-    scenery.wait_for("Jumanji");
-
-    scenery.send_input("move jumanji");
-    scenery.wait_for("command accepted");
-    assert_ship_in_orbit_sol(scenery);
-    scenery.wait_for("command complete");
-
-    land_at(scenery, "Landing Pad");
-}
-
-fn move_to_space(scenery: &mut TestScenery) {
-    go_to_landing_pad(scenery);
-    enter_ship_and_move_to_cockpit(scenery);
-    launch_ship(scenery);
-}
-
-fn land_at(scenery: &mut TestScenery, place: &str) {
-    scenery.send_input("land");
-    scenery.wait_for(place);
-
-    scenery.send_input(&format!("land {}", place));
-    scenery.wait_for("landing complete");
-}
-
-fn launch_ship(scenery: &mut TestScenery) {
-    scenery.send_input("launch");
-    scenery.wait_for("launch complete");
-
-    scenery.send_input("sm");
-    scenery.wait_for("Dune");
-}
-
-fn enter_ship_and_move_to_cockpit(scenery: &mut TestScenery) {
-    scenery.send_input("look");
-    scenery.wait_for("Shuttle");
-
-    scenery.send_input("enter shuttle");
-    scenery.wait_for("you enter in");
-
-    scenery.send_input("look");
-    scenery.wait_for("Cockpit");
-
-    scenery.send_input("out");
-    scenery.wait_for("Landing Pad");
-
-    scenery.send_input("enter shuttle");
-    scenery.wait_for("you enter in");
-
-    scenery.send_input("look");
-    scenery.wait_for("Cockpit");
-}
-
-fn go_to_landing_pad(scenery: &mut TestScenery) {
-    scenery.send_input("look");
-    scenery.wait_for("Palace");
-
-    scenery.send_input("s");
-    scenery.wait_for("Landing Pad");
-}
-
-fn jump_to_sector_2(scenery: &mut TestScenery) {
-    scenery.send_input("move Jump point");
-    scenery.wait_for("command accepted");
-    scenery.wait_for("command complete");
-    scenery.send_input("jump");
-    scenery.wait_for("jump complete");
-    scenery.send_input("sm");
-    scenery.wait_for("Sector 2");
-}
-
-fn assert_ship_in_orbit_sol(scenery: &mut TestScenery) {
-    scenery.eventually("sm", "\n- Shuttle");
 }
