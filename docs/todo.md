@@ -30,6 +30,7 @@
 - add room size
 - add put item at
 - hire companions or controlled drones
+    - owned character vs hired characters
 - persistence save and load
   - pre-requets to define a proper load and save format
 

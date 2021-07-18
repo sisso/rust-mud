@@ -103,8 +103,12 @@ impl HParser {
             _ => return Err(ParseError::NotObject),
         };
 
-        for (_key, value) in map {
-            let obj: ObjData = HParser::load_obj(value)?;
+        for (key, value) in map {
+            let mut obj: ObjData = HParser::load_obj(value)?;
+
+            if obj.id.is_none() {
+                obj.id = Some(StaticId(key.parse().expect("fail to parse id")))
+            }
 
             let static_id = obj.get_id();
             if objects.contains_key(&static_id) {

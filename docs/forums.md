@@ -1,9 +1,31 @@
+# Hire, Buy, Own 
+
+It is supported to hire, you pay, the follow you and get in any fight with you for an undefined amount of time.
+
+Hires should work for you for a amount of time, you have a limited control of they actions, but can not switch their
+items or upgrade their status.
+
+Some mobs like robots, imps or dogs, are bough or cast. You have full control of its actions and inventory.
+
+Some mobs are "team" and become part of your group as the same as your main character. You have full control of its
+actions, stats or even take control of it as main avatar.
+
+TODO:
+- hire should not be use ownership to define a hire
+- hire should exist a timeout to stop the work, ask for more money and come back to the spawn point
+- hire should not stop to work in middle of a battle
+- you can see stats and inventory 
+- you can command 
+- you can switch avatars
+
+
+
 # Code deprecation
 
 Code array was never something fun to have. Could be useful to fine define keywords to interact with objects, but it
 is a pain to maintain, and I will always be lazy to define nice codes.
 
-Better to have just labe and a better search.
+Better to have just label and a better search.
 
 # Inputs handling and commands
 

@@ -141,7 +141,8 @@ fn check_output(outputs: &Vec<String>, contains: &Vec<&str>, exclude: &Vec<&str>
 }
 
 fn load_city_forest_wolf_vendor(container: &mut Container) {
-    loader::Loader::load_hocon_file(container, "../data/tests/scenery_forest_wolf.conf").unwrap();
+    loader::Loader::load_hocon_file(container, "../data/tests/scenery_fantasy_forest_wolf.conf")
+        .unwrap();
 }
 
 fn load_fantasy() -> Container {
@@ -201,12 +202,15 @@ fn test_fantasy_buy_weapon() {
 
 #[test]
 fn test_fantasy_hire_mercenary_and_fight() {
-    let mut scenery = TestScenery::new(load_fantasy());
-    scenery.login();
+    let mut scenery = new_scenery(vec![
+        "../data/tests/scenery_fantasy_forest_wolf.conf",
+        "../data/tests/scenery_fantasy_forest_wolf_mercenary.conf",
+    ]);
+
     scenery.give_money(100);
     // wait until mercenary spaw
     hire_mercenary(&mut scenery);
-    from_village_to_forest(&mut scenery);
+    scenery_forest_wolf_from_village_to_forest(&mut scenery);
     // confirm mercenary have follow us
     scenery.input_and_wait("look", "mercenary");
     // wait for wolf
@@ -254,6 +258,15 @@ fn test_fantasy_player_respawn() {
     //     .unwrap();
     // scenery.assert_output(vec!["resurrect"]);
     // TODO: create method to kill a avatar
+}
+
+fn new_scenery(files: Vec<&str>) -> TestScenery {
+    let mut container = Container::new();
+    loader::Loader::load_hocon_files(&mut container, files).unwrap();
+
+    let mut scenery = TestScenery::new(container);
+    scenery.login();
+    scenery
 }
 
 fn hire_mercenary(scenery: &mut TestScenery) {
