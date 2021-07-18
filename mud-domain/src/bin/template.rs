@@ -22,9 +22,10 @@ fn add_to_feld_to_new(_file: &str, _module_name: &str) -> R<()> {
 
 fn main() -> Result<(), Box<dyn Error>> {
     let name = match std::env::args().nth(1) {
-        Some(name) if !name.is_empty() => name,
+        Some(name) if !name.is_empty() && &name != "help" && &name != "--help" => name,
         _ => {
-            println!("Invalid struct name");
+            println!("Invalid struct name. From the git root directory run:");
+            println!("cargo run --bin template Squad");
             std::process::exit(1);
         }
     };
@@ -33,7 +34,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // read template file, replace variables inside, put file in the project
     {
-        let template = std::fs::read_to_string("mud-domain/src/game/template.rs")?;
+        let template = std::fs::read_to_string("mud-domain/src/game/template.rs")
+            .expect("template file not found");
         let result_template = template
             .replace("Template", name.as_str())
             .replace("template", &name_lower);
@@ -46,7 +48,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     {
-        let mut body = std::fs::read_to_string("mud-domain/src/game.rs")?;
+        let mut body =
+            std::fs::read_to_string("mud-domain/src/game.rs").expect("game file not found");
 
         let new_import = format!("pub mod {};\n", &name_lower);
         if body.contains(&new_import) {
@@ -54,7 +57,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         } else {
             println!("adding pub mod to game.rs");
 
-            let index = body.find(PUB_IMPORT).unwrap();
+            let index = body
+                .find(PUB_IMPORT)
+                .expect("not found PUB_IMPORT notation in game.rs ");
             body.insert_str(index, &new_import);
             std::fs::write("mud-domain/src/game.rs", body)?;
         }
