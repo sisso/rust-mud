@@ -15,11 +15,17 @@ pub enum OMarker {
     Plain,
     Reset,
     Literal,
+    Label,
 }
 
 impl OMarker {
     pub fn list() -> Vec<OMarker> {
-        vec![OMarker::Plain, OMarker::Literal, OMarker::Reset]
+        vec![
+            OMarker::Plain,
+            OMarker::Literal,
+            OMarker::Reset,
+            OMarker::Label,
+        ]
     }
 
     pub fn id(&self) -> &'static str {
@@ -27,6 +33,7 @@ impl OMarker {
             OMarker::Plain => "\\p",
             OMarker::Reset => "\\r",
             OMarker::Literal => "\\l",
+            OMarker::Label => "\\ll",
         }
     }
 }

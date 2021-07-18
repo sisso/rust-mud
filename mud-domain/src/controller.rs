@@ -16,6 +16,7 @@ use logs::*;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 
+mod input_handle_command;
 mod input_handle_hire;
 mod input_handle_items;
 mod input_handle_space;
@@ -528,6 +529,7 @@ fn process_rich_text(mut msg: String) -> String {
             OMarker::Plain => {}
             OMarker::Literal => msg = msg.replace(mark.id(), &asciicolors::fg(45)),
             OMarker::Reset => msg = msg.replace(mark.id(), asciicolors::RESET),
+            OMarker::Label => msg = msg.replace(mark.id(), &asciicolors::fg(226)),
         }
     }
 
@@ -540,6 +542,7 @@ fn strip_rich_text(mut msg: String) -> String {
             OMarker::Plain => {}
             OMarker::Literal => msg = msg.replace(mark.id(), ""),
             OMarker::Reset => msg = msg.replace(mark.id(), ""),
+            OMarker::Label => msg = msg.replace(mark.id(), ""),
         }
     }
 

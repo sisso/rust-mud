@@ -92,11 +92,11 @@ impl TestScenery {
             }
         }
 
-        panic!(format!(
+        panic!(
             "timeout waiting for {:?}, outputs received\n{}",
             contains,
             buffer.join("\n")
-        ));
+        );
     }
 
     pub fn tick(&mut self) {
@@ -203,4 +203,15 @@ fn test_mine_ore() {
     s.send_wait("extract", "you start");
     s.wait_for("you extract");
     s.send_wait("inv", "metal ore");
+}
+
+#[test]
+fn test_mining_bot() {
+    let mut s = TestScenery::new(&vec!["../data/tests/scenery_mining_bot.conf"]);
+    s.login();
+
+    s.send_wait("command", "mining bot");
+    s.send_wait("command mining bot: follow me", "accept");
+    s.send_wait("s", "room2");
+    s.send_wait("look", "mining bot");
 }

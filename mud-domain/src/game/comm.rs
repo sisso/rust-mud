@@ -4,6 +4,7 @@ use super::item::*;
 use super::mob::*;
 use crate::errors::{AsResult, Result};
 use crate::game::astro_bodies::{AstroBodyKind, DistanceMkm};
+use crate::game::labels::Label;
 use crate::game::obj::Obj;
 use crate::game::outputs::OMarker;
 use crate::game::prices::Money;
@@ -75,6 +76,8 @@ pub fn help() -> String {
   buy <item>         - list objecst to buy or buy a item
   sell <item>        - list objecst to sell or sell a item
   extract <obj>      - extract resources from a stuff that can be extracted
+  command            - list commandable units
+  command <obj>: <action> - command a obj to do a action
 -------------------------------------------------------------"#;
 
     str.to_string()
@@ -1027,6 +1030,24 @@ pub fn extract_stop(mob: &str, target: &str) -> PPMsg {
         private_msg: format!("you stop to extract from {}", target),
         public_msg: format!("{} stop to extract from {}", mob, target),
     }
+}
+
+pub fn list_commandables(list: &Vec<&Label>) -> String {
+    let mut buffer = "In your command:".to_string();
+    if list.is_empty() {
+        buffer.push_str(&format!("{}none{}", OMarker::Label, OMarker::Reset));
+    } else {
+        for i in list {
+            buffer.push_str(&format!(
+                "- {}{}{}\n",
+                OMarker::Label,
+                i.label,
+                OMarker::Reset
+            ));
+        }
+    }
+
+    buffer
 }
 
 #[cfg(test)]

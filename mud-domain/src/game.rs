@@ -14,6 +14,7 @@ use serde::Deserialize;
 
 pub mod actions;
 pub mod actions_admin;
+pub mod actions_command;
 pub mod actions_hire;
 pub mod actions_items;
 pub mod actions_ships;

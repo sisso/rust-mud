@@ -332,6 +332,7 @@ pub struct FlatData {
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct PlayerData {
+    // TODO: remove this self reference, looks like is used during the loader to reference its old id?
     pub id: StaticId,
     pub login: String,
     pub avatar_id: StaticId,

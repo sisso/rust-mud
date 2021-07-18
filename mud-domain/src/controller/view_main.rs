@@ -3,7 +3,9 @@ use std::collections::HashSet;
 use commons::{ObjId, PlayerId};
 
 use super::{input_handle_items, input_handle_space, input_handle_vendors};
-use crate::controller::{input_handle_hire, ConnectionView, ConnectionViewAction, ViewHandleCtx};
+use crate::controller::{
+    input_handle_command, input_handle_hire, ConnectionView, ConnectionViewAction, ViewHandleCtx,
+};
 use crate::errors::Error::NotFoundFailure;
 use crate::errors::{AsResult, Error, Result};
 use crate::game::comm;
@@ -72,6 +74,14 @@ pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<ConnectionViewActio
     }
 
     match handle_ship(&mut ctx, &input) {
+        Ok(action) => return Ok(action),
+        Err(NotFoundFailure) => {}
+        Err(other) => {
+            warn!("{:?} fail processing command {:?}", ctx.mob_id, other);
+        }
+    }
+
+    match handle_command(&mut ctx, &input) {
         Ok(action) => return Ok(action),
         Err(NotFoundFailure) => {}
         Err(other) => {
@@ -339,6 +349,17 @@ pub fn handle_general(ctx: &mut ViewHandleCtx, input: &StrInput) -> Result<Conne
             ctx.container
                 .outputs
                 .private(ctx.mob_id, comm::uptime(ctx.container.time.total));
+            Ok(ConnectionViewAction::None)
+        }
+
+        _ => Err(NotFoundFailure),
+    }
+}
+
+pub fn handle_command(ctx: &mut ViewHandleCtx, input: &StrInput) -> Result<ConnectionViewAction> {
+    match input.first() {
+        "command" => {
+            input_handle_command::command(ctx, input)?;
             Ok(ConnectionViewAction::None)
         }
 
