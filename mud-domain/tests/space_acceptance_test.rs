@@ -12,30 +12,13 @@ pub struct TestScenery {
 }
 
 impl TestScenery {
-    pub fn new_active() -> Self {
+    pub fn new(files: &Vec<&str>) -> Self {
         let mut container = Container::new();
-        loader::Loader::load_folders(&mut container, &Path::new("../data/space")).unwrap();
+        loader::Loader::load_hocon_files(&mut container, files).unwrap();
         TestScenery {
             game: Game::new(GameCfg::new(), container),
             connection_id: ConnectionId(0),
         }
-    }
-
-    pub fn new_from_file(file: &str) -> Self {
-        let mut container = Container::new();
-        loader::Loader::load_hocon_file(&mut container, file).unwrap();
-        TestScenery {
-            game: Game::new(GameCfg::new(), container),
-            connection_id: ConnectionId(0),
-        }
-    }
-
-    pub fn new_sectors_with_jump() -> Self {
-        TestScenery::new_active()
-    }
-
-    pub fn new_landed_with_ship() -> Self {
-        TestScenery::new_active()
     }
 
     pub fn login(&mut self) {
@@ -62,10 +45,15 @@ impl TestScenery {
             .collect()
     }
 
+    pub fn send_wait(&mut self, command: &str, expected: &str) -> Vec<String> {
+        self.send_input(command);
+        self.wait_for(expected)
+    }
+
     pub fn eventually(&mut self, command: &str, expected: &str) -> Vec<String> {
         let mut buffer = vec![];
 
-        for _ in 0..100 {
+        for _ in 0..10 {
             self.send_input(command);
             self.tick();
 
@@ -140,8 +128,10 @@ struct SceneryMin {
 
 impl SceneryMin {
     pub fn new() -> Self {
-        let base = TestScenery::new_from_file("../data/tests/scenery_space_min.conf");
-        SceneryMin { base }
+        let base = TestScenery::new(&vec!["../data/tests/scenery_space_min.conf"]);
+        let mut s = SceneryMin { base };
+        s.base.login();
+        s
     }
 
     fn enter_ship_and_move_to_bridge(&mut self) {
@@ -194,11 +184,23 @@ impl SceneryMin {
 #[test]
 fn test_launch_and_land() {
     let mut s = SceneryMin::new();
-    s.base.login();
     s.enter_ship_and_move_to_bridge();
     s.launch();
     s.assert_ship_in_orbit_sol();
     s.move_to_sector2();
     s.move_to_planet2();
     s.land();
+}
+
+#[test]
+fn test_mine_ore() {
+    let mut s = TestScenery::new(&vec![
+        "../data/tests/scenery_min.conf",
+        "../data/tests/scenery_min_extractable.conf",
+    ]);
+    s.login();
+    s.send_wait("look", "ore deposit");
+    s.send_wait("extract", "you start");
+    s.wait_for("you extract");
+    s.send_wait("inv", "metal ore");
 }
