@@ -536,6 +536,6 @@ fn process_rich_text(mut msg: String) -> String {
     msg
 }
 
-fn strip_rich_text(mut msg: String) -> String {
+fn strip_rich_text(msg: String) -> String {
     OMarker::strip(msg)
 }

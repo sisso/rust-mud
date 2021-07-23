@@ -54,19 +54,65 @@ pub fn set_command(ctx: &mut ViewHandleCtx, target: &str, command: &str) -> Resu
     };
 
     match command {
-        "follow me" => {
-            actions_command::set_command_follow(ctx.container, target_id, ctx.mob_id)?;
-
-            let label = ctx.container.labels.get_label_f(target_id);
-            ctx.container
-                .outputs
-                .private(ctx.mob_id, comm::command_follow_me(label));
-        }
+        "follow me" => set_command_follow_me(ctx, target_id),
+        "extract" => set_command_extract(ctx, target_id),
         _ => {
             ctx.container.outputs.private(
                 ctx.mob_id,
                 comm::command_invalid_for_target(target, command),
             );
+            Ok(())
+        }
+    }
+}
+
+fn set_command_follow_me(ctx: &mut ViewHandleCtx, target_id: ObjId) -> Result<()> {
+    actions_command::set_command_follow(ctx.container, target_id, ctx.mob_id)?;
+
+    let label = ctx.container.labels.get_label_f(target_id);
+    ctx.container
+        .outputs
+        .private(ctx.mob_id, comm::command_follow_me_ack(label));
+    Ok(())
+}
+
+fn set_command_extract(ctx: &mut ViewHandleCtx, target_id: ObjId) -> Result<()> {
+    let location_id = ctx
+        .container
+        .locations
+        .get(ctx.mob_id)
+        .as_result_str("mob has no location")?;
+
+    let extractable: Vec<ObjId> = ctx
+        .container
+        .locations
+        .list_at(location_id)
+        .filter(|id| ctx.container.extractables.exist(*id))
+        .collect();
+
+    if extractable.len() > 1 {
+        warn!("extract command selection for multiple targets not implemented");
+    }
+
+    match extractable.into_iter().next() {
+        Some(extractable_id) => {
+            actions_command::set_command_extract(
+                ctx.container,
+                target_id,
+                location_id,
+                extractable_id,
+            )?;
+
+            let label = ctx.container.labels.get_label_f(target_id);
+            ctx.container
+                .outputs
+                .private(ctx.mob_id, comm::command_extract_ack(label));
+        }
+
+        None => {
+            ctx.container
+                .outputs
+                .private(ctx.mob_id, comm::command_extract_fail_no_extractable());
         }
     }
 

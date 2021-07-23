@@ -26,6 +26,9 @@ pub enum AiCommand {
         to: ObjId,
         wares: Vec<ObjId>,
     },
+    Extract {
+        from: ObjId,
+    },
 }
 
 #[derive(Clone, Debug)]

@@ -215,5 +215,8 @@ fn test_mining_bot() {
     s.send_wait("command mining bot: follow me", "is now following");
     s.send_wait("s", "room2");
     s.send_wait("look", "mining bot");
-    // TODO: command mining bot to mine
+    s.send_wait("command mining bot: extract", "extracting");
+    s.send_wait("n", "room1");
+    let output = s.send_wait("look", "room1");
+    check_output(&output, &vec![], &vec!["mining bot"]);
 }

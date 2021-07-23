@@ -1065,6 +1065,7 @@ pub fn list_commands(target: &str, list: &Vec<RequestCommand>) -> String {
             let label = match i {
                 RequestCommand::Idle => "idle",
                 RequestCommand::FollowMe => "follow me",
+                RequestCommand::Extract => "extract",
             };
 
             buffer.push_str(&format!(
@@ -1092,6 +1093,10 @@ pub fn command_target_not_found(target: &str) -> String {
     )
 }
 
+pub fn command_extract_fail_no_extractable() -> String {
+    "there is nothing to extract".to_string()
+}
+
 pub fn command_invalid_for_target(target: &str, command: &str) -> String {
     format!(
         "unknown command {}{}{} for {}{}{}.",
@@ -1104,8 +1109,12 @@ pub fn command_invalid_for_target(target: &str, command: &str) -> String {
     )
 }
 
-pub fn command_follow_me(target: &str) -> String {
+pub fn command_follow_me_ack(target: &str) -> String {
     format!("{} is now following you", OMarker::Label.wrap(target))
+}
+
+pub fn command_extract_ack(target: &str) -> String {
+    format!("{} is extracting", OMarker::Label.wrap(target))
 }
 
 #[cfg(test)]

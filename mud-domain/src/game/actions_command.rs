@@ -1,11 +1,13 @@
 use crate::errors::*;
 use crate::game::ai::{Ai, AiCommand};
 use crate::game::container::Container;
+use crate::game::location::LocationId;
 use commons::ObjId;
 
 pub enum RequestCommand {
     Idle,
     FollowMe,
+    Extract,
 }
 
 pub fn list_commandable(container: &Container, obj_id: ObjId) -> Result<Vec<ObjId>> {
@@ -31,8 +33,12 @@ pub fn find_commandable(container: &Container, obj_id: ObjId, label: &str) -> Re
     Ok(container.labels.search(&ids, label))
 }
 
-pub fn list_commands_for(_container: &Container, obj_id: ObjId) -> Result<Vec<RequestCommand>> {
-    Ok(vec![RequestCommand::Idle, RequestCommand::FollowMe])
+pub fn list_commands_for(_container: &Container, _obj_id: ObjId) -> Result<Vec<RequestCommand>> {
+    Ok(vec![
+        RequestCommand::Idle,
+        RequestCommand::FollowMe,
+        RequestCommand::Extract,
+    ])
 }
 
 pub fn set_command_follow(
@@ -48,11 +54,44 @@ pub fn set_command_follow(
         target_id: followed_id,
     };
 
+    // TODO: follow hack
     let mob = container
         .mobs
         .get_mut(followed_id)
         .as_result_str("followed id has no mob component")?;
     mob.followers.push(obj_id);
+
+    Ok(())
+}
+pub fn set_command_extract(
+    container: &mut Container,
+    mob_id: ObjId,
+    location_id: LocationId,
+    extractable_id: ObjId,
+) -> Result<()> {
+    let ai = container
+        .ai
+        .get_mut(mob_id)
+        .as_result_str("target object expected to have AI")?;
+
+    // clear previous command
+    match ai.command {
+        AiCommand::FollowAndProtect { target_id } => {
+            // TODO: follow hack
+            let mob = container
+                .mobs
+                .get_mut(target_id)
+                .as_result_str("followed id has no mob component")?;
+            mob.followers.retain(|i| *i != mob_id);
+        }
+        _ => {}
+    }
+
+    ai.command = AiCommand::Extract {
+        from: extractable_id,
+    };
+
+    super::actions::extract(container, mob_id, location_id, extractable_id)?;
 
     Ok(())
 }
