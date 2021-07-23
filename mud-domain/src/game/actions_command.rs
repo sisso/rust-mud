@@ -54,12 +54,7 @@ pub fn set_command_follow(
         target_id: followed_id,
     };
 
-    // TODO: follow hack
-    let mob = container
-        .mobs
-        .get_mut(followed_id)
-        .as_result_str("followed id has no mob component")?;
-    mob.followers.push(obj_id);
+    container.mobs.add_follower(followed_id, obj_id)?;
 
     Ok(())
 }
@@ -77,12 +72,7 @@ pub fn set_command_extract(
     // clear previous command
     match ai.command {
         AiCommand::FollowAndProtect { target_id } => {
-            // TODO: follow hack
-            let mob = container
-                .mobs
-                .get_mut(target_id)
-                .as_result_str("followed id has no mob component")?;
-            mob.followers.retain(|i| *i != mob_id);
+            container.mobs.remove_follower(target_id, mob_id)?;
         }
         _ => {}
     }

@@ -310,6 +310,18 @@ impl MobRepository {
     pub fn is_avatar(&self, id: MobId) -> bool {
         self.index.get(&id).unwrap().is_avatar
     }
+
+    pub fn add_follower(&mut self, id: MobId, follower_id: MobId) -> Result<()> {
+        let mob = self.get_mut(id).as_result_str("mob not found")?;
+        mob.followers.push(follower_id);
+        Ok(())
+    }
+
+    pub fn remove_follower(&mut self, id: MobId, follower_id: MobId) -> Result<()> {
+        let mob = self.get_mut(id).as_result_str("mob not found")?;
+        mob.followers.retain(|i| *i != follower_id);
+        Ok(())
+    }
 }
 
 pub fn search_mobs_at(
