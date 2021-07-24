@@ -44,7 +44,9 @@ pub fn tick(container: &mut Container) {
                         total_time.as_seconds_f64() as f32,
                     );
 
-                    astros.update_orbit(ship_id, pos).unwrap();
+                    astros
+                        .update_orbit(ship_id, pos)
+                        .expect("invalid state, can not move a ship that was not launch");
                 }
                 _ => {
                     // warn!("running an unexpected ship command {:?}", ship.command);

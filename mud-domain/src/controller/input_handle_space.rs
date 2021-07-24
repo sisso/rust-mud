@@ -103,7 +103,7 @@ pub fn land_at(container: &mut Container, mob_id: MobId, input: &StrInput) -> Re
             let founds = container.labels.search(&sites, input.plain_arguments());
 
             match founds.into_iter().next() {
-                Some(landing_room) => do_land_at(container, craft_id, landing_room),
+                Some(landing_room) => do_land_at(container, mob_id, craft_id, landing_room),
                 None => Err(Error::InvalidArgumentFailure),
             }
         })

@@ -171,8 +171,14 @@ impl SceneryMin {
         self.base.send_input("move planet2");
         self.base.wait_for("command complete");
     }
+
     fn assert_ship_in_orbit_sol(&mut self) {
         self.base.eventually("sm", "- transport");
+    }
+
+    fn fail_to_move_before_launch(&mut self) {
+        self.base.send_input("move jump sector2");
+        self.base.wait_for("rejected");
     }
 }
 
@@ -180,6 +186,7 @@ impl SceneryMin {
 fn test_launch_and_land() {
     let mut s = SceneryMin::new();
     s.enter_ship_and_move_to_bridge();
+    s.fail_to_move_before_launch();
     s.launch();
     s.assert_ship_in_orbit_sol();
     s.move_to_sector2();

@@ -17,6 +17,13 @@ pub fn move_to(
     ship_id: ShipId,
     target_id: ObjId,
 ) -> Result<()> {
+    if !space_utils::can_ship_move(container, ship_id) {
+        container
+            .outputs
+            .private(mob_id, comm::space_move_invalid());
+        return Err(Error::InvalidArgumentFailure);
+    }
+
     container
         .ships
         .set_command(ship_id, ShipCommand::move_to(target_id))
@@ -35,9 +42,17 @@ pub fn move_to(
 
 pub fn do_land_at(
     container: &mut Container,
+    mob_id: MobId,
     ship_id: ShipId,
     landing_room_id: RoomId,
 ) -> Result<()> {
+    if !space_utils::can_ship_land(container, ship_id) {
+        container
+            .outputs
+            .private(mob_id, comm::space_land_invalid());
+        return Err(Error::InvalidArgumentFailure);
+    }
+
     match container
         .ships
         .set_command(ship_id, ShipCommand::land(landing_room_id))

@@ -577,7 +577,7 @@ pub fn space_move() -> String {
 }
 
 pub fn space_move_invalid() -> String {
-    "can not move to that".to_string()
+    "command rejected, you can not move to that".to_string()
 }
 
 pub fn space_command_failed() -> String {

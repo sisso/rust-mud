@@ -199,6 +199,18 @@ pub fn to_showsectortreebody<'a>(
     }
 }
 
+pub fn can_ship_move(container: &Container, ship_id: ShipId) -> bool {
+    is_ship_in_space(container, ship_id)
+}
+
+pub fn is_ship_in_space(container: &Container, ship_id: ObjId) -> bool {
+    container.astro_bodies.exists(ship_id)
+}
+
+pub fn can_ship_land(container: &Container, ship_id: ShipId) -> bool {
+    is_ship_in_space(container, ship_id)
+}
+
 /// Check if ship can be launched into space by checking if ship is in a exit area and the parent
 /// is a valid astronomic body
 pub fn can_ship_launch(container: &Container, ship_id: ShipId) -> bool {

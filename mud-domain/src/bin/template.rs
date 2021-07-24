@@ -8,17 +8,17 @@ fn create_file() -> R<()> {
     unimplemented!()
 }
 
-fn add_mod(_file: &str, _module_name: &str) -> R<()> {
-    unimplemented!()
-}
-
-fn add_field(_file: &str, _module_name: &str) -> R<()> {
-    unimplemented!()
-}
-
-fn add_to_feld_to_new(_file: &str, _module_name: &str) -> R<()> {
-    unimplemented!()
-}
+// fn add_mod(_file: &str, _module_name: &str) -> R<()> {
+//     unimplemented!()
+// }
+//
+// fn add_field(_file: &str, _module_name: &str) -> R<()> {
+//     unimplemented!()
+// }
+//
+// fn add_to_feld_to_new(_file: &str, _module_name: &str) -> R<()> {
+//     unimplemented!()
+// }
 
 fn main() -> Result<(), Box<dyn Error>> {
     let name = match std::env::args().nth(1) {
