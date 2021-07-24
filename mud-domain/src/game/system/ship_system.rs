@@ -52,7 +52,6 @@ pub fn tick(container: &mut Container) {
                     // warn!("running an unexpected ship command {:?}", ship.command);
                 }
             };
-            continue;
         } else {
             // when command is not runnnig
             match &mut ship.command {

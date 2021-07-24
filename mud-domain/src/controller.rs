@@ -525,11 +525,14 @@ pub fn handle_spawn_prefab(
 
 fn process_rich_text(mut msg: String) -> String {
     for mark in OMarker::list() {
+        // https://i.stack.imgur.com/UQVe5.png
         match mark {
             OMarker::Plain => {}
             OMarker::Literal => msg = msg.replace(mark.id(), &asciicolors::fg(45)),
             OMarker::Reset => msg = msg.replace(mark.id(), asciicolors::RESET),
             OMarker::Label => msg = msg.replace(mark.id(), &asciicolors::fg(226)),
+            OMarker::Desc => msg = msg.replace(mark.id(), &asciicolors::fg(243)),
+            OMarker::Code => msg = msg.replace(mark.id(), &asciicolors::fg(75)),
         }
     }
 

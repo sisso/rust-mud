@@ -2,11 +2,9 @@ use std::error::Error;
 
 const PUB_IMPORT: &str = "// EOF pub mods";
 
-type R<T> = Result<T, Box<dyn Error>>;
-
-fn create_file() -> R<()> {
-    unimplemented!()
-}
+// fn create_file() -> R<()> {
+//     unimplemented!()
+// }
 
 // fn add_mod(_file: &str, _module_name: &str) -> R<()> {
 //     unimplemented!()

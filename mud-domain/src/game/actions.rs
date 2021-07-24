@@ -108,6 +108,7 @@ fn look_description(container: &Container, mob_id: MobId) -> Result<String> {
         .collect();
 
     comm::look_description(
+        room_id.as_u32(),
         &room_label.label,
         &room_label.desc,
         room.exits.iter().cloned().map(|(dir, _)| dir).collect(),

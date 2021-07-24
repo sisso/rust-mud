@@ -6,6 +6,7 @@ use crate::errors::{AsResult, Result};
 use crate::game::actions_command::RequestCommand;
 use crate::game::astro_bodies::{AstroBodyKind, DistanceMkm};
 use crate::game::labels::Label;
+use crate::game::location::LocationId;
 use crate::game::obj::Obj;
 use crate::game::outputs::OMarker;
 use crate::game::prices::Money;
@@ -55,36 +56,38 @@ pub fn help() -> String {
     let str = r#"-------------------------------------------------------------
   [Help]
 -------------------------------------------------------------
-  look               - look around
-  examine <target>   - examine target insides carefully
-  n,s,e,w            - move to different directions
-  say <msg>          - say something in the room
-  uptime             - server uptime
-  stats              - show your stats information and inventory
-  rest               - rest to recovery from wounds, see stand
-  stand              - sand up and stop to rest, see rest
-  kill <target>      - attack something and try to kill it
-  get <obj>          - pick up a <obj> from floor
-  get <obj> in <obj> - pick up a <obj> from <from>
-  equip <item>       - use a weapon or wear a armor
-  remove <item>      - strip an item you are using
-  drop <item>        - drop a object
-  put <item> <obj>   - put a object into other container
-  enter <target>     - enter in something
-  out                - get out of something
-  hire               - hire someone
-  map                - show map of current zone
-  buy <item>         - list objecst to buy or buy a item
-  sell <item>        - list objecst to sell or sell a item
-  extract <obj>      - extract resources from a stuff that can be extracted
-  command            - list commandable units
-  command <obj>: <action> - command a obj to do a action
+  look                     - look around
+  examine <target>         - examine target insides carefully
+  n,s,e,w                  - move to different directions
+  say <msg>                - say something in the room
+  uptime                   - server uptime
+  stats                    - show your stats information and inventory
+  rest                     - rest to recovery from wounds, see stand
+  stand                    - sand up and stop to rest, see rest
+  kill <target>            - attack something and try to kill it
+  get <obj>                - pick up a <obj> from floor
+  get <obj> in <obj>       - pick up a <obj> from <from>
+  equip <item>             - use a weapon or wear a armor
+  remove <item>            - strip an item you are using
+  drop <item>              - drop a object
+  put <item> <obj>         - put a object into other container
+  enter <target>           - enter in something
+  out                      - get out of something
+  hire                     - hire someone
+  map                      - show map of current zone
+  buy <item>               - list objecst to buy or buy a item
+  sell <item>              - list objecst to sell or sell a item
+  extract <obj>            - extract resources from a stuff that can be extracted
+  command                  - list commandable units
+  command <obj>: follow me - command a obj to follow you
+  command <obj>: extract   - command a obj to extract materials
 -------------------------------------------------------------"#;
 
     str.to_string()
 }
 
 pub fn look_description(
+    id: u32,
     room_label: &str,
     room_desc: &str,
     exits: Vec<Dir>,
@@ -93,16 +96,26 @@ pub fn look_description(
 ) -> Result<String> {
     let mut buffer = vec![];
 
-    let mut exit_list = exits.iter().map(|dir| dir.as_str()).collect::<Vec<&str>>();
+    let mut exit_list = exits
+        .iter()
+        .map(|dir| OMarker::Code.wrap(dir.as_str()))
+        .collect::<Vec<String>>();
 
     if can_exit {
-        exit_list.push("exit");
+        exit_list.push("exit".to_string());
     }
 
     let exits = exit_list.join(", ");
 
-    buffer.push(format!("[{}] - {}", room_label, exits));
-    buffer.push(format!("{}", room_desc));
+    buffer.push(format!(
+        "[{}#{}{}{}] - [{}]",
+        OMarker::Label.wrap(room_label),
+        OMarker::Label.id(),
+        id,
+        OMarker::Reset.id(),
+        exits
+    ));
+    buffer.push(OMarker::Desc.wrap(room_desc));
 
     for label in visible_objects {
         buffer.push(format!("- {}", label));

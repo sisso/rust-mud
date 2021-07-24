@@ -7,15 +7,20 @@ use crate::game::room::RoomId;
 use commons::ObjId;
 use std::fmt::Formatter;
 
-pub const O_PLAIN: &str = "^pl";
-pub const O_RESET: &str = "^rs";
-pub const O_LITERAL: &str = "^li";
-
 pub enum OMarker {
+    // normal text
     Plain,
+    // clear
     Reset,
+    // print literally like 'say' or 'read'
     Literal,
+    // highlight something that can be target like a Mob or a Room, like a object
+    // in a text or names of objects that
     Label,
+    // description
+    Desc,
+    // some code constants like N, S, Enter, Exit
+    Code,
 }
 
 impl OMarker {
@@ -25,6 +30,8 @@ impl OMarker {
             OMarker::Literal,
             OMarker::Reset,
             OMarker::Label,
+            OMarker::Desc,
+            OMarker::Code,
         ]
     }
 
@@ -34,6 +41,8 @@ impl OMarker {
             OMarker::Reset => "\\r",
             OMarker::Literal => "\\l",
             OMarker::Label => "\\L",
+            OMarker::Desc => "\\d",
+            OMarker::Code => "\\c",
         }
     }
 
@@ -43,12 +52,7 @@ impl OMarker {
 
     pub fn strip(mut msg: String) -> String {
         for mark in OMarker::list() {
-            match mark {
-                OMarker::Plain => {}
-                OMarker::Literal => msg = msg.replace(mark.id(), ""),
-                OMarker::Reset => msg = msg.replace(mark.id(), ""),
-                OMarker::Label => msg = msg.replace(mark.id(), ""),
-            }
+            msg = msg.replace(mark.id(), "");
         }
 
         msg
