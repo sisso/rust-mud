@@ -651,6 +651,7 @@ pub fn extract(
     let mob_label = container.labels.get_label_f(mob_id);
     let target_label = container.labels.get_label_f(target_id);
 
+    info!("{:?} action extract to {:?}", mob_id, target_id);
     container
         .mobs
         .get_mut(mob_id)

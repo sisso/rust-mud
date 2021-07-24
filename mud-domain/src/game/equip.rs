@@ -41,9 +41,9 @@ impl Equips {
     }
 
     pub fn strip(&mut self, mob_id: MobId, item_id: ItemId) -> Result<(), ()> {
-        debug!("{:?} strip {:?}", mob_id, item_id);
         match self.index.get_mut(&mob_id) {
             Some(equip) => {
+                debug!("{:?} strip {:?}", mob_id, item_id);
                 let removed = equip.equipments.remove(&item_id);
                 if !removed {
                     return Err(());

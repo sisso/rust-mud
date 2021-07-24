@@ -313,12 +313,14 @@ impl MobRepository {
 
     pub fn add_follower(&mut self, id: MobId, follower_id: MobId) -> Result<()> {
         let mob = self.get_mut(id).as_result_str("mob not found")?;
+        info!("{:?} adding follower {:?}", id, follower_id);
         mob.followers.push(follower_id);
         Ok(())
     }
 
     pub fn remove_follower(&mut self, id: MobId, follower_id: MobId) -> Result<()> {
         let mob = self.get_mut(id).as_result_str("mob not found")?;
+        info!("{:?} removing follower {:?}", id, follower_id);
         mob.followers.retain(|i| *i != follower_id);
         Ok(())
     }

@@ -236,7 +236,7 @@ impl Loader {
 
 #[derive(Debug)]
 pub struct LoadingCtx {
-    id_map: HashMap<StaticId, ObjId>,
+    pub id_map: HashMap<StaticId, ObjId>,
 }
 
 impl Default for LoadingCtx {
@@ -247,7 +247,14 @@ impl Default for LoadingCtx {
     }
 }
 
-impl LoadingCtx {}
+impl LoadingCtx {
+    pub fn get(&self, id: u32) -> ObjId {
+        self.id_map
+            .get(&(id.into()))
+            .expect("fail to find id from loading context")
+            .clone()
+    }
+}
 
 /// static fields
 impl Loader {
@@ -705,17 +712,17 @@ impl Loader {
     /// 2. Validate content
     /// 3. Add all prefabs
     /// 4. Instantiate all static data
-    pub fn load_folders(container: &mut Container, folder: &Path) -> Result<()> {
+    pub fn load_folders(container: &mut Container, folder: &Path) -> Result<LoadingCtx> {
         let data = Loader::read_folders(folder)?;
         Loader::load_data(container, data)
     }
 
-    pub fn load_hocon_file(container: &mut Container, path: &str) -> Result<()> {
+    pub fn load_hocon_file(container: &mut Container, path: &str) -> Result<LoadingCtx> {
         let data = std::fs::read_to_string(path)?;
         Loader::load_hocon(container, &data)
     }
 
-    pub fn load_hocon_files(container: &mut Container, paths: &Vec<&str>) -> Result<()> {
+    pub fn load_hocon_files(container: &mut Container, paths: &Vec<&str>) -> Result<LoadingCtx> {
         let paths = paths.iter().map(|p| std::path::Path::new(p)).collect();
         let mut data = LoaderData::new();
         hocon_parser::HParser::load_hocon_files(&mut data, &paths)
@@ -723,7 +730,7 @@ impl Loader {
         Loader::load_data(container, data)
     }
 
-    pub fn load_hocon(container: &mut Container, hocon: &str) -> Result<()> {
+    pub fn load_hocon(container: &mut Container, hocon: &str) -> Result<LoadingCtx> {
         let data = hocon_parser::HParser::load_hocon_str(hocon)
             .map_err(|e| Error::Exception(format!("{:?}", e)))?;
         Loader::load_data(container, data)
@@ -1101,7 +1108,7 @@ impl Loader {
         Ok(obj_data)
     }
 
-    pub fn load_data(container: &mut Container, mut data: LoaderData) -> Result<()> {
+    pub fn load_data(container: &mut Container, mut data: LoaderData) -> Result<LoadingCtx> {
         Loader::validate_and_normalize(&mut data)?.assert_valid()?;
 
         Loader::migrate(&mut data)?;
@@ -1112,7 +1119,7 @@ impl Loader {
         }
 
         // add objects
-        Loader::load_all(container, data.objects)?;
+        let load_ctx = Loader::load_all(container, data.objects)?;
 
         // update configurations with references
         match data.cfg {
@@ -1142,7 +1149,7 @@ impl Loader {
         crate::game::system::random_room_generators_system::init(container);
         crate::game::inventory_service::update_all_current_inventory(container);
 
-        Ok(())
+        Ok(load_ctx)
     }
 
     pub fn validate_and_normalize(data: &mut LoaderData) -> Result<ValidationResult> {
@@ -1219,7 +1226,10 @@ impl Loader {
         Ok(())
     }
 
-    fn load_all(container: &mut Container, objects: BTreeMap<StaticId, ObjData>) -> Result<()> {
+    fn load_all(
+        container: &mut Container,
+        objects: BTreeMap<StaticId, ObjData>,
+    ) -> Result<LoadingCtx> {
         let mut loading_ctx = LoadingCtx::default();
 
         // instantiate
@@ -1238,7 +1248,7 @@ impl Loader {
             )?;
         }
 
-        Ok(())
+        Ok(loading_ctx)
     }
 
     fn spawn_data_to_spawn_builder(data: &SpawnData) -> SpawnBuilder {

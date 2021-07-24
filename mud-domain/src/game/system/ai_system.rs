@@ -1,4 +1,5 @@
 use crate::errors::*;
+use crate::game;
 use crate::game::ai::AiCommand;
 use crate::game::combat;
 use crate::game::container::Container;
@@ -10,6 +11,8 @@ use commons::ObjId;
 use logs::*;
 
 pub fn run(container: &mut Container) {
+    let mut to_drop = vec![];
+
     for ai in container.ai.list() {
         let result = match ai.command {
             AiCommand::Aggressive => run_aggressive(
@@ -18,6 +21,12 @@ pub fn run(container: &mut Container) {
                 &container.ownership,
                 ai.id,
             ),
+            AiCommand::Extract { .. } => {
+                // drop any item
+                let items: Vec<ObjId> = container.locations.list_at(ai.id).collect();
+                to_drop.push((ai.id, items));
+                Ok(())
+            }
             _ => Ok(()),
         };
 
@@ -26,6 +35,15 @@ pub fn run(container: &mut Container) {
                 warn!("fail to run ai for {:?}: {:?}", ai.id, e);
             }
             _ => {}
+        }
+    }
+
+    for (obj_id, items) in to_drop {
+        for item_id in items {
+            match game::actions_items::do_drop(container, obj_id, item_id) {
+                Err(e) => warn!("{:?} fail to drop {:?}: {:?}", obj_id, item_id, e),
+                _ => {}
+            }
         }
     }
 }
@@ -58,4 +76,56 @@ fn run_aggressive(
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod test {
+    use crate::game::loader::Loader;
+    use crate::game::triggers::EventKind;
+    use crate::game::{self, builder};
+    use commons::{ObjId, TotalTime};
+
+    #[test]
+    fn ai_extracting_should_drop_objects_at_ground_when_inventory_is_full() {
+        let mut scenery = crate::game::test::scenery();
+        let lc = Loader::load_hocon_files(
+            &mut scenery.container,
+            &vec!["../data/tests/scenery_mining_bot.conf"],
+        )
+        .unwrap();
+
+        let mining_bot_id = lc.get(4);
+        let location_id = lc.get(2);
+        let extractable_id = lc.get(3);
+
+        // move miner to same right location
+        scenery.container.locations.set(mining_bot_id, location_id);
+
+        // set it to miner
+        crate::game::actions_command::set_command_extract(
+            &mut scenery.container,
+            mining_bot_id,
+            location_id,
+            extractable_id,
+        )
+        .unwrap();
+
+        let mut full_inv = false;
+        let mut on_ground = false;
+
+        for _ in 0..100 {
+            scenery.tick(1.0);
+
+            let inv = scenery.container.inventories.get(mining_bot_id).unwrap();
+            let miner_children: Vec<_> =
+                scenery.container.locations.list_at(mining_bot_id).collect();
+
+            full_inv = inv.current_weight.unwrap_or(0.0) > 0.0 && !miner_children.is_empty();
+            // the mine bot, the mine resource, the mine ore dropped by the bot
+            on_ground = scenery.container.locations.list_at(location_id).count() > 2;
+        }
+
+        assert!(full_inv);
+        assert!(on_ground);
+    }
 }
