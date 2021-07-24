@@ -26,7 +26,7 @@ fn test_serialization_and_reload_in_game() {
 
     let snapshot_2 = {
         let mut container = Container::new();
-        loader::Loader::load_data(&mut container, snapshot_1.clone());
+        loader::Loader::load_data(&mut container, snapshot_1.clone()).unwrap();
         loader::Loader::create_snapshot(&container).unwrap()
     };
 

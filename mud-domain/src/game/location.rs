@@ -1,3 +1,4 @@
+use crate::errors::AsResult;
 use crate::game::labels::Labels;
 use commons::tree::Tree;
 use commons::ObjId;
@@ -48,6 +49,10 @@ impl Locations {
 
     pub fn list_parents_inclusive(&self, obj_id: ObjId) -> Vec<LocationId> {
         self.index.parents_inclusive(obj_id)
+    }
+
+    pub fn is_same_location(&self, obj_id1: ObjId, obj_id2: ObjId) -> bool {
+        self.get(obj_id1) == self.get(obj_id2)
     }
 }
 

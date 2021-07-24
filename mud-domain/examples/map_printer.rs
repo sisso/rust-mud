@@ -92,7 +92,7 @@ fn main() {
         fn id(&self, x: usize, y: usize) -> usize {
             x + y * 3
         }
-    };
+    }
 
     let rooms = RoomsImpl {};
     print(&rooms);

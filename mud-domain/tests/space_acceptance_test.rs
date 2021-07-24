@@ -156,12 +156,6 @@ impl SceneryMin {
         self.base.send_input("land landing zone");
         self.base.wait_for("landing complete");
     }
-    fn move_out_ship(&mut self) {
-        self.base.send_input("s");
-        self.base.send_input("s");
-        self.base.send_input("exit");
-        self.base.wait_for("landing zone");
-    }
     fn move_to_sector2(&mut self) {
         self.base.send_input("move");
         self.base.wait_for("jump sector2");
@@ -216,6 +210,7 @@ fn test_mining_bot() {
     s.send_wait("s", "room2");
     s.send_wait("look", "mining bot");
     s.send_wait("command mining bot: extract", "extracting");
+    // confirm it is not following me
     s.send_wait("n", "room1");
     let output = s.send_wait("look", "room1");
     check_output(&output, &vec![], &vec!["mining bot"]);

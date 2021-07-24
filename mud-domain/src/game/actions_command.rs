@@ -2,6 +2,7 @@ use crate::errors::*;
 use crate::game::ai::{Ai, AiCommand};
 use crate::game::container::Container;
 use crate::game::location::LocationId;
+use crate::game::mob::MobRepository;
 use commons::ObjId;
 
 pub enum RequestCommand {
@@ -50,6 +51,9 @@ pub fn set_command_follow(
         .ai
         .get_mut(obj_id)
         .as_result_str("target object expected to have AI")?;
+
+    clear_ai_command(ai, &mut container.mobs)?;
+
     ai.command = AiCommand::FollowAndProtect {
         target_id: followed_id,
     };
@@ -58,6 +62,7 @@ pub fn set_command_follow(
 
     Ok(())
 }
+
 pub fn set_command_extract(
     container: &mut Container,
     mob_id: ObjId,
@@ -69,19 +74,27 @@ pub fn set_command_extract(
         .get_mut(mob_id)
         .as_result_str("target object expected to have AI")?;
 
-    // clear previous command
-    match ai.command {
-        AiCommand::FollowAndProtect { target_id } => {
-            container.mobs.remove_follower(target_id, mob_id)?;
-        }
-        _ => {}
-    }
+    clear_ai_command(ai, &mut container.mobs)?;
 
+    // clear previous command
     ai.command = AiCommand::Extract {
         from: extractable_id,
     };
 
     super::actions::extract(container, mob_id, location_id, extractable_id)?;
+
+    Ok(())
+}
+
+fn clear_ai_command(ai: &mut Ai, mobs: &mut MobRepository) -> Result<()> {
+    match ai.command {
+        AiCommand::FollowAndProtect { target_id } => {
+            mobs.remove_follower(target_id, ai.id)?;
+        }
+        _ => {}
+    }
+
+    ai.command = AiCommand::Idle;
 
     Ok(())
 }
