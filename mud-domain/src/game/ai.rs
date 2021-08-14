@@ -24,7 +24,6 @@ pub enum AiCommand {
     Hauler {
         from: ObjId,
         to: ObjId,
-        wares: Vec<ObjId>,
     },
     Extract {
         from: ObjId,

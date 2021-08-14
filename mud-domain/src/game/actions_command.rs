@@ -101,3 +101,28 @@ fn clear_ai_command(ai: &mut Ai, mobs: &mut MobRepository) -> Result<()> {
 
     Ok(())
 }
+
+pub fn set_command_haul(
+    container: &mut Container,
+    obj_id: ObjId,
+    from_id: LocationId,
+    to_id: LocationId,
+) -> Result<()> {
+    let ai = container
+        .ai
+        .get_mut(obj_id)
+        .as_result_string(|| format!("{:?} has no ai to be commanded", obj_id))?;
+
+    clear_ai_command(ai, &mut container.mobs)?;
+
+    info!(
+        "{:?} command haul from {:?} to {:?}",
+        obj_id, from_id, to_id
+    );
+    ai.command = AiCommand::Hauler {
+        from: from_id,
+        to: to_id,
+    };
+
+    Ok(())
+}

@@ -55,33 +55,34 @@ pub fn get_visible_objects(container: &Container, mob_id: MobId, room_id: RoomId
 pub fn help() -> String {
     let str = r#"-------------------------------------------------------------
   [Help]
--------------------------------------------------------------
-  look                     - look around
-  examine <target>         - examine target insides carefully
-  n,s,e,w                  - move to different directions
-  say <msg>                - say something in the room
-  uptime                   - server uptime
-  stats                    - show your stats information and inventory
-  rest                     - rest to recovery from wounds, see stand
-  stand                    - sand up and stop to rest, see rest
-  kill <target>            - attack something and try to kill it
-  get <obj>                - pick up a <obj> from floor
-  get <obj> in <obj>       - pick up a <obj> from <from>
-  equip <item>             - use a weapon or wear a armor
-  remove <item>            - strip an item you are using
-  drop <item>              - drop a object
-  put <item> <obj>         - put a object into other container
-  enter <target>           - enter in something
-  out                      - get out of something
-  hire                     - hire someone
-  map                      - show map of current zone
-  buy <item>               - list objecst to buy or buy a item
-  sell <item>              - list objecst to sell or sell a item
-  extract <obj>            - extract resources from a stuff that can be extracted
-  command                  - list commandable units
-  command <obj>: follow me - command a obj to follow you
-  command <obj>: extract   - command a obj to extract materials
--------------------------------------------------------------"#;
+---------------------------------------------------------------------------------------------------
+  look                                  - look around
+  examine <target>                      - examine target insides carefully
+  n,s,e,w                               - move to different directions
+  say <msg>                             - say something in the room
+  uptime                                - server uptime
+  stats                                 - show your stats information and inventory
+  rest                                  - rest to recovery from wounds, see stand
+  stand                                 - sand up and stop to rest, see rest
+  kill <target>                         - attack something and try to kill it
+  get <obj>                             - pick up a <obj> from floor
+  get <obj> in <obj>                    - pick up a <obj> from <from>
+  equip <item>                          - use a weapon or wear a armor
+  remove <item>                         - strip an item you are using
+  drop <item>                           - drop a object
+  put <item> <obj>                      - put a object into other container
+  enter <target>                        - enter in something
+  out                                   - get out of something
+  hire                                  - hire someone
+  map                                   - show map of current zone
+  buy <item>                            - list objecst to buy or buy a item
+  sell <item>                           - list objecst to sell or sell a item
+  extract <obj>                         - extract resources from a stuff that can be extracted
+  command                               - list commandable units
+  command <obj>: follow me              - command a obj to follow you
+  command <obj>: extract                - command a obj to extract materials
+  command <obj>: haul <from id> <to id> - command a obj to haul objects from id a to id b
+--------------------------------------------------------------------------------------------------"#;
 
     str.to_string()
 }
@@ -1128,6 +1129,24 @@ pub fn command_follow_me_ack(target: &str) -> String {
 
 pub fn command_extract_ack(target: &str) -> String {
     format!("{} is extracting", OMarker::Label.wrap(target))
+}
+
+pub fn command_haul_invalid_argument() -> Stirng {
+    "invalid move command, you need to provide from and to"
+}
+
+pub fn command_haul_from_not_found(value: &str) -> Stirng {
+    format!(
+        "invalid move command, from '{}' can not be found",
+        OMarker::Literal.wrap(value)
+    )
+}
+
+pub fn command_haul_to_not_found(value: &str) -> Stirng {
+    format!(
+        "invalid move command, to '{}' can not be found",
+        OMarker::Literal.wrap(value)
+    )
 }
 
 #[cfg(test)]

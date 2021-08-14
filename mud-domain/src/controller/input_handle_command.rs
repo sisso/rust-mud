@@ -34,36 +34,68 @@ pub fn list_commands_for(ctx: &mut ViewHandleCtx, target: &str) -> Result<()> {
     Ok(())
 }
 
-fn find_command_target(ctx: &mut ViewHandleCtx, target: &str) -> Option<ObjId> {
-    let mut candidates =
-        actions_command::find_commandable(ctx.container, ctx.mob_id, target).ok()?;
-    if candidates.is_empty() {
-        ctx.container
-            .outputs
-            .private(ctx.mob_id, comm::command_target_not_found(target));
-        None
-    } else {
-        candidates.pop()
-    }
-}
-
-pub fn set_command(ctx: &mut ViewHandleCtx, target: &str, command: &str) -> Result<()> {
+pub fn set_command(ctx: &mut ViewHandleCtx, target: &str, command: StrInput) -> Result<()> {
     let target_id = match find_command_target(ctx, target) {
         Some(target_id) => target_id,
         None => return Ok(()),
     };
 
-    match command {
-        "follow me" => set_command_follow_me(ctx, target_id),
-        "extract" => set_command_extract(ctx, target_id),
-        _ => {
-            ctx.container.outputs.private(
-                ctx.mob_id,
-                comm::command_invalid_for_target(target, command),
-            );
-            Ok(())
-        }
+    if command.plain_arguments().has_command("follow me") {
+        set_command_follow_me(ctx, target_id)
+    } else if command.has_command("extract") {
+        set_command_extract(ctx, target_id)
+    } else if command.has_command("haul") {
+        set_command_haul(ctx, target_id, command)
+    } else {
+        ctx.container.outputs.private(
+            ctx.mob_id,
+            comm::command_invalid_for_target(target, command.plain_arguments()),
+        );
+        Ok(())
     }
+}
+
+fn set_command_haul(ctx: &mut ViewHandleCtx, target_id: ObjId, command: StrInput) -> Result<()> {
+    let args = command.parse_arguments();
+    if args.len() != 2 {
+        ctx.container
+            .outputs
+            .private(ctx.mob_id, comm::command_move_invalid_argument());
+        return Ok(());
+    }
+
+    let (from_id, to_id) = match (args[0].parse::<u32>(), args[1].parse::<u32>()) {
+        (Ok(id_from), Ok(id_to)) => {
+            match (
+                ctx.container.rooms.exists(id_from.into()),
+                ctx.container.rooms.exists(id_to.into()),
+            ) {
+                (true, true) => (id_from, id_to),
+                (true, false) => {
+                    ctx.container
+                        .outputs
+                        .private(ctx.mob_id, comm::command_haul_from_not_found(args[1]));
+                    return OK(());
+                }
+                (false, _) => {
+                    ctx.container
+                        .outputs
+                        .private(ctx.mob_id, comm::command_haul_from_not_found(args[0]));
+                    return OK(());
+                }
+            }
+        }
+        _ => {
+            ctx.container
+                .outputs
+                .private(ctx.mob_id, comm::command_haul_invalid_argument());
+            return OK(());
+        }
+    };
+
+    actions_command::set_command_haul(ctx.container, target_id, from_id, to_id)?;
+
+    Ok(())
 }
 
 fn set_command_follow_me(ctx: &mut ViewHandleCtx, target_id: ObjId) -> Result<()> {
@@ -133,7 +165,7 @@ pub fn command(ctx: &mut ViewHandleCtx, input: &StrInput) -> Result<()> {
         if parts.len() == 1 {
             list_commands_for(ctx, parts[0])
         } else if parts.len() == 2 {
-            set_command(ctx, parts[0], parts[1])
+            set_command(ctx, parts[0], StrInput(parts[1]))
         } else {
             ctx.container
                 .outputs
