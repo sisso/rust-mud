@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 pub mod asciicolors;
 pub mod csv;
 pub mod jsons;
+pub mod repositories;
 pub mod timer;
 pub mod tree;
 pub mod trigger;
