@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 pub mod asciicolors;
 pub mod csv;
+pub mod grid;
 pub mod jsons;
 pub mod repositories;
 pub mod timer;
@@ -42,7 +43,7 @@ impl ConnectionId {
 pub const MIN_DISTANCE: f32 = 0.01;
 pub const MIN_DISTANCE_SQR: f32 = MIN_DISTANCE * MIN_DISTANCE;
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug, Hash)]
 pub struct V2I {
     pub x: i32,
     pub y: i32,
@@ -51,6 +52,17 @@ pub struct V2I {
 impl V2I {
     pub fn new(x: i32, y: i32) -> Self {
         V2I { x, y }
+    }
+
+    pub fn translate(&self, dx: i32, dy: i32) -> V2I {
+        let new_x = self.x as i32 + dx;
+        let new_y = self.y as i32 + dy;
+
+        V2I::new(new_x, new_y)
+    }
+
+    pub fn as_array(&self) -> [i32; 2] {
+        [self.x, self.y]
     }
 }
 

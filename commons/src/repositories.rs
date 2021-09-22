@@ -54,7 +54,7 @@ impl<T> ReadRepository<T> for HashMapRepository<T> {
 
 impl<T> WriteRepository<T> for HashMapRepository<T> {
     fn add(&mut self, id: ObjId, obj: T) -> bool {
-        let mut e = self.map.entry(id);
+        let e = self.map.entry(id);
         match &e {
             Entry::Occupied(_) => false,
             Entry::Vacant(_) => {
@@ -81,7 +81,6 @@ impl<T> WriteRepository<T> for HashMapRepository<T> {
 mod test {
     use crate::repositories::{HashMapRepository, ReadRepository, WriteRepository};
     use crate::ObjId;
-    use std::collections::HashMap;
 
     #[test]
     fn test_one() {

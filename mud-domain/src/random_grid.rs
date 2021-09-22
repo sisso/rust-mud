@@ -36,6 +36,7 @@ impl RandomGrid {
     }
 }
 
+#[derive(Debug)]
 pub struct LevelGrid {
     pub width: usize,
     pub height: usize,
