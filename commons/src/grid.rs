@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+
+#[derive(Clone, Copy, PartialEq, Debug, Hash, Eq)]
 pub enum Dir {
     N,
     E,
@@ -7,44 +10,7 @@ pub enum Dir {
 
 pub const DIR_ALL: [Dir; 4] = [Dir::N, Dir::E, Dir::S, Dir::W];
 type GridCoord = super::V2I;
-
-// #[derive(Debug, Clone, Copy, PartialEq, Hash)]
-// pub struct GridCoord {
-//     pub x: i32,
-//     pub y: i32,
-// }
-//
-// impl GridCoord {
-//     pub fn new(x: i32, y: i32) -> Self {
-//         GridCoord { x, y }
-//     }
-//
-//     pub fn translate(&self, dx: i32, dy: i32) -> GridCoord {
-//         let new_x = self.x as i32 + dx;
-//         let new_y = self.y as i32 + dy;
-//
-//         GridCoord::new(new_x, new_y)
-//     }
-//
-//     pub fn as_array(&self) -> [i32; 2] {
-//         [self.x, self.y]
-//     }
-// }
-//
-// impl From<(i32, i32)> for GridCoord {
-//     fn from((x, y): (i32, i32)) -> Self {
-//         GridCoord { x: x, y: y }
-//     }
-// }
-//
-// impl From<&[i32; 2]> for GridCoord {
-//     fn from(array: &[i32; 2]) -> Self {
-//         GridCoord {
-//             x: array[0],
-//             y: array[1],
-//         }
-//     }
-// }
+type GridIndex = usize;
 
 /**
     0 1 2
@@ -60,6 +26,10 @@ pub struct Grid<T> {
 }
 
 impl<T> Grid<T> {
+    pub fn new_square(size: u32) -> Self {
+        Grid::new(size, size)
+    }
+
     pub fn new(width: u32, height: u32) -> Self {
         let mut list = vec![];
         for _ in 0..width * height {
@@ -73,14 +43,14 @@ impl<T> Grid<T> {
         }
     }
 
-    pub fn set(&mut self, index: usize, value: Option<T>) {
+    pub fn set(&mut self, index: GridIndex, value: Option<T>) {
         assert!(self.is_valid_index(index));
         self.list[index as usize] = value;
     }
 
-    pub fn set_at(&mut self, coord: GridCoord, value: Option<T>) {
-        assert!(self.is_valid_coords(&coord));
-        let index = self.coords_to_index(&coord);
+    pub fn set_at(&mut self, coord: &GridCoord, value: Option<T>) {
+        assert!(self.is_valid_coords(coord));
+        let index = self.coords_to_index(coord);
         self.list[index as usize] = value;
     }
 
@@ -107,18 +77,19 @@ impl<T> Grid<T> {
     }
 
     // TODO: should return option?
-    pub fn coords_to_index(&self, coords: &GridCoord) -> usize {
+    pub fn coords_to_index(&self, coords: &GridCoord) -> GridIndex {
         (coords.y * (self.width as i32) + coords.x) as usize
     }
 
-    pub fn get_valid_4_neighbours(&self, coords: GridCoord) -> Vec<GridCoord> {
+    pub fn get_valid_4_neighbours(&self, coords: &GridCoord) -> Vec<GridCoord> {
         get_4_neighbours(coords)
             .into_iter()
+            .map(|(_, i)| i)
             .filter(|i| self.is_valid_coords(i))
             .collect()
     }
 
-    pub fn get_valid_8_neighbours(&self, coords: GridCoord) -> Vec<GridCoord> {
+    pub fn get_valid_8_neighbours(&self, coords: &GridCoord) -> Vec<GridCoord> {
         get_8_neighbours(coords)
             .into_iter()
             .filter(|i| self.is_valid_coords(i))
@@ -153,16 +124,16 @@ impl<T> Grid<T> {
 }
 
 /// return sequentially with DIR_ALL
-pub fn get_4_neighbours(coords: GridCoord) -> Vec<GridCoord> {
+pub fn get_4_neighbours(coords: &GridCoord) -> Vec<(Dir, GridCoord)> {
     vec![
-        coords.translate(0, -1),
-        coords.translate(1, 0),
-        coords.translate(0, 1),
-        coords.translate(-1, 0),
+        (Dir::N, coords.translate(0, -1)),
+        (Dir::E, coords.translate(1, 0)),
+        (Dir::S, coords.translate(0, 1)),
+        (Dir::W, coords.translate(-1, 0)),
     ]
 }
 
-pub fn get_8_neighbours(coords: GridCoord) -> Vec<GridCoord> {
+pub fn get_8_neighbours(coords: &GridCoord) -> Vec<GridCoord> {
     vec![
         coords.translate(0, -1),
         coords.translate(1, -1),
@@ -175,20 +146,44 @@ pub fn get_8_neighbours(coords: GridCoord) -> Vec<GridCoord> {
     ]
 }
 
+#[derive(Debug, Clone)]
+pub struct FlexGrid<T> {
+    pub cells: HashMap<GridCoord, T>,
+}
+
+impl<T> FlexGrid<T> {
+    pub fn new() -> Self {
+        FlexGrid {
+            cells: HashMap::new(),
+        }
+    }
+
+    pub fn set_at(&mut self, coord: &GridCoord, value: Option<T>) {
+        match value {
+            Some(v) => self.cells.insert(coord.to_owned(), v),
+            None => self.cells.remove(coord),
+        };
+    }
+
+    pub fn get_at(&self, coord: &GridCoord) -> Option<&T> {
+        self.cells.get(coord)
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
 
     #[test]
     pub fn test_grid_get_neighbors() {
-        let neighbours = get_4_neighbours(GridCoord::new(0, 0));
+        let neighbours = get_4_neighbours(&GridCoord::new(0, 0));
         assert_eq!(
             neighbours,
-            [
-                GridCoord::new(0, -1),
-                GridCoord::new(1, 0),
-                GridCoord::new(0, 1),
-                GridCoord::new(-1, 0),
+            vec![
+                (Dir::N, GridCoord::new(0, -1)),
+                (Dir::E, GridCoord::new(1, 0)),
+                (Dir::S, GridCoord::new(0, 1)),
+                (Dir::W, GridCoord::new(-1, 0)),
             ]
         );
     }
@@ -196,7 +191,7 @@ mod test {
     #[test]
     pub fn test_grid_get_valid_neighbors() {
         let mut grid = Grid::<u32>::new(2, 2);
-        let neighbours = grid.get_valid_8_neighbours(GridCoord::new(0, 0));
+        let neighbours = grid.get_valid_8_neighbours(&GridCoord::new(0, 0));
         assert_eq!(
             vec![
                 GridCoord::new(1, 0),
@@ -221,7 +216,7 @@ mod test {
 
         // 0###
         // ####
-        grid.set_at((0, 0).into(), Some(0));
+        grid.set_at(&(0, 0).into(), Some(0));
 
         // 0X##
         // ####
@@ -229,7 +224,7 @@ mod test {
 
         // 00##
         // ####
-        grid.set_at((1, 0).into(), Some(0));
+        grid.set_at(&(1, 0).into(), Some(0));
 
         // 00X#
         // ####

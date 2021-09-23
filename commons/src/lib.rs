@@ -43,7 +43,7 @@ impl ConnectionId {
 pub const MIN_DISTANCE: f32 = 0.01;
 pub const MIN_DISTANCE_SQR: f32 = MIN_DISTANCE * MIN_DISTANCE;
 
-#[derive(Clone, Copy, PartialEq, Debug, Hash)]
+#[derive(Clone, Copy, PartialEq, Debug, Hash, Eq)]
 pub struct V2I {
     pub x: i32,
     pub y: i32,
@@ -63,6 +63,21 @@ impl V2I {
 
     pub fn as_array(&self) -> [i32; 2] {
         [self.x, self.y]
+    }
+}
+
+impl From<(i32, i32)> for V2I {
+    fn from((x, y): (i32, i32)) -> Self {
+        V2I { x: x, y: y }
+    }
+}
+
+impl From<[i32; 2]> for V2I {
+    fn from(array: [i32; 2]) -> Self {
+        V2I {
+            x: array[0],
+            y: array[1],
+        }
     }
 }
 
