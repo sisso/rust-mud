@@ -38,11 +38,11 @@ impl RandomGrid {
 
 #[derive(Debug)]
 pub struct LevelGrid {
-    pub width: usize,
-    pub height: usize,
-    pub portals: HashSet<(usize, usize)>,
-    pub up_portal: Option<usize>,
-    pub down_portal: Option<usize>,
+    width: usize,
+    height: usize,
+    portals: HashSet<(usize, usize)>,
+    up_portal: Option<usize>,
+    down_portal: Option<usize>,
 }
 
 impl LevelGrid {
@@ -109,6 +109,26 @@ impl LevelGrid {
         rooms.connect_all_rooms();
 
         rooms
+    }
+
+    pub fn get_up_portal(&self) -> Option<usize> {
+        self.up_portal
+    }
+
+    pub fn get_down_portal(&self) -> Option<usize> {
+        self.down_portal
+    }
+
+    pub fn get_portals(&self) -> &HashSet<(usize, usize)> {
+        &self.portals
+    }
+
+    pub fn get_width(&self) -> usize {
+        self.width
+    }
+
+    pub fn get_height(&self) -> usize {
+        self.height
     }
 
     fn connect_all_rooms(&mut self) {

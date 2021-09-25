@@ -1,3 +1,4 @@
+use crate::V2I;
 use std::collections::HashMap;
 
 #[derive(Clone, Copy, PartialEq, Debug, Hash, Eq)]
@@ -9,8 +10,8 @@ pub enum Dir {
 }
 
 pub const DIR_ALL: [Dir; 4] = [Dir::N, Dir::E, Dir::S, Dir::W];
-type GridCoord = super::V2I;
-type GridIndex = usize;
+pub type GridCoord = super::V2I;
+pub type GridIndex = usize;
 
 /**
     0 1 2
@@ -66,7 +67,7 @@ impl<T> Grid<T> {
     }
 
     pub fn is_valid_index(&self, index: usize) -> bool {
-        index >= 0 && index < self.list.len()
+        index < self.list.len()
     }
 
     pub fn is_valid_coords(&self, coords: &GridCoord) -> bool {
@@ -167,6 +168,40 @@ impl<T> FlexGrid<T> {
 
     pub fn get_at(&self, coord: &GridCoord) -> Option<&T> {
         self.cells.get(coord)
+    }
+}
+
+pub struct RectI {
+    topleft: V2I,
+    bottomright: V2I,
+}
+
+impl RectI {
+    pub fn new_2_points(topleft: V2I, bottomright: V2I) -> Self {
+        RectI {
+            topleft,
+            bottomright,
+        }
+    }
+
+    pub fn get_top_left(&self) -> V2I {
+        self.topleft.clone()
+    }
+
+    pub fn get_bottom_right(&self) -> V2I {
+        self.bottomright.clone()
+    }
+
+    pub fn get_width(&self) -> i32 {
+        self.bottomright.x - self.topleft.x
+    }
+
+    pub fn get_height(&self) -> i32 {
+        self.bottomright.y - self.topleft.y
+    }
+
+    pub fn is_inside(&self, v: &V2I) -> bool {
+        true
     }
 }
 

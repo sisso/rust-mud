@@ -68,10 +68,10 @@ pub fn init(container: &mut Container) {
                 .unwrap();
 
                 // set down portal
-                assert!(rooms_grid.up_portal.is_none());
+                assert!(rooms_grid.get_up_portal().is_none());
             } else {
                 // resolve up and down portals
-                let up_index = rooms_grid.up_portal.unwrap();
+                let up_index = rooms_grid.get_up_portal().unwrap();
                 let down_index = previous_down.unwrap();
 
                 let up_id = rooms_ids[up_index];
@@ -99,7 +99,7 @@ pub fn init(container: &mut Container) {
             .unwrap();
 
             // set variables for next iteration
-            previous_down = rooms_grid.down_portal;
+            previous_down = rooms_grid.get_down_portal();
             previous_rooms_ids = Some(rooms_ids);
         }
 
@@ -187,7 +187,7 @@ fn create_rooms(
     trace!("adding portals to");
     trace!("{}", grid.print());
 
-    for (a, b) in &grid.portals {
+    for (a, b) in grid.get_portals() {
         let from_id = ids[*a];
         let to_id = ids[*b];
         let (x1, y1) = grid.get_coords(*a);

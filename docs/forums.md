@@ -1,3 +1,28 @@
+# Infinite grid
+
+## Simplified
+
+infinite, where you can find every cell, is a connected graph
+any cell, can connect any other cell
+on access a new cell, find nearest cell and do a search algorithm 
+for each node that it open, need to generate it cell 
+each cell is on seed (x,y)
+
+what to do if can not find a new path? 
+- we spawn a new portal. 
+- this means that the generation is not stable and require to be persistent.
+
+
+## Current
+
+a infinite grid of sector of size N, all sectors are always connected from 4 bounds.
+each sector is composed of NxN cells where all cells are connected
+to generate a new cell, you need to generate the sector. 
+a sector has as seed (x,y)
+to generate the sector you need to select what doors (1..n) are connected to the border sector
+the border sector is a seed ((x1,y1), (x2,y2)) where x1+y1 > x2, y2 to create a stable seed
+
+
 # Hire, Buy, Own 
 
 It is supported to hire, you pay, the follow you and get in any fight with you for an undefined amount of time.

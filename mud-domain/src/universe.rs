@@ -120,8 +120,8 @@ pub fn generate(
     let mut systems = vec![];
 
     let level = LevelGrid::new(&params.sectors, rng);
-    for y in 0..level.height {
-        for x in 0..level.width {
+    for y in 0..level.get_height() {
+        for x in 0..level.get_width() {
             let system = new_system(
                 cfg,
                 rng,
@@ -138,7 +138,7 @@ pub fn generate(
 
     Ok(Universe {
         systems,
-        portals: level.portals.iter().cloned().collect(),
+        portals: level.get_portals().iter().cloned().collect(),
     })
 }
 
