@@ -376,14 +376,41 @@ fn main() {
         sector_size: 3,
     });
 
-    let tl = GlobalCoord::new(-2, -2);
-    let br = GlobalCoord::new(4, 5);
-    let rect = RectI::new_2_points(tl, br);
+    let mut tl = V2I::new(0, 0);
+    let mut br = V2I::new(5, 5);
 
-    let portals = g.slice_grid(&rect);
-    let r = TRoom { rect, portals };
-    println!("({},{})", tl.x, tl.y);
-    print_rooms(&r);
+    loop {
+        let rect = RectI::new_2_points(tl, br);
+
+        let portals = g.slice_grid(&rect);
+        let r = TRoom { rect, portals };
+        println!("({},{})", tl.x, tl.y);
+        print_rooms(&r);
+        println!("command:");
+
+        let mut input = String::new();
+        std::io::stdin().read_line(&mut input);
+        match input.as_str().trim() {
+            "n" => {
+                tl.y -= 1;
+            }
+            "e" => {
+                tl.x += 1;
+            }
+            "s" => {
+                tl.y += 1;
+            }
+            "w" => {
+                tl.x -= 1;
+            }
+            "q" => {
+                break;
+            }
+            _ => {
+                println!("unknown command");
+            }
+        }
+    }
 }
 
 #[cfg(test)]
