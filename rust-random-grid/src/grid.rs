@@ -1,4 +1,4 @@
-use crate::V2I;
+use super::commons::V2I;
 use std::collections::HashMap;
 
 #[derive(Clone, Copy, PartialEq, Debug, Hash, Eq)]
@@ -10,7 +10,7 @@ pub enum Dir {
 }
 
 pub const DIR_ALL: [Dir; 4] = [Dir::N, Dir::E, Dir::S, Dir::W];
-pub type GridCoord = super::V2I;
+pub type GridCoord = V2I;
 pub type GridIndex = usize;
 
 /**
@@ -191,7 +191,7 @@ mod test {
 
     #[test]
     pub fn test_grid_get_valid_neighbors() {
-        let mut grid = Grid::<u32>::new(2, 2);
+        let grid = Grid::<u32>::new(2, 2);
         let neighbours = grid.get_valid_8_neighbours(&GridCoord::new(0, 0));
         assert_eq!(
             vec![

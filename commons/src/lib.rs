@@ -81,6 +81,53 @@ impl From<[i32; 2]> for V2I {
     }
 }
 
+pub struct RectI {
+    topleft: V2I,
+    bottomright: V2I,
+}
+
+impl RectI {
+    pub fn new_2_points(topleft: V2I, bottomright: V2I) -> Self {
+        RectI {
+            topleft,
+            bottomright,
+        }
+    }
+
+    pub fn get_top_left(&self) -> V2I {
+        self.topleft.clone()
+    }
+
+    pub fn get_bottom_right(&self) -> V2I {
+        self.bottomright.clone()
+    }
+
+    pub fn get_width(&self) -> i32 {
+        self.bottomright.x - self.topleft.x
+    }
+
+    pub fn get_height(&self) -> i32 {
+        self.bottomright.y - self.topleft.y
+    }
+
+    pub fn is_inside(&self, v: &V2I) -> bool {
+        v.x >= self.topleft.x
+            && v.x <= self.bottomright.x
+            && v.y >= self.topleft.y
+            && v.y <= self.bottomright.y
+    }
+}
+
+#[test]
+fn test_recti_is_inside() {
+    let r = RectI::new_2_points((-2, -1).into(), (2, 4).into());
+    assert!(r.is_inside(&(-2, -1).into()));
+    assert!(r.is_inside(&(0, 0).into()));
+    assert!(r.is_inside(&(2, 4).into()));
+    assert!(!r.is_inside(&(3, 4).into()));
+    assert!(!r.is_inside(&(-2, -2).into()));
+}
+
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct V2 {
     pub x: f32,

@@ -1,0 +1,7 @@
+/target
+**/*.rs.bk
+.idea
+Cargo.lock
+*.swp
+/data-live
+wasm/*.wasm
