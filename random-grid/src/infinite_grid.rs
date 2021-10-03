@@ -67,6 +67,14 @@ impl InfiniteGrid {
         }
     }
 
+    pub fn create_all(&mut self, rect: &RectI) {
+        for x in rect.get_top_left().x..rect.get_bottom_right().x {
+            for y in rect.get_top_left().y..rect.get_bottom_right().y {
+                self.create(&(x, y).into());
+            }
+        }
+    }
+
     fn new_sector(&mut self, sector_coords: &SectorCoord) {
         // create sector
         let cfg = random_grid::RandomGridCfg {

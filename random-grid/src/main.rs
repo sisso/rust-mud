@@ -46,50 +46,51 @@ impl GameState for State {
             _ => {}
         }
 
+        self.know_cells.insert(self.pos.clone());
+
         let tl = self
             .pos
             .translate(-self.view_distance / 2, -self.view_distance / 2);
         let view = RectI::new(tl.x, tl.y, self.view_distance, self.view_distance);
 
-        {
-            let portals = self.grid.slice_grid(&view);
-            let r = infinite_grid::TRoom {
-                rect: view.clone(),
-                portals,
-            };
-
-            self.know_cells.insert(self.pos.clone());
-
-            let b = infinite_grid::print_rooms(&r);
-            for (y, line) in b.split("\n").enumerate() {
-                for (x, ch) in line.chars().enumerate() {
-                    // let global = view.to_global(&(x as i32, y as i32).into());
-                    //
-                    // let rgb = if self.know_cells.contains(&global) {
-                    //     RGB::from_f32(1.0, 0.5, 1.0)
-                    // } else {
-                    //     RGB::from_f32(1.0, 1.0, 1.0)
-                    // };
-
-                    let rgb = RGB::from_f32(1.0, 1.0, 1.0);
-                    ctx.set(x, y, rgb, RGB::from_f32(0., 0., 0.), rltk::to_cp437(ch));
-                }
-            }
-
-            let pos_at_view = view.to_local(&self.pos);
-
-            // set character * 2 as print rooms print one cell each 2 rooms
-            ctx.set(
-                pos_at_view.x * 2 + 1,
-                pos_at_view.y * 2 + 1,
-                RGB::from_f32(0.0, 1.0, 1.0),
-                RGB::from_f32(0., 0., 0.),
-                rltk::to_cp437('@'),
-            );
-        }
+        // {
+        //     let portals = self.grid.slice_grid(&view);
+        //     let r = infinite_grid::TRoom {
+        //         rect: view.clone(),
+        //         portals,
+        //     };
+        //
+        //     let b = infinite_grid::print_rooms(&r);
+        //     for (y, line) in b.split("\n").enumerate() {
+        //         for (x, ch) in line.chars().enumerate() {
+        //             // let global = view.to_global(&(x as i32, y as i32).into());
+        //             //
+        //             // let rgb = if self.know_cells.contains(&global) {
+        //             //     RGB::from_f32(1.0, 0.5, 1.0)
+        //             // } else {
+        //             //     RGB::from_f32(1.0, 1.0, 1.0)
+        //             // };
+        //
+        //             let rgb = RGB::from_f32(1.0, 1.0, 1.0);
+        //             ctx.set(x, y, rgb, RGB::from_f32(0., 0., 0.), rltk::to_cp437(ch));
+        //         }
+        //     }
+        //
+        //     let pos_at_view = view.to_local(&self.pos);
+        //
+        //     // set character * 2 as print rooms print one cell each 2 rooms
+        //     ctx.set(
+        //         pos_at_view.x * 2 + 1,
+        //         pos_at_view.y * 2 + 1,
+        //         RGB::from_f32(0.0, 1.0, 1.0),
+        //         RGB::from_f32(0., 0., 0.),
+        //         rltk::to_cp437('@'),
+        //     );
+        // }
 
         {
-            let lp = [20, 20];
+            let lp = [0, 0];
+            self.grid.create_all(&view);
             let gp = GridPrinter::new(&view, &self.grid);
 
             for y in 0..gp.get_height() {
@@ -109,6 +110,17 @@ impl GameState for State {
                         lp[1] + py + 2,
                         b[6..9].iter().collect::<String>(),
                     );
+
+                    let gp = view.to_global(&(x, y).into());
+                    if self.know_cells.contains(&gp) {
+                        ctx.set(
+                            lp[0] + px + 1,
+                            lp[1] + py + 1,
+                            RGB::from_f32(0.0, 0.0, 1.0),
+                            RGB::from_f32(0., 0., 0.),
+                            rltk::to_cp437('#'),
+                        );
+                    }
                 }
             }
 
