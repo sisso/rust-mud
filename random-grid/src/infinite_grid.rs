@@ -359,40 +359,6 @@ impl<'a> GridPrinter<'a> {
     }
 }
 
-pub trait Rooms {
-    fn height(&self) -> usize;
-    fn width(&self) -> usize;
-    fn is_portal(&self, x0: usize, y0: usize, x1: usize, y1: usize) -> bool;
-    fn id(&self, x: usize, y: usize) -> usize;
-}
-
-pub struct TRoom {
-    pub rect: RectI,
-    pub portals: HashSet<MixableTuple<GlobalCoord>>,
-}
-
-impl Rooms for TRoom {
-    fn height(&self) -> usize {
-        self.rect.get_height() as usize
-    }
-
-    fn width(&self) -> usize {
-        self.rect.get_width() as usize
-    }
-
-    fn is_portal(&self, x0: usize, y0: usize, x1: usize, y1: usize) -> bool {
-        let g1 = self.rect.get_top_left().translate(x0 as i32, y0 as i32);
-        let g2 = self.rect.get_top_left().translate(x1 as i32, y1 as i32);
-        let mt = MixableTuple::new(g1, g2);
-
-        self.portals.contains(&mt)
-    }
-
-    fn id(&self, x: usize, y: usize) -> usize {
-        x + y
-    }
-}
-
 #[cfg(test)]
 mod test {
     use super::*;

@@ -10,7 +10,6 @@ use rltk::{GameState, Rltk, VirtualKeyCode, RGB};
 use std::collections::HashSet;
 
 struct State {
-    grid_cfg: infinite_grid::Cfg,
     pos: V2I,
     grid: infinite_grid::InfiniteGrid,
     know_cells: HashSet<V2I>,
@@ -114,7 +113,6 @@ impl GameState for State {
         }
 
         if show_local {
-            let fg_char = RGB::from_f32(0.0, 0.0, 1.0);
             let fg = RGB::from_f32(1.0, 1.0, 1.0);
             let bg = RGB::from_f32(0., 0., 0.);
 
@@ -178,7 +176,7 @@ impl GameState for State {
             );
         }
 
-        ctx.print(0, 0, "press SPACE");
+        ctx.print(0, 0, "press SPACE to see all cells");
     }
 }
 
@@ -189,12 +187,11 @@ fn new_grid(cfg: &infinite_grid::Cfg) -> infinite_grid::InfiniteGrid {
 fn main() -> rltk::BError {
     use rltk::RltkBuilder;
     let context = RltkBuilder::simple80x50()
-        .with_title("Roguelike Tutorial")
+        .with_title("Infintie grid")
         .build()?;
     let gcfg = infinite_grid::Cfg::default();
     let grid = new_grid(&gcfg);
     let gs = State {
-        grid_cfg: gcfg,
         pos: (0, 0).into(),
         grid: grid,
         know_cells: Default::default(),
