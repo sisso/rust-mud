@@ -317,24 +317,36 @@ impl<'a> GridPrinter<'a> {
         let empty = '.';
         let portal_v = '|';
         let portal_h = '=';
-        let mut buffer: [char; 9] = [empty, empty, empty, empty, '#', empty, empty, empty, empty];
+        let room = '#';
+        let mut buffer: [char; 9] = [
+            empty, empty, empty, empty, empty, empty, empty, empty, empty,
+        ];
 
         let global = self.rect.to_global(&(x, y).into());
 
-        if self.is_portal(global.x, global.y, global.x, global.y - 1) {
+        let portal_n = self.is_portal(global.x, global.y, global.x, global.y - 1);
+        let portal_e = self.is_portal(global.x + 1, global.y, global.x, global.y);
+        let portal_w = self.is_portal(global.x - 1, global.y, global.x, global.y);
+        let portal_s = self.is_portal(global.x, global.y, global.x, global.y + 1);
+
+        if portal_n {
             buffer[1] = portal_v;
         }
 
-        if self.is_portal(global.x + 1, global.y, global.x, global.y) {
+        if portal_e {
             buffer[3 + 2] = portal_h;
         }
 
-        if self.is_portal(global.x, global.y, global.x, global.y + 1) {
+        if portal_s {
             buffer[6 + 1] = portal_v;
         }
 
-        if self.is_portal(global.x - 1, global.y, global.x, global.y) {
+        if portal_w {
             buffer[3] = portal_h;
+        }
+
+        if portal_n || portal_e || portal_s || portal_w {
+            buffer[4] = room;
         }
 
         buffer
@@ -379,59 +391,6 @@ impl Rooms for TRoom {
     fn id(&self, x: usize, y: usize) -> usize {
         x + y
     }
-}
-
-pub fn print_rooms(rooms: &dyn Rooms) -> String {
-    let empty = ".";
-    let portal_v = "|";
-    let portal_h = "=";
-
-    let mut buffer = String::new();
-    for y in 0..rooms.height() {
-        for x in 0..rooms.width() {
-            let portal_n = if y == 0 {
-                false
-            } else {
-                rooms.is_portal(x, y, x, y - 1)
-            };
-
-            buffer.push_str(empty);
-            if portal_n {
-                buffer.push_str(portal_v);
-            } else {
-                buffer.push_str(empty);
-            }
-        }
-
-        buffer.push_str(empty);
-        buffer.push_str("\n");
-
-        for x in 0..rooms.width() {
-            let portal_w = if x == 0 {
-                false
-            } else {
-                rooms.is_portal(x, y, x - 1, y)
-            };
-
-            if portal_w {
-                buffer.push_str(portal_h);
-            } else {
-                buffer.push_str(empty);
-            }
-
-            buffer.push_str("#");
-        }
-
-        buffer.push_str(empty);
-        buffer.push_str("\n");
-    }
-
-    for _x in 0..(rooms.width() * 2 + 1) {
-        buffer.push_str(empty);
-    }
-
-    buffer.push_str("\n");
-    buffer
 }
 
 #[cfg(test)]
