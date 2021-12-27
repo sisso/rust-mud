@@ -111,7 +111,7 @@ pub struct PlayerCtx<'a> {
     pub room: &'a Room,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NextId {
     next: u32,
 }

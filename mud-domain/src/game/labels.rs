@@ -33,7 +33,7 @@ impl Label {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Labels {
     index: HashMap<ObjId, Label>,
 }

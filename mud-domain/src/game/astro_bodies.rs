@@ -5,6 +5,7 @@ use crate::game::location::Locations;
 use crate::game::ships::ShipId;
 use commons::{DeltaTime, ObjId};
 use logs::*;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 pub type AstroBodyId = ObjId;
@@ -20,7 +21,7 @@ pub fn km_to_mkm(value: f32) -> f32 {
 //#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 //pub struct Distance(f32);
 
-#[derive(Clone, Debug, Copy, PartialEq)]
+#[derive(Clone, Debug, Copy, PartialEq, Serialize, Deserialize)]
 pub enum AstroBodyKind {
     Star,
     Planet,
@@ -45,7 +46,7 @@ impl AstroBodyKind {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct AstroBody {
     pub id: AstroBodyId,
     pub orbit_distance: DistanceMkm,
@@ -68,7 +69,7 @@ impl AstroBody {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct AstroBodies {
     index: HashMap<AstroBodyId, AstroBody>,
 }

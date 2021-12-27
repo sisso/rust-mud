@@ -8,7 +8,7 @@ pub struct TagId(usize);
 
 pub struct Tag(String);
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Tags {
     index: HashMap<ObjId, HashSet<TagId>>,
     tags: Vec<(TagId, String)>,

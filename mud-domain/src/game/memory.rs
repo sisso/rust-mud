@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::collections::{HashMap, HashSet};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Memory {
     pub id: ObjId,
     pub know_ids: HashSet<ObjId>,
@@ -19,7 +19,7 @@ impl Memory {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Memories {
     index: HashMap<ObjId, Memory>,
 }

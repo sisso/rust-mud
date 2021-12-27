@@ -1,3 +1,4 @@
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::hash::Hash;
 
@@ -146,6 +147,26 @@ impl<K: Hash + Eq + Copy + Clone> Tree<K> {
             });
 
         roots.into_iter().collect()
+    }
+}
+
+impl<K: Hash + Eq + Copy + Serialize> serde::Serialize for Tree<K> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        self.parents.serialize(serializer)
+    }
+}
+
+impl<'de, K: Hash + Eq + Copy + Deserialize<'de>> serde::Deserialize<'de> for Tree<K> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        Ok(Tree {
+            parents: HashMap::<K, K>::deserialize(deserializer)?,
+        })
     }
 }
 

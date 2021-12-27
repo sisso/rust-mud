@@ -2,9 +2,10 @@ use crate::errors::{Error, Result};
 use crate::game::item::Weight;
 use crate::game::loader::dto::{ObjData, ObjLoader};
 use commons::ObjId;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Inventory {
     pub id: ObjId,
     pub max_weight: Option<Weight>,
@@ -32,7 +33,7 @@ impl Inventory {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Inventories {
     index: HashMap<ObjId, Inventory>,
 }

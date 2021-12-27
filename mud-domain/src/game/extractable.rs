@@ -10,15 +10,16 @@ use crate::game::mob::{MobId, EXTRACT_TIME};
 use crate::utils::strinput::StrInput;
 use commons::{ObjId, TimeTrigger};
 use logs::*;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Extractable {
     pub id: ObjId,
     pub prefab_id: StaticId,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Extractables {
     index: HashMap<ObjId, Extractable>,
 }

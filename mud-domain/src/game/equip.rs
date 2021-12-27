@@ -22,7 +22,7 @@ impl Equip {
 }
 
 /// What a object is using wielding or wearing
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Equips {
     index: HashMap<ObjId, Equip>,
 }

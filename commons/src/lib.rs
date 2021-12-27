@@ -128,7 +128,7 @@ fn test_recti_is_inside() {
     assert!(!r.is_inside(&(-2, -2).into()));
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 pub struct V2 {
     pub x: f32,
     pub y: f32,

@@ -22,7 +22,7 @@ impl Vendor {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Vendors {
     index: HashMap<ObjId, Vendor>,
 }

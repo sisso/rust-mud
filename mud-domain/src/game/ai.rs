@@ -3,10 +3,11 @@ use crate::game::loader::dto::{AiData, ObjData, ObjLoader};
 use crate::game::mob::{MobCommand, MobId};
 use crate::game::room::RoomId;
 use commons::ObjId;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 // TODO: implement those commands, they are not in use
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum AiCommand {
     Idle,
     /// attack any enemy that enter in the room
@@ -30,7 +31,7 @@ pub enum AiCommand {
     },
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Ai {
     pub id: ObjId,
     pub command: AiCommand,
@@ -48,7 +49,7 @@ impl Ai {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct AiRepo {
     index: HashMap<ObjId, Ai>,
 }
@@ -110,11 +111,12 @@ pub fn parse_ai(obj_id: ObjId, ai_data: &AiData) -> Ai {
     } else if let Some(target_id) = ai_data.command_follow_and_protect {
         AiCommand::FollowAndProtect { target_id }
     } else if let Some(haul) = &ai_data.command_haul {
-        AiCommand::Hauler {
-            from: haul.from_id.clone(),
-            to: haul.to_id.clone(),
-            wares: haul.targets.clone(),
-        }
+        // AiCommand::Hauler {
+        //     from: haul.from_id.clone(),
+        //     to: haul.to_id.clone(),
+        //     wares: haul.targets.clone(),
+        // }
+        panic!("not implemented")
     } else if let Some(patrol_data) = &ai_data.command_aggressive_patrol_home {
         AiCommand::AggressivePatrolHome {
             distance: patrol_data.distance,

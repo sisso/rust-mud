@@ -26,12 +26,12 @@ pub fn init(container: &mut Container) {
     let locations = &mut container.locations;
     let spawns = &mut container.spawns;
 
-    for rr in random_rooms_repo.list_states_mut() {
-        if rr.cfg.generated {
+    for rr in random_rooms_repo.list_mut() {
+        if rr.generated {
             continue;
         }
 
-        info!("{:?} generating random rooms", rr.cfg.id);
+        info!("{:?} generating random rooms", rr.id);
 
         let mut cfg = RandomGridCfg {
             width: rr.cfg.width as usize,
@@ -40,7 +40,8 @@ pub fn init(container: &mut Container) {
             deep_levels: rr.cfg.levels,
         };
 
-        let levels = RandomGrid::new(&mut cfg, &mut rr.rng);
+        let mut rng = SeedableRng::seed_from_u64(rr.cfg.seed);
+        let levels = RandomGrid::new(&mut cfg, &mut rng);
 
         let mut previous_down: Option<usize> = None;
         let mut previous_rooms_ids: Option<Vec<ObjId>> = None;
@@ -50,7 +51,7 @@ pub fn init(container: &mut Container) {
                 Err(err) => {
                     warn!(
                         "{:?} error when generating rooms from grid {:?}",
-                        rr.cfg.id, err
+                        rr.id, err
                     );
                     continue;
                 }
@@ -88,8 +89,8 @@ pub fn init(container: &mut Container) {
                 .collect();
 
             create_spawns(
-                rr.cfg.id,
-                &mut rr.rng,
+                rr.id,
+                &mut rng,
                 objects,
                 locations,
                 spawns,
@@ -103,7 +104,7 @@ pub fn init(container: &mut Container) {
             previous_rooms_ids = Some(rooms_ids);
         }
 
-        rr.cfg.generated = true;
+        rr.generated = true;
     }
 }
 

@@ -10,7 +10,9 @@ use crate::game::mob::{Damage, Mob, MobId};
 use crate::game::obj::Objects;
 use crate::game::pos::Pos;
 use crate::game::prices::{Money, Price};
-use crate::game::random_rooms::{RandomRoomsCfg, RandomRoomsRepository, RandomRoomsSpawnCfg};
+use crate::game::random_rooms::{
+    RandomRoomsCfg, RandomRoomsRepository, RandomRoomsSpawnCfg, RandomRoomsState,
+};
 use crate::game::room::Room;
 use crate::game::ships::Ship;
 use crate::game::spawn::{Spawn, SpawnBuilder};
@@ -87,7 +89,7 @@ trait Migration {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Loader {
     index: HashMap<StaticId, ObjData>,
 }
@@ -553,16 +555,18 @@ impl Loader {
                 container
                     .random_rooms
                     // TODO: deep?
-                    .add(RandomRoomsCfg {
+                    .add(RandomRoomsState {
                         id: obj_id,
-                        entrance_id: entrance_id,
-                        entrance_dir: Dir::parse(rr_data.entrance_dir.as_str()).unwrap(),
-                        // TODO: add seed
-                        seed: 0,
-                        levels: rr_data.levels,
-                        width: rr_data.width,
-                        height: rr_data.height,
-                        spawns: spawns,
+                        cfg: RandomRoomsCfg {
+                            entrance_id: entrance_id,
+                            entrance_dir: Dir::parse(rr_data.entrance_dir.as_str()).unwrap(),
+                            // TODO: add seed
+                            seed: 0,
+                            levels: rr_data.levels,
+                            width: rr_data.width,
+                            height: rr_data.height,
+                            spawns: spawns,
+                        },
                         generated: rr_data.generated,
                     })
                     .unwrap();
@@ -889,8 +893,10 @@ impl Loader {
         }
 
         if let Some(_zone) = container.zones.get(id) {
-            let random_room_data = if let Some(random_room) = container.random_rooms.get(id) {
-                let spanws = random_room
+            let random_room_data = if let Some(state) = container.random_rooms.get(id) {
+                let random_room_cfg = &state.cfg;
+
+                let spanws = random_room_cfg
                     .spawns
                     .iter()
                     .map(|i| RandomRoomsSpawnData {
@@ -911,14 +917,14 @@ impl Loader {
                     .collect();
 
                 Some(RandomRoomsData {
-                    entrance_room_id: random_room.entrance_id.into(),
-                    entrance_dir: random_room.entrance_dir.as_str().to_string(),
-                    width: random_room.width,
-                    height: random_room.height,
-                    levels: random_room.levels,
+                    entrance_room_id: random_room_cfg.entrance_id.into(),
+                    entrance_dir: random_room_cfg.entrance_dir.as_str().to_string(),
+                    width: random_room_cfg.width,
+                    height: random_room_cfg.height,
+                    levels: random_room_cfg.levels,
                     spawns: spanws,
                     // entrance is always created during load
-                    generated: random_room.generated,
+                    generated: state.generated,
                 })
             } else {
                 None
@@ -1280,11 +1286,12 @@ impl Loader {
                 _ => None,
             },
             command_haul: match &ai.command {
-                AiCommand::Hauler { from, to, wares } => Some(AiCommandHaulData {
-                    from_id: *from,
-                    to_id: *to,
-                    targets: wares.clone(),
-                }),
+                AiCommand::Hauler { from, to } => todo!(),
+                // AiCommand::Hauler { from, to, wares } => Some(AiCommandHaulData {
+                //     from_id: *from,
+                //     to_id: *to,
+                //     targets: wares.clone(),
+                // }),
                 _ => None,
             },
             command_aggressive_patrol_home: match &ai.command {

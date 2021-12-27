@@ -26,7 +26,7 @@ impl Obj {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Objects {
     next_id: NextId,
     objects: HashMap<ObjId, Obj>,

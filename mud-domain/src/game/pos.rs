@@ -1,15 +1,16 @@
 use crate::errors::{Error, Result};
 use commons::{ObjId, V2};
 use logs::*;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Pos {
     pub id: ObjId,
     pub pos: V2,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PosRepo {
     index: HashMap<ObjId, Pos>,
 }

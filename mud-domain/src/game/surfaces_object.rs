@@ -1,8 +1,9 @@
 use commons::ObjId;
 use logs::*;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SurfaceObject {
     pub id: ObjId,
 }
@@ -13,7 +14,7 @@ impl SurfaceObject {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SurfaceObjects {
     index: HashMap<ObjId, SurfaceObject>,
 }

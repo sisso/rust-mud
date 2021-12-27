@@ -49,7 +49,7 @@ impl Room {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RoomRepository {
     index: HashMap<RoomId, Room>,
 }

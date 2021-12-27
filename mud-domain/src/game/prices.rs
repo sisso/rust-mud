@@ -33,7 +33,7 @@ impl Price {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Prices {
     index: HashMap<ObjId, Price>,
 }

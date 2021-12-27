@@ -99,7 +99,7 @@ impl Armor {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ItemRepository {
     index: HashMap<ItemId, Item>,
 }

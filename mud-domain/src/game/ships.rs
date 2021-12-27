@@ -3,6 +3,7 @@ use crate::game::astro_bodies::DistanceMkm;
 use crate::game::container::Container;
 use commons::{DeltaTime, ObjId, TotalTime};
 use logs::*;
+use serde::{Deserialize, Serialize};
 use serde_json::ser::State;
 use std::collections::HashMap;
 
@@ -19,7 +20,7 @@ trait TimedState {
 }
 
 /// Require a initial state to allow to be set but first step will be managed by the system.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum MoveState {
     NotStarted,
     Alignment {
@@ -56,7 +57,7 @@ impl TimedState for MoveState {
 }
 
 /// Require a initial state to allow to be set but first step will be managed by the system.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum LaunchState {
     NotStarted,
     Ignition { complete_time: TotalTime },
@@ -76,7 +77,7 @@ impl TimedState for LaunchState {
 }
 
 /// Require a initial state to allow to be set but first step will be managed by the system.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum LandState {
     NotStarted,
     Running {
@@ -130,7 +131,7 @@ impl TimedState for LandState {
 //     }
 // }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ShipCommand {
     Idle,
     MoveTo {
@@ -193,7 +194,7 @@ impl ShipCommand {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ShipAttributes {
     pub speed: f32,
 }
@@ -204,7 +205,7 @@ impl ShipAttributes {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Ship {
     pub id: ObjId,
     pub command: ShipCommand,
@@ -221,7 +222,7 @@ impl Ship {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Ships {
     index: HashMap<ObjId, Ship>,
 }

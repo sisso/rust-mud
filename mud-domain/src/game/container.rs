@@ -37,6 +37,7 @@ use logs::*;
 
 use super::repo::*;
 use crate::game::extractable::Extractables;
+use serde::{Deserialize, Serialize};
 
 #[macro_export]
 macro_rules! get_or_return_msg {
@@ -51,7 +52,7 @@ macro_rules! get_or_return_msg {
     };
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Container {
     pub config: Config,
     pub time: GameTime,
@@ -177,6 +178,8 @@ impl Container {
 
 #[cfg(test)]
 mod test {
+    use crate::game::container::Container;
+
     #[test]
     fn fields_into_save() {
         let fields = r"
@@ -216,5 +219,14 @@ mod test {
 
             println!("self.{}.save(snapshot);", field);
         }
+    }
+
+    #[test]
+    fn test_serialize_container() {
+        let c = Container::new();
+        let s = serde_json::to_string(&c).unwrap();
+        println!("{}", s);
+
+        let c2: Container = serde_json::from_str(&s).unwrap();
     }
 }

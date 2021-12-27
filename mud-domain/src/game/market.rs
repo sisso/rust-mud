@@ -1,9 +1,10 @@
 use crate::errors::{Error, Result};
 use crate::game::tags::TagId;
 use commons::ObjId;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MarketTrade {
     pub tags: Vec<TagId>,
     /// price mult that a vendor buy this product, this happens when a mob sell a object
@@ -14,7 +15,7 @@ pub struct MarketTrade {
     // pub change_per_cycle: Option<f32>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Market {
     pub id: ObjId,
     pub trades: Vec<MarketTrade>,
@@ -26,7 +27,7 @@ impl Market {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Markets {
     index: HashMap<ObjId, Market>,
 }

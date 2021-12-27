@@ -5,9 +5,10 @@ use crate::game::spawn::SpawnBuilder;
 use commons::ObjId;
 use rand::prelude::StdRng;
 use rand::SeedableRng;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RandomRoomsSpawnCfg {
     pub amount: u32,
     pub level_min: Option<u32>,
@@ -22,9 +23,8 @@ impl RandomRoomsSpawnCfg {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RandomRoomsCfg {
-    pub id: ObjId,
     pub entrance_id: RoomId,
     pub entrance_dir: Dir,
     pub seed: u64,
@@ -32,27 +32,16 @@ pub struct RandomRoomsCfg {
     pub height: u32,
     pub levels: u32,
     pub spawns: Vec<RandomRoomsSpawnCfg>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct RandomRoomsState {
+    pub id: ObjId,
+    pub cfg: RandomRoomsCfg,
     pub generated: bool,
 }
 
-#[derive(Clone, Debug)]
-pub struct RandomRoomsState {
-    pub cfg: RandomRoomsCfg,
-    pub rng: StdRng,
-}
-
-impl RandomRoomsState {
-    pub fn new(cfg: RandomRoomsCfg) -> Self {
-        let seed = cfg.seed;
-
-        RandomRoomsState {
-            cfg,
-            rng: SeedableRng::seed_from_u64(seed),
-        }
-    }
-}
-
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RandomRoomsRepository {
     index: HashMap<ObjId, RandomRoomsState>,
 }
@@ -64,27 +53,27 @@ impl RandomRoomsRepository {
         }
     }
 
-    pub fn add(&mut self, cfg: RandomRoomsCfg) -> Result<()> {
-        if self.index.contains_key(&cfg.id) {
+    pub fn add(&mut self, state: RandomRoomsState) -> Result<()> {
+        if self.index.contains_key(&state.id) {
             return Err(Error::ConflictException);
         }
-        self.index.insert(cfg.id, RandomRoomsState::new(cfg));
+        self.index.insert(state.id, state);
         Ok(())
     }
 
-    pub fn remove(&mut self, id: ObjId) -> Option<RandomRoomsCfg> {
-        self.index.remove(&id).map(|state| state.cfg)
+    pub fn remove(&mut self, id: ObjId) -> Option<RandomRoomsState> {
+        self.index.remove(&id)
     }
 
-    pub fn get(&self, id: ObjId) -> Option<&RandomRoomsCfg> {
-        self.index.get(&id).map(|state| &state.cfg)
+    pub fn get(&self, id: ObjId) -> Option<&RandomRoomsState> {
+        self.index.get(&id)
     }
 
     pub fn exist(&self, id: ObjId) -> bool {
         self.index.contains_key(&id)
     }
 
-    pub fn list_states_mut<'a>(&'a mut self) -> impl Iterator<Item = &mut RandomRoomsState> + 'a {
+    pub fn list_mut<'a>(&'a mut self) -> impl Iterator<Item = &mut RandomRoomsState> + 'a {
         self.index.values_mut()
     }
 }

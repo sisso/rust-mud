@@ -3,7 +3,7 @@ use commons::{timer::Timer as CTimer, Tick, TotalTime};
 use logs::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Timer {
     index: CTimer<Event>,
 }

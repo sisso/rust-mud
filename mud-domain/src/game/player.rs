@@ -12,7 +12,7 @@ pub struct Player {
     pub mob_id: MobId,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlayerRepository {
     index: HashMap<PlayerId, Player>,
 }

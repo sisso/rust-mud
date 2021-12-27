@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use std::cmp::Reverse;
 use std::collections::{BinaryHeap, HashMap};
 
@@ -5,7 +6,7 @@ type Index = u64;
 type Time = u64;
 type EntryKey = (Reverse<Time>, Index);
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Timer<T> {
     next_index: Index,
     current: Time,

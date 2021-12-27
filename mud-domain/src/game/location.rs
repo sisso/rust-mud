@@ -8,7 +8,7 @@ use std::collections::HashMap;
 
 pub type LocationId = ObjId;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Locations {
     index: Tree<ObjId>,
 }

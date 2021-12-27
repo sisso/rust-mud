@@ -228,7 +228,7 @@ impl Mob {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MobRepository {
     index: HashMap<MobId, Mob>,
 }

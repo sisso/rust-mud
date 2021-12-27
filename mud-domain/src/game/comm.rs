@@ -1131,18 +1131,18 @@ pub fn command_extract_ack(target: &str) -> String {
     format!("{} is extracting", OMarker::Label.wrap(target))
 }
 
-pub fn command_haul_invalid_argument() -> Stirng {
-    "invalid move command, you need to provide from and to"
+pub fn command_haul_invalid_argument() -> String {
+    "invalid move command, you need to provide from and to".to_string()
 }
 
-pub fn command_haul_from_not_found(value: &str) -> Stirng {
+pub fn command_haul_from_not_found(value: &str) -> String {
     format!(
         "invalid move command, from '{}' can not be found",
         OMarker::Literal.wrap(value)
     )
 }
 
-pub fn command_haul_to_not_found(value: &str) -> Stirng {
+pub fn command_haul_to_not_found(value: &str) -> String {
     format!(
         "invalid move command, to '{}' can not be found",
         OMarker::Literal.wrap(value)

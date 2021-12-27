@@ -19,7 +19,7 @@ impl Hire {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Hires {
     index: HashMap<ObjId, Hire>,
 }

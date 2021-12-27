@@ -18,7 +18,6 @@ pub type GridIndex = usize;
     3 4 5
     6 7 8
 */
-
 #[derive(Debug, Clone)]
 pub struct Grid<T> {
     pub width: u32,

@@ -16,7 +16,7 @@ impl Zone {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Zones {
     index: HashMap<ObjId, Zone>,
 }

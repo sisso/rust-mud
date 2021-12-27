@@ -5,6 +5,7 @@ use crate::game::location::LocationId;
 use crate::game::mob::{Damage, MobId};
 use crate::game::room::RoomId;
 use commons::ObjId;
+use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 
 pub enum OMarker {
@@ -65,7 +66,7 @@ impl std::fmt::Display for OMarker {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Output {
     Private {
         mob_id: MobId,
@@ -83,7 +84,7 @@ pub enum Output {
     },
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Outputs {
     list: Vec<Output>,
 }
