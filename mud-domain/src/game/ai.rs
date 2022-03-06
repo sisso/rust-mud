@@ -1,8 +1,11 @@
 use crate::errors::{Error, Result};
-use crate::game::loader::dto::{AiData, ObjData, ObjLoader};
+use crate::game::loader::dto::{
+    AiCommandAggressivePatrolHomeData, AiData, CanLoad, CanSnapshot, ObjData,
+};
 use crate::game::mob::{MobCommand, MobId};
 use crate::game::room::RoomId;
 use commons::ObjId;
+use logs::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -94,7 +97,7 @@ impl AiRepo {
     }
 }
 
-impl ObjLoader for AiRepo {
+impl CanLoad for AiRepo {
     fn load(&mut self, obj_id: ObjId, data: &ObjData) -> Result<()> {
         if let Some(ai_data) = &data.ai {
             let ai = parse_ai(obj_id, ai_data);
@@ -102,6 +105,49 @@ impl ObjLoader for AiRepo {
         }
 
         Ok(())
+    }
+}
+
+impl CanSnapshot for AiRepo {
+    fn snapshot(&self, obj_id: ObjId, data: &mut ObjData) -> Result<()> {
+        match self.index.get(&obj_id) {
+            Some(ai) => data.ai = Some(serialize_ai(ai)),
+            None => {}
+        }
+
+        Ok(())
+    }
+}
+
+pub fn serialize_ai(ai: &Ai) -> AiData {
+    AiData {
+        command_aggressive: if ai.command == AiCommand::Aggressive {
+            Some(true)
+        } else {
+            None
+        },
+        command_follow_and_protect: match ai.command {
+            AiCommand::FollowAndProtect { target_id } => Some(target_id),
+            _ => None,
+        },
+        command_haul: match &ai.command {
+            AiCommand::Hauler { from, to } => todo!(),
+            // AiCommand::Hauler { from, to, wares } => Some(AiCommandHaulData {
+            //     from_id: *from,
+            //     to_id: *to,
+            //     targets: wares.clone(),
+            // }),
+            _ => None,
+        },
+        command_aggressive_patrol_home: match &ai.command {
+            AiCommand::AggressivePatrolHome { distance } => {
+                Some(AiCommandAggressivePatrolHomeData {
+                    distance: *distance,
+                })
+            }
+            _ => None,
+        },
+        commandable: if ai.commandable { Some(true) } else { None },
     }
 }
 

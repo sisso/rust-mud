@@ -4,7 +4,7 @@ use crate::game::container::Container;
 use crate::game::inventory_service::{
     can_add_weight_by_prefab, update_all_current_inventory, update_inventory_weight,
 };
-use crate::game::loader::dto::{ObjData, ObjLoader, StaticId};
+use crate::game::loader::dto::{CanLoad, ObjData, StaticId};
 use crate::game::loader::Loader;
 use crate::game::mob::{MobId, EXTRACT_TIME};
 use crate::utils::strinput::StrInput;
@@ -65,7 +65,7 @@ impl Extractables {
     }
 }
 
-impl ObjLoader for Extractables {
+impl CanLoad for Extractables {
     fn load(&mut self, obj_id: ObjId, data: &ObjData) -> Result<()> {
         if let Some(extractable) = &data.extractable {
             self.add(Extractable {

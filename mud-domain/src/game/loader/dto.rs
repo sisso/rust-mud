@@ -373,8 +373,12 @@ pub struct ExtractableData {
     pub prefab_id: StaticId,
 }
 
-pub trait ObjLoader {
+pub trait CanLoad {
     fn load(&mut self, obj_id: ObjId, data: &ObjData) -> Result<()>;
+}
+
+pub trait CanSnapshot {
+    fn snapshot(&self, obj_id: ObjId, data: &mut ObjData) -> Result<()>;
 }
 
 impl LoaderData {

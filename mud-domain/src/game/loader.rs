@@ -636,7 +636,7 @@ impl Loader {
                 .expect("fail to insert market");
         }
 
-        let loaders: Vec<&mut dyn ObjLoader> = vec![
+        let loaders: Vec<&mut dyn CanLoad> = vec![
             &mut container.ai,
             &mut container.extractables,
             &mut container.inventories,

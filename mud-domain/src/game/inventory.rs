@@ -1,6 +1,6 @@
 use crate::errors::{Error, Result};
 use crate::game::item::Weight;
-use crate::game::loader::dto::{ObjData, ObjLoader};
+use crate::game::loader::dto::{CanLoad, ObjData};
 use commons::ObjId;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -82,7 +82,7 @@ impl Inventories {
     }
 }
 
-impl ObjLoader for Inventories {
+impl CanLoad for Inventories {
     fn load(&mut self, obj_id: ObjId, data: &ObjData) -> Result<()> {
         if let Some(inventory_data) = &data.inventory {
             let mut inv = Inventory::new(obj_id);
