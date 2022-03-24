@@ -6,6 +6,7 @@ members = [
   "commons",
   "socket-server",
   "http-server",
+  "random-stuff"
 ]
 
 exclude=["random-grid"]

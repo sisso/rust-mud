@@ -4,6 +4,7 @@ pub mod asciicolors;
 pub mod csv;
 pub mod grid;
 pub mod jsons;
+pub mod prob;
 pub mod repositories;
 pub mod timer;
 pub mod tree;

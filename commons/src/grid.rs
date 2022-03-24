@@ -190,7 +190,7 @@ mod test {
 
     #[test]
     pub fn test_grid_get_valid_neighbors() {
-        let mut grid = Grid::<u32>::new(2, 2);
+        let grid = Grid::<u32>::new(2, 2);
         let neighbours = grid.get_valid_8_neighbours(&GridCoord::new(0, 0));
         assert_eq!(
             vec![
