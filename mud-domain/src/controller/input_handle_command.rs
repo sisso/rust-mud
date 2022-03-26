@@ -19,7 +19,7 @@ pub fn list_commands(ctx: &mut ViewHandleCtx) -> Result<()> {
     Ok(())
 }
 
-pub fn list_commands_for(ctx: &mut ViewHandleCtx, target: &str) -> Result<()> {
+pub fn list_commands_for(_ctx: &mut ViewHandleCtx, target: &str) -> Result<()> {
     // let target_id = match find_command_target(ctx, target) {
     //     Some(target_id) => target_id,
     //     None => return Ok(()),

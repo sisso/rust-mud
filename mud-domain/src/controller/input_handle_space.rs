@@ -2,7 +2,7 @@ use crate::controller::ViewHandleCtx;
 use crate::errors::{AsResult, Error, Result};
 use crate::game::actions_ships;
 use crate::game::actions_ships::{do_jump, do_land_at, do_launch};
-use crate::game::astro_bodies::AstroBody;
+use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
 use crate::game::comm;
 use crate::game::comm::ShowSectorTreeBody;
 use crate::game::container::Container;
@@ -28,7 +28,8 @@ pub fn show_startree(container: &mut Container, mob_id: MobId) -> Result<()> {
 pub fn show_surface_map(container: &mut Container, mob_id: MobId) -> Result<()> {
     let (craft_id, sector_id) = get_ship_and_sector(container, mob_id)?;
     let objects = get_objects_in_surface(container, craft_id, sector_id);
-    let msg = comm::show_surface_map(&objects);
+    let sector_label = container.labels.get_label_f(sector_id);
+    let msg = comm::show_surface_map(sector_label, &objects);
     container.outputs.private(mob_id, msg);
     Ok(())
 }
@@ -50,7 +51,7 @@ pub fn move_list_targets(container: &mut Container, mob_id: MobId) -> Result<()>
 fn find_move_targets(container: &Container, sector_id: ObjId, ship_id: ObjId) -> Vec<&AstroBody> {
     find_space_bodies(container, sector_id)
         .into_iter()
-        .filter(|i| i.id != ship_id)
+        .filter(|i| i.id != ship_id && i.kind != AstroBodyKind::Ship)
         .collect()
 }
 

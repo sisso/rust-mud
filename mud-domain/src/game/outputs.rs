@@ -22,6 +22,14 @@ pub enum OMarker {
     Desc,
     // some code constants like N, S, Enter, Exit
     Code,
+    // colorful map, main point
+    ColorMapFocus,
+    // colorful map, color 1
+    ColorMap1,
+    // colorful map, color 2
+    ColorMap2,
+    // colorful map, color 3
+    ColorMap3,
 }
 
 impl OMarker {
@@ -33,6 +41,10 @@ impl OMarker {
             OMarker::Label,
             OMarker::Desc,
             OMarker::Code,
+            OMarker::ColorMapFocus,
+            OMarker::ColorMap1,
+            OMarker::ColorMap2,
+            OMarker::ColorMap3,
         ]
     }
 
@@ -43,7 +55,11 @@ impl OMarker {
             OMarker::Literal => "\\l",
             OMarker::Label => "\\L",
             OMarker::Desc => "\\d",
-            OMarker::Code => "\\c",
+            OMarker::Code => "\\cd",
+            OMarker::ColorMapFocus => "\\cmf",
+            OMarker::ColorMap1 => "\\cm1",
+            OMarker::ColorMap2 => "\\cm2",
+            OMarker::ColorMap3 => "\\cm3",
         }
     }
 

@@ -530,7 +530,7 @@ pub struct SurfaceDesc {
     pub label: String,
 }
 
-pub fn show_surface_map(desc: &Vec<SurfaceDesc>) -> String {
+pub fn show_surface_map(sector_name: &str, desc: &Vec<SurfaceDesc>) -> String {
     let cfg = PlotCfg {
         width: 10,
         height: 10,
@@ -544,9 +544,9 @@ pub fn show_surface_map(desc: &Vec<SurfaceDesc>) -> String {
         .enumerate()
         .map(|(i, desc)| {
             let ch = match desc.kind {
-                ShowStarmapDescKind::Craft if desc.me => '@'.to_string(),
-                ShowStarmapDescKind::Craft => '%'.to_string(),
-                ShowStarmapDescKind::Planet => 'O'.to_string(),
+                ShowStarmapDescKind::Craft if desc.me => OMarker::ColorMapFocus.wrap("@"),
+                ShowStarmapDescKind::Craft => OMarker::ColorMap1.wrap("%"),
+                ShowStarmapDescKind::Planet => OMarker::ColorMap2.wrap("O"),
             };
 
             content_table.push(format!("{} - {} {}", i, ch, desc.label));
@@ -560,7 +560,10 @@ pub fn show_surface_map(desc: &Vec<SurfaceDesc>) -> String {
         .collect();
 
     let map = plot_points(&cfg, &points);
-    let mut buffer: Vec<String> = map.into_iter().map(|i| i.join("")).collect();
+    let mut buffer: Vec<String> = vec![];
+
+    buffer.push(OMarker::Label.wrap(sector_name));
+    buffer.append(&mut map.into_iter().map(|i| i.join("")).collect());
 
     buffer.push("\n".to_string());
     buffer.append(&mut content_table);
@@ -724,17 +727,28 @@ pub fn show_sectortree<'a>(
         };
 
         for body in list {
-            let highlight_str = if body.is_self { " <" } else { "" };
+            let (color, highlight_str) = if body.is_self {
+                (OMarker::ColorMapFocus, " <")
+            } else {
+                (OMarker::Plain, "")
+            };
+
             buffer.push(format!(
-                "{}{} {:.2}{}",
-                local_prefix, body.label, body.orbit_distance, highlight_str
+                "{}{}{}{} {}{:.2}{}",
+                local_prefix,
+                color.id(),
+                body.label,
+                OMarker::Reset.id(),
+                OMarker::Literal.id(),
+                body.orbit_distance,
+                OMarker::Reset.id(),
             ));
             append(bodies, buffer, origin_id, body.id, next_prefix.as_str());
         }
     }
 
     let mut buffer = Vec::new();
-    let title = format!("[{}]", sector_label);
+    let title = format!("[{}]", OMarker::Label.wrap(sector_label));
     buffer.push(title);
     append(bodies, &mut buffer, origin_id, origin_id, "");
     buffer.push("".to_string());
@@ -1189,7 +1203,7 @@ mod tests {
             },
         ];
 
-        let string = show_surface_map(&objects);
+        let string = show_surface_map("", &objects);
         //        assert_eq!("", string.as_str());
         assert!(string.as_str().contains("2 - @ three"));
     }
@@ -1278,7 +1292,7 @@ Sun 0.00
                 label: "A ship".to_string(),
             },
         ];
-        let str = show_surface_map(&desc);
+        let str = show_surface_map("", &desc);
         // assert_eq!("", str);
         assert!(!str.is_empty());
     }
