@@ -5,7 +5,7 @@ use logs::*;
 use mud_domain::game::builder;
 use mud_domain::game::container::Container;
 
-use mud_domain::game::loader::dto::{ItemData, ItemFlagsData, ObjData, StaticId, TagsData};
+use mud_domain::game::loader::dto::{StaticId};
 use mud_domain::game::loader::Loader;
 use mud_domain::game::outputs::OMarker;
 use mud_domain::game::prices::Money;
@@ -79,7 +79,7 @@ impl TestScenery {
             }
         }
 
-        panic!(format!("timeout waiting for {:?}", contains));
+        panic!("timeout waiting for {:?}", contains);
     }
 
     pub fn tick(&mut self) {
@@ -102,7 +102,7 @@ impl TestScenery {
             }
         }
 
-        panic!(format!("timeout waiting for {:?}", expected));
+        panic!("timeout waiting for {:?}", expected);
     }
 
     pub fn give_money(&mut self, amount: u32) {

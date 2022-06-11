@@ -727,7 +727,7 @@ pub fn show_sectortree<'a>(
         };
 
         for body in list {
-            let (color, highlight_str) = if body.is_self {
+            let (color, _highlight_str) = if body.is_self {
                 (OMarker::ColorMapFocus, " <")
             } else {
                 (OMarker::Plain, "")

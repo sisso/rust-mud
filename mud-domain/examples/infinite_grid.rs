@@ -1,4 +1,4 @@
-use commons::grid::Grid;
+
 use commons::{RectI, V2I};
 use mud_domain::random_grid;
 use rand::prelude::StdRng;
@@ -377,7 +377,7 @@ fn main() {
     });
 
     let mut tl = V2I::new(0, 0);
-    let mut br = V2I::new(5, 5);
+    let br = V2I::new(5, 5);
 
     loop {
         let rect = RectI::new_2_points(tl, br);

@@ -19,7 +19,7 @@ pub fn list_commands(ctx: &mut ViewHandleCtx) -> Result<()> {
     Ok(())
 }
 
-pub fn list_commands_for(_ctx: &mut ViewHandleCtx, target: &str) -> Result<()> {
+pub fn list_commands_for(_ctx: &mut ViewHandleCtx, _target: &str) -> Result<()> {
     // let target_id = match find_command_target(ctx, target) {
     //     Some(target_id) => target_id,
     //     None => return Ok(()),
@@ -35,7 +35,7 @@ pub fn list_commands_for(_ctx: &mut ViewHandleCtx, target: &str) -> Result<()> {
     Err(Error::NotImplementedException)
 }
 
-pub fn set_command(ctx: &mut ViewHandleCtx, target: &str, command: StrInput) -> Result<()> {
+pub fn set_command(_ctx: &mut ViewHandleCtx, _target: &str, _command: StrInput) -> Result<()> {
     // let target_id = match find_command_target(ctx, target) {
     //     Some(target_id) => target_id,
     //     None => return Ok(()),
@@ -57,7 +57,7 @@ pub fn set_command(ctx: &mut ViewHandleCtx, target: &str, command: StrInput) -> 
     Err(Error::NotImplementedException)
 }
 
-fn set_command_haul(ctx: &mut ViewHandleCtx, target_id: ObjId, command: StrInput) -> Result<()> {
+fn set_command_haul(_ctx: &mut ViewHandleCtx, _target_id: ObjId, _command: StrInput) -> Result<()> {
     // let args = command.parse_arguments();
     // if args.len() != 2 {
     //     ctx.container

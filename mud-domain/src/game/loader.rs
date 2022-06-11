@@ -1286,7 +1286,7 @@ impl Loader {
                 _ => None,
             },
             command_haul: match &ai.command {
-                AiCommand::Hauler { from, to } => todo!(),
+                AiCommand::Hauler { from: _, to: _ } => todo!(),
                 // AiCommand::Hauler { from, to, wares } => Some(AiCommandHaulData {
                 //     from_id: *from,
                 //     to_id: *to,

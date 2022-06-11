@@ -227,6 +227,6 @@ mod test {
         let s = serde_json::to_string(&c).unwrap();
         println!("{}", s);
 
-        let c2: Container = serde_json::from_str(&s).unwrap();
+        let _c2: Container = serde_json::from_str(&s).unwrap();
     }
 }

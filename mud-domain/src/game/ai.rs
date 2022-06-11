@@ -131,7 +131,7 @@ pub fn serialize_ai(ai: &Ai) -> AiData {
             _ => None,
         },
         command_haul: match &ai.command {
-            AiCommand::Hauler { from, to } => todo!(),
+            AiCommand::Hauler { from: _, to: _ } => todo!(),
             // AiCommand::Hauler { from, to, wares } => Some(AiCommandHaulData {
             //     from_id: *from,
             //     to_id: *to,
@@ -156,7 +156,7 @@ pub fn parse_ai(obj_id: ObjId, ai_data: &AiData) -> Ai {
         AiCommand::Aggressive
     } else if let Some(target_id) = ai_data.command_follow_and_protect {
         AiCommand::FollowAndProtect { target_id }
-    } else if let Some(haul) = &ai_data.command_haul {
+    } else if let Some(_haul) = &ai_data.command_haul {
         // AiCommand::Hauler {
         //     from: haul.from_id.clone(),
         //     to: haul.to_id.clone(),
