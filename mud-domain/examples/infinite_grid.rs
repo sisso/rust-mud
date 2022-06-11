@@ -1,5 +1,5 @@
 use commons::grid::Grid;
-use commons::V2I;
+use commons::{RectI, V2I};
 use mud_domain::random_grid;
 use rand::prelude::StdRng;
 use rand::seq::SliceRandom;
