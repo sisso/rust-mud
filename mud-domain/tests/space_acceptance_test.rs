@@ -1,6 +1,8 @@
 extern crate mud_domain;
 
 use commons::{ConnectionId, DeltaTime};
+use logs::debug;
+use mud_domain::controller::strip_rich_text;
 use mud_domain::game::container::Container;
 use mud_domain::game::outputs::OMarker;
 use mud_domain::game::{loader, Game, GameCfg};
@@ -34,13 +36,8 @@ impl TestScenery {
         self.game
             .flush_outputs()
             .into_iter()
-            .filter_map(|(id, msg)| {
-                if id == self.connection_id {
-                    Some(msg)
-                } else {
-                    None
-                }
-            })
+            .filter(|(id, msg)| *id == self.connection_id)
+            .map(|(id, msg)| strip_rich_text(msg))
             .collect()
     }
 
@@ -173,7 +170,7 @@ impl SceneryMin {
     }
 
     fn assert_ship_in_orbit_sol(&mut self) {
-        self.base.eventually("sm", "- transport");
+        self.base.eventually("sm", "transport");
     }
 
     fn fail_to_move_before_launch(&mut self) {
@@ -207,18 +204,19 @@ fn test_mine_ore() {
     s.send_wait("inv", "metal ore");
 }
 
-#[test]
-fn test_mining_bot() {
-    let mut s = TestScenery::new(&vec!["../data/tests/scenery_mining_bot.conf"]);
-    s.login();
-
-    s.send_wait("command", "mining bot");
-    s.send_wait("command mining bot: follow me", "is now following");
-    s.send_wait("s", "room2");
-    s.send_wait("look", "mining bot");
-    s.send_wait("command mining bot: extract", "extracting");
-    // confirm it is not following me
-    s.send_wait("n", "room1");
-    let output = s.send_wait("look", "room1");
-    check_output(&output, &vec![], &vec!["mining bot"]);
-}
+// TODO: not implemented, the AI branch was left for lacking of interest
+// #[test]
+// fn test_mining_bot() {
+//     let mut s = TestScenery::new(&vec!["../data/tests/scenery_mining_bot.conf"]);
+//     s.login();
+//
+//     s.send_wait("command", "mining bot");
+//     s.send_wait("command mining bot: follow me", "is now following");
+//     s.send_wait("s", "room2");
+//     s.send_wait("look", "mining bot");
+//     s.send_wait("command mining bot: extract", "extracting");
+//     // confirm it is not following me
+//     s.send_wait("n", "room1");
+//     let output = s.send_wait("look", "room1");
+//     check_output(&output, &vec![], &vec!["mining bot"]);
+// }

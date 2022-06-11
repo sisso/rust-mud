@@ -727,14 +727,14 @@ pub fn show_sectortree<'a>(
         };
 
         for body in list {
-            let (color, _highlight_str) = if body.is_self {
+            let (color, highlight_str) = if body.is_self {
                 (OMarker::ColorMapFocus, " <")
             } else {
                 (OMarker::Plain, "")
             };
 
             buffer.push(format!(
-                "{}{}{}{} {}{:.2}{}",
+                "{}{}{}{} {}{:.2}{}{}",
                 local_prefix,
                 color.id(),
                 body.label,
@@ -742,6 +742,7 @@ pub fn show_sectortree<'a>(
                 OMarker::Literal.id(),
                 body.orbit_distance,
                 OMarker::Reset.id(),
+                highlight_str
             ));
             append(bodies, buffer, origin_id, body.id, next_prefix.as_str());
         }
@@ -1166,6 +1167,7 @@ pub fn command_haul_to_not_found(value: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::controller::strip_rich_text;
     use commons::V2;
 
     #[test]
@@ -1203,8 +1205,7 @@ mod tests {
             },
         ];
 
-        let string = show_surface_map("", &objects);
-        //        assert_eq!("", string.as_str());
+        let string = strip_rich_text(show_surface_map("", &objects));
         assert!(string.as_str().contains("2 - @ three"));
     }
 
@@ -1262,7 +1263,7 @@ mod tests {
         ];
 
         let sector_label = "Sector 1";
-        let result = show_sectortree(ObjId(0), sector_label, &bodies);
+        let result = strip_rich_text(show_sectortree(ObjId(0), sector_label, &bodies));
         assert_eq!(
             result.as_str(),
             r##"[Sector 1]
@@ -1293,7 +1294,6 @@ Sun 0.00
             },
         ];
         let str = show_surface_map("", &desc);
-        // assert_eq!("", str);
         assert!(!str.is_empty());
     }
 }

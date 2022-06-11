@@ -523,7 +523,7 @@ pub fn handle_spawn_prefab(
     Loader::spawn_at(container, static_id, parent_id)
 }
 
-fn process_rich_text(mut msg: String) -> String {
+pub fn process_rich_text(mut msg: String) -> String {
     for mark in OMarker::list() {
         // https://i.stack.imgur.com/UQVe5.png
         match mark {
@@ -543,6 +543,6 @@ fn process_rich_text(mut msg: String) -> String {
     msg
 }
 
-fn strip_rich_text(msg: String) -> String {
+pub fn strip_rich_text(msg: String) -> String {
     OMarker::strip(msg)
 }
