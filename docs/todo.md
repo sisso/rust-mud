@@ -8,6 +8,7 @@
 
 # Features
 
+- stackable objects from same prefab_id
 - better reference clean up, when a obj is deleted a lot of reference are still being saved to the files and fail to load
 - specs
 - memory for the map be shared with player in the case of avatar respawn
