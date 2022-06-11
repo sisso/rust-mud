@@ -1,4 +1,5 @@
 use std::fs;
+use std::fs::File;
 use std::path::{Path, PathBuf};
 
 use crate::http_handler;
@@ -15,6 +16,8 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+const TICKS_SNAPSHOT: u32 = 1000;
 
 pub struct ServerConfig {
     pub socket_port: u32,
@@ -61,10 +64,10 @@ impl ServerRunner {
             let tick = self.game.container.time.tick.as_u32();
 
             // maintenance tasks
-            if tick % 1000 == 0 || kill_signal {
+            if tick % TICKS_SNAPSHOT == 0 || kill_signal {
                 // create snapshot
                 if self.server_cfg.profile.is_some() {
-                    self.create_snapshot(tick).unwrap();
+                    self.save_snapshot(tick).unwrap();
                 }
             }
 
@@ -77,10 +80,15 @@ impl ServerRunner {
         Ok(())
     }
 
-    fn create_snapshot(&mut self, tick: u32) -> Result<()> {
+    fn save_snapshot(&mut self, tick: u32) -> Result<()> {
+        self.write_loader_snapshot(tick)?;
+        self.write_container_snapshot(tick)
+    }
+
+    fn write_loader_snapshot(&mut self, tick: u32) -> Result<()> {
         let data = Loader::create_snapshot(&self.game.container)?;
 
-        let snapshot_file = snapshot_filename(&self.server_cfg, None)?;
+        let snapshot_file = snapshot_loader_filepath(&self.server_cfg, None)?;
         info!(
             "backup snapshot: {:?}",
             snapshot_file.with_file_name("snapshot_backup.json")
@@ -91,9 +99,25 @@ impl ServerRunner {
         info!("saving snapshot: {:?}", snapshot_file);
         Loader::write_snapshot(&snapshot_file, &data)?;
 
-        let snapshot_history = snapshot_filename(&self.server_cfg, Some(tick))?;
-        info!("saving snapshot: {:?}", snapshot_history);
-        Loader::write_snapshot(&snapshot_history, &data)?;
+        let snapshot_history_path = snapshot_loader_filepath(&self.server_cfg, Some(tick))?;
+        info!("saving snapshot: {:?}", snapshot_history_path);
+        Loader::write_snapshot(&snapshot_history_path, &data)?;
+        Ok(())
+    }
+
+    fn write_container_snapshot(&mut self, tick: u32) -> Result<()> {
+        let file_path_tick = snapshot_container_filepath(&self.server_cfg, Some(tick))?;
+
+        info!("saving container {:?}", file_path_tick);
+        let mut file = fs::File::create(&file_path_tick)?;
+        serde_json::to_writer_pretty(&mut file, &self.game.container)?;
+
+        let file_path = snapshot_container_filepath(&self.server_cfg, None)?;
+        info!(
+            "copy container snapshot {:?} to main file {:?}",
+            file_path_tick, file_path
+        );
+        fs::copy(&file_path_tick, &file_path)?;
         Ok(())
     }
 
@@ -139,17 +163,7 @@ impl ServerRunner {
 }
 
 pub fn create_server(server_cfg: ServerConfig, stop_flag: Arc<AtomicBool>) -> Result<ServerRunner> {
-    let container = if server_cfg.profile.is_some() {
-        setup_profile_folder(&server_cfg)?;
-        let profile_file = snapshot_filename(&server_cfg, None)?;
-        if profile_file.exists() {
-            load_snapshot(&profile_file)?
-        } else {
-            load_module(&server_cfg)?
-        }
-    } else {
-        load_module(&server_cfg)?
-    };
+    let container = create_container(&server_cfg)?;
 
     // create game
     let game_cfg = GameCfg::new();
@@ -157,8 +171,8 @@ pub fn create_server(server_cfg: ServerConfig, stop_flag: Arc<AtomicBool>) -> Re
 
     // create server
     let socket_server = server_socket::DefaultSocketServer::new(server_cfg.socket_port);
-    let http_server =
-        <dyn http_server::HttpServer>::new(server_cfg.http_port).expect("fail to create http server");
+    let http_server = <dyn http_server::HttpServer>::new(server_cfg.http_port)
+        .expect("fail to create http server");
     let runner = ServerRunner::new(
         server_cfg,
         Box::new(socket_server),
@@ -167,6 +181,26 @@ pub fn create_server(server_cfg: ServerConfig, stop_flag: Arc<AtomicBool>) -> Re
         stop_flag,
     );
     Ok(runner)
+}
+
+fn create_container(server_cfg: &ServerConfig) -> Result<Container> {
+    if server_cfg.profile.is_some() {
+        setup_profile_folder(&server_cfg)?;
+        let profile_file = snapshot_container_filepath(&server_cfg, None)?;
+        if profile_file.exists() {
+            info!(
+                "profile progress found at {}, loading",
+                profile_file.canonicalize().unwrap().to_str().unwrap()
+            );
+            load_container_snapshot(&profile_file)
+        } else {
+            info!("profile has no progress, loading from configuration");
+            load_module(&server_cfg)
+        }
+    } else {
+        info!("not profile defined, loading from configuration");
+        load_module(&server_cfg)
+    }
 }
 
 fn setup_profile_folder(server_cfg: &ServerConfig) -> Result<()> {
@@ -179,6 +213,16 @@ fn setup_profile_folder(server_cfg: &ServerConfig) -> Result<()> {
 
     info!("profile folder at {:?}", profile_folder.canonicalize()?);
     Ok(())
+}
+
+fn load_container_snapshot(container_snapshot_file: &Path) -> Result<Container> {
+    info!(
+        "loading container from {:?}",
+        container_snapshot_file.canonicalize()?
+    );
+    let file = File::open(container_snapshot_file)?;
+    let container: Container = serde_json::from_reader(file)?;
+    Ok(container)
 }
 
 fn load_snapshot(snapshot_filename: &Path) -> Result<Container> {
@@ -206,12 +250,23 @@ fn backup_filename(path: &Path) -> Result<()> {
     Ok(())
 }
 
-fn snapshot_filename(cfg: &ServerConfig, tick: Option<u32>) -> Result<PathBuf> {
+fn snapshot_loader_filepath(cfg: &ServerConfig, tick: Option<u32>) -> Result<PathBuf> {
     let profile_path = resolve_profile_path(cfg)?;
 
     let path = match tick {
         Some(tick) => profile_path.join(&format!("snapshot_{}.json", tick)),
         None => profile_path.join("save.json"),
+    };
+
+    Ok(path)
+}
+
+fn snapshot_container_filepath(cfg: &ServerConfig, tick: Option<u32>) -> Result<PathBuf> {
+    let profile_path = resolve_profile_path(cfg)?;
+
+    let path = match tick {
+        Some(tick) => profile_path.join(&format!("snapshot_container_{}.json", tick)),
+        None => profile_path.join("save_container.json"),
     };
 
     Ok(path)

@@ -2,4 +2,4 @@
 
 set -euo pipefail
 
-cargo run --bin mud-server data/space space-01
+RUST_BACKTRACE=full cargo run --bin mud-server data/space space-01
