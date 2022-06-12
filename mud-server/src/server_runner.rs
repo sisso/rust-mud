@@ -82,7 +82,8 @@ impl ServerRunner {
 
     fn save_snapshot(&mut self, tick: u32) -> Result<()> {
         self.write_loader_snapshot(tick)?;
-        self.write_container_snapshot(tick)
+        // self.write_container_snapshot(tick)?; // @see create_container
+        Ok(())
     }
 
     fn write_loader_snapshot(&mut self, tick: u32) -> Result<()> {
@@ -186,13 +187,15 @@ pub fn create_server(server_cfg: ServerConfig, stop_flag: Arc<AtomicBool>) -> Re
 fn create_container(server_cfg: &ServerConfig) -> Result<Container> {
     if server_cfg.profile.is_some() {
         setup_profile_folder(&server_cfg)?;
-        let profile_file = snapshot_container_filepath(&server_cfg, None)?;
+        // we prefer to use loader over container serialization as load is more compatible with
+        // others services like in-game admin and the rest api.
+        let profile_file = snapshot_loader_filepath(&server_cfg, None)?;
         if profile_file.exists() {
             info!(
                 "profile progress found at {}, loading",
                 profile_file.canonicalize().unwrap().to_str().unwrap()
             );
-            load_container_snapshot(&profile_file)
+            load_snapshot(&profile_file)
         } else {
             info!("profile has no progress, loading from configuration");
             load_module(&server_cfg)
