@@ -1,4 +1,5 @@
-use crate::game::loader::dto::StaticId;
+use crate::game::loader::dto::{LoaderData, StaticId};
+use crate::game::loader::Loader;
 use std::any::Any;
 use std::fmt::Formatter;
 use std::path::Display;

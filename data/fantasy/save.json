@@ -3,8 +3,8 @@
     "avatar_mob": 0,
     "initial_room": 1,
     "money_id": 17,
-    "tick": 12578,
-    "total_time": 1257.800018742681
+    "tick": 0,
+    "total_time": 0.0
   },
   "objects": {
     "0": {
@@ -1174,6 +1174,7 @@
       "desc": "Random room 0",
       "id": 15,
       "label": "Random room 0",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -1405,6 +1406,7 @@
       "desc": "Random room 1",
       "id": 16,
       "label": "Random room 1",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -1636,6 +1638,7 @@
       "desc": "Random room 2",
       "id": 17,
       "label": "Random room 2",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -1855,6 +1858,7 @@
       "desc": "Random room 3",
       "id": 18,
       "label": "Random room 3",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -2086,6 +2090,7 @@
       "desc": "Random room 4",
       "id": 19,
       "label": "Random room 4",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -2331,6 +2336,7 @@
       "desc": "Random room 5",
       "id": 20,
       "label": "Random room 5",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -2554,6 +2560,7 @@
       "desc": "Random room 6",
       "id": 21,
       "label": "Random room 6",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -2766,6 +2773,7 @@
       "desc": "Random room 7",
       "id": 22,
       "label": "Random room 7",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -2993,6 +3001,7 @@
       "desc": "Random room 8",
       "id": 23,
       "label": "Random room 8",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -3490,6 +3499,7 @@
       "desc": "Random room 0",
       "id": 26,
       "label": "Random room 0",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -3682,6 +3692,7 @@
       "desc": "Random room 1",
       "id": 27,
       "label": "Random room 1",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -3791,6 +3802,7 @@
       "desc": "Random room 2",
       "id": 28,
       "label": "Random room 2",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -3804,6 +3816,7 @@
       "desc": "Random room 3",
       "id": 29,
       "label": "Random room 3",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -3839,6 +3852,7 @@
       "desc": "Random room 4",
       "id": 30,
       "label": "Random room 4",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -3852,6 +3866,7 @@
       "desc": "Random room 5",
       "id": 31,
       "label": "Random room 5",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -3869,6 +3884,7 @@
       "desc": "Random room 6",
       "id": 32,
       "label": "Random room 6",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -3890,6 +3906,7 @@
       "desc": "Random room 7",
       "id": 33,
       "label": "Random room 7",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -3907,6 +3924,7 @@
       "desc": "Random room 8",
       "id": 34,
       "label": "Random room 8",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -3997,6 +4015,7 @@
       "desc": "Random room 0",
       "id": 40,
       "label": "Random room 0",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4010,6 +4029,7 @@
       "desc": "Random room 1",
       "id": 41,
       "label": "Random room 1",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4027,6 +4047,7 @@
       "desc": "Random room 2",
       "id": 42,
       "label": "Random room 2",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4044,6 +4065,7 @@
       "desc": "Random room 3",
       "id": 43,
       "label": "Random room 3",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4065,6 +4087,7 @@
       "desc": "Random room 4",
       "id": 44,
       "label": "Random room 4",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4086,6 +4109,7 @@
       "desc": "Random room 5",
       "id": 45,
       "label": "Random room 5",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4107,6 +4131,7 @@
       "desc": "Random room 6",
       "id": 46,
       "label": "Random room 6",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4124,6 +4149,7 @@
       "desc": "Random room 7",
       "id": 47,
       "label": "Random room 7",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4141,6 +4167,7 @@
       "desc": "Random room 8",
       "id": 48,
       "label": "Random room 8",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4265,7 +4292,7 @@
       "parent": 47,
       "spawn": {
         "max": 4,
-        "next_spawn": 1269.5068311765795,
+        "next_spawn": 1269.5068311765797,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -4275,6 +4302,7 @@
       "desc": "Random room 0",
       "id": 58,
       "label": "Random room 0",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4288,6 +4316,7 @@
       "desc": "Random room 1",
       "id": 59,
       "label": "Random room 1",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4321,6 +4350,7 @@
       "desc": "Random room 2",
       "id": 60,
       "label": "Random room 2",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4338,6 +4368,7 @@
       "desc": "Random room 3",
       "id": 61,
       "label": "Random room 3",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4355,6 +4386,7 @@
       "desc": "Random room 4",
       "id": 62,
       "label": "Random room 4",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4380,6 +4412,7 @@
       "desc": "Random room 5",
       "id": 63,
       "label": "Random room 5",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4397,6 +4430,7 @@
       "desc": "Random room 6",
       "id": 64,
       "label": "Random room 6",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4410,6 +4444,7 @@
       "desc": "Random room 7",
       "id": 65,
       "label": "Random room 7",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4427,6 +4462,7 @@
       "desc": "Random room 8",
       "id": 66,
       "label": "Random room 8",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4546,7 +4582,7 @@
       "parent": 60,
       "spawn": {
         "max": 4,
-        "next_spawn": 1265.2149201408033,
+        "next_spawn": 1265.214920140803,
         "prefab_id": 29,
         "time_max": 60.0,
         "time_min": 10.0
@@ -4556,6 +4592,7 @@
       "desc": "Random room 0",
       "id": 76,
       "label": "Random room 0",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4573,6 +4610,7 @@
       "desc": "Random room 1",
       "id": 77,
       "label": "Random room 1",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4594,6 +4632,7 @@
       "desc": "Random room 2",
       "id": 78,
       "label": "Random room 2",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4611,6 +4650,7 @@
       "desc": "Random room 3",
       "id": 79,
       "label": "Random room 3",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4636,6 +4676,7 @@
       "desc": "Random room 4",
       "id": 80,
       "label": "Random room 4",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4653,6 +4694,7 @@
       "desc": "Random room 5",
       "id": 81,
       "label": "Random room 5",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4666,6 +4708,7 @@
       "desc": "Random room 6",
       "id": 82,
       "label": "Random room 6",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4679,6 +4722,7 @@
       "desc": "Random room 7",
       "id": 83,
       "label": "Random room 7",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -4704,6 +4748,7 @@
       "desc": "Random room 8",
       "id": 84,
       "label": "Random room 8",
+      "parent": 11,
       "room": {
         "exits": [
           {
@@ -5140,13 +5185,13 @@
       "ai": {
         "command_aggressive": true
       },
+      "children": [
+        17
+      ],
       "id": 29,
       "inventory": {
         "max_weight": 12.0
       },
-      "children": [
-        17
-      ],
       "label": "skeleton",
       "mob": {
         "attack": 9,
@@ -5646,5 +5691,5 @@
       }
     }
   },
-  "version": 4
+  "version": 5
 }

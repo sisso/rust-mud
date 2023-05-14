@@ -4,19 +4,22 @@ use commons::tree::Tree;
 use serde_json;
 use std::collections::{HashMap, HashSet};
 
-use clap::{self, Clap};
+use clap::Parser;
 use commons::{asciicolors, jsons::JsonValueExtra};
 use std::path::Path;
 
 /// This doc string acts as a help message when the user runs '--help'
 /// as do all doc strings on fields
-#[derive(Clap)]
+#[derive(Parser, Debug)]
 struct Opts {
-    #[clap(about = "Directory to read all files or a json file")]
+    /// directory to read all files or a json file
+    #[arg()]
     path: String,
-    #[clap(short, long, about = "obj id to describe")]
+    /// object to describe
+    #[arg(short, long)]
     obj_id: Option<u32>,
-    #[clap(short, long, about = "prefab id to describe")]
+    /// prefab to describe
+    #[arg(short, long)]
     prefab_id: Option<u32>,
 }
 

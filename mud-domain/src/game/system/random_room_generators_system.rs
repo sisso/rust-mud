@@ -9,7 +9,7 @@ use crate::game::room::{Room, RoomId, RoomRepository};
 use crate::game::spawn::Spawns;
 use crate::random_grid::*;
 use commons::ObjId;
-use logs::*;
+use logs::{self, log};
 use rand::prelude::StdRng;
 use rand::{Rng, SeedableRng};
 use std::collections::HashSet;
@@ -17,7 +17,6 @@ use std::io::repeat;
 
 pub fn run(_: &mut Container) {}
 
-/// it is implemented in a way that we can re-generate
 pub fn init(container: &mut Container) {
     let random_rooms_repo = &mut container.random_rooms;
     let objects = &mut container.objects;
@@ -25,13 +24,18 @@ pub fn init(container: &mut Container) {
     let labels = &mut container.labels;
     let locations = &mut container.locations;
     let spawns = &mut container.spawns;
+    let zones = &container.zones;
 
     for rr in random_rooms_repo.list_mut() {
         if rr.generated {
             continue;
         }
 
-        info!("{:?} generating random rooms", rr.id);
+        logs::info!("{:?} generating random rooms", rr.id);
+
+        if !zones.exist(rr.id) {
+            logs::warn!("random room {:?} do not belong to a zone", rr.id);
+        }
 
         let mut cfg = RandomGridCfg {
             width: rr.cfg.width as usize,
@@ -49,15 +53,22 @@ pub fn init(container: &mut Container) {
         for (deep, rooms_grid) in levels.levels.iter().enumerate() {
             let rooms_ids = match create_rooms(objects, rooms, labels, rooms_grid) {
                 Err(err) => {
-                    warn!(
+                    logs::warn!(
                         "{:?} error when generating rooms from grid {:?}",
-                        rr.id, err
+                        rr.id,
+                        err
                     );
                     continue;
                 }
                 Ok(ids) => ids,
             };
 
+            // add all rooms to the zone
+            for id in &rooms_ids {
+                locations.set(*id, rr.id);
+            }
+
+            // for the initial layer, add a room entrance
             if deep == 0 {
                 connect_rooms_to_entrance(
                     rooms,
@@ -81,6 +92,7 @@ pub fn init(container: &mut Container) {
                 rooms.add_portal(down_id, up_id, Dir::D);
             }
 
+            // add spawns
             let valid_spawns = rr
                 .cfg
                 .spawns
@@ -88,7 +100,7 @@ pub fn init(container: &mut Container) {
                 .filter(|spawn| spawn.is_valid_for(deep as u32))
                 .collect();
 
-            create_spawns(
+            let _ = create_spawns(
                 rr.id,
                 &mut rng,
                 objects,
@@ -97,7 +109,7 @@ pub fn init(container: &mut Container) {
                 &rooms_ids,
                 &valid_spawns,
             )
-            .unwrap();
+            .expect("fail to generate spawns");
 
             // set variables for next iteration
             previous_down = rooms_grid.get_down_portal();
@@ -116,8 +128,9 @@ fn create_spawns(
     spawns: &mut Spawns,
     rooms_id: &Vec<RoomId>,
     spawns_cfg: &Vec<&RandomRoomsSpawnCfg>,
-) -> Result<()> {
+) -> Result<Vec<ObjId>> {
     let mut availables = rooms_id.clone();
+    let mut generated_spawns = Vec::new();
 
     for spawn in spawns_cfg {
         for _ in 0..spawn.amount {
@@ -135,8 +148,9 @@ fn create_spawns(
                 .unwrap();
 
             locations.set(spawn_id, room_id);
+            generated_spawns.push(spawn_id);
 
-            trace!(
+            logs::trace!(
                 "{:?} adding spawn {:?} at room {:?}",
                 rr_id,
                 spawn_id,
@@ -145,7 +159,7 @@ fn create_spawns(
         }
     }
 
-    Ok(())
+    Ok(generated_spawns)
 }
 
 fn connect_rooms_to_entrance(
@@ -185,8 +199,8 @@ fn create_rooms(
     }
 
     // add portals
-    trace!("adding portals to");
-    trace!("{}", grid.print());
+    logs::trace!("adding portals to");
+    logs::trace!("{}", grid.print());
 
     for (a, b) in grid.get_portals() {
         let from_id = ids[*a];
@@ -206,7 +220,7 @@ fn create_rooms(
             panic!("unexpected coords");
         };
 
-        trace!(
+        logs::trace!(
             "{:?} ({},{}) to {:?} ({},{}) dir is {:?}",
             from_id,
             x1,

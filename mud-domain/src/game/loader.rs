@@ -1,11 +1,32 @@
+use std::borrow::{Borrow, BorrowMut};
+use std::collections::{BTreeMap, HashMap, HashSet};
+use std::io::Write;
+use std::path::{Path, PathBuf};
+
+use rand::random;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+
+use commons::csv::FieldKind;
+use commons::jsons::JsonValueExtra;
+use commons::{DeltaTime, Either, ObjId, Tick, TotalTime, V2};
+use dto::*;
+use logs::*;
+
 use crate::errors::{AsResult, Error, Result};
+use crate::game::ai;
+use crate::game::ai::{Ai, AiCommand, AiRepo};
 use crate::game::astro_bodies::{AstroBody, AstroBodyKind};
 use crate::game::config::Config;
 use crate::game::container::Container;
 use crate::game::domain::{Dir, Modifier};
+use crate::game::extractable::Extractable;
 use crate::game::hire::Hire;
+use crate::game::inventory::Inventory;
 use crate::game::item::{Armor, Item, Weapon, Weight};
 use crate::game::labels::{Label, NO_LABEL};
+use crate::game::loader::migrations::*;
+use crate::game::market::{Market, MarketTrade};
 use crate::game::mob::{Damage, Mob, MobId};
 use crate::game::obj::Objects;
 use crate::game::pos::Pos;
@@ -19,31 +40,12 @@ use crate::game::spawn::{Spawn, SpawnBuilder};
 use crate::game::surfaces::Surface;
 use crate::game::vendors::Vendor;
 use crate::game::zone::Zone;
-use commons::csv::FieldKind;
-use commons::{DeltaTime, Either, ObjId, Tick, TotalTime, V2};
-use logs::*;
-use rand::random;
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
-use std::borrow::{Borrow, BorrowMut};
-use std::collections::{BTreeMap, HashMap, HashSet};
-use std::path::{Path, PathBuf};
 
 pub mod dto;
 mod hocon_parser;
 mod migrations;
 
-use crate::game::ai;
-use crate::game::ai::{Ai, AiCommand, AiRepo};
-use crate::game::extractable::Extractable;
-use crate::game::inventory::Inventory;
-use crate::game::loader::migrations::*;
-use crate::game::market::{Market, MarketTrade};
-use commons::jsons::JsonValueExtra;
-use dto::*;
-use std::io::Write;
-
-const MIGRATION_LATEST_VERSION: u32 = 4;
+const MIGRATION_LATEST_VERSION: u32 = 5;
 
 #[derive(Debug, Clone)]
 pub struct ValidationResult {
@@ -565,7 +567,7 @@ impl Loader {
                             levels: rr_data.levels,
                             width: rr_data.width,
                             height: rr_data.height,
-                            spawns: spawns,
+                            spawns,
                         },
                         generated: rr_data.generated,
                     })
@@ -710,12 +712,13 @@ impl Loader {
         Ok(())
     }
 
-    /// Algorithm
+    /// Reading data, migrate and load into container
     ///
-    /// 1. Load all files and resolve variables
-    /// 2. Validate content
-    /// 3. Add all prefabs
-    /// 4. Instantiate all static data
+    /// 1. load all files and resolve variables
+    /// 2. validate content
+    /// 3. migrate data
+    /// 4. add all prefabs
+    /// 5. instantiate all static data
     pub fn load_folders(container: &mut Container, folder: &Path) -> Result<LoadingCtx> {
         let data = Loader::read_folders(folder)?;
         Loader::load_data(container, data)
@@ -740,10 +743,16 @@ impl Loader {
         Loader::load_data(container, data)
     }
 
-    pub fn read_json(data: &mut LoaderData, json_file: &Path) -> Result<()> {
+    pub fn read_json_from_file_raw(json_file: &Path) -> Result<LoaderData> {
         info!("reading file {:?}", json_file);
         let file = std::fs::File::open(json_file)?;
-        let mut new_data = serde_json::from_reader(std::io::BufReader::new(file))?;
+        serde_json::from_reader(std::io::BufReader::new(file))
+            .map_err(|err| Error::ParserError(err))
+    }
+
+    pub fn read_json_from_file(data: &mut LoaderData, json_file: &Path) -> Result<()> {
+        let mut new_data = Self::read_json_from_file_raw(json_file)?;
+        // migration needs to happens here because LoaderData.extends require that all data are on same version
         Loader::migrate(&mut new_data)?;
         data.extends(new_data)
     }
@@ -775,7 +784,7 @@ impl Loader {
             .collect::<Vec<_>>();
 
         for json_file in json_files {
-            Loader::read_json(&mut data, json_file)?;
+            Loader::read_json_from_file(&mut data, json_file)?;
         }
 
         Ok(data)
@@ -1205,9 +1214,10 @@ impl Loader {
         info!("checking for data migration for {:?}", data.version);
 
         let migrations: Vec<Box<dyn Migration>> = vec![
-            Box::new(MigrationV2::default()),
-            Box::new(MigrationV3::default()),
-            Box::new(MigrationV4::default()),
+            Box::new(MigrationV2AddItemWeightAndMobInventory::default()),
+            Box::new(MigrationV3FixItemsWithoutPrice::default()),
+            Box::new(MigrationV4AddTags::default()),
+            Box::new(MigrationV5CleanRandomRooms::default()),
         ];
 
         for mut migration in migrations {
@@ -1309,8 +1319,9 @@ impl Loader {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use crate::game::comm::item_corpse_appears_in_room;
+
+    use super::*;
 
     fn load_and_snapshot(obj: ObjData) -> ObjData {
         let mut container = Container::new();

@@ -3,8 +3,8 @@
     "avatar_mob": 6,
     "initial_room": 2,
     "money_id": 42,
-    "tick": 77361,
-    "total_time": 7736.100115276873
+    "tick": 0,
+    "total_time": 0.0
   },
   "objects": {
     "0": {
