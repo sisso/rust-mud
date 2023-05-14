@@ -72,7 +72,7 @@ pub fn help() -> String {
   drop <item>                           - drop a object
   put <item> <obj>                      - put a object into other container
   enter <target>                        - enter in something
-  out                                   - get out of something
+  out|exit                              - get out of something
   hire                                  - hire someone
   map                                   - show map of current zone
   buy <item>                            - list objecst to buy or buy a item
@@ -82,6 +82,10 @@ pub fn help() -> String {
   command <obj>: follow me              - command a obj to follow you
   command <obj>: extract                - command a obj to extract materials
   command <obj>: haul <from id> <to id> - command a obj to haul objects from id a to id b
+  sm                                    - show starmap
+  move <target>                         - travel ship to some object
+  land <target>                         - land ship into a location
+  launch                                - launch ship into orbit
 --------------------------------------------------------------------------------------------------"#;
 
     str.to_string()
