@@ -8,7 +8,6 @@ use crate::game::room::RoomId;
 use crate::game::ships::{ShipCommand, ShipId};
 use crate::game::{astro_bodies, comm, space_utils};
 use commons::{DeltaTime, ObjId, PlayerId};
-use logs::*;
 
 /// Assume that all arguments are correct
 pub fn move_to(
@@ -28,7 +27,7 @@ pub fn move_to(
         .ships
         .set_command(ship_id, ShipCommand::move_to(target_id))
         .map(|ok| {
-            debug!("move_to {:?} at {:?}", ship_id, target_id);
+            log::debug!("move_to {:?} at {:?}", ship_id, target_id);
             container.outputs.private(mob_id, comm::space_move());
             ok
         })
@@ -108,7 +107,7 @@ pub fn do_jump(container: &mut Container, mob_id: MobId, ship_id: ShipId) -> Res
     let total_time = container.time.total;
 
     if astro_location.kind != AstroBodyKind::JumpGate {
-        warn!("{:?} jump {:?} fail, invalid parent", mob_id, ship_id);
+        log::warn!("{:?} jump {:?} fail, invalid parent", mob_id, ship_id);
         container.outputs.private(mob_id, comm::space_jump_failed());
         return Err(Error::InvalidArgumentFailure);
     }

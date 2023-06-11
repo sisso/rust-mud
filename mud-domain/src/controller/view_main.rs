@@ -19,7 +19,6 @@ use crate::game::{actions, location};
 use crate::game::{actions_admin, inventory_service, mob};
 use crate::utils::strinput::StrInput;
 use commons::unwrap_or_continue;
-use logs::*;
 
 fn get_inventory_desc(container: &Container, obj_id: ObjId) -> InventoryDesc {
     let equip = container.equips.get(obj_id);
@@ -61,7 +60,7 @@ pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<ConnectionViewActio
         Ok(action) => return Ok(action),
         Err(NotFoundFailure) => {}
         Err(other) => {
-            warn!("{:?} fail processing command {:?}", ctx.mob_id, other);
+            log::warn!("{:?} fail processing command {:?}", ctx.mob_id, other);
         }
     }
 
@@ -69,7 +68,7 @@ pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<ConnectionViewActio
         Ok(action) => return Ok(action),
         Err(NotFoundFailure) => {}
         Err(other) => {
-            warn!("{:?} fail processing command {:?}", ctx.mob_id, other);
+            log::warn!("{:?} fail processing command {:?}", ctx.mob_id, other);
         }
     }
 
@@ -77,7 +76,7 @@ pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<ConnectionViewActio
         Ok(action) => return Ok(action),
         Err(NotFoundFailure) => {}
         Err(other) => {
-            warn!("{:?} fail processing command {:?}", ctx.mob_id, other);
+            log::warn!("{:?} fail processing command {:?}", ctx.mob_id, other);
         }
     }
 
@@ -85,7 +84,7 @@ pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<ConnectionViewActio
         Ok(action) => return Ok(action),
         Err(NotFoundFailure) => {}
         Err(other) => {
-            warn!("{:?} fail processing command {:?}", ctx.mob_id, other);
+            log::warn!("{:?} fail processing command {:?}", ctx.mob_id, other);
         }
     }
 

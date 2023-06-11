@@ -10,7 +10,6 @@ use crate::game::mob::MobId;
 use crate::game::ships::ShipId;
 use crate::game::{comm, rooms_zones};
 use commons::{ObjId, PlayerId, MIN_DISTANCE, V2};
-use logs::*;
 
 #[deprecated]
 pub fn find_surface_target(
@@ -67,12 +66,12 @@ pub fn search_landing_sites(container: &Container, ship_id: ObjId) -> Vec<ObjId>
     let orbit_id = if let Some(orbit_id) = container.locations.get(ship_id) {
         orbit_id
     } else {
-        warn!("{:?} requested to land but has no location", ship_id);
+        log::warn!("{:?} requested to land but has no location", ship_id);
         return vec![];
     };
 
     if !container.astro_bodies.exists(orbit_id) {
-        warn!(
+        log::warn!(
             "{:?} requested to land but location is not a space body",
             ship_id
         );
@@ -86,7 +85,7 @@ pub fn search_landing_sites(container: &Container, ship_id: ObjId) -> Vec<ObjId>
         .map(|room| room.id)
         .collect();
 
-    trace!(
+    log::trace!(
         "{:?} searching landing sites at orbit {:?}. From rooms {:?} found {:?} landing sites",
         ship_id,
         orbit_id,

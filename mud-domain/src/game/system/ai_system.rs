@@ -6,9 +6,7 @@ use crate::game::container::Container;
 use crate::game::location::Locations;
 use crate::game::mob::{MobCommand, MobRepository};
 use crate::game::ownership::Ownerships;
-use commons::unwrap_or_return;
 use commons::ObjId;
-use logs::*;
 
 pub fn run(container: &mut Container) {
     let mut to_drop = vec![];
@@ -32,7 +30,7 @@ pub fn run(container: &mut Container) {
 
         match result {
             Err(e) => {
-                warn!("fail to run ai for {:?}: {:?}", ai.id, e);
+                log::warn!("fail to run ai for {:?}: {:?}", ai.id, e);
             }
             _ => {}
         }
@@ -41,7 +39,7 @@ pub fn run(container: &mut Container) {
     for (obj_id, items) in to_drop {
         for item_id in items {
             match game::actions_items::do_drop(container, obj_id, item_id) {
-                Err(e) => warn!("{:?} fail to drop {:?}: {:?}", obj_id, item_id, e),
+                Err(e) => log::warn!("{:?} fail to drop {:?}: {:?}", obj_id, item_id, e),
                 _ => {}
             }
         }
@@ -68,8 +66,8 @@ fn run_aggressive(
                 .get_mut(mob_id)
                 .as_result_string(|| format!("mob {:?} not found", mob_id).into())?;
             match mob.set_action_attack(target_id) {
-                Ok(()) => info!("{:?} aggressive attack {:?}", mob_id, target_id),
-                Err(_e) => warn!("{:?} fail to attack {:?}", mob_id, target_id),
+                Ok(()) => log::info!("{:?} aggressive attack {:?}", mob_id, target_id),
+                Err(_e) => log::warn!("{:?} fail to attack {:?}", mob_id, target_id),
             }
             break;
         }

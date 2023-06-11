@@ -4,7 +4,6 @@ use crate::game::container::Container;
 use crate::game::location::LocationId;
 use crate::game::mob::MobRepository;
 use commons::ObjId;
-use logs::*;
 
 pub enum RequestCommand {
     Idle,
@@ -55,7 +54,7 @@ pub fn set_command_follow(
 
     clear_ai_command(ai, &mut container.mobs)?;
 
-    info!("{:?} command follow {:?}", obj_id, followed_id);
+    log::info!("{:?} command follow {:?}", obj_id, followed_id);
     ai.command = AiCommand::FollowAndProtect {
         target_id: followed_id,
     };
@@ -79,7 +78,7 @@ pub fn set_command_extract(
     clear_ai_command(ai, &mut container.mobs)?;
 
     // clear previous command
-    info!("{:?} command extract {:?}", obj_id, extractable_id);
+    log::info!("{:?} command extract {:?}", obj_id, extractable_id);
     ai.command = AiCommand::Extract {
         from: extractable_id,
     };
@@ -115,9 +114,11 @@ pub fn set_command_haul(
 
     clear_ai_command(ai, &mut container.mobs)?;
 
-    info!(
+    log::info!(
         "{:?} command haul from {:?} to {:?}",
-        obj_id, from_id, to_id
+        obj_id,
+        from_id,
+        to_id
     );
     ai.command = AiCommand::Hauler {
         from: from_id,

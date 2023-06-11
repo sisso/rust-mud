@@ -1,5 +1,5 @@
 use commons::ObjId;
-use logs::*;
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -28,12 +28,12 @@ impl SurfaceObjects {
 
     pub fn add(&mut self, value: SurfaceObject) {
         assert!(!self.index.contains_key(&value.id));
-        debug!("{:?} added", value.id);
+        log::debug!("{:?} added", value.id);
         self.index.insert(value.id, value);
     }
 
     pub fn remove(&mut self, id: ObjId) -> Option<SurfaceObject> {
-        debug!("{:?} removed", id);
+        log::debug!("{:?} removed", id);
         self.index.remove(&id)
     }
 

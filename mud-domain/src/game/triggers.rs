@@ -1,5 +1,5 @@
 use commons::ObjId;
-use logs::*;
+
 use serde::{Deserialize, Serialize};
 
 /// Numeric identifier of event type, used for query
@@ -54,7 +54,7 @@ impl Triggers {
     }
 
     pub fn push(&mut self, event: Event) {
-        debug!("push {:?}", event);
+        log::debug!("push {:?}", event);
         self.index
             .get_mut(event.get_kind() as usize)
             .expect("wrong events initialization")

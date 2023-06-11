@@ -11,7 +11,6 @@ use commons::csv::FieldKind;
 use commons::jsons::JsonValueExtra;
 use commons::{DeltaTime, Either, ObjId, Tick, TotalTime, V2};
 use dto::*;
-use logs::*;
 
 use crate::errors::{AsResult, Error, Result};
 use crate::game::ai;
@@ -117,7 +116,7 @@ impl Loader {
             return Err(Error::ConflictFailure);
         }
 
-        debug!("{:?} adding prefab {:?}", id, data);
+        log::debug!("{:?} adding prefab {:?}", id, data);
         assert!(self.index.insert(id, data).is_none());
         Ok(id)
     }
@@ -133,7 +132,7 @@ impl Loader {
             return Err(Error::NotFoundStaticId(data.get_id()));
         }
 
-        debug!("{:?} update prefab {:?}", data.get_id(), data);
+        log::debug!("{:?} update prefab {:?}", data.get_id(), data);
         self.index.insert(data.get_id(), data);
 
         Ok(())
@@ -273,7 +272,7 @@ impl Loader {
     }
 
     pub fn instantiate(container: &mut Container, static_id: StaticId) -> Result<ObjId> {
-        debug!("instantiate prefab {:?}", static_id);
+        log::debug!("instantiate prefab {:?}", static_id);
 
         let mut loading_ctx = LoadingCtx::default();
 
@@ -281,14 +280,14 @@ impl Loader {
         let obj_id = container.objects.create();
         container.objects.set_prefab_id(obj_id, static_id)?;
 
-        trace!("{:?} creating prefab of {:?}", obj_id, static_id);
+        log::trace!("{:?} creating prefab of {:?}", obj_id, static_id);
         assert!(loading_ctx.id_map.insert(static_id, obj_id).is_none());
 
         // instantiate children
         let children_prefabs = container.loader.find_deep_prefabs_by_parents(static_id);
         for child_static_id in children_prefabs {
             let child_id = container.objects.create();
-            trace!(
+            log::trace!(
                 "instantiate prefab {:?} child {:?} with id {:?}",
                 static_id,
                 child_static_id,
@@ -346,7 +345,7 @@ impl Loader {
             };
         }
 
-        debug!("{:?} apply prefab {:?}", obj_id, data);
+        log::debug!("{:?} apply prefab {:?}", obj_id, data);
 
         if let Some(prefab_id) = data.prefab_id {
             container.objects.set_prefab_id(obj_id, prefab_id)?;
@@ -393,18 +392,18 @@ impl Loader {
                 }
 
                 (AstroBodyKind::JumpGate, None) => {
-                    warn!("{:?} jump_target_id must be defined for Jump", obj_id);
+                    log::warn!("{:?} jump_target_id must be defined for Jump", obj_id);
                 }
 
                 (_, Some(_)) => {
-                    warn!("{:?} jump_target_id is only available to jump kind", obj_id);
+                    log::warn!("{:?} jump_target_id is only available to jump kind", obj_id);
                 }
 
                 _ => {}
             }
 
             if let Some(old_value) = container.astro_bodies.upsert(body) {
-                warn!("{:?} already have a astro_body: {:?}", obj_id, old_value);
+                log::warn!("{:?} already have a astro_body: {:?}", obj_id, old_value);
             }
         }
 
@@ -650,7 +649,7 @@ impl Loader {
 
         if let Some(children) = data.children.clone() {
             for static_id in children.into_iter() {
-                trace!("{:?} spawn children {:?}", obj_id, static_id);
+                log::trace!("{:?} spawn children {:?}", obj_id, static_id);
                 Loader::spawn_at(container, static_id, obj_id)?;
             }
         }
@@ -705,7 +704,7 @@ impl Loader {
                 });
             }
 
-            trace!("reading into {:?}", obj);
+            log::trace!("reading into {:?}", obj);
             root_data.prefabs.insert(obj.get_id(), obj);
         }
 
@@ -744,7 +743,7 @@ impl Loader {
     }
 
     pub fn read_json_from_file_raw(json_file: &Path) -> Result<LoaderData> {
-        info!("reading file {:?}", json_file);
+        log::info!("reading file {:?}", json_file);
         let file = std::fs::File::open(json_file)?;
         serde_json::from_reader(std::io::BufReader::new(file))
             .map_err(|err| Error::ParserError(err))
@@ -1073,7 +1072,7 @@ impl Loader {
                 match container.tags.get_str(*tag_id) {
                     Some(tag_str) => values.push(tag_str.to_string()),
                     None => {
-                        warn!("could not found tag_id {:?}", tag_id);
+                        log::warn!("could not found tag_id {:?}", tag_id);
                     }
                 }
             }
@@ -1211,7 +1210,7 @@ impl Loader {
     }
 
     pub fn migrate(data: &mut LoaderData) -> Result<()> {
-        info!("checking for data migration for {:?}", data.version);
+        log::info!("checking for data migration for {:?}", data.version);
 
         let migrations: Vec<Box<dyn Migration>> = vec![
             Box::new(MigrationV2AddItemWeightAndMobInventory::default()),
@@ -1222,14 +1221,14 @@ impl Loader {
 
         for mut migration in migrations {
             if data.version < migration.version() {
-                info!(
+                log::info!(
                     "migrating data v{} to v{} started",
                     data.version,
                     migration.version()
                 );
                 migration.migrate(data)?;
                 data.version = migration.version();
-                info!("migrating data to v{} complete", data.version);
+                log::info!("migrating data to v{} complete", data.version);
             }
         }
 

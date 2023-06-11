@@ -3,7 +3,6 @@ use crate::errors::*;
 use crate::game::{actions_command, comm};
 use crate::utils::strinput::StrInput;
 use commons::ObjId;
-use logs::*;
 
 pub const COMMAND_SEP: char = ':';
 
@@ -126,7 +125,7 @@ fn set_command_extract(ctx: &mut ViewHandleCtx, target_id: ObjId) -> Result<()> 
         .collect();
 
     if extractable.len() > 1 {
-        warn!("extract command selection for multiple targets not implemented");
+        log::warn!("extract command selection for multiple targets not implemented");
     }
 
     match extractable.into_iter().next() {

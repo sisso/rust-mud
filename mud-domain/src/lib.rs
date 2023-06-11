@@ -10,3 +10,8 @@ pub mod game;
 pub mod random_grid;
 pub mod universe;
 pub mod utils;
+
+pub use errors::{Error, Result};
+pub use game::container::Container;
+pub use game::loader::Loader;
+pub use game::{Game, GameCfg};

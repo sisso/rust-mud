@@ -8,7 +8,6 @@ use crate::game::location;
 use crate::game::location::{LocationId, Locations};
 use crate::game::prices::Money;
 use commons::ObjId;
-use logs::*;
 
 // TODO: Merge common code related with money
 // TODO: Money change should just be a +/- function
@@ -18,7 +17,7 @@ pub fn update_all_current_inventory(container: &mut Container) {
     let ids: Vec<ObjId> = container.inventories.list_ids().cloned().collect();
     for id in ids {
         if let Err(e) = update_inventory_weight(container, id) {
-            warn!("{:?} error when computing weight {:?}", id, e);
+            log::warn!("{:?} error when computing weight {:?}", id, e);
         }
     }
 }
@@ -160,9 +159,10 @@ fn add_money_with_item(
             // since we add to a already existent item, we don't need this anymore
             container.remove(provided_item_id);
 
-            debug!(
+            log::debug!(
                 "{:?} receive {:?} money by merging inventory money",
-                inventory_id, amount
+                inventory_id,
+                amount
             );
 
             Ok(())
@@ -173,18 +173,20 @@ fn add_money_with_item(
                 .get_mut(item_id)
                 .expect("Money was created but is not a item");
             item.amount += amount.as_u32();
-            debug!(
+            log::debug!(
                 "{:?} receive {:?} money by updating inventory money",
-                inventory_id, amount
+                inventory_id,
+                amount
             );
             Ok(())
         }
         (None, Some(item_id)) => {
             container.locations.set(item_id, inventory_id);
             container.ownership.remove_owner(item_id);
-            debug!(
+            log::debug!(
                 "{:?} receive {:?} money by adding money to inventory",
-                inventory_id, amount
+                inventory_id,
+                amount
             );
             Ok(())
         }
@@ -196,9 +198,10 @@ fn add_money_with_item(
                 .get_mut(item_id)
                 .expect("Money was created but is not a item");
             item.amount = amount.as_u32();
-            debug!(
+            log::debug!(
                 "{:?} receive {:?} money by creating money in inventory",
-                inventory_id, amount
+                inventory_id,
+                amount
             );
             Ok(())
         }

@@ -1,14 +1,12 @@
 extern crate commons;
-extern crate logs;
 extern crate mud_domain;
 extern crate rand;
 extern crate socket_server;
 
+use log::LevelFilter;
 use std::process::exit;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-
-
 
 use crate::server_runner::ServerConfig;
 
@@ -16,6 +14,8 @@ pub mod http_handler;
 pub mod server_runner;
 
 fn main() {
+    env_logger::builder().filter(None, LevelFilter::Info).init();
+
     let arguments: Vec<String> = std::env::args().collect();
 
     if arguments.len() < 2 {

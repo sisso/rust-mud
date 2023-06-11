@@ -4,7 +4,6 @@ use crate::game::loader::{
     dto::{InventoryData, LoaderData, ObjData},
     Migration,
 };
-use logs::{self, log};
 use rand::random;
 use rand::seq::index::IndexVec;
 
@@ -20,7 +19,7 @@ impl Migration for MigrationV2AddItemWeightAndMobInventory {
         if let Some(item) = &mut data.item {
             let is_money = item.flags.as_ref().and_then(|f| f.money).unwrap_or(false);
             if !is_money && item.weight.is_none() {
-                logs::info!(
+                log::info!(
                     "migration v2: {:?} setting item weight to {:?}",
                     data.id,
                     1.0
@@ -31,7 +30,7 @@ impl Migration for MigrationV2AddItemWeightAndMobInventory {
 
         if data.mob.is_some() && data.inventory.is_none() {
             let max_weight = data.mob.as_ref().unwrap().pv as f32 * 2.0;
-            logs::info!(
+            log::info!(
                 "migration v2: {:?} setting mob inventory to {:?}",
                 data.id,
                 max_weight
@@ -62,7 +61,7 @@ impl Migration for MigrationV3FixItemsWithoutPrice {
         let has_price = data.price.is_some();
 
         if is_goods && !has_price {
-            logs::info!("migration v3: {:?} has price updated", data.id);
+            log::info!("migration v3: {:?} has price updated", data.id);
             data.price = Some(PriceData::new(500));
         }
 
@@ -100,7 +99,7 @@ impl Migration for MigrationV4AddTags {
                 }
 
                 if data.tags.is_none() {
-                    logs::info!("migrating {:?} tags to {:?}", data.label, tags);
+                    log::info!("migrating {:?} tags to {:?}", data.label, tags);
                     data.tags = Some(TagsData { values: tags });
                 }
             }
@@ -136,11 +135,11 @@ impl Migration for MigrationV5CleanRandomRooms {
         }
 
         if random_zone_id.is_none() {
-            logs::info!("no random zone found, migration complete");
+            log::info!("no random zone found, migration complete");
             return Ok(());
         };
 
-        logs::info!("found a random zone id {:?}", random_zone_id.unwrap());
+        log::info!("found a random zone id {:?}", random_zone_id.unwrap());
 
         // move all rooms into the zone
         for (id, data) in &mut data.objects {

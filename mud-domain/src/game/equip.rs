@@ -1,7 +1,7 @@
 use crate::game::item::ItemId;
 use crate::game::mob::MobId;
 use commons::ObjId;
-use logs::*;
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -35,7 +35,7 @@ impl Equips {
     }
 
     pub fn add(&mut self, mob_id: MobId, item_id: ItemId) {
-        debug!("{:?} equip {:?}", mob_id, item_id);
+        log::debug!("{:?} equip {:?}", mob_id, item_id);
         let equip = self.index.entry(mob_id).or_insert(Equip::new(mob_id));
         equip.equipments.insert(item_id);
     }
@@ -43,7 +43,7 @@ impl Equips {
     pub fn strip(&mut self, mob_id: MobId, item_id: ItemId) -> Result<(), ()> {
         match self.index.get_mut(&mob_id) {
             Some(equip) => {
-                debug!("{:?} strip {:?}", mob_id, item_id);
+                log::debug!("{:?} strip {:?}", mob_id, item_id);
                 let removed = equip.equipments.remove(&item_id);
                 if !removed {
                     return Err(());
@@ -64,7 +64,7 @@ impl Equips {
     pub fn remove(&mut self, id: ObjId) {
         self.index.iter_mut().for_each(|(_owner_id, equip)| {
             if equip.equipments.remove(&id) {
-                debug!("{:?} remove equip", id);
+                log::debug!("{:?} remove equip", id);
             }
         });
     }

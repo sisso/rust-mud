@@ -1,7 +1,7 @@
 use crate::utils::strinput::StrInput;
 use crate::utils::text;
 use commons::ObjId;
-use logs::*;
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::panic::resume_unwind;
@@ -47,18 +47,18 @@ impl Labels {
 
     pub fn add(&mut self, label: Label) {
         assert!(!self.index.contains_key(&label.id));
-        debug!("{:?} added", label);
+        log::debug!("{:?} added", label);
         self.index.insert(label.id, label);
     }
 
     pub fn update(&mut self, label: Label) {
         assert!(self.index.contains_key(&label.id));
-        debug!("{:?} updated", label);
+        log::debug!("{:?} updated", label);
         self.index.insert(label.id, label);
     }
 
     pub fn remove(&mut self, id: ObjId) -> Option<Label> {
-        debug!("{:?} removed", id);
+        log::debug!("{:?} removed", id);
         self.index.remove(&id)
     }
 

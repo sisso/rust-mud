@@ -8,7 +8,7 @@ use crate::utils::strinput::StrInput;
 use commons::jsons::JsonValueExtra;
 use commons::tree::Tree;
 use commons::ObjId;
-use logs::*;
+
 use serde_json::Value;
 use std::collections::HashMap;
 
@@ -95,7 +95,7 @@ fn handle_get(container: &mut Container, outputs: &mut Vec<String>, input: StrIn
         "o" => match loader::Loader::snapshot_obj(container, id) {
             Ok(data) => Some(data),
             Err(e) => {
-                warn!("fail to serialize {:?}: {:?}", id, e);
+                log::warn!("fail to serialize {:?}: {:?}", id, e);
                 None
             }
         },
@@ -186,7 +186,7 @@ fn handle_list(
     }
 
     let filters = VecStringFilter::new(args);
-    info!("creating filter {:?}", filters);
+    log::info!("creating filter {:?}", filters);
 
     // display
     if show_prefabs {

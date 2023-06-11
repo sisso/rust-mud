@@ -1,5 +1,5 @@
 use commons::ObjId;
-use logs::*;
+
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
@@ -28,7 +28,7 @@ impl Tags {
             None => {
                 let tag_id = TagId(self.tags.len());
                 self.tags.push((tag_id, value.to_string()));
-                info!("creating tag_id {:?} for {:?}", tag_id, value);
+                log::info!("creating tag_id {:?} for {:?}", tag_id, value);
                 tag_id
             }
         }
@@ -43,7 +43,7 @@ impl Tags {
 
     pub fn add(&mut self, obj_id: ObjId, tag_id: TagId) {
         let tags = self.index.entry(obj_id).or_default();
-        info!("{:?} assign tag {:?}", obj_id, tag_id);
+        log::info!("{:?} assign tag {:?}", obj_id, tag_id);
         tags.insert(tag_id);
     }
 
@@ -52,7 +52,7 @@ impl Tags {
     }
 
     pub fn remove(&mut self, obj_id: ObjId) -> Option<HashSet<TagId>> {
-        info!("{:?} removed", obj_id);
+        log::info!("{:?} removed", obj_id);
         self.index.remove(&obj_id)
     }
 
@@ -89,7 +89,7 @@ impl Tags {
     }
 
     pub fn find_or<'a>(&'a self, tags: &'a Vec<TagId>) -> impl Iterator<Item = ObjId> + 'a {
-        debug!("{:?}", self);
+        log::debug!("{:?}", self);
 
         self.index
             .iter()

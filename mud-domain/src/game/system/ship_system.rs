@@ -5,7 +5,6 @@ use crate::game::{astro_bodies, comm};
 use crate::utils;
 use crate::utils::geometry;
 use commons::{DeltaTime, TotalTime};
-use logs::*;
 
 const DEFAULT_TIME: f32 = 1.0;
 const TRANSFER_TIME: f32 = 2.0;
@@ -49,7 +48,7 @@ pub fn tick(container: &mut Container) {
                         .expect("invalid state, can not move a ship that was not launch");
                 }
                 _ => {
-                    // warn!("running an unexpected ship command {:?}", ship.command);
+                    // log::warn!("running an unexpected ship command {:?}", ship.command);
                 }
             };
         } else {
@@ -96,9 +95,11 @@ pub fn tick(container: &mut Container) {
                             Ok(travel_plan) => travel_plan,
 
                             Err(err) => {
-                                warn!(
+                                log::warn!(
                                     "{:?} can not find travel plan to {:?}: {:?}",
-                                    ship_id, target_id, err
+                                    ship_id,
+                                    target_id,
+                                    err
                                 );
                                 continue;
                             }
@@ -192,7 +193,7 @@ pub fn tick(container: &mut Container) {
                         let body = AstroBody::new(ship_id, orbit_distance, AstroBodyKind::Ship);
 
                         if let Some(old_value) = astros.upsert(body) {
-                            warn!("{:?} obj with already existent astro_body when entering in orbit{:?}", ship_id, old_value);
+                            log::warn!("{:?} obj with already existent astro_body when entering in orbit{:?}", ship_id, old_value);
                         };
 
                         // update command
@@ -254,7 +255,7 @@ pub fn tick(container: &mut Container) {
 
                             // remove astro
                             if astros.remove(ship_id).is_none() {
-                                warn!("{:?} ship landed but was not in astro_bodies", ship_id);
+                                log::warn!("{:?} ship landed but was not in astro_bodies", ship_id);
                             }
 
                             // collect labels
@@ -287,7 +288,11 @@ pub fn tick(container: &mut Container) {
                                 2 => comm::space_land_aerobraking(),
                                 3 => comm::space_land_approach(),
                                 other => {
-                                    warn!("{:?} unexpected land state stage {:?}", ship_id, other);
+                                    log::warn!(
+                                        "{:?} unexpected land state stage {:?}",
+                                        ship_id,
+                                        other
+                                    );
                                     continue;
                                 }
                             };
@@ -312,7 +317,7 @@ pub fn tick(container: &mut Container) {
                         2 => comm::space_jump_do(),
                         3 => comm::space_jump_complete(),
                         other => {
-                            warn!("{:?} unexpected jump stage {:?}", ship_id, other);
+                            log::warn!("{:?} unexpected jump stage {:?}", ship_id, other);
                             continue;
                         }
                     };

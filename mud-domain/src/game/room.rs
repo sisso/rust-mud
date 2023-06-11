@@ -1,7 +1,7 @@
 use super::domain::Dir;
 use crate::errors::{Error, Result};
 use commons::ObjId;
-use logs::*;
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -65,12 +65,12 @@ impl RoomRepository {
         if self.index.contains_key(&room.id) {
             panic!("room already exists");
         }
-        debug!("{:?} added", room);
+        log::debug!("{:?} added", room);
         self.index.insert(room.id, room);
     }
 
     pub fn remove(&mut self, id: ObjId) -> Option<Room> {
-        debug!("{:?} removed", id);
+        log::debug!("{:?} removed", id);
         self.index.remove(&id)
     }
 
@@ -81,14 +81,16 @@ impl RoomRepository {
     pub fn add_portal(&mut self, room1_id: RoomId, room2_id: RoomId, dir: Dir) {
         let room1 = self.index.get_mut(&room1_id).unwrap();
         room1.exits.push((dir, room2_id));
-        debug!(
+        log::debug!(
             "adding portal {:?} to {:?} from {:?}",
-            room1_id, room2_id, dir
+            room1_id,
+            room2_id,
+            dir
         );
 
         let room2 = self.index.get_mut(&room2_id).unwrap();
         room2.exits.push((dir.inv(), room1_id));
-        debug!(
+        log::debug!(
             "adding portal {:?} to {:?} from {:?}",
             room2_id,
             room1_id,
@@ -113,7 +115,7 @@ impl RoomRepository {
             .ok_or(Error::NotFoundFailure)
             .map(|room| {
                 f(room);
-                debug!("{:?} updated", room);
+                log::debug!("{:?} updated", room);
             })
     }
 
@@ -123,9 +125,11 @@ impl RoomRepository {
             .ok_or(Error::NotFoundFailure)
             .and_then(|room| room.remove_exit(room2_id, dir))?;
 
-        debug!(
+        log::debug!(
             "remove portal {:?} to {:?} from {:?}",
-            room1_id, room2_id, dir
+            room1_id,
+            room2_id,
+            dir
         );
 
         self.index
@@ -133,7 +137,7 @@ impl RoomRepository {
             .ok_or(Error::NotFoundFailure)
             .and_then(|room| room.remove_exit(room1_id, dir.inv()))?;
 
-        debug!(
+        log::debug!(
             "remove portal {:?} to {:?} from {:?}",
             room2_id,
             room1_id,

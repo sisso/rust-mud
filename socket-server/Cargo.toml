@@ -7,5 +7,6 @@ edition = "2018"
 [lib]
 
 [dependencies]
-logs = { version = "*", path = "../logs" }
+log = "0.4.18"
+env_logger = "0.10.0"
 commons = { version = "*", path = "../commons" }

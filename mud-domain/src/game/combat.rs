@@ -11,7 +11,6 @@ use crate::game::outputs::Outputs;
 use crate::game::ownership::Ownerships;
 use crate::game::triggers::{Event, EventKind};
 use commons::ObjId;
-use logs::*;
 
 pub fn is_valid_attack_target(
     mobs: &MobRepository,
@@ -52,9 +51,10 @@ pub fn tick_attack(container: &mut Container, mob_id: MobId, target_id: MobId) -
         }
 
         match return_attack(container, target_id, mob_id) {
-            Err(_err) => warn!(
+            Err(_err) => log::warn!(
                 "fail to execute return attack from {:?} to {:?}",
-                mob_id, target_id
+                mob_id,
+                target_id
             ),
             _ => {}
         };
@@ -67,7 +67,7 @@ pub fn tick_attack(container: &mut Container, mob_id: MobId, target_id: MobId) -
 }
 
 pub fn kill_mob(container: &mut Container, mob_id: MobId) -> Result<()> {
-    info!("{:?} was killed", mob_id);
+    log::info!("{:?} was killed", mob_id);
 
     create_corpse(container, mob_id);
     container.remove(mob_id);
@@ -203,19 +203,24 @@ fn return_attack(container: &mut Container, mob_id: MobId, target_id: MobId) -> 
         container.outputs.broadcast(Some(mob_id), location_id, msg);
 
         match mob.set_action_attack(target_id) {
-            Err(err) => warn!(
+            Err(err) => log::warn!(
                 "{:?} fail to execute return attack to {:?}: {:?}",
-                mob_id, target_id, err
+                mob_id,
+                target_id,
+                err
             ),
-            Ok(_) => info!("{:?} set attack to {:?}", mob_id, target_id),
+            Ok(_) => log::info!("{:?} set attack to {:?}", mob_id, target_id),
         }
     }
 
     for follower_id in mob.followers.clone() {
         match return_attack(container, follower_id, target_id) {
-            Err(err) => warn!(
+            Err(err) => log::warn!(
                 "{:?} fail to execute return attack from {:?} to {:?}: {:?}",
-                follower_id, mob_id, target_id, err
+                follower_id,
+                mob_id,
+                target_id,
+                err
             ),
             _ => {}
         }

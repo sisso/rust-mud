@@ -1,7 +1,7 @@
 use crate::errors::{Error, Result};
 use crate::game::prices::Money;
 use commons::ObjId;
-use logs::*;
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -35,13 +35,13 @@ impl Hires {
         if self.index.contains_key(&hire.id) {
             return Err(Error::ConflictException);
         }
-        debug!("{:?} adding hire", hire);
+        log::debug!("{:?} adding hire", hire);
         self.index.insert(hire.id, hire);
         Ok(())
     }
 
     pub fn remove(&mut self, id: ObjId) -> Option<Hire> {
-        debug!("{:?} remove hire", id);
+        log::debug!("{:?} remove hire", id);
         self.index.remove(&id)
     }
 

@@ -1,11 +1,11 @@
 extern crate mud_domain;
 
 use commons::{ConnectionId, DeltaTime, ObjId};
-use logs::*;
+
 use mud_domain::game::builder;
 use mud_domain::game::container::Container;
 
-use mud_domain::game::loader::dto::{StaticId};
+use mud_domain::game::loader::dto::StaticId;
 use mud_domain::game::loader::Loader;
 use mud_domain::game::outputs::OMarker;
 use mud_domain::game::prices::Money;
@@ -117,7 +117,7 @@ impl TestScenery {
 
         let mob_id = self.game.container.players.get_mob(player_id).unwrap();
 
-        debug!("{:?} receive cheat {:?} of money", mob_id, amount);
+        log::debug!("{:?} receive cheat {:?} of money", mob_id, amount);
 
         inventory_service::add_money(&mut self.game.container, mob_id, Money(amount)).unwrap();
     }

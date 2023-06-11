@@ -7,7 +7,7 @@ use crate::game::loader::dto::AiData;
 use crate::game::loader::{dto::StaticId, Loader};
 use crate::game::location::LocationId;
 use commons::*;
-use logs::*;
+
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -104,7 +104,7 @@ impl Spawns {
         if self.index.contains_key(&spawn.id) {
             Err(Error::ConflictException)
         } else {
-            debug!("{:?} spawn added {:?}", spawn.id, spawn);
+            log::debug!("{:?} spawn added {:?}", spawn.id, spawn);
             let spawn_id = spawn.id;
             self.index.insert(spawn_id, spawn);
             self.added.push(spawn_id);
@@ -115,7 +115,7 @@ impl Spawns {
     pub fn remove(&mut self, id: ObjId) -> Option<Spawn> {
         let value = self.index.remove(&id);
         if value.is_some() {
-            debug!("{:?} spawn removed", id);
+            log::debug!("{:?} spawn removed", id);
         }
         value
     }

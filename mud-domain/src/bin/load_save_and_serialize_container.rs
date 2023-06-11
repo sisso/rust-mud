@@ -1,7 +1,7 @@
 use mud_domain::game::container::Container;
 use mud_domain::game::loader;
 use std::env;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 fn main() {
     let mut c = Container::new();

@@ -1,4 +1,3 @@
-use logs::*;
 use std::io;
 use std::io::{BufRead, ErrorKind, Write};
 use std::net::{TcpListener, TcpStream};
@@ -80,7 +79,7 @@ impl DefaultSocketServer {
         let listener = TcpListener::bind(format!("0.0.0.0:{}", self.port)).unwrap();
         listener.set_nonblocking(true).expect("non blocking failed");
         // accept connections and process them, spawning a new thread for each one
-        info!("server - listening on port 3333");
+        log::info!("server - listening on port 3333");
 
         self.listener = Some(listener);
     }
@@ -96,7 +95,7 @@ impl DefaultSocketServer {
         if let Ok((stream, addr)) = listener.accept() {
             let id = self.next_connection_id();
 
-            info!(
+            log::info!(
                 "new connection ({}) {:?}, total connections {}",
                 addr,
                 id,
@@ -122,7 +121,7 @@ impl DefaultSocketServer {
                 }),
                 Err(ref err) if err.kind() == std::io::ErrorKind::WouldBlock => (),
                 Err(e) => {
-                    warn!("{:?} failed: {}", connection_id, e);
+                    log::warn!("{:?} failed: {}", connection_id, e);
                     disconnects.push(*connection_id)
                 }
             }
@@ -130,20 +129,16 @@ impl DefaultSocketServer {
 
         // handle outputs
         for output in pending_outputs {
-            trace!(
-                "{:?} sending '{}'",
-                output.connection_id,
-                DefaultSocketServer::clean_output_to_log(&output.msg)
-            );
+            log::trace!("{:?} sending '{:?}'", output.connection_id, &output.msg);
 
             match self.connections.get_mut(&output.connection_id) {
                 Some(connection) => {
                     if let Err(err) = connection.write(output.msg.as_str()) {
-                        warn!("{:?} failed: {}", connection.id, err);
+                        log::warn!("{:?} failed: {}", connection.id, err);
                         disconnects.push(connection.id);
                     }
                 }
-                None => error!("{:?} not found", output.connection_id),
+                None => log::error!("{:?} not found", output.connection_id),
             }
         }
 
@@ -151,7 +146,7 @@ impl DefaultSocketServer {
         for connection in &disconnects {
             self.connections.remove(connection);
 
-            info!(
+            log::info!(
                 "{:?} removed, total connections {}",
                 connection,
                 self.connections.len()

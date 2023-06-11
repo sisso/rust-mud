@@ -1,7 +1,7 @@
 use super::mob::MobId;
 use crate::errors::{Error, Result};
 use commons::*;
-use logs::*;
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -43,7 +43,7 @@ impl PlayerRepository {
     }
 
     pub fn create(&mut self, player_id: PlayerId, login: String, avatar_id: MobId) -> &Player {
-        info!("creating player {:?}/{}", player_id, login);
+        log::info!("creating player {:?}/{}", player_id, login);
 
         let player = Player {
             id: player_id,

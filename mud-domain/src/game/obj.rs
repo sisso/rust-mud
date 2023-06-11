@@ -3,7 +3,7 @@ use crate::game::domain::NextId;
 use crate::game::loader::dto::StaticId;
 use crate::game::repo::{RepoList, RepoRemove};
 use commons::ObjId;
-use logs::*;
+
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use serde_json::value::Value::Object;
@@ -42,7 +42,7 @@ impl Objects {
 
     pub fn create(&mut self) -> ObjId {
         let id = ObjId(self.next_id.next());
-        debug!("{:?} created", id);
+        log::debug!("{:?} created", id);
         self.objects.insert(id, Obj::new(id));
         id
     }
@@ -52,14 +52,14 @@ impl Objects {
             return Err(Error::ConflictException);
         }
 
-        debug!("{:?} obj insert", id);
+        log::debug!("{:?} obj insert", id);
         self.next_id.set_max(id.as_u32());
         self.objects.insert(id, Obj::new(id));
         Ok(())
     }
 
     pub fn set_prefab_id(&mut self, obj_id: ObjId, prefab_id: PrefabId) -> Result<()> {
-        debug!("{:?} prefab_id set to {:?}", obj_id, prefab_id);
+        log::debug!("{:?} prefab_id set to {:?}", obj_id, prefab_id);
         let obj = self.objects.get_mut(&obj_id).as_result()?;
         obj.prefab_id = Some(prefab_id);
         Ok(())
@@ -81,7 +81,7 @@ impl Objects {
 impl RepoRemove<Obj> for Objects {
     /// Make sure you remove from everything else first
     fn remove(&mut self, id: ObjId) -> Option<Obj> {
-        debug!("{:?} obj removed", id);
+        log::debug!("{:?} obj removed", id);
         self.objects.remove(&id)
     }
 }

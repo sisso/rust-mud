@@ -1,7 +1,6 @@
 use crate::game::avatars;
 use crate::game::container::Container;
 use crate::game::triggers::EventKind;
-use logs::*;
 
 pub fn run(container: &mut Container) {
     let mut players_to_respawn = vec![];
@@ -19,9 +18,10 @@ pub fn run(container: &mut Container) {
 
     for player_id in players_to_respawn {
         let _ = avatars::respawn_avatar(container, player_id).map_err(|err| {
-            warn!(
+            log::warn!(
                 "fail to respawn avatar for player {:?}: {:?}",
-                player_id, err
+                player_id,
+                err
             );
         });
     }

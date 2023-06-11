@@ -1,5 +1,4 @@
 use super::*;
-use logs::*;
 
 use std::io;
 use std::sync::{Arc, Mutex};
@@ -92,7 +91,7 @@ impl SocketServer for LocalServer {
     }
 
     fn disconnect(&mut self, _connection_id: ConnectionId) {
-        info!("DISCONNECT!");
+        log::info!("DISCONNECT!");
         self.asyncsdin.close();
     }
 }

@@ -9,7 +9,7 @@ use crate::game::loader::Loader;
 use crate::game::mob::{MobId, EXTRACT_TIME};
 use crate::utils::strinput::StrInput;
 use commons::{ObjId, TimeTrigger};
-use logs::*;
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -102,9 +102,10 @@ pub fn tick_extract(container: &mut Container, mob_id: MobId, target_id: ObjId) 
     let location_id = container.locations.get(mob_id).as_result()?;
 
     if container.locations.get(target_id) != Some(location_id) {
-        warn!(
+        log::warn!(
             "{:?} can not extract {:?}, they are in different locations",
-            mob_id, target_id
+            mob_id,
+            target_id
         );
 
         container
@@ -117,7 +118,7 @@ pub fn tick_extract(container: &mut Container, mob_id: MobId, target_id: ObjId) 
     }
 
     if !can_add_weight_by_prefab(container, mob_id, prefab_id) {
-        info!("{:?} inventory is full, stopping extraction", mob_id);
+        log::info!("{:?} inventory is full, stopping extraction", mob_id);
 
         container.outputs.private(mob_id, comm::inventory_full());
         container.outputs.message(
@@ -146,9 +147,11 @@ pub fn tick_extract(container: &mut Container, mob_id: MobId, target_id: ObjId) 
             let item_id = Loader::spawn_at(container, prefab_id, mob_id)?;
             update_inventory_weight(container, mob_id)?;
 
-            info!(
+            log::info!(
                 "{:?} extract a {:?} with id {:?}",
-                mob_id, prefab_id, item_id
+                mob_id,
+                prefab_id,
+                item_id
             );
 
             Ok(true)

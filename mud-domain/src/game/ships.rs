@@ -2,7 +2,7 @@ use crate::errors::{Error, Result};
 use crate::game::astro_bodies::DistanceMkm;
 use crate::game::container::Container;
 use commons::{DeltaTime, ObjId, TotalTime};
-use logs::*;
+
 use serde::{Deserialize, Serialize};
 use serde_json::ser::State;
 use std::collections::HashMap;
@@ -236,12 +236,12 @@ impl Ships {
 
     pub fn add(&mut self, ship: Ship) {
         assert!(!self.index.contains_key(&ship.id));
-        info!("{:?} add {:?}", ship.id, ship);
+        log::info!("{:?} add {:?}", ship.id, ship);
         self.index.insert(ship.id, ship);
     }
 
     pub fn remove(&mut self, id: ObjId) -> Option<Ship> {
-        info!("{:?} removed", id);
+        log::info!("{:?} removed", id);
         self.index.remove(&id)
     }
 
@@ -255,7 +255,7 @@ impl Ships {
 
     pub fn set_command(&mut self, craft_id: ShipId, command: ShipCommand) -> Result<()> {
         if let Some(ship) = self.index.get_mut(&craft_id) {
-            info!("{:?} set command to {:?}", craft_id, command);
+            log::info!("{:?} set command to {:?}", craft_id, command);
             ship.command = command;
             Ok(())
         } else {

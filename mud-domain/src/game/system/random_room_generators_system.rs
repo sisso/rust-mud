@@ -9,7 +9,6 @@ use crate::game::room::{Room, RoomId, RoomRepository};
 use crate::game::spawn::Spawns;
 use crate::random_grid::*;
 use commons::ObjId;
-use logs::{self, log};
 use rand::prelude::StdRng;
 use rand::{Rng, SeedableRng};
 use std::collections::HashSet;
@@ -31,10 +30,10 @@ pub fn init(container: &mut Container) {
             continue;
         }
 
-        logs::info!("{:?} generating random rooms", rr.id);
+        log::info!("{:?} generating random rooms", rr.id);
 
         if !zones.exist(rr.id) {
-            logs::warn!("random room {:?} do not belong to a zone", rr.id);
+            log::warn!("random room {:?} do not belong to a zone", rr.id);
         }
 
         let mut cfg = RandomGridCfg {
@@ -53,7 +52,7 @@ pub fn init(container: &mut Container) {
         for (deep, rooms_grid) in levels.levels.iter().enumerate() {
             let rooms_ids = match create_rooms(objects, rooms, labels, rooms_grid) {
                 Err(err) => {
-                    logs::warn!(
+                    log::warn!(
                         "{:?} error when generating rooms from grid {:?}",
                         rr.id,
                         err
@@ -150,12 +149,7 @@ fn create_spawns(
             locations.set(spawn_id, room_id);
             generated_spawns.push(spawn_id);
 
-            logs::trace!(
-                "{:?} adding spawn {:?} at room {:?}",
-                rr_id,
-                spawn_id,
-                room_id
-            );
+            log::trace!("adding spawn {:?} at room {:?}", spawn_id, room_id);
         }
     }
 
@@ -199,8 +193,8 @@ fn create_rooms(
     }
 
     // add portals
-    logs::trace!("adding portals to");
-    logs::trace!("{}", grid.print());
+    log::trace!("adding portals to");
+    log::trace!("{}", grid.print());
 
     for (a, b) in grid.get_portals() {
         let from_id = ids[*a];
@@ -220,7 +214,7 @@ fn create_rooms(
             panic!("unexpected coords");
         };
 
-        logs::trace!(
+        log::trace!(
             "{:?} ({},{}) to {:?} ({},{}) dir is {:?}",
             from_id,
             x1,

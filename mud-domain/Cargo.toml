@@ -9,10 +9,11 @@ edition = "2018"
 [dependencies]
 rand ="0.8.0"
 serde_json = "1.*"
-logs = { version = "*", path = "../logs" }
 commons = { version = "*", path = "../commons" }
 serde = { version = "1.0", features = ["derive"] }
 clap = { version = "4.2.7", features = ["derive"] }
 rand_distr = "0.4.0"
 itertools="0.10.0"
 hocon= "0.9.0"
+log = "0.4.18"
+env_logger = "0.10.0"

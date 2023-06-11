@@ -4,7 +4,7 @@ use crate::game::loader::dto::{LoaderData, ObjData};
 use crate::game::loader::{CfgData, StaticId};
 use crate::game::obj::Obj;
 use hocon::{Error as HError, *};
-use logs::*;
+
 use std::collections::{BTreeMap, HashMap};
 use std::fs::ReadDir;
 use std::io::Error as IError;
@@ -63,7 +63,7 @@ impl HParser {
 
                 _key => {
                     // any other key is ignored
-                    debug!("ignoring key {:?} in config files", key);
+                    log::debug!("ignoring key {:?} in config files", key);
                 }
             }
         }
@@ -112,7 +112,7 @@ impl HParser {
 
             let static_id = obj.get_id();
             if objects.contains_key(&static_id) {
-                warn!("duplicated id {:?}, ignoring", static_id);
+                log::warn!("duplicated id {:?}, ignoring", static_id);
             } else {
                 objects.insert(static_id, obj);
             }
@@ -147,7 +147,7 @@ impl HParser {
         let mut loader = HoconLoader::new().strict().no_system();
 
         for path in files {
-            info!("reading file {:?}", path.as_ref());
+            log::info!("reading file {:?}", path.as_ref());
 
             loader = loader
                 .load_file(path)

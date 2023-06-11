@@ -11,7 +11,6 @@ use crate::game::tags::Tags;
 use crate::game::{comm, inventory_service};
 use crate::utils::strinput::StrInput;
 use commons::{Either, ObjId};
-use logs::*;
 
 #[derive(Debug)]
 pub struct VendorTradeObj {
@@ -43,7 +42,7 @@ pub fn find_vendor_list(container: &Container, vendor_id: MobId) -> Result<Vec<V
         for data in container.loader.find_prefabs_by_tags_or(&tags_str) {
             let data_id = match data.id {
                 None => {
-                    warn!("{:?} prefab has no id", data.id);
+                    log::warn!("{:?} prefab has no id", data.id);
                     continue;
                 }
 
@@ -52,7 +51,7 @@ pub fn find_vendor_list(container: &Container, vendor_id: MobId) -> Result<Vec<V
 
             let price = match data.price.as_ref() {
                 None => {
-                    warn!("could not find price for {:?}", data_id);
+                    log::warn!("could not find price for {:?}", data_id);
                     continue;
                 }
 
@@ -113,7 +112,7 @@ pub fn buy(
     item_static_id: StaticId,
 ) -> Result<ItemId> {
     let location_id = container.locations.get(mob_id).ok_or_else(|| {
-        warn!("{:?} player has no location", mob_id);
+        log::warn!("{:?} player has no location", mob_id);
         container.outputs.private(mob_id, comm::vendor_buy_fail());
         Error::InvalidStateFailure
     })?;
@@ -121,7 +120,7 @@ pub fn buy(
     let data = match container.loader.get_prefab(item_static_id) {
         Some(value) => value,
         None => {
-            warn!("static id {:?} not found", item_static_id);
+            log::warn!("static id {:?} not found", item_static_id);
             container.outputs.private(mob_id, comm::vendor_buy_fail());
             return Err(Error::NotFoundException);
         }
@@ -168,7 +167,7 @@ pub fn buy(
 
     let new_mob_money =
         inventory_service::remove_money(container, mob_id, buy_price).map_err(|err| {
-            warn!("{:?} fail remove mob money", mob_id);
+            log::warn!("{:?} fail remove mob money", mob_id);
             container.outputs.private(mob_id, comm::vendor_buy_fail());
             err
         })?;
@@ -190,9 +189,10 @@ pub fn buy(
     // spawn item
     let item_id =
         Loader::spawn_at(container, item_static_id, item_spawn_location_id).map_err(|err| {
-            warn!(
+            log::warn!(
                 "{:?} fail to spawn bought item for {:?}",
-                item_static_id, mob_id
+                item_static_id,
+                mob_id
             );
             container.outputs.private(mob_id, comm::vendor_buy_fail());
             err
@@ -244,7 +244,7 @@ pub fn sell(
 ) -> Result<()> {
     let vendor_trades = get_vendor_trades(container, vendor_id);
 
-    debug!("selling for {:?}", vendor_trades);
+    log::debug!("selling for {:?}", vendor_trades);
 
     let sell_price = match (vendor_trades, container.prices.get(item_id)) {
         (Some(trades), Some(price)) => {
@@ -271,7 +271,7 @@ pub fn sell(
                 mob_id,
                 comm::vendor_sell_item_fail_has_no_price(item_label.as_str()),
             );
-            warn!("could not find selling price for {:?}", item_id);
+            log::warn!("could not find selling price for {:?}", item_id);
             return Err(Error::InvalidStateFailure);
         }
     };

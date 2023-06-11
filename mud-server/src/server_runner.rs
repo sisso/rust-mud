@@ -5,12 +5,8 @@ use std::path::{Path, PathBuf};
 use crate::http_handler;
 use commons::DeltaTime;
 use http_server::HttpServer;
-use logs::*;
-use mud_domain::errors::Error;
-use mud_domain::game::container::Container;
-use mud_domain::game::loader::Loader;
-use mud_domain::game::Game;
-use mud_domain::game::{loader, GameCfg};
+
+use mud_domain::*;
 use socket_server::*;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
@@ -72,7 +68,7 @@ impl ServerRunner {
             }
 
             if kill_signal {
-                info!("receive kill signal, saving and exiting");
+                log::info!("receive kill signal, saving and exiting");
                 break;
             }
         }
@@ -90,18 +86,18 @@ impl ServerRunner {
         let data = Loader::create_snapshot(&self.game.container)?;
 
         let snapshot_file = snapshot_loader_filepath(&self.server_cfg, None)?;
-        info!(
+        log::info!(
             "backup snapshot: {:?}",
             snapshot_file.with_file_name("snapshot_backup.json")
         );
         let _ = backup_filename(snapshot_file.as_path()).map_err(|err| {
-            warn!("fail to generate backup: {:?}", err);
+            log::warn!("fail to generate backup: {:?}", err);
         });
-        info!("saving snapshot: {:?}", snapshot_file);
+        log::info!("saving snapshot: {:?}", snapshot_file);
         Loader::write_snapshot(&snapshot_file, &data)?;
 
         let snapshot_history_path = snapshot_loader_filepath(&self.server_cfg, Some(tick))?;
-        info!("saving snapshot: {:?}", snapshot_history_path);
+        log::info!("saving snapshot: {:?}", snapshot_history_path);
         Loader::write_snapshot(&snapshot_history_path, &data)?;
         Ok(())
     }
@@ -109,14 +105,15 @@ impl ServerRunner {
     fn write_container_snapshot(&mut self, tick: u32) -> Result<()> {
         let file_path_tick = snapshot_container_filepath(&self.server_cfg, Some(tick))?;
 
-        info!("saving container {:?}", file_path_tick);
+        log::info!("saving container {:?}", file_path_tick);
         let mut file = fs::File::create(&file_path_tick)?;
         serde_json::to_writer_pretty(&mut file, &self.game.container)?;
 
         let file_path = snapshot_container_filepath(&self.server_cfg, None)?;
-        info!(
+        log::info!(
             "copy container snapshot {:?} to main file {:?}",
-            file_path_tick, file_path
+            file_path_tick,
+            file_path
         );
         fs::copy(&file_path_tick, &file_path)?;
         Ok(())
@@ -191,17 +188,17 @@ fn create_container(server_cfg: &ServerConfig) -> Result<Container> {
         // others services like in-game admin and the rest api.
         let profile_file = snapshot_loader_filepath(&server_cfg, None)?;
         if profile_file.exists() {
-            info!(
+            log::info!(
                 "profile progress found at {}, loading",
                 profile_file.canonicalize().unwrap().to_str().unwrap()
             );
             load_snapshot(&profile_file)
         } else {
-            info!("profile has no progress, loading from configuration");
+            log::info!("profile has no progress, loading from configuration");
             load_module(&server_cfg)
         }
     } else {
-        info!("not profile defined, loading from configuration");
+        log::info!("not profile defined, loading from configuration");
         load_module(&server_cfg)
     }
 }
@@ -214,12 +211,12 @@ fn setup_profile_folder(server_cfg: &ServerConfig) -> Result<()> {
         panic!("profile path at {:?} is not a folder", profile_folder);
     }
 
-    info!("profile folder at {:?}", profile_folder.canonicalize()?);
+    log::info!("profile folder at {:?}", profile_folder.canonicalize()?);
     Ok(())
 }
 
 fn load_container_snapshot(container_snapshot_file: &Path) -> Result<Container> {
-    info!(
+    log::info!(
         "loading container from {:?}",
         container_snapshot_file.canonicalize()?
     );
@@ -230,20 +227,20 @@ fn load_container_snapshot(container_snapshot_file: &Path) -> Result<Container> 
 
 fn load_snapshot(snapshot_filename: &Path) -> Result<Container> {
     let mut container: Container = Container::new();
-    info!("loading from {:?}", snapshot_filename.canonicalize()?);
+    log::info!("loading from {:?}", snapshot_filename.canonicalize()?);
     let data = Loader::read_snapshot(snapshot_filename)?;
     Loader::load_data(&mut container, data)?;
     Ok(container)
 }
 
 fn load_module(server_cfg: &ServerConfig) -> Result<Container> {
-    info!(
+    log::info!(
         "loading configuration: {:?}",
         server_cfg.module_path.canonicalize()?,
     );
 
     let mut container: Container = Container::new();
-    loader::Loader::load_folders(&mut container, server_cfg.module_path.as_path())?;
+    Loader::load_folders(&mut container, server_cfg.module_path.as_path())?;
     Ok(container)
 }
 

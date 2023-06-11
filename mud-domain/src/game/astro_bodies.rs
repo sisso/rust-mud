@@ -4,7 +4,7 @@ use crate::game::container::Container;
 use crate::game::location::Locations;
 use crate::game::ships::ShipId;
 use commons::{DeltaTime, ObjId};
-use logs::*;
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -82,12 +82,12 @@ impl AstroBodies {
     }
 
     pub fn upsert(&mut self, value: AstroBody) -> Option<AstroBody> {
-        info!("{:?} upsert {:?}", value.id, value);
+        log::info!("{:?} upsert {:?}", value.id, value);
         self.index.insert(value.id, value)
     }
 
     pub fn remove(&mut self, id: AstroBodyId) -> Option<AstroBody> {
-        info!("{:?} removed", id);
+        log::info!("{:?} removed", id);
         self.index.remove(&id)
     }
 
@@ -160,10 +160,10 @@ pub fn travel_plan(
     let reference_body_id = ship_parents[reference_ship_index].id;
     assert_eq!(reference_body_id, target_parents[reference_target_index].id);
 
-    // trace!("root body: {:?}", root_body_id);
-    // trace!("reference body: {:?}", reference_body_id);
-    // trace!("ship parents {:?}", ship_parents);
-    // trace!("target parents {:?}", target_parents);
+    // log::trace!("root body: {:?}", root_body_id);
+    // log::trace!("reference body: {:?}", reference_body_id);
+    // log::trace!("ship parents {:?}", ship_parents);
+    // log::trace!("target parents {:?}", target_parents);
 
     // compute global distance
     let from_distance: f32 = ship_parents
@@ -176,12 +176,12 @@ pub fn travel_plan(
         .map(|astro| astro.orbit_distance)
         .sum::<f32>();
 
-    // trace!("root ship index {:?}", reference_ship_index);
-    // trace!("root target index {:?}", reference_target_index);
-    // trace!("ship parents {:?}", ship_parents);
-    // trace!("target parents {:?}", target_parents);
-    // trace!("from {:?}", from_distance);
-    // trace!("to {:?}", to_distance);
+    // log::trace!("root ship index {:?}", reference_ship_index);
+    // log::trace!("root target index {:?}", reference_target_index);
+    // log::trace!("ship parents {:?}", ship_parents);
+    // log::trace!("target parents {:?}", target_parents);
+    // log::trace!("from {:?}", from_distance);
+    // log::trace!("to {:?}", to_distance);
 
     // compute reference body diff to transfer between bodies
     let reference_distance_ship = ship_parents[reference_ship_index - 1].orbit_distance;
@@ -208,11 +208,11 @@ pub fn travel_plan(
             .sum()
     };
 
-    // trace!("root distance {:?}", root_distance);
-    // trace!("ship_to_root_distance {:?}", ship_to_root_distance);
-    // trace!("target_to_root_distance {:?}", target_to_root_distance);
-    // trace!("ship_distance {:?}", ship_distance);
-    // trace!("target_distance {:?}", target_distance);
+    // log::trace!("root distance {:?}", root_distance);
+    // log::trace!("ship_to_root_distance {:?}", ship_to_root_distance);
+    // log::trace!("target_to_root_distance {:?}", target_to_root_distance);
+    // log::trace!("ship_distance {:?}", ship_distance);
+    // log::trace!("target_distance {:?}", target_distance);
 
     let total_distance = root_distance + ship_to_root_distance + target_to_root_distance;
 

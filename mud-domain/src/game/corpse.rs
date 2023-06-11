@@ -6,7 +6,6 @@ use crate::game::inventory_service;
 use crate::game::labels::Label;
 use crate::game::triggers::*;
 use commons::DeltaTime;
-use logs::*;
 
 const DECAY_TIME: DeltaTime = DeltaTime(20.0);
 
@@ -40,9 +39,11 @@ pub fn create_corpse(container: &mut Container, mob_id: MobId) {
         },
     );
 
-    debug!(
+    log::debug!(
         "{:?} corpse of {:?} created at {:?}",
-        corpse_id, mob_id, room_id
+        corpse_id,
+        mob_id,
+        room_id
     );
 
     let msg = comm::item_corpse_appears_in_room(corpse_label.as_str());

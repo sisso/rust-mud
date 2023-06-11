@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use commons::*;
-use logs::*;
 
 use super::container::Container;
 use crate::errors::Error::InvalidStateFailure;
@@ -257,7 +256,7 @@ impl MobRepository {
             panic!("mob already exists")
         }
 
-        debug!("{:?} add mob {:?}", mob.id, mob);
+        log::debug!("{:?} add mob {:?}", mob.id, mob);
 
         let id = mob.id;
         self.index.insert(id, mob);
@@ -270,7 +269,7 @@ impl MobRepository {
     {
         if let Some(mob) = self.index.get_mut(&id) {
             f(mob);
-            debug!("{:?} updated", mob);
+            log::debug!("{:?} updated", mob);
             Ok(())
         } else {
             Err(Error::InvalidArgumentFailure)
@@ -279,7 +278,7 @@ impl MobRepository {
 
     pub fn remove(&mut self, id: MobId) {
         if self.index.remove(&id).is_some() {
-            debug!("{:?} mob removed ", id);
+            log::debug!("{:?} mob removed ", id);
         }
     }
 
@@ -313,14 +312,14 @@ impl MobRepository {
 
     pub fn add_follower(&mut self, id: MobId, follower_id: MobId) -> Result<()> {
         let mob = self.get_mut(id).as_result_str("mob not found")?;
-        info!("{:?} adding follower {:?}", id, follower_id);
+        log::info!("{:?} adding follower {:?}", id, follower_id);
         mob.followers.push(follower_id);
         Ok(())
     }
 
     pub fn remove_follower(&mut self, id: MobId, follower_id: MobId) -> Result<()> {
         let mob = self.get_mut(id).as_result_str("mob not found")?;
-        info!("{:?} removing follower {:?}", id, follower_id);
+        log::info!("{:?} removing follower {:?}", id, follower_id);
         mob.followers.retain(|i| *i != follower_id);
         Ok(())
     }
@@ -384,7 +383,7 @@ pub fn system_run(container: &mut Container) {
     // execute extracts
     for (mob_id, target_id) in &extracts {
         match super::extractable::tick_extract(container, *mob_id, *target_id) {
-            Err(err) => warn!("{:?} fail to execute extract: {:?}", mob_id, err),
+            Err(err) => log::warn!("{:?} fail to execute extract: {:?}", mob_id, err),
             _ => {}
         };
     }
@@ -392,7 +391,7 @@ pub fn system_run(container: &mut Container) {
     // execute attacks
     for (mob_id, target_id) in &attacks {
         match super::combat::tick_attack(container, *mob_id, *target_id) {
-            Err(err) => warn!("{:?} fail to execute attack: {:?}", mob_id, err),
+            Err(err) => log::warn!("{:?} fail to execute attack: {:?}", mob_id, err),
             _ => {}
         };
     }

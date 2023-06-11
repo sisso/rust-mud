@@ -2,7 +2,7 @@ use crate::errors::AsResult;
 use crate::game::labels::Labels;
 use commons::tree::Tree;
 use commons::ObjId;
-use logs::*;
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -19,7 +19,7 @@ impl Locations {
     }
 
     pub fn set(&mut self, obj_id: ObjId, location_id: LocationId) {
-        debug!("{:?} set location {:?}", obj_id, location_id);
+        log::debug!("{:?} set location {:?}", obj_id, location_id);
         if obj_id == location_id {
             panic!("object location can not be itself for obj_id {:?}", obj_id);
         }
@@ -27,7 +27,7 @@ impl Locations {
     }
 
     pub fn remove(&mut self, obj_id: ObjId) {
-        debug!("{:?} remove location", obj_id);
+        log::debug!("{:?} remove location", obj_id);
         self.index.remove(obj_id);
     }
 

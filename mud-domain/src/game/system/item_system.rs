@@ -5,7 +5,6 @@ use crate::game::item::ItemId;
 use crate::game::system::System;
 use crate::game::triggers::*;
 use commons::ObjId;
-use logs::*;
 
 pub struct DecaySystem {}
 
@@ -26,11 +25,11 @@ impl System for DecaySystem {
             .collect();
 
         for obj_id in to_remove {
-            info!("{:?} removed by decay", obj_id);
+            log::info!("{:?} removed by decay", obj_id);
 
             // remove internal obj
             for child_id in container.locations.list_deep_at(obj_id) {
-                info!("{:?} removed by parent decay", child_id);
+                log::info!("{:?} removed by parent decay", child_id);
                 container.remove(child_id);
             }
 

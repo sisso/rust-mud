@@ -12,7 +12,7 @@ use crate::game::memory::Memories;
 use crate::game::room::RoomRepository;
 use crate::game::space_utils;
 use commons::{ObjId, PlayerId};
-use logs::*;
+
 use std::collections::{HashMap, HashSet};
 use std::process::id;
 
@@ -160,7 +160,7 @@ pub fn move_dir(container: &mut Container, mob_id: MobId, dir: Dir) -> Result<()
 
             for mob_id in mobs_to_move {
                 if !container.objects.exists(mob_id) {
-                    warn!("follower {:?} do not exists!", mob_id);
+                    log::warn!("follower {:?} do not exists!", mob_id);
                     continue;
                 }
 
@@ -279,7 +279,7 @@ pub fn enter(container: &mut Container, mob_id: MobId, arguments: &str) -> Resul
         .first()
         .cloned();
 
-    trace!(
+    log::trace!(
         "mob_id: {:?} at {:?}, candidates: {:?}, target: {:?}",
         mob_id,
         location_id,
@@ -467,7 +467,7 @@ fn generate_room_maps(
 }
 
 fn room_map_from_rooms_coords(mut coords_map: RoomsCoordsMap) -> Result<RoomMap> {
-    trace!("room_map_from_rooms_coords: {:?}", coords_map);
+    log::trace!("room_map_from_rooms_coords: {:?}", coords_map);
 
     // normalize in the top left corner
     let mut min_x = 0;
@@ -490,7 +490,7 @@ fn room_map_from_rooms_coords(mut coords_map: RoomsCoordsMap) -> Result<RoomMap>
     let height = max_y - min_y + 1;
     // send to array
     let mut cells = vec![];
-    // trace!("min {},{} max {},{} width {} height {}", min_x, min_y, max_x, max_y, width, height);
+    // log::trace!("min {},{} max {},{} width {} height {}", min_x, min_y, max_x, max_y, width, height);
 
     let rooms_by_coords = coords_map
         .visited
@@ -546,7 +546,7 @@ fn room_map_from_rooms_coords(mut coords_map: RoomsCoordsMap) -> Result<RoomMap>
         }
     }
 
-    // trace!("cells {:?}", cells);
+    // log::trace!("cells {:?}", cells);
     Ok(RoomMap {
         width: (width * 2 - 1) as u32,
         height: (height * 2 - 1) as u32,
@@ -596,7 +596,7 @@ fn load_rooms_into_coords_map(
         match coords_map.visited.get(&id) {
             // found a short path
             Some((is_know, x1, y1)) if x1 + y1 > x + y => {
-                // trace!("{:?} replace {},{} by {},{}", id, x1, y1, x, y);
+                // log::trace!("{:?} replace {},{} by {},{}", id, x1, y1, x, y);
                 let is_know = *is_know;
                 coords_map.visited.insert(id, (is_know, x, y));
                 continue;
@@ -606,7 +606,7 @@ fn load_rooms_into_coords_map(
             None => {}
         };
 
-        // trace!("{:?} adding at {},{}", id, x, y);
+        // log::trace!("{:?} adding at {},{}", id, x, y);
         let is_know = memories.is_know(mob_id, id);
         coords_map.visited.insert(id, (is_know, x, y));
 
@@ -652,7 +652,7 @@ pub fn extract(
     let mob_label = container.labels.get_label_f(mob_id);
     let target_label = container.labels.get_label_f(target_id);
 
-    info!("{:?} action extract to {:?}", mob_id, target_id);
+    log::info!("{:?} action extract to {:?}", mob_id, target_id);
     container
         .mobs
         .get_mut(mob_id)

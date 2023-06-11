@@ -1,5 +1,4 @@
 extern crate commons;
-extern crate logs;
 
 use commons::ConnectionId;
 

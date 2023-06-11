@@ -1,6 +1,6 @@
 use crate::errors::{Error, Result};
 use commons::ObjId;
-use logs::*;
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -31,7 +31,7 @@ impl Ownerships {
             .or_insert(Vec::new())
             .push(obj_id);
 
-        debug!("{:?} is now onwed by {:?}", obj_id, owner_id);
+        log::debug!("{:?} is now onwed by {:?}", obj_id, owner_id);
     }
 
     pub fn remove_owner(&mut self, obj_id: ObjId) -> Option<ObjId> {
@@ -42,7 +42,7 @@ impl Ownerships {
                 .unwrap()
                 .retain(|i| *i != obj_id);
 
-            debug!("{:?} owner removed, previous owner was {:?}", obj_id, owner);
+            log::debug!("{:?} owner removed, previous owner was {:?}", obj_id, owner);
         }
 
         last_owner

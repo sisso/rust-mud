@@ -1,5 +1,4 @@
 use commons::unwrap_or_continue;
-use logs::*;
 
 use crate::errors::*;
 use crate::game::comm;
@@ -20,7 +19,7 @@ pub fn run(container: &mut Container) {
         let spawn = match container.spawns.get_mut(spawn_id) {
             Some(spawn) => spawn,
             None => {
-                warn!("{:?} added spawn not found", spawn_id);
+                log::warn!("{:?} added spawn not found", spawn_id);
                 continue;
             }
         };
@@ -58,16 +57,17 @@ pub fn run(container: &mut Container) {
                             spawn.ai_overwrite.clone(),
                         ));
                     } else {
-                        warn!(
+                        log::warn!(
                             "{:?} Spawn parent {:?} is not a valid room or item.",
-                            spawn.id, location_id
+                            spawn.id,
+                            location_id
                         );
                     }
                 }
-                None => warn!("{:?} Spawn has no parent", spawn.id),
+                None => log::warn!("{:?} Spawn has no parent", spawn.id),
             };
         } else {
-            debug!("{:?} can not spawn, already own max objects", spawn.id);
+            log::debug!("{:?} can not spawn, already own max objects", spawn.id);
         }
 
         schedule_next_spawn(&mut container.timer, total_time, spawn);
@@ -78,9 +78,11 @@ pub fn run(container: &mut Container) {
         let mob_id = match Loader::spawn_at(container, mob_prefab_id, room_id) {
             Ok(mob_id) => mob_id,
             Err(e) => {
-                warn!(
+                log::warn!(
                     "{:?} fail to spawn a {:?}: {:?}",
-                    spawn_id, mob_prefab_id, e
+                    spawn_id,
+                    mob_prefab_id,
+                    e
                 );
                 continue;
             }
@@ -93,7 +95,7 @@ pub fn run(container: &mut Container) {
 
         let mob_label = container.labels.get_label_f(mob_id);
 
-        debug!("{:?} spawn created {:?} at {:?}", spawn_id, mob_id, room_id);
+        log::debug!("{:?} spawn created {:?} at {:?}", spawn_id, mob_id, room_id);
 
         // TODO: move to ownership system
         let spawn_msg = comm::spawn_mob(mob_label);
@@ -132,5 +134,5 @@ fn add_spawn_to_trigger(timer: &mut Timer, next: TotalTime, spawn_id: SpawnId) {
             obj_id: spawn_id,
         },
     );
-    debug!("{:?} scheduling spawn at {:?}", spawn_id, next);
+    log::debug!("{:?} scheduling spawn at {:?}", spawn_id, next);
 }

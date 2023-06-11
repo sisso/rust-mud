@@ -3,7 +3,7 @@ use crate::errors::{AsResult, Error, Result};
 use crate::game::domain::{Modifier, Rd};
 use crate::game::mob::Damage;
 use commons::*;
-use logs::*;
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -132,7 +132,7 @@ impl ItemRepository {
             panic!()
         }
 
-        debug!("{:?} add item {:?}", item.id, item);
+        log::debug!("{:?} add item {:?}", item.id, item);
 
         // update index
         self.index.insert(item.id, item);
@@ -140,7 +140,7 @@ impl ItemRepository {
 
     pub fn remove(&mut self, item_id: ItemId) -> Option<Item> {
         self.index.remove(&item_id).map(|item| {
-            debug!("{:?} item removed ", item_id);
+            log::debug!("{:?} item removed ", item_id);
             item
         })
     }

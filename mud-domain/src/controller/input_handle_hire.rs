@@ -5,11 +5,10 @@ use crate::game::comm;
 use crate::game::container::Container;
 use crate::game::mob::MobId;
 use crate::utils::strinput::StrInput;
-use logs::*;
 
 pub fn hire(container: &mut Container, mob_id: MobId, input: StrInput) -> Result<()> {
     let location_id = container.locations.get(mob_id).ok_or_else(|| {
-        warn!("{:?} player has no location", mob_id);
+        log::warn!("{:?} player has no location", mob_id);
         container.outputs.private(mob_id, comm::hire_fail());
         Error::InvalidStateFailure
     })?;

@@ -1,6 +1,6 @@
 use crate::errors::{Error, Result};
 use commons::{ObjId, V2};
-use logs::*;
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -23,12 +23,12 @@ impl PosRepo {
     }
 
     pub fn set(&mut self, id: ObjId, value: V2) {
-        info!("{:?} set_pos {:?}", id, value);
+        log::info!("{:?} set_pos {:?}", id, value);
         self.index.insert(id, Pos { id, pos: value });
     }
 
     pub fn remove(&mut self, id: ObjId) -> Option<V2> {
-        info!("{:?} removed", id);
+        log::info!("{:?} removed", id);
         self.index.remove(&id).map(|i| i.pos)
     }
 
@@ -40,7 +40,7 @@ impl PosRepo {
         self.index
             .get_mut(&id)
             .map(|i| {
-                info!("{:?} set_pos {:?}", id, new_pos);
+                log::info!("{:?} set_pos {:?}", id, new_pos);
                 i.pos = new_pos;
                 ()
             })

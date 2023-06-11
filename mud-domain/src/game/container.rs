@@ -33,7 +33,6 @@ use crate::game::vendors::Vendors;
 use crate::game::zone::Zones;
 use crate::game::{item, mob, spawn, system};
 use commons::{DeltaTime, ObjId, PlayerId};
-use logs::*;
 
 use super::repo::*;
 use crate::game::extractable::Extractables;

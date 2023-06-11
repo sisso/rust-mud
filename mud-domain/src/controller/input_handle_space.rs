@@ -12,13 +12,12 @@ use crate::game::space_utils::*;
 use crate::utils::strinput::StrInput;
 use crate::utils::text;
 use commons::{ObjId, PlayerId};
-use logs::*;
 
 pub fn show_startree(container: &mut Container, mob_id: MobId) -> Result<()> {
     let (ship_id, sector_id) = get_ship_and_sector(container, mob_id)?;
     let bodies = find_showsector_bodies(container, sector_id, Some(ship_id));
     let sector_label = container.labels.get_label_f(sector_id);
-    // trace!("{:?} at {:?} on sector {:?} can view {:?}", mob_id, ship_id, sector_id, bodies);
+    // log::trace!("{:?} at {:?} on sector {:?} can view {:?}", mob_id, ship_id, sector_id, bodies);
     let msg = comm::show_sectortree(sector_id, sector_label, &bodies);
     container.outputs.private(mob_id, msg);
     Ok(())

@@ -1,12 +1,9 @@
 [workspace]
 members = [
   "mud-domain",
-  "logs",
   "mud-server",
   "commons",
   "socket-server",
   "http-server",
   "random-stuff"
 ]
-
-exclude=["random-grid"]

@@ -1,7 +1,6 @@
 extern crate mud_domain;
 
 use commons::{ConnectionId, DeltaTime};
-use logs::debug;
 use mud_domain::controller::strip_rich_text;
 use mud_domain::game::container::Container;
 use mud_domain::game::outputs::OMarker;
@@ -37,7 +36,7 @@ impl TestScenery {
             .flush_outputs()
             .into_iter()
             .filter(|(id, msg)| *id == self.connection_id)
-            .map(|(id, msg)| strip_rich_text(msg))
+            .map(|(_, msg)| strip_rich_text(msg))
             .collect()
     }
 
