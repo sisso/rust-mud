@@ -8,6 +8,7 @@ use commons::ObjId;
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 
+/// On change update list() and id()
 pub enum OMarker {
     // normal text
     Plain,
@@ -30,6 +31,8 @@ pub enum OMarker {
     ColorMap2,
     // colorful map, color 3
     ColorMap3,
+    // sensorial, visual, smeling, feelings
+    Sensorial,
 }
 
 impl OMarker {
@@ -45,6 +48,7 @@ impl OMarker {
             OMarker::ColorMap1,
             OMarker::ColorMap2,
             OMarker::ColorMap3,
+            OMarker::Sensorial,
         ]
     }
 
@@ -60,6 +64,7 @@ impl OMarker {
             OMarker::ColorMap1 => "\\cm1",
             OMarker::ColorMap2 => "\\cm2",
             OMarker::ColorMap3 => "\\cm3",
+            OMarker::Sensorial => "\\s",
         }
     }
 

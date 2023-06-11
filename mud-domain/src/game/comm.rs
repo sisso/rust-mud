@@ -107,7 +107,7 @@ pub fn look_description(
         .collect::<Vec<String>>();
 
     if can_exit {
-        exit_list.push("exit".to_string());
+        exit_list.push(OMarker::Code.wrap("exit"));
     }
 
     let exits = exit_list.join(", ");
@@ -622,32 +622,35 @@ pub fn space_needs_to_be_in_space() -> String {
 }
 
 pub fn space_land_started() -> String {
-    "Landing procedures starting, reverting the ship and waiting for retro-burn position"
-        .to_string()
+    OMarker::Sensorial.wrap(
+        "*landing procedures starting, reverting the ship and waiting for retro-burn position*",
+    )
 }
 
 pub fn space_land_retroburn() -> String {
-    "retro-burn started, reducing our PE to landing point, engage engines!".to_string()
+    OMarker::Sensorial
+        .wrap("*retro-burn started, reducing our PE to landing point, engage engines!*")
 }
 
 pub fn space_land_deorbit() -> String {
-    "retro-burn complete, turning ship forward and descending to aero braking altitude".to_string()
+    OMarker::Sensorial
+        .wrap("*retro-burn complete, turning ship forward and descending to aero braking altitude*")
 }
 
 pub fn space_land_aerobraking() -> String {
-    "aerobraking to low altitude speeds".to_string()
+    OMarker::Sensorial.wrap("*aerobraking to low altitude speeds*")
 }
 
 pub fn space_land_approach() -> String {
-    "approaching the landing pad".to_string()
+    OMarker::Sensorial.wrap("*approaching the landing pad*")
 }
 
 pub fn space_land_landing() -> String {
-    "starting landing procedures, preparing for touch down".to_string()
+    OMarker::Sensorial.wrap("*starting landing procedures, preparing for touch down*")
 }
 
 pub fn space_land_complete() -> String {
-    "landing complete".to_string()
+    OMarker::Sensorial.wrap("*landing complete*")
 }
 
 pub fn space_land_complete_others(craft_label: &str) -> String {
@@ -655,31 +658,31 @@ pub fn space_land_complete_others(craft_label: &str) -> String {
 }
 
 pub fn space_launch_prepare() -> String {
-    "preparing for launch".to_string()
+    OMarker::Sensorial.wrap("*preparing for launch*")
 }
 
 pub fn space_launch_ignition() -> String {
-    "ignite main engines, you fell the pressure while ship burns up".to_string()
+    OMarker::Sensorial.wrap("*ignite main engines, you fell the pressure while ship burns up*")
 }
 
 pub fn space_launch_ascending() -> String {
-    "burning horizontally to acquire horizontal speed".to_string()
+    OMarker::Sensorial.wrap("*burning horizontally to acquire horizontal speed*")
 }
 
 pub fn space_launch_burning_circularization() -> String {
-    "desired AP reached, circularizing the orbit".to_string()
+    OMarker::Sensorial.wrap("*desired AP reached, circularizing the orbit*")
 }
 
 pub fn space_launch_failed() -> String {
-    "fail to launch, you can not launch from here".to_string()
+    OMarker::Sensorial.wrap("*fail to launch, you can not launch from here*")
 }
 
 pub fn space_launch_complete() -> String {
-    "launch complete, you are in space now into a stable orbit".to_string()
+    OMarker::Sensorial.wrap("*launch complete, you are in space now into a stable orbit*")
 }
 
 pub fn space_launch_complete_others(_craft_label: &str) -> String {
-    "{} have launched into orbit".to_string()
+    OMarker::Sensorial.wrap("*{} have launched into orbit*")
 }
 
 #[derive(Debug, Clone, Copy)]

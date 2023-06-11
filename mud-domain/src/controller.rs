@@ -542,6 +542,7 @@ pub fn process_rich_text(mut msg: String) -> String {
             OMarker::ColorMap1 => msg = msg.replace(mark.id(), &asciicolors::fg(12)),
             OMarker::ColorMap2 => msg = msg.replace(mark.id(), &asciicolors::fg(11)),
             OMarker::ColorMap3 => msg = msg.replace(mark.id(), &asciicolors::fg(202)),
+            OMarker::Sensorial => msg = msg.replace(mark.id(), &asciicolors::fg(195)),
         }
     }
 
@@ -550,4 +551,15 @@ pub fn process_rich_text(mut msg: String) -> String {
 
 pub fn strip_rich_text(msg: String) -> String {
     OMarker::strip(msg)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_proccess_rich_text() {
+        let s = process_rich_text(OMarker::Sensorial.wrap("*this is cool*"));
+        assert_eq!("\x1B[38;5;195m*this is cool*\u{1b}[0m", s);
+    }
 }
