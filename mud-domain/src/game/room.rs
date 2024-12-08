@@ -11,7 +11,7 @@ pub type RoomId = ObjId;
 pub struct Room {
     pub id: RoomId,
     pub exits: Vec<(Dir, RoomId)>,
-    /// Used to implement Airlock or cave exit
+    /// Used to implement Airlock or cave exit, if player exits, it will move to parent room
     pub can_exit: bool,
 }
 

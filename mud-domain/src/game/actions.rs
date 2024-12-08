@@ -363,10 +363,8 @@ pub struct OutTarget {
     pub target_id: ObjId,
 }
 
-/// Return Some ( object_that_mob_exit, new_location_where_mob_will_be)
 pub fn get_out_target(container: &Container, mob_id: MobId) -> Option<OutTarget> {
     let location_id = container.locations.get(mob_id)?;
-
     let can_exit = container.rooms.get(location_id)?.can_exit;
 
     if !can_exit {
@@ -376,6 +374,7 @@ pub fn get_out_target(container: &Container, mob_id: MobId) -> Option<OutTarget>
     let parents = container.locations.list_parents(location_id);
     let from_id = parents.get(0).cloned()?;
 
+    // search first room in parents
     let target_id = parents
         .iter()
         .filter(|&&id| container.rooms.exists(id))

@@ -9,7 +9,7 @@ use crate::game::inventory::{Inventories, Inventory};
 use crate::game::item::ItemRepository;
 use crate::game::labels::Labels;
 use crate::game::loader::Loader;
-use crate::game::location::Locations;
+use crate::game::location::{LocationId, Locations};
 use crate::game::market::Markets;
 use crate::game::memory::Memories;
 use crate::game::mob::{MobId, MobRepository};
@@ -20,7 +20,7 @@ use crate::game::player::PlayerRepository;
 use crate::game::pos::PosRepo;
 use crate::game::prices::Prices;
 use crate::game::random_rooms::RandomRoomsRepository;
-use crate::game::room::RoomRepository;
+use crate::game::room::{RoomId, RoomRepository};
 use crate::game::ships::Ships;
 use crate::game::spawn::Spawns;
 use crate::game::surfaces::Surfaces;
@@ -30,12 +30,13 @@ use crate::game::tags::Tags;
 use crate::game::timer::*;
 use crate::game::triggers::*;
 use crate::game::vendors::Vendors;
-use crate::game::zone::Zones;
+use crate::game::zone::{ZoneId, Zones};
 use crate::game::{item, mob, spawn, system};
 use commons::{DeltaTime, ObjId, PlayerId};
 
 use super::repo::*;
 use crate::game::extractable::Extractables;
+use crate::game::travel::Travels;
 use serde::{Deserialize, Serialize};
 
 #[macro_export]
@@ -85,6 +86,7 @@ pub struct Container {
     pub inventories: Inventories,
     pub ai: AiRepo,
     pub extractables: Extractables,
+    pub travels: Travels,
 }
 
 impl Container {
@@ -122,6 +124,7 @@ impl Container {
             inventories: Inventories::new(),
             ai: AiRepo::new(),
             extractables: Extractables::new(),
+            travels: Travels::new(),
         }
     }
 
@@ -172,6 +175,13 @@ impl Container {
         let room = self.rooms.get(room_id)?;
 
         Some(PlayerCtx { player, mob, room })
+    }
+
+    pub fn find_zone(&self, room_id: RoomId) -> Option<ZoneId> {
+        let parents = self.locations.list_parents_inclusive(room_id);
+        parents
+            .into_iter()
+            .find(|parent_id| self.zones.get(*parent_id).is_some())
     }
 }
 

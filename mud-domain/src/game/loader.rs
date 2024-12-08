@@ -641,6 +641,7 @@ impl Loader {
             &mut container.ai,
             &mut container.extractables,
             &mut container.inventories,
+            &mut container.travels,
         ];
 
         for loader in loaders {
@@ -1117,6 +1118,10 @@ impl Loader {
             obj_data.extractable = Some(ExtractableData {
                 prefab_id: extracatble.prefab_id,
             });
+        }
+
+        if let Some(travel) = container.travels.get(id) {
+            obj_data.travel = Some(travel.clone());
         }
 
         Ok(obj_data)

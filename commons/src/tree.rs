@@ -100,13 +100,14 @@ impl<K: Hash + Eq + Copy + Clone> Tree<K> {
         buffer
     }
 
+    /// include self
     pub fn parents_inclusive(&self, from: K) -> Vec<K> {
         let mut buffer = vec![from];
         self.find_parents(&mut buffer, from);
         buffer
     }
 
-    /// Not include self
+    /// do not include self
     pub fn parents(&self, from: K) -> Vec<K> {
         let mut buffer = vec![];
         self.find_parents(&mut buffer, from);

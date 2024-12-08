@@ -142,7 +142,7 @@ impl Migration for MigrationV5CleanRandomRooms {
         log::info!("found a random zone id {:?}", random_zone_id.unwrap());
 
         // move all rooms into the zone
-        for (id, data) in &mut data.objects {
+        for (_id, data) in &mut data.objects {
             if !data.room.is_some() {
                 continue;
             }

@@ -151,7 +151,7 @@ fn main() {
 fn print_one(deep: u32, data: &ObjData, is_fail: bool) {
     let prefix = String::from_utf8(vec![b' '; (deep * 2) as usize]).unwrap();
     let mut children_str = "".to_string();
-    for children in &data.children {
+    if let Some(children) = &data.children {
         let mut ids = children.iter().map(|i| i.as_u32()).collect::<Vec<_>>();
         ids.sort();
         children_str = format!(" - {:?}", ids);

@@ -3,6 +3,8 @@ use commons::ObjId;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+pub type ZoneId = ObjId;
+
 /// Hierarchic organization of zones can contains another zones and rooms
 ///
 #[derive(Clone, Debug, Serialize, Deserialize)]

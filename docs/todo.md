@@ -9,21 +9,23 @@
 # Features
 
 - stackable objects from same prefab_id
-- better reference clean up, when a obj is deleted a lot of reference are still being saved to the files and fail to load
-- specs
+- better reference clean up, when aa obj is deleted a lot of reference are still being saved to the files and fail to
+  load
 - memory for the map be shared with player in the case of avatar respawn
-- portal distance 
+- explore command
+- travel command
 - movements points
 - commanding
-  - by "say". "say all follow me", "say mercenary.1 wait here"
+    - by "say". "say all follow me", "say mercenary.1 wait here"
 - teams
+- thirsty and hungry
 - potions and food
 - advanced spawn
     - multiple rooms (zone?, radious?)
     - spawned creatures spawn/walk through rooms
     - flag to never spawn if player is viewing
 - TODO in config checker
-- serialization 
+- serialization
 - crafting
 - level up
     - separate XP that give on kill from accumulated
@@ -33,13 +35,18 @@
 - hire companions or controlled drones
     - owned character vs hired characters
 - persistence save and load
-  - pre-requets to define a proper load and save format
+    - pre-requets to define a proper load and save format
 
 # usability
 
 - fix extra lines in output when look
 - get usability by giving feedback with options when execute a get: get? get what? get what wher? get what in where?
-- there is no server buffering to send and receive messages, if user can not read, is possible that we lose output or stuck
+- there is no server buffering to send and receive messages, if user can not read, is possible that we lose output or
+  stuck
+
+# long term
+
+- memory must be part of player so you can switch avatars without issue
 
 # refactoring
 
@@ -57,9 +64,10 @@
 - normalize StrInput
 - change static_id to strings
 - re-organize code modules
-  - better layering between view commands, game logic, container, etc.
-  - simple channel of Commands in (including ticket) and outputs out. All parsing and serialization of messages need to 
-    be done by controller layer
+    - better layering between view commands, game logic, container, etc.
+    - simple channel of Commands in (including ticket) and outputs out. All parsing and serialization of messages need
+      to
+      be done by controller layer
 - split views, parsing, actions, domain methods and repository
 - use ReadRepo<T> and WriteRepo<T>
 - move room flags as children of room

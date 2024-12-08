@@ -300,7 +300,7 @@ impl MobRepository {
     }
 
     pub fn cancel_command(&mut self, mob_id: MobId) -> Result<()> {
-        let mut mob = self.index.get_mut(&mob_id).as_result()?;
+        let mob = self.index.get_mut(&mob_id).as_result()?;
         mob.command = MobCommand::None;
         mob.state.action = MobAction::None;
         Ok(())

@@ -15,6 +15,7 @@ use crate::game::domain::Dir;
 use crate::game::location::search_at;
 use crate::game::mob::MobId;
 use crate::game::outputs::Outputs;
+use crate::game::zone::Zones;
 use crate::game::{actions, location};
 use crate::game::{actions_admin, inventory_service, mob};
 use crate::utils::strinput::StrInput;
@@ -237,6 +238,8 @@ pub fn handle(mut ctx: ViewHandleCtx, input: &str) -> Result<ConnectionViewActio
 
         _ if input.has_command("extract") => input_handle_extract(container, mob_id, input),
 
+        _ if input.has_command("travel") => input_handle_travel(container, mob_id, input),
+
         _ => {
             container
                 .outputs
@@ -396,4 +399,38 @@ pub fn input_handle_extract(
             Ok(())
         }
     }
+}
+
+pub fn input_handle_travel(container: &mut Container, mob_id: MobId, args: StrInput) -> Result<()> {
+    let location_id = container.locations.get(mob_id).as_result()?;
+    let zone_id = container.find_zone(location_id).as_result()?;
+
+    let Some(travel) = container.travels.get(zone_id) else {
+        container
+            .outputs
+            .private(mob_id, comm::command_travel_not_found());
+        return Ok(());
+    };
+
+    if travel.connections.is_empty() {
+        container
+            .outputs
+            .private(mob_id, comm::command_travel_not_found());
+        return Ok(());
+    }
+
+    let candidates = travel
+        .connections
+        .iter()
+        .map(|connection| {
+            let label = container.labels.get_label_f(connection.zone_id);
+            (label.to_string(), connection.distance)
+        })
+        .collect();
+
+    container
+        .outputs
+        .private(mob_id, comm::command_travel_candidates(candidates));
+
+    Ok(())
 }

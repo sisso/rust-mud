@@ -22,6 +22,7 @@ use crate::game::zone::Zone;
 use commons::csv::FieldKind;
 use commons::{DeltaTime, Either, ObjId, PlayerId, V2};
 
+use crate::game::travel::Travel;
 use rand::random;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -257,6 +258,7 @@ pub struct ObjData {
     pub inventory: Option<InventoryData>,
     pub ai: Option<AiData>,
     pub extractable: Option<ExtractableData>,
+    pub travel: Option<Travel>,
 }
 
 impl ObjData {
@@ -287,6 +289,7 @@ impl ObjData {
             inventory: None,
             ai: None,
             extractable: None,
+            travel: None,
         }
     }
 

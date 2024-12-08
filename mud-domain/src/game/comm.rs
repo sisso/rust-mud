@@ -1171,6 +1171,18 @@ pub fn command_haul_to_not_found(value: &str) -> String {
     )
 }
 
+pub fn command_travel_not_found() -> String {
+    format!("you don't know any place to travel")
+}
+
+pub fn command_travel_candidates(candidates: Vec<(String, f32)>) -> String {
+    let mut buffer = "You can travel to:".to_string();
+    for (label, distance) in candidates {
+        buffer.push_str(&format!("\n- {} ({:.2}mkm)", label, distance));
+    }
+    buffer
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

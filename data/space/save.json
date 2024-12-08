@@ -672,7 +672,16 @@
       "id": 5,
       "label": "Palace zone",
       "parent": 1,
-      "zone": {}
+      "zone": {},
+      "travel": {
+        "id": 5,
+        "connections": [
+          {
+            "zone_id": 53,
+            "distance": 10
+          }
+        ]
+      }
     },
     "50": {
       "desc": "Mineral ores extracted directly from earth",
@@ -731,6 +740,49 @@
       "pos": {
         "x": 1.0,
         "y": 0.0
+      }
+    },
+    "53": {
+      "id": 53,
+      "label": "Oasis",
+      "parent": 1,
+      "zone": {},
+      "travel": {
+        "id": 53,
+        "connections": [
+          {
+            "zone_id": 5,
+            "distance": 10
+          }
+        ]
+      }
+    },
+    "54": {
+      "desc": "An oasis in middle of desert, clear water and shadow from trees",
+      "id": 54,
+      "label": "Oasis",
+      "parent": 53,
+      "room": {
+        "exits": [
+          {
+            "dir": "e",
+            "to": 55
+          }
+        ]
+      }
+    },
+    "55": {
+      "desc": "Rocky mountain over the dunes near of the oasis",
+      "id": 55,
+      "label": "Rocky mountain",
+      "parent": 53,
+      "room": {
+        "exits": [
+          {
+            "dir": "w",
+            "to": 54
+          }
+        ]
       }
     }
   },
@@ -937,12 +989,6 @@
           "robot_civil"
         ]
       }
-    },
-    "44": {
-      "desc": "x",
-      "id": 44,
-      "label": "This is something",
-      "parent": 100002
     },
     "6": {
       "desc": "A normal and boring human being",

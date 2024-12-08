@@ -63,6 +63,7 @@ pub mod timer;
 pub mod triggers;
 pub mod vendors;
 pub mod zone;
+pub mod travel;
 // EOF pub mods
 
 #[derive(Clone, Debug, Deserialize)]
