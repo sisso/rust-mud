@@ -1175,6 +1175,10 @@ pub fn command_travel_not_found() -> String {
     format!("you don't know any place to travel")
 }
 
+pub fn command_travel_target_not_found() -> String {
+    format!("this place is unknown")
+}
+
 pub fn command_travel_candidates(candidates: Vec<(String, f32)>) -> String {
     let mut buffer = "You can travel to:".to_string();
     for (label, distance) in candidates {

@@ -6,6 +6,7 @@ use crate::game::mob::{MobCommand, MobId};
 use crate::game::room::RoomId;
 use commons::ObjId;
 
+use crate::game::loader::LoadingCtx;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -98,7 +99,7 @@ impl AiRepo {
 }
 
 impl CanLoad for AiRepo {
-    fn load(&mut self, obj_id: ObjId, data: &ObjData) -> Result<()> {
+    fn load(&mut self, _references: &LoadingCtx, obj_id: ObjId, data: &ObjData) -> Result<()> {
         if let Some(ai_data) = &data.ai {
             let ai = parse_ai(obj_id, ai_data);
             self.add_or_update(ai).unwrap();

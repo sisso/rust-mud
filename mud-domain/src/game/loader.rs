@@ -645,7 +645,7 @@ impl Loader {
         ];
 
         for loader in loaders {
-            loader.load(obj_id, &data)?;
+            loader.load(references, obj_id, &data)?;
         }
 
         if let Some(children) = data.children.clone() {
@@ -1260,12 +1260,9 @@ impl Loader {
 
         // initialize
         for (id, data) in &objects {
-            Loader::apply_data(
-                container,
-                *loading_ctx.id_map.get(id).unwrap(),
-                data,
-                &mut loading_ctx,
-            )?;
+            let new_id = *loading_ctx.id_map.get(id).unwrap();
+
+            Loader::apply_data(container, new_id, data, &loading_ctx)?;
         }
 
         Ok(loading_ctx)

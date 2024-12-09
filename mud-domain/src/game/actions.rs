@@ -13,9 +13,9 @@ use crate::game::room::RoomRepository;
 use crate::game::space_utils;
 use commons::{ObjId, PlayerId};
 
+use crate::game::zone::ZoneId;
 use std::collections::{HashMap, HashSet};
 use std::process::id;
-
 //#[derive(Debug, Clone)]
 //pub enum Action {
 //    Look,
@@ -806,4 +806,8 @@ mod test {
 
         assert_eq!(room_map.cells, expected);
     }
+}
+
+pub fn travel(container: &mut Container, mob_id: MobId, target_zone_id: ZoneId) -> Result<()> {
+    Err(Error::NotImplementedException)
 }

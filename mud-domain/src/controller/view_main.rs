@@ -419,18 +419,36 @@ pub fn input_handle_travel(container: &mut Container, mob_id: MobId, args: StrIn
         return Ok(());
     }
 
-    let candidates = travel
+    let plain_args = args.plain_arguments();
+    if plain_args == "" {
+        let candidates = travel
+            .connections
+            .iter()
+            .map(|connection| {
+                let label = container.labels.get_label_f(connection.zone_id);
+                (label.to_string(), connection.distance)
+            })
+            .collect();
+
+        container
+            .outputs
+            .private(mob_id, comm::command_travel_candidates(candidates));
+        return Ok(());
+    }
+
+    let ids = travel
         .connections
         .iter()
-        .map(|connection| {
-            let label = container.labels.get_label_f(connection.zone_id);
-            (label.to_string(), connection.distance)
-        })
-        .collect();
+        .map(|connection| connection.zone_id)
+        .collect::<Vec<_>>();
 
-    container
-        .outputs
-        .private(mob_id, comm::command_travel_candidates(candidates));
+    let founds = container.labels.search(&ids, plain_args);
+    if founds.is_empty() {
+        container
+            .outputs
+            .private(mob_id, comm::command_travel_target_not_found());
+        return Err(Error::InvalidArgumentFailure);
+    }
 
-    Ok(())
+    actions::travel(container, mob_id, founds.first().unwrap().clone())
 }

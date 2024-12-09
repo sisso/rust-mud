@@ -1,5 +1,7 @@
 use crate::errors::{Error, Result};
 use crate::game::loader::dto::{CanLoad, CanSnapshot, ObjData};
+use crate::game::loader::LoadingCtx;
+use crate::game::zone::ZoneId;
 use commons::ObjId;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -12,14 +14,12 @@ pub struct TravelingConnection {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Travel {
-    pub id: ObjId,
     pub connections: Vec<TravelingConnection>,
 }
 
 impl Travel {
-    pub fn new(id: ObjId) -> Self {
+    pub fn new() -> Self {
         Travel {
-            id,
             connections: vec![],
         }
     }
@@ -37,16 +37,16 @@ impl Travels {
         }
     }
 
-    pub fn add(&mut self, travel: Travel) -> Result<()> {
-        if self.index.contains_key(&travel.id) {
+    pub fn add(&mut self, id: ObjId, travel: Travel) -> Result<()> {
+        if self.index.contains_key(&id) {
             return Err(Error::ConflictException);
         }
-        self.index.insert(travel.id, travel);
+        self.index.insert(id, travel);
         Ok(())
     }
 
-    pub fn update(&mut self, travel: Travel) -> Result<()> {
-        self.index.insert(travel.id, travel);
+    pub fn update(&mut self, id: ObjId, travel: Travel) -> Result<()> {
+        self.index.insert(id, travel);
         Ok(())
     }
 
@@ -76,11 +76,13 @@ impl Travels {
 }
 
 impl CanLoad for Travels {
-    fn load(&mut self, obj_id: ObjId, data: &ObjData) -> Result<()> {
+    fn load(&mut self, references: &LoadingCtx, obj_id: ObjId, data: &ObjData) -> Result<()> {
         if let Some(travel_data) = &data.travel {
             let mut travel_data = travel_data.clone();
-            travel_data.id = obj_id;
-            self.update(travel_data)
+            for c in &mut travel_data.connections {
+                c.zone_id = references.id_map[&(c.zone_id.into())];
+            }
+            self.update(obj_id, travel_data)
         } else {
             Ok(())
         }

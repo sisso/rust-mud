@@ -1,6 +1,7 @@
 use crate::errors::{Error, Result};
 use crate::game::item::Weight;
 use crate::game::loader::dto::{CanLoad, ObjData};
+use crate::game::loader::LoadingCtx;
 use commons::ObjId;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -83,7 +84,7 @@ impl Inventories {
 }
 
 impl CanLoad for Inventories {
-    fn load(&mut self, obj_id: ObjId, data: &ObjData) -> Result<()> {
+    fn load(&mut self, references: &LoadingCtx, obj_id: ObjId, data: &ObjData) -> Result<()> {
         if let Some(inventory_data) = &data.inventory {
             let mut inv = Inventory::new(obj_id);
             inv.max_weight = inventory_data.max_weight;

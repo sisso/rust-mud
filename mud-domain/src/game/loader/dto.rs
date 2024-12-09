@@ -22,6 +22,7 @@ use crate::game::zone::Zone;
 use commons::csv::FieldKind;
 use commons::{DeltaTime, Either, ObjId, PlayerId, V2};
 
+use crate::game::loader::LoadingCtx;
 use crate::game::travel::Travel;
 use rand::random;
 use serde::{Deserialize, Serialize};
@@ -376,8 +377,9 @@ pub struct ExtractableData {
     pub prefab_id: StaticId,
 }
 
+// TODO: allow to map IDS
 pub trait CanLoad {
-    fn load(&mut self, obj_id: ObjId, data: &ObjData) -> Result<()>;
+    fn load(&mut self, references: &LoadingCtx, obj_id: ObjId, data: &ObjData) -> Result<()>;
 }
 
 pub trait CanSnapshot {
